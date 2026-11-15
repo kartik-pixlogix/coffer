@@ -1,58 +1,205 @@
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-import * as React from "react"
+import { Link } from '@inertiajs/react';
+import type { InertiaLinkProps } from '@inertiajs/react';
+import type { LucideIcon } from 'lucide-react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { Icon, Spinner } from '@/components/ui/icon';
+import { cn } from '@/lib/utils';
 
-import { cn } from "@/lib/utils"
+export type ButtonVariant =
+    | 'primary'
+    | 'secondary'
+    | 'ghost'
+    | 'danger'
+    | 'muted'
+    | 'lime'
+    | 'glass'
+    | 'onDark';
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-  {
-    variants: {
-      variant: {
-        default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
-        outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
+export type ButtonSize = 'lg' | 'md' | 'sm';
 
-function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot : "button"
+type ButtonLookProps = {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    /** Icon inside the lime arrow disc on the right (`cf-btn--disc`), used by the primary pill. */
+    disc?: LucideIcon;
+    /** Icon before the label. */
+    icon?: LucideIcon;
+    loading?: boolean;
+    /** Error outline next to an error message (`.is-error` + `aria-invalid`). */
+    invalid?: boolean;
+    /** `aria-pressed` selection (lime), for toggle buttons. */
+    pressed?: boolean;
+    className?: string;
+    children?: ReactNode;
+};
 
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+const DISC_ICON: Record<ButtonSize, { size: number; stroke: number }> = {
+    lg: { size: 18, stroke: 1.75 },
+    md: { size: 16, stroke: 1.75 },
+    sm: { size: 14, stroke: 2 },
+};
+
+const LEAD_ICON: Record<ButtonSize, number> = { lg: 18, md: 16, sm: 14 };
+
+/** Class list for a `cf-btn`, for elements that can't use <Button>. */
+export function buttonClass({
+    variant = 'secondary',
+    size = 'md',
+    disc,
+    loading,
+    invalid,
+    className,
+}: Pick<
+    ButtonLookProps,
+    'variant' | 'size' | 'disc' | 'loading' | 'invalid' | 'className'
+>): string {
+    return cn(
+        'cf-btn',
+        `cf-btn--${variant}`,
+        size !== 'md' && `cf-btn--${size}`,
+        disc && 'cf-btn--disc',
+        loading && 'is-loading',
+        invalid && 'is-error',
+        className,
+    );
 }
 
-export { Button, buttonVariants }
+function ButtonContent({
+    size = 'md',
+    disc,
+    icon,
+    loading,
+    children,
+}: Pick<ButtonLookProps, 'size' | 'disc' | 'icon' | 'loading' | 'children'>) {
+    if (disc) {
+        return (
+            <>
+                {icon && (
+                    <Icon
+                        icon={icon}
+                        size={LEAD_ICON[size]}
+                        strokeWidth={1.75}
+                    />
+                )}
+                {children}
+                <span className="cf-disc">
+                    {loading ? (
+                        <Spinner />
+                    ) : (
+                        <Icon
+                            icon={disc}
+                            size={DISC_ICON[size].size}
+                            strokeWidth={DISC_ICON[size].stroke}
+                        />
+                    )}
+                </span>
+            </>
+        );
+    }
+
+    return (
+        <>
+            {loading ? (
+                <Spinner />
+            ) : (
+                icon && (
+                    <Icon
+                        icon={icon}
+                        size={LEAD_ICON[size]}
+                        strokeWidth={1.75}
+                    />
+                )
+            )}
+            {children}
+        </>
+    );
+}
+
+export type ButtonProps = ButtonLookProps &
+    Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'className'>;
+
+/**
+ * Design-system Button. One graphite `primary` pill with a `disc` per view; `secondary`
+ * next, `ghost` low emphasis, `danger` for destructive actions only.
+ */
+export function Button({
+    variant = 'secondary',
+    size = 'md',
+    disc,
+    icon,
+    loading = false,
+    invalid = false,
+    pressed,
+    className,
+    children,
+    type = 'button',
+    disabled,
+    ...rest
+}: ButtonProps) {
+    return (
+        <button
+            type={type}
+            className={buttonClass({
+                variant,
+                size,
+                disc,
+                loading,
+                invalid,
+                className,
+            })}
+            disabled={disabled}
+            aria-busy={loading || undefined}
+            aria-invalid={invalid || undefined}
+            aria-pressed={pressed}
+            {...rest}
+        >
+            <ButtonContent
+                size={size}
+                disc={disc}
+                icon={icon}
+                loading={loading}
+            >
+                {children}
+            </ButtonContent>
+        </button>
+    );
+}
+
+export type ButtonLinkProps = Omit<
+    ButtonLookProps,
+    'loading' | 'invalid' | 'pressed'
+> &
+    Omit<InertiaLinkProps, 'children' | 'className' | 'size'>;
+
+/** A link that looks like a Button (Inertia navigation). */
+export function ButtonLink({
+    variant = 'secondary',
+    size = 'md',
+    disc,
+    icon,
+    className,
+    children,
+    ...rest
+}: ButtonLinkProps) {
+    return (
+        <Link
+            className={buttonClass({ variant, size, disc, className })}
+            {...rest}
+        >
+            <ButtonContent size={size} disc={disc} icon={icon}>
+                {children}
+            </ButtonContent>
+        </Link>
+    );
+}
+
+/** Inline text action (`cf-link`), e.g. "Forgot password?". */
+export function TextButton({
+    className,
+    type = 'button',
+    ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
+    return (
+        <button type={type} className={cn('cf-link', className)} {...rest} />
+    );
+}

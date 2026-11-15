@@ -33,6 +33,10 @@ export default defineConfig({
             ],
         },
     },
+    test: {
+        include: ['resources/js/**/*.test.{ts,tsx}'],
+        environment: 'node',
+    },
     lint: {
         ignorePatterns: [
             'design/**',
@@ -42,7 +46,7 @@ export default defineConfig({
             'bootstrap/ssr/**',
             'tailwind.config.js',
             'resources/js/actions/**',
-            'resources/js/components/ui/*',
+            'resources/js/components/shadcn/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
         ],
@@ -65,7 +69,7 @@ export default defineConfig({
             '*.md',
             '.github/**',
             'composer.json',
-            'resources/js/components/ui/*',
+            'resources/js/components/shadcn/*',
             'resources/views/mail/*',
         ],
         sortTailwindcss: {

@@ -7,7 +7,7 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/components/ui/card';
+} from '@/components/shadcn/card';
 import { home } from '@/routes';
 
 export default function AuthCardLayout({

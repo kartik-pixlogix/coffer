@@ -12,7 +12,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@/components/shadcn/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
