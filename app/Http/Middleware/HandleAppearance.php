@@ -1,22 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
+use App\Enums\Theme;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
-class HandleAppearance
+final class HandleAppearance
 {
     /**
-     * Handle an incoming request.
+     * Share the theme with the root view so `data-theme` is right on first paint.
+     * The user's saved theme wins, then the theme cookie; null means "follow the OS",
+     * which the inline head script resolves before the page draws.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        $user = $request->user();
+        $cookie = $request->cookie(Theme::COOKIE);
+
+        $theme = $user instanceof User && $user->theme !== null
+            ? $user->theme
+            : (is_string($cookie) ? Theme::tryFrom($cookie) : null);
+
+        View::share('theme', $theme?->value);
 
         return $next($request);
     }
