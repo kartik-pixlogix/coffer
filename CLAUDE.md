@@ -32,9 +32,9 @@ Never edit anything under `design/`. It is a read-only reference.
   - Radix primitives (via shadcn/ui) are used only for behaviour and accessibility (Dialog, Popover, DropdownMenu, Tooltip, Tabs). Restyle them with `cf-*` classes and never ship shadcn's default look.
 - **UI libraries:** Recharts for charts, `lucide-react` icons at `strokeWidth={1.5}`, and `motion` (Framer Motion) for animation.
 - **Database:**
-  - PostgreSQL 16 is the default. Keep migrations portable to MySQL 8: no PG-only column types or SQL.
+  - MySQL 8 is the default (D3); MariaDB 10.4+ (XAMPP) is fine locally. Keep migrations portable to PostgreSQL 16: no engine-specific column types or SQL. Tests run against the `coffer_testing` database, not SQLite.
   - Redis for queues and cache, with Laravel Horizon. Locally, the `database` queue driver is fine.
-- **Tests and tooling:** Pest for tests, Laravel Pint, ESLint + Prettier, and `tsc --noEmit` in CI.
+- **Tests and tooling:** Pest for tests, Laravel Pint and Larastan, Vite+ `vp check` (oxlint + oxfmt, the starter kit's ESLint/Prettier replacement, D15), and `tsc --noEmit` in CI.
 - **Packages:**
   - **Access and audit:** `spatie/laravel-permission` with the teams feature (team = company), and `spatie/laravel-activitylog`.
   - **Files and exports:** `maatwebsite/excel` or `spatie/simple-excel` for CSV/XLSX, and `spatie/laravel-pdf` or `barryvdh/laravel-dompdf` for PDF exports.
@@ -97,6 +97,8 @@ Never edit anything under `design/`. It is a read-only reference.
 - **Git:** small commits per step. Conventional messages, e.g. `feat(expenses): split payers`.
 
 ## Commands
+
+PHP 8.3+ must come first on PATH. On this machine XAMPP's PHP 8.2 is first; use the winget PHP 8.4 (`%LOCALAPPDATA%\Microsoft\WinGet\Packages\PHP.PHP.NTS.8.4_*`).
 
 - `composer run dev` starts the app, queue and Vite.
 - `php artisan test` runs the tests (Pest).
