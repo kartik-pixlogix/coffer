@@ -131,10 +131,9 @@ export function NavRail({
             aria-label={rest['aria-label'] ?? 'Main'}
             style={style}
         >
-            {/* `text-on-lime`: bundle.css's `.cf a{color:var(--ink)}` outranks the logo colour. */}
             <Link
                 href={homeHref}
-                className="cf-rail-logo text-on-lime hover:text-on-lime"
+                className="cf-rail-logo"
                 aria-label="Coffer home"
             >
                 C

@@ -64,7 +64,7 @@ Never edit anything under `design/`. It is a read-only reference.
 
 ## Design implementation rules
 
-- **Stylesheet:** copy `design/design-system/components/bundle.css` to `resources/css/coffer-ui.css` and import it from `app.css`.
+- **Stylesheet:** `resources/css/coffer-ui.css` is generated from `design/design-system/components/bundle.css` with `npm run ui:css` (D22: same rules, component selectors boosted above the bundle's element resets) and imported from `app.css` in the components layer. Never hand-edit it.
   - The root element gets `class="cf" data-theme="light|dark"`.
   - Store the theme per user, with a `localStorage` fallback, and toggle it from the top bar.
   - Map the tokens into a Tailwind v4 `@theme` block so utilities use the same CSS variables. Never hard-code colours, fonts, radii or spacing that aren't tokens.

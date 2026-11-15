@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { Moon, Sun } from 'lucide-react';
 import { Fragment } from 'react';
 import type { GalleryGroup, GallerySection } from '@/components/gallery/types';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { IconButton } from '@/components/ui/icon-button';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -43,13 +44,12 @@ export default function UiGallery() {
                 <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
                     <header className="cf-pagehead">
                         <div>
-                            <nav aria-label="Breadcrumb">
-                                <ol className="cf-crumbs">
-                                    <li>Coffer</li>
-                                    <li aria-hidden="true">/</li>
-                                    <li aria-current="page">UI kit</li>
-                                </ol>
-                            </nav>
+                            <Breadcrumb
+                                items={[
+                                    { label: 'Coffer' },
+                                    { label: 'UI kit' },
+                                ]}
+                            />
                             <h1 className="cf-h1">
                                 <span className="t-display-light">
                                     Design system

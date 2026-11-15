@@ -19,7 +19,7 @@ import {
 import type { SearchableItem } from '@/components/ui/command-palette-search';
 import { Icon } from '@/components/ui/icon';
 import { SCRIM_CLASS } from '@/components/ui/modal';
-import { cn } from '@/lib/utils';
+import { cn, scrollIntoViewWithin } from '@/lib/utils';
 
 export type CommandItem = SearchableItem & {
     icon?: LucideIcon;
@@ -106,9 +106,10 @@ function CommandPaletteBody({
         flat.length === 0 ? -1 : Math.min(active, flat.length - 1);
 
     useEffect(() => {
-        listRef.current
-            ?.querySelector('[aria-selected="true"]')
-            ?.scrollIntoView({ block: 'nearest' });
+        scrollIntoViewWithin(
+            listRef.current,
+            listRef.current?.querySelector('[aria-selected="true"]') ?? null,
+        );
     }, [activeIndex]);
 
     const choose = (item: CommandItem) => {

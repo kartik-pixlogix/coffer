@@ -16,7 +16,7 @@ import { Field, useFieldIds } from '@/components/ui/field';
 import type { FieldMessageProps } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
 import { InputSpinner } from '@/components/ui/text-input';
-import { cn } from '@/lib/utils';
+import { cn, scrollIntoViewWithin } from '@/lib/utils';
 
 export type ComboboxOption = FilterableOption & {
     value: string;
@@ -200,9 +200,13 @@ export function Combobox({
 
     useEffect(() => {
         if (activeResult) {
-            document
-                .getElementById(optionId(activeResult.index))
-                ?.scrollIntoView({ block: 'nearest' });
+            const option = document.getElementById(
+                optionId(activeResult.index),
+            );
+            scrollIntoViewWithin(
+                option?.closest<HTMLElement>('[role="listbox"]') ?? null,
+                option,
+            );
         }
     });
 

@@ -47,13 +47,8 @@ function ItemContent({ entry }: { entry: MenuItemEntry }) {
     );
 }
 
-/* `text-negative` repeats the danger colour: bundle.css's `.cf button{color:inherit}` outranks it. */
 const itemClass = (entry: MenuItemEntry, className?: string) =>
-    cn(
-        'cf-menu-item',
-        entry.danger && 'cf-menu-item--danger text-negative',
-        className,
-    );
+    cn('cf-menu-item', entry.danger && 'cf-menu-item--danger', className);
 
 export type MenuPanelProps = {
     entries: MenuEntry[];

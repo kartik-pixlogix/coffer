@@ -157,10 +157,9 @@ export function ToastView({
             </span>
             {children}
             {action && (
-                // `text-lime` repeats the action colour: `.cf button{color:inherit}` outranks it.
                 <button
                     type="button"
-                    className="cf-toast-action text-lime"
+                    className="cf-toast-action"
                     onClick={() => {
                         action.onClick();
                         onDismiss?.();

@@ -1,7 +1,6 @@
-import { Link } from '@inertiajs/react';
-import { Fragment } from 'react';
 import type { ReactNode } from 'react';
 import { useShell } from '@/components/shell/shell-context';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export type Crumb = {
     title: string;
@@ -28,43 +27,20 @@ export function PageHeader({
     actions,
 }: PageHeaderProps) {
     const { workspace, currentCompany } = useShell();
-    const trail: Crumb[] = [
-        { title: workspace.name },
-        { title: currentCompany.name },
-        ...crumbs,
-    ];
 
     return (
         <section className="cf-pagehead">
             <div>
-                <nav aria-label="Breadcrumb">
-                    <ol className="cf-crumbs">
-                        {trail.map((crumb, index) => {
-                            const last = index === trail.length - 1;
-
-                            return (
-                                <Fragment key={`${crumb.title}-${index}`}>
-                                    {index > 0 && <li aria-hidden="true">/</li>}
-                                    {last ? (
-                                        <li aria-current="page">
-                                            {crumb.title}
-                                        </li>
-                                    ) : (
-                                        <li>
-                                            {crumb.href ? (
-                                                <Link href={crumb.href}>
-                                                    {crumb.title}
-                                                </Link>
-                                            ) : (
-                                                crumb.title
-                                            )}
-                                        </li>
-                                    )}
-                                </Fragment>
-                            );
-                        })}
-                    </ol>
-                </nav>
+                <Breadcrumb
+                    items={[
+                        { label: workspace.name },
+                        { label: currentCompany.name },
+                        ...crumbs.map((c) => ({
+                            label: c.title,
+                            href: c.href,
+                        })),
+                    ]}
+                />
                 <h1 className="cf-h1">
                     {kicker && (
                         <span className="t-display-light">{kicker}</span>
