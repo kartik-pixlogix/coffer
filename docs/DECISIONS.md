@@ -22,3 +22,6 @@ Add a line whenever something is decided or changed. `[VERIFY]` means the produc
 | D16 | Fonts are self-hosted with `@fontsource` (not Google Fonts as the design README says), so the CSP can stay `font-src 'self'`. | Decided |
 | D17 | Theme: light or dark, stored per user (`users.theme`) with a `localStorage` + cookie fallback. Until a user picks one, the OS preference is used. | Decided |
 | D18 | Nav rail items for modules not built yet render disabled, with the reason in the label, until their phase ships. | Decided |
+| D19 | Charts are plain React (SVG, divs and CSS conic-gradient) reproducing the design-system chart markup exactly (`cf-bar` buttons, conic donut, hand-drawn area SVG with crosshair). Recharts is not used: it can't produce the design's markup or keyboard-reachable bars. | Decided (owner delegated) |
+| D20 | The starter kit's shadcn components live in `components/shadcn/` only until Phase 2 rebuilds the auth and settings pages; `components/ui/` holds the Coffer kit. Icons render through `<Icon>` (lucide drawn as the design's `svg.ic`). | Decided |
+| D21 | Front-end unit tests use Vitest through Vite+ (`npm test` = `vp test`), pure logic only; no DOM test library added. | Decided |

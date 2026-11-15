@@ -1,53 +1,54 @@
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Bell } from 'lucide-react';
+import type { ButtonHTMLAttributes, Ref } from 'react';
+import { Icon } from '@/components/ui/icon';
+import { NotificationPopover } from '@/components/ui/notification-panel';
+import type { NotificationItem } from '@/components/ui/notification-panel';
 import { placeholderUnreadNotifications } from '@/lib/placeholder-shell';
 
+/** Phase 8 fills this from the server (spec: notifications). */
+const items: NotificationItem[] = [];
+
+type BellProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+    unread: number;
+    ref?: Ref<HTMLButtonElement>;
+};
+
+/** 54px bell with the unread badge; spreads the props Radix passes through `asChild`. */
+function Bell54({ unread, ...rest }: BellProps) {
+    return (
+        <button
+            type="button"
+            className="cf-iconbtn cf-iconbtn--lg"
+            aria-label={
+                unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'
+            }
+            {...rest}
+        >
+            <Icon icon={Bell} size={22} />
+            {unread > 0 && (
+                <span
+                    className="cf-badge"
+                    style={{ top: 7, right: 7, border: 0 }}
+                    aria-hidden="true"
+                >
+                    {unread}
+                </span>
+            )}
+        </button>
+    );
+}
+
 /**
- * Top-bar bell. Phase 0 stub: shows the unread badge and an empty panel.
- * Phase 8 replaces it with the NotificationPanel (filters, inline actions).
+ * Top-bar bell opening the NotificationPanel. Phase 1: an empty list with the
+ * placeholder unread count; Phase 8 wires real notifications and Mark all read.
  */
 export function NotificationsButton() {
     const unread = placeholderUnreadNotifications;
-    const label =
-        unread > 0 ? `Notifications, ${unread} unread` : 'Notifications';
 
     return (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger
-                className="cf-iconbtn cf-iconbtn--lg"
-                aria-label={label}
-            >
-                <Bell size={22} strokeWidth={1.5} aria-hidden="true" />
-                {unread > 0 && (
-                    <span
-                        className="cf-badge"
-                        style={{
-                            top: 7,
-                            right: 7,
-                            border: 0,
-                        }}
-                        aria-hidden="true"
-                    >
-                        {unread}
-                    </span>
-                )}
-            </DropdownMenu.Trigger>
-
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    align="end"
-                    sideOffset={8}
-                    className="cf-pop cf-menu z-40 w-[320px]"
-                >
-                    <DropdownMenu.Label className="cf-menu-label">
-                        Notifications
-                    </DropdownMenu.Label>
-                    <p className="t-body t-muted m-0 px-[10px] pt-1 pb-3">
-                        Approvals, vault alerts and settlement reminders will
-                        show up here.
-                    </p>
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+        <NotificationPopover
+            items={items}
+            trigger={<Bell54 unread={unread} />}
+        />
     );
 }

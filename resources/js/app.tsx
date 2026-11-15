@@ -1,11 +1,19 @@
 import { createInertiaApp } from '@inertiajs/react';
-import { Toaster } from '@/components/shadcn/sonner';
-import { TooltipProvider } from '@/components/shadcn/tooltip';
+import { ToastProvider } from '@/components/ui/toast';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { useFlashToast } from '@/hooks/use-flash-toast';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Coffer';
+
+/** Turns flashed `toast` data from the server into toasts. */
+function FlashToasts() {
+    useFlashToast();
+
+    return null;
+}
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -25,9 +33,11 @@ void createInertiaApp({
     strictMode: true,
     withApp(app) {
         return (
-            <TooltipProvider delayDuration={0}>
-                {app}
-                <Toaster />
+            <TooltipProvider>
+                <ToastProvider>
+                    {app}
+                    <FlashToasts />
+                </ToastProvider>
             </TooltipProvider>
         );
     },

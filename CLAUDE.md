@@ -30,7 +30,7 @@ Never edit anything under `design/`. It is a read-only reference.
   - Tailwind CSS v4 for layout utilities.
   - Component styling comes from the design system's `bundle.css`, with its `cf-*` and `t-*` classes.
   - Radix primitives (via shadcn/ui) are used only for behaviour and accessibility (Dialog, Popover, DropdownMenu, Tooltip, Tabs). Restyle them with `cf-*` classes and never ship shadcn's default look.
-- **UI libraries:** Recharts for charts, `lucide-react` icons at `strokeWidth={1.5}`, and `motion` (Framer Motion) for animation.
+- **UI libraries:** charts are plain React per the design markup (D19, no Recharts), `lucide-react` icons at `strokeWidth={1.5}`, and `motion` (Framer Motion) for animation.
 - **Database:**
   - MySQL 8 is the default (D3); MariaDB 10.4+ (XAMPP) is fine locally. Keep migrations portable to PostgreSQL 16: no engine-specific column types or SQL. Tests run against the `coffer_testing` database, not SQLite.
   - Redis for queues and cache, with Laravel Horizon. Locally, the `database` queue driver is fine.
