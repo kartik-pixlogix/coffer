@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Create company, single</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.cf-seg a.cf-seg-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div style="max-width: 1400px; margin: 0 auto; padding: 20px 40px 40px; border-radius: 24px; background: var(--surface); display: flex; flex-direction: column; gap: 24px;">
+
+<header class="cf-topbar">
+<a href="Main.dc.html" class="cf-wordmark" style="display: flex; align-items: center; gap: 10px;"><span class="cf-rail-logo" aria-hidden="true">C</span>Coffer</a>
+<ol class="cf-stepper" aria-label="Create company">
+<li class="cf-step" aria-current="step"><span class="cf-step-n">1</span>Company &amp; partners</li>
+<li class="cf-step-line" aria-hidden="true"></li>
+<li class="cf-step"><span class="cf-step-n">2</span>Team</li>
+<li class="cf-step-line" aria-hidden="true"></li>
+<li class="cf-step"><span class="cf-step-n">3</span>Review &amp; launch</li>
+</ol>
+<div class="cf-topbar-r">
+<a href="Main.dc.html" class="cf-btn cf-btn--ghost">Save and exit</a>
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"></path></svg></sc-if></button>
+</div>
+</header>
+
+<section class="cf-pagehead">
+<div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Vertex Group</li><li aria-hidden="true">/</li><li>New company</li><li aria-hidden="true">/</li><li aria-current="page">Step 1 of 3</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Create company</span><span class="t-display">Company &amp; partners</span></h1>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+<form style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 16px;" onSubmit="{{noop}}">
+
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="cc-co">
+<h2 id="cc-co" class="cf-dot-title t-title">Company</h2>
+<div class="cf-field"><span class="cf-label" id="cc-type">Type</span>
+<div class="cf-seg" role="group" aria-labelledby="cc-type" style="max-width: 420px;"><button type="button" class="cf-seg-btn" aria-pressed="true">Single company</button><a href="CreateCompanyJV.dc.html" class="cf-seg-btn" aria-pressed="false">Joint venture</a></div>
+<span class="cf-help">A single company has its own partners. A joint venture pools two or more companies (sides).</span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<div class="cf-field"><label class="cf-label" for="cc-name">Company name</label><input id="cc-name" class="cf-input" type="text" value="{{company}}" onChange="{{onCompany}}" /></div>
+<div class="cf-field"><label class="cf-label" for="cc-code">Short code</label><input id="cc-code" class="cf-input" type="text" value="{{code}}" onChange="{{onCode}}" aria-describedby="cc-code-m" style="font-family: var(--font-mono); text-transform: uppercase;" /><span id="cc-code-m" class="cf-help">2–6 letters, used on avatars and exports.</span></div>
+<div class="cf-field"><label class="cf-label" for="cc-open">Opening balance</label><span class="cf-inwrap"><span class="cf-prefix" aria-hidden="true">₹</span><input id="cc-open" type="text" inputmode="numeric" value="{{opening}}" onChange="{{onOpening}}" style="font-family: var(--font-mono); font-variant-numeric: tabular-nums;" aria-describedby="cc-open-m" /></span><span id="cc-open-m" class="cf-help">Cash in the company’s accounts on 1 Apr 2026. You can change it later in Settings.</span></div>
+<div class="cf-field"><label class="cf-label" for="cc-cur">Currency</label><span class="cf-select"><select id="cc-cur"><option>INR — Indian rupee (₹)</option><option>USD — US dollar ($)</option><option>AED — UAE dirham</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></span></div>
+</div>
+</section>
+
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 14px;" aria-labelledby="cc-pt">
+<div class="cf-kv" style="flex-wrap: wrap;"><h2 id="cc-pt" class="cf-dot-title t-title">Partners &amp; equity</h2><span role="status" class="cf-pill {{totalPill}}" style="height: 28px; font-size: 13px;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="{{totalIcon}}"></path></svg>Total: <span class="t-money-sm" style="font-size: 13px;">{{totalText}}</span></span></div>
+<div class="t-caption t-muted" style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 150px 150px 40px; gap: 10px; padding: 0 2px;" aria-hidden="true"><span>Colour</span><span>Name</span><span>Role</span><span style="text-align: right;">Equity</span><span></span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="2">
+<div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 150px 150px 40px; gap: 10px; align-items: center;">
+<button type="button" class="cf-iconbtn" onClick="{{r.cycle}}" aria-label="{{r.colorLabel}}" title="Change colour"><span style="width: 14px; height: 14px; border-radius: 9999px; background: {{r.dot}};"></span></button>
+<input class="cf-input cf-input--sm" type="text" value="{{r.name}}" onChange="{{r.onName}}" aria-label="{{r.nameLabel}}" />
+<span class="cf-select"><select value="{{r.role}}" onChange="{{r.onRole}}" aria-label="{{r.roleLabel}}" style="height: 40px; padding-left: 12px;"><option>Admin</option><option>Partner</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></span>
+<span class="cf-inwrap cf-inwrap--sm {{eqClass}}"><input type="text" inputmode="decimal" value="{{r.eq}}" onChange="{{r.onEq}}" aria-label="{{r.eqLabel}}" aria-invalid="{{invalid}}" style="text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums;" /><span class="cf-prefix" aria-hidden="true" style="margin-right: 8px;">%</span></span>
+<button type="button" class="cf-iconbtn cf-iconbtn--bare" onClick="{{r.remove}}" disabled="{{r.locked}}" aria-label="{{r.removeLabel}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"></path></svg></button>
+</div>
+</sc-for>
+<sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}">
+<div class="cf-alert cf-alert--neg cf-alert--slim" role="alert"><div class="cf-alert-main" style="flex-basis: 260px;"><span class="cf-alert-ic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"></path></svg></span><span class="t-body">{{errorText}}</span></div></div>
+</sc-if>
+<div class="cf-kv" style="flex-wrap: wrap;"><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm" onClick="{{addRow}}"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add partner</button><button type="button" class="cf-link" onClick="{{even}}">Even split</button></div>
+</section>
+</form>
+
+<aside class="cf-card" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 14px;" aria-label="Equity split">
+<h2 class="cf-dot-title t-title">Equity split</h2>
+<div style="display: flex; height: 14px; border-radius: 9999px; overflow: hidden; gap: 2px; background: var(--surface-muted);" role="img" aria-label="{{splitLabel}}">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="2"><span style="width: {{r.width}}; background: {{r.dot}};"></span></sc-for>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="2"><li class="cf-kv t-body"><span class="cf-row"><span class="cf-swatch" style="background: {{r.dot}};"></span>{{r.name}} <span class="t-muted">· {{r.role}}</span></span><span class="t-money-sm">{{r.eqShow}}%</span></li></sc-for>
+</ul>
+<div class="cf-divider"></div>
+<p class="t-body t-muted" style="margin: 0;">Equity sets each partner’s share of profit, the capital-account split and who owes whom at settlement. Admins can also change billing and settings.</p>
+</aside>
+</div>
+
+<footer style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--line);">
+<a href="SignUp.dc.html" class="cf-btn cf-btn--secondary cf-btn--lg"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back</a>
+<sc-if value="{{valid}}" hint-placeholder-val="{{ true }}"><a href="CreateCompanySteps.dc.html" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc">Next: team<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a></sc-if>
+<sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="cf-row"><span class="t-caption t-muted">Equity must total 100% to continue</span><button type="button" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc" disabled>Next: team<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></button></span></sc-if>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["Total is 100%","Total not 100%"],"default":"Total is 100%","section":"State"},"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, tick: 0, company: 'Vertex Labs Pvt Ltd', code: 'VL', opening: '2,50,000' };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  rowsNow() {
+    const key = this.props.state || 'Total is 100%';
+    if (this.stateSeen !== key) {
+      this.stateSeen = key;
+      const bad = key === 'Total not 100%';
+      this.rows = [
+        { id: 1, name: 'Aarav Mehta', role: 'Admin', eq: '60.00', color: 1 },
+        { id: 2, name: 'Ishita Rao', role: 'Partner', eq: bad ? '35.00' : '40.00', color: 2 }
+      ];
+      this.nextId = 3;
+    }
+    return this.rows;
+  }
+
+  update(id, patch) {
+    this.rows = this.rowsNow().map((r) => (r.id === id ? Object.assign({}, r, patch) : r));
+    this.setState({ tick: this.state.tick + 1 });
+  }
+
+  digits(n) {
+    const s = String(Math.round(Math.abs(n)));
+    if (s.length <= 3) return s;
+    return s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + s.slice(-3);
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const rows = this.rowsNow();
+    const S = this.state;
+    const num = (v) => { const n = parseFloat(String(v).replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+    const total = rows.reduce((a, r) => a + num(r.eq), 0);
+    const valid = Math.abs(total - 100) < 0.005;
+    const gap = 100 - total;
+    const view = rows.map((r) => ({
+      name: r.name || 'New partner', role: r.role, eq: r.eq, eqShow: num(r.eq).toFixed(2),
+      dot: 'var(--partner-' + r.color + ')', width: Math.max(0, num(r.eq)) + '%',
+      colorLabel: 'Colour for ' + (r.name || 'new partner') + ': partner colour ' + r.color,
+      nameLabel: 'Partner name', roleLabel: 'Role for ' + (r.name || 'new partner'), eqLabel: 'Equity for ' + (r.name || 'new partner'),
+      removeLabel: 'Remove ' + (r.name || 'new partner'), locked: rows.length < 2,
+      cycle: () => this.update(r.id, { color: (r.color % 6) + 1 }),
+      onName: (e) => this.update(r.id, { name: e.target.value }),
+      onRole: (e) => this.update(r.id, { role: e.target.value }),
+      onEq: (e) => this.update(r.id, { eq: e.target.value }),
+      remove: () => { this.rows = rows.filter((x) => x.id !== r.id); this.setState({ tick: S.tick + 1 }); }
+    }));
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      noop: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      company: S.company, onCompany: (e) => this.setState({ company: e.target.value }),
+      code: S.code, onCode: (e) => this.setState({ code: String(e.target.value).toUpperCase().slice(0, 6) }),
+      opening: S.opening, onOpening: (e) => this.setState({ opening: this.digits(Number(String(e.target.value).replace(/[^0-9]/g, '')) || 0) }),
+      rows: view,
+      totalText: total.toFixed(2) + '%', valid: valid, invalid: !valid,
+      totalPill: valid ? 'cf-pill--pos' : 'cf-pill--neg',
+      totalIcon: valid ? 'M5 12.5l4.5 4.5L19 7.5' : 'M12 4.5l8.5 15h-17zM12 10v4M12 17h.01',
+      eqClass: valid ? '' : 'is-error',
+      errorText: gap > 0 ? 'Equity adds up to ' + total.toFixed(2) + '%. Add ' + gap.toFixed(2) + '% so it totals 100%.' : 'Equity adds up to ' + total.toFixed(2) + '%. Remove ' + (-gap).toFixed(2) + '% so it totals 100%.',
+      splitLabel: 'Equity split: ' + view.map((r) => r.name + ' ' + r.eqShow + '%').join(', '),
+      addRow: () => { this.rows = rows.concat([{ id: this.nextId++, name: '', role: 'Partner', eq: '0.00', color: (rows.length % 6) + 1 }]); this.setState({ tick: S.tick + 1 }); },
+      even: () => { const n = rows.length; const each = Math.floor(10000 / n) / 100; this.rows = rows.map((r, i) => Object.assign({}, r, { eq: (i === 0 ? (100 - each * (n - 1)) : each).toFixed(2) })); this.setState({ tick: S.tick + 1 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

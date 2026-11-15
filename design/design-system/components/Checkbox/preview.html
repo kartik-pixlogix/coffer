@@ -1,0 +1,28 @@
+<!-- @dsCard group="Forms" height=280 width=1200 subtitle="Multi-select, row selection and consent" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Checkbox</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(2,minmax(0,1fr))}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<label class="cf-check"><input class="cf-sr" type="checkbox"><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Remember me</span></label>
+<label class="cf-check"><input class="cf-sr" type="checkbox" checked><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Billable</span></label>
+<label class="cf-check is-hover"><input class="cf-sr" type="checkbox"><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Hover</span></label>
+<label class="cf-check is-focus"><input class="cf-sr" type="checkbox" checked><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Focus</span></label>
+<label class="cf-check"><input class="cf-sr" type="checkbox" disabled><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Disabled</span></label>
+<label class="cf-check"><input class="cf-sr" type="checkbox" checked disabled><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Disabled checked</span></label>
+<label class="cf-check"><input class="cf-sr" type="checkbox" checked><span class="cf-check-box" style="background:var(--ink);border-color:var(--ink)"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5;opacity:1" aria-hidden="true"><path d="M6 12h12"/></svg></span><span>Some rows selected</span></label>
+<div class="cf-field"><label class="cf-check is-error"><input class="cf-sr" type="checkbox" aria-invalid="true" aria-describedby="ck-e"><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>I agree to the Terms</span></label><span id="ck-e" class="cf-errtext">Agree to the Terms to start your trial.</span></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

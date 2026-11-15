@@ -1,0 +1,34 @@
+<!-- @dsCard group="Navigation" height=330 width=1200 subtitle="Rail items · default, hover, focus, active, with badge, disabled" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nav rail</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(6,minmax(0,1fr));justify-items:center;text-align:center}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<span class="pv-state">Default</span><span class="pv-state">Hover</span><span class="pv-state">Focus</span><span class="pv-state">Active</span><span class="pv-state">Badge</span><span class="pv-state">Disabled</span>
+<a href="#" class="cf-rail-item" aria-label="Timesheets"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8"/></svg></a>
+<a href="#" class="cf-rail-item is-hover" aria-label="Income"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.5l5-5 3.5 3.5L20 7.5M15 7.5h5v5"/></svg></a>
+<a href="#" class="cf-rail-item is-focus" aria-label="Reports"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16.5v-4M11 16.5V7M15 16.5v-6M19 16.5V9.5"/></svg></a>
+<a href="#" class="cf-rail-item" aria-current="page" aria-label="Expenses"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3"/></svg></a>
+<a href="#" class="cf-rail-item" aria-label="Settlements, 1 due"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15M15.5 4.5L19 8l-3.5 3.5M20 16H5M8.5 12.5L5 16l3.5 3.5"/></svg><span class="cf-badge" aria-hidden="true">1</span></a>
+<span class="cf-rail-item" aria-disabled="true" aria-label="Billing, admins only" style="opacity:.45"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2zM3 9.5h18M7 14.5h4"/></svg></span>
+</div>
+<nav class="cf-rail" aria-label="Main (excerpt)" style="flex:none;width:auto;flex-wrap:nowrap;align-self:flex-start">
+<a href="#" class="cf-rail-logo" aria-label="Coffer home">C</a><span class="cf-rail-sep" aria-hidden="true" style="width:1px;height:20px;margin:10px 4px"></span>
+<a href="#" class="cf-rail-item" aria-current="page" aria-label="Dashboard"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z"/></svg></a>
+<a href="#" class="cf-rail-item" aria-label="Partners"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 4v8h8"/></svg></a>
+<a href="#" class="cf-rail-item" aria-label="Credentials Vault"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/></svg></a>
+<button type="button" class="cf-rail-item cf-rail-out" aria-label="Sign out"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 4.5h-3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h3M14 16l4-4-4-4M18 12H9"/></svg></button>
+</nav>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

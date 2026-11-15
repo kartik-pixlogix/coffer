@@ -1,0 +1,41 @@
+<!-- @dsCard group="Actions" height=300 width=1200 subtitle="Joined buttons for view switches and related actions" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Button group</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-cell"><span class="pv-state">Default · one selected</span>
+<div class="cf-btn-group" role="group" aria-label="Chart range">
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="false">Month</button>
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="true">Quarter</button>
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="false">FY</button>
+</div></div>
+<div class="pv-cell"><span class="pv-state">Hover · focus · disabled</span>
+<div class="cf-btn-group" role="group" aria-label="Export">
+<button type="button" class="cf-btn cf-btn--sm is-hover" aria-pressed="false">PDF</button>
+<button type="button" class="cf-btn cf-btn--sm is-focus" aria-pressed="false">Excel</button>
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="false" disabled>CSV</button>
+</div></div>
+<div class="pv-cell"><span class="pv-state">Icon group · loading</span>
+<div class="pv-row">
+<div class="cf-btn-group" role="group" aria-label="View">
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="true" aria-label="List view"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></svg></button>
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="false" aria-label="Grid view"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z"/></svg></button>
+</div>
+<div class="cf-btn-group" role="group" aria-label="Day or month">
+<button type="button" class="cf-btn cf-btn--sm" aria-pressed="false">Day</button>
+<button type="button" class="cf-btn cf-btn--sm is-loading" aria-pressed="true" aria-busy="true"><span class="cf-spinner"></span>Month</button>
+</div>
+</div></div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

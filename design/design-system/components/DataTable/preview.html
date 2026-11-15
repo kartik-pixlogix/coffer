@@ -1,0 +1,60 @@
+<!-- @dsCard group="Tables" height=880 width=1200 subtitle="Sortable header, rows (hover, selected, error), row actions, empty and loading rows" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Data table</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.cols{grid-template-columns:28px minmax(200px,2fr) 110px 120px 110px 130px 116px}</style>
+</head>
+<body>
+<div class="pv-wrap pv-wrap--stack">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-card">
+<div class="cf-table" role="table" aria-label="Expenses, October 2026">
+<div class="cf-tr cf-thead cols" role="row">
+<span role="columnheader"><label class="cf-check"><input class="cf-sr" type="checkbox" aria-label="Select all rows"><span class="cf-check-box" style="background:var(--ink);border-color:var(--ink)"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5;opacity:1" aria-hidden="true"><path d="M6 12h12"/></svg></span></label></span>
+<span role="columnheader">Description</span><span role="columnheader">Category</span>
+<span role="columnheader" aria-sort="descending" style="text-align:right"><button type="button" class="cf-sort">Amount<svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></span>
+<span role="columnheader" aria-sort="none"><button type="button" class="cf-sort">Date<svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg></button></span>
+<span role="columnheader">Status</span><span role="columnheader" style="text-align:right">Actions</span>
+</div>
+<div class="cf-tr cols" role="row">
+<span role="cell"><label class="cf-check"><input class="cf-sr" type="checkbox" aria-label="Select Salary — Rohan Desai"><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></label></span>
+<span role="cell" class="t-label-strong cf-row">Salary — Rohan Desai — 2026-10 <span class="cf-pill cf-pill--sm"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M19.5 11a7.5 7.5 0 1 0-2.2 5.3M19.5 5v6h-6"/></svg>Auto</span></span>
+<span role="cell" class="t-body t-muted">Salary</span><span role="cell" class="cf-num">₹80,000</span><span role="cell" class="t-body t-muted">31 Oct 2026</span>
+<span role="cell"><span class="cf-pill cf-pill--pos"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Approved</span></span>
+<span role="cell" class="cf-rowacts"><button type="button" class="cf-iconbtn cf-iconbtn--sm" aria-label="Receipt for Salary — Rohan Desai"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 11.5l-7.6 7.6a4.8 4.8 0 0 1-6.8-6.8l8.2-8.2a3.2 3.2 0 0 1 4.5 4.5l-8.2 8.2a1.6 1.6 0 0 1-2.3-2.3l7.4-7.4"/></svg></button></span>
+</div>
+<div class="cf-tr cols is-hover" role="row">
+<span role="cell"><label class="cf-check"><input class="cf-sr" type="checkbox" aria-label="Select Meta ads — October"><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></label></span>
+<span role="cell" class="t-label-strong">Meta ads — October <span class="pv-state">· hover</span></span>
+<span role="cell" class="t-body t-muted">Marketing</span><span role="cell" class="cf-num">₹25,000</span><span role="cell" class="t-body t-muted">19 Oct 2026</span>
+<span role="cell"><span class="cf-pill cf-pill--warn"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8"/></svg>Pending</span></span>
+<span role="cell" class="cf-rowacts"><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--pos" aria-label="Approve Meta ads — October"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--neg" aria-label="Reject Meta ads — October"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button><button type="button" class="cf-iconbtn cf-iconbtn--sm" aria-label="More actions for Meta ads"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01"/></svg></button></span>
+</div>
+<div class="cf-tr cols is-selected" role="row" aria-selected="true">
+<span role="cell"><label class="cf-check"><input class="cf-sr" type="checkbox" checked aria-label="Select Figma organisation seats"><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2.5" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></label></span>
+<span role="cell" class="t-label-strong">Figma organisation seats <span class="pv-state">· selected</span></span>
+<span role="cell" class="t-body t-muted">Software</span><span role="cell" class="cf-num">₹14,200</span><span role="cell" class="t-body t-muted">5 Oct 2026</span>
+<span role="cell"><span class="cf-pill cf-pill--pos"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Approved</span></span>
+<span role="cell" class="cf-rowacts"><button type="button" class="cf-iconbtn cf-iconbtn--sm" aria-label="Delete Figma organisation seats"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg></button></span>
+</div>
+<div class="cf-tr cols is-error" role="row">
+<span role="cell"></span>
+<span role="cell" class="t-label-strong">Team dinner — Diwali <span class="t-caption">· row error: duplicate of 24 Oct entry</span></span>
+<span role="cell" class="t-body">Office &amp; misc</span><span role="cell" class="cf-num">₹18,500</span><span role="cell" class="t-body">24 Oct 2026</span>
+<span role="cell"><span class="cf-pill cf-pill--neg"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>Rejected</span></span>
+<span role="cell" class="cf-rowacts"><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm">Fix</button></span>
+</div>
+<div class="cf-tr cols" role="row" aria-busy="true">
+<span role="cell"></span><span role="cell" class="cf-skel cf-skel--line" style="width:70%"></span><span role="cell" class="cf-skel cf-skel--line" style="width:60%"></span><span role="cell" class="cf-skel cf-skel--line" style="width:70%;justify-self:end"></span><span role="cell" class="cf-skel cf-skel--line" style="width:70%"></span><span role="cell" class="cf-skel" style="width:80px;height:24px;border-radius:9999px"></span><span role="cell"></span>
+</div>
+</div></div>
+<div class="cf-card"><div class="cf-empty-row"><span class="cf-empty-ic cf-empty-ic--muted" style="width:44px;height:44px"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3"/></svg></span><span class="t-label-strong">No expenses match these filters</span><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm">Clear filters</button></div></div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

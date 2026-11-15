@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Session expired</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.dim{filter:blur(2px);opacity:.75}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div class="cf-shell {{dimClass}}" aria-hidden="{{blocked}}">
+<nav class="cf-rail" aria-label="Main">
+<a href="Main.dc.html" class="cf-rail-logo" aria-label="Coffer home" title="Coffer">C</a>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="20">
+<sc-if value="{{n.sep}}" hint-placeholder-val="{{ false }}"><span class="cf-rail-sep" aria-hidden="true"></span></sc-if>
+<sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><a href="{{n.href}}" class="cf-rail-item" aria-label="{{n.label}}" title="{{n.label}}" aria-current="{{n.current}}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></a></sc-if>
+</sc-for>
+</nav>
+<main class="cf-main">
+<header class="cf-topbar">
+<div class="cf-topbar-l">
+<a href="Main.dc.html" class="cf-wordmark">Coffer</a>
+<span class="cf-switcher"><span class="cf-switcher-ini">SP</span><span class="cf-stack"><span class="t-label-strong">Saarthi Portal JV</span><span class="t-caption t-muted">Joint Venture · Admin</span></span></span>
+</div>
+<div class="cf-topbar-r">
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button>
+<span class="cf-account"><span class="cf-avatar" style="width: 40px; height: 40px;">AM</span><span class="cf-stack"><span class="t-label-strong">Aarav Mehta</span><span class="t-caption t-muted">Admin</span></span></span>
+</div>
+</header>
+<section class="cf-pagehead"><div><nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Saarthi Portal JV</li><li aria-hidden="true">/</li><li aria-current="page">Expenses</li></ol></nav><h1 class="cf-h1"><span class="t-display-light">Finance</span><span class="t-display">Expenses</span></h1></div></section>
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 10px;">
+<div class="cf-kv"><span class="cf-dot-title t-title">Draft expense</span><span class="cf-pill cf-pill--warn">Not saved yet</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;"><div class="cf-inset cf-stack"><span class="t-caption t-muted">Amount</span><span class="t-money">₹18,450</span></div><div class="cf-inset cf-stack"><span class="t-caption t-muted">Vendor</span><span class="t-body">AWS — October bill</span></div><div class="cf-inset cf-stack"><span class="t-caption t-muted">Paid from</span><span class="t-body">Vertex Labs account</span></div></div>
+</section>
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 12px;"><sc-for list="{{rows}}" as="r" hint-placeholder-count="5"><div class="cf-row" style="gap: 14px; min-height: 40px;"><span class="cf-skel cf-skel--circle" style="width: 32px; height: 32px;"></span><span class="cf-skel cf-skel--line" style="width: {{r}};"></span><span class="cf-skel cf-skel--line" style="width: 110px; margin-left: auto;"></span></div></sc-for></section>
+</main>
+</div>
+
+<sc-if value="{{blocked}}" hint-placeholder-val="{{ true }}">
+<div class="cf-scrim" aria-hidden="true"></div>
+<div class="cf-modal cf-modal--sm" role="alertdialog" aria-modal="true" aria-labelledby="se-t" aria-describedby="se-d" style="width: 460px; top: 140px;">
+<span class="cf-disc" style="width: 52px; height: 52px; align-self: flex-start;"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.clock}}"></path></svg></span>
+<div class="cf-stack" style="gap: 6px;"><h2 id="se-t" class="t-heading" style="margin: 0;">{{title}}</h2><p id="se-d" class="t-body t-muted" style="margin: 0;">{{body}}</p></div>
+<sc-if value="{{isPw}}" hint-placeholder-val="{{ true }}">
+<div class="cf-field"><div class="cf-label-row"><span class="cf-label">Email</span><a href="SignIn.dc.html" class="cf-link t-caption">Not you?</a></div><span class="cf-inwrap is-readonly"><span class="cf-avatar cf-avatar--sm">AM</span><span class="t-body">aarav@vertexlabs.in</span></span></div>
+<div class="cf-field"><div class="cf-label-row"><label class="cf-label" for="se-p">Password</label><a href="SignIn.dc.html" class="cf-link t-caption">Forgot it?</a></div><span class="cf-inwrap {{pwWrap}}"><input id="se-p" type="{{pwType}}" value="{{pw}}" onChange="{{onPw}}" autocomplete="current-password" aria-invalid="{{pwBad}}" /><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" onClick="{{toggleShow}}" aria-label="{{showLabel}}" aria-pressed="{{shown}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg></button></span><sc-if value="{{pwBad}}" hint-placeholder-val="{{ false }}"><span class="cf-errtext">That password didn’t work. Try again or reset it.</span></sc-if></div>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--lg {{busyClass}}" onClick="{{submitPw}}" disabled="{{cantPw}}" aria-busy="{{busy}}"><sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true"></span></sc-if>{{pwLabel}}</button>
+</sc-if>
+<sc-if value="{{isCode}}" hint-placeholder-val="{{ false }}">
+<fieldset class="cf-field" style="border: 0; padding: 0; margin: 0;"><legend class="cf-label" style="margin-bottom: 8px;">6-digit code from your authenticator</legend><div class="cf-code {{codeClass}}"><sc-for list="{{digits}}" as="d" hint-placeholder-count="6"><input class="cf-code-box" inputmode="numeric" maxlength="1" aria-label="{{d.label}}" value="{{d.v}}" onChange="{{d.on}}" aria-invalid="{{codeBad}}" /></sc-for></div><sc-if value="{{codeBad}}" hint-placeholder-val="{{ false }}"><span class="cf-errtext" style="margin-top: 8px;">That code didn’t match. Codes change every 30 seconds.</span></sc-if></fieldset>
+<div class="cf-row" style="gap: 8px;"><button type="button" class="cf-btn cf-btn--secondary cf-btn--lg" onClick="{{back}}">Back</button><button type="button" class="cf-btn cf-btn--primary cf-btn--lg {{busyClass}}" style="flex: 1;" onClick="{{submitCode}}" disabled="{{cantCode}}" aria-busy="{{busy}}"><sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true"></span></sc-if>{{codeLabel}}</button></div>
+</sc-if>
+<span class="t-caption t-muted">Your draft stays on this device until you’re back.</span>
+</div>
+</sc-if>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="cf-toast cf-toast--fixed" role="status"><span class="cf-toast-ic"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, step: 'pw', pw: '', show: false, pwBad: false, busy: false, code: ['', '', '', '', '', ''], codeBad: false, toast: '' };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  componentWillUnmount() { if (this.bt) clearTimeout(this.bt); if (this.tt) clearTimeout(this.tt); }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      pie: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 4v8h8',
+      users: 'M5.8 8a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3.5 19.5c.7-3.2 2.9-5 5.5-5s4.8 1.8 5.5 5M14.6 9a2.4 2.4 0 1 0 4.8 0a2.4 2.4 0 1 0 -4.8 0M16.5 14.6c2 .3 3.4 1.8 4 4.4',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      trend: 'M4 16.5l5-5 3.5 3.5L20 7.5M15 7.5h5v5',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      bars: 'M4 20h16M7 16.5v-4M11 16.5V7M15 16.5v-6M19 16.5V9.5',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  nav(ic) {
+    const def = [['Dashboard', 'grid', 'Main.dc.html'], 0, ['Partners', 'pie', 'Partners.dc.html'], ['Team', 'users', 'Team.dc.html'], ['Timesheets', 'clock', 'Timesheets.dc.html'], 0, ['Income', 'trend', 'Income.dc.html'], ['Expenses', 'receipt', 'Expenses.dc.html'], 0, ['Reports', 'bars', 'Reports.dc.html'], 0, ['Credentials Vault', 'lock', 'Vault.dc.html']];
+    return def.map((n) => (n ? { sep: false, item: true, label: n[0], d: ic[n[1]], href: n[2], current: n[0] === 'Expenses' ? 'page' : null } : { sep: true, item: false }));
+  }
+
+  setDigit(i, v) {
+    const code = this.state.code.slice();
+    code[i] = String(v).replace(/[^0-9]/g, '').slice(-1);
+    this.setState({ code: code, codeBad: false });
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const S = this.state;
+    const blocked = S.step !== 'done';
+    const full = S.code.every((d) => d !== '');
+    const later = (fn) => { this.setState({ busy: true }); if (this.bt) clearTimeout(this.bt); this.bt = setTimeout(fn, 900); };
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, nav: this.nav(ic), rows: ['36%', '28%', '42%', '31%', '38%'],
+      blocked: blocked, dimClass: blocked ? 'dim' : '',
+      title: S.step === 'code' ? 'One more step' : 'Your session ended',
+      body: S.step === 'code' ? 'Enter the code from your authenticator app to get back in.' : 'You were signed out after a while without activity. Sign in again and you’ll land back on this page.',
+      isPw: S.step === 'pw', isCode: S.step === 'code',
+      pw: S.pw, onPw: (e) => this.setState({ pw: e.target.value, pwBad: false }), pwType: S.show ? 'text' : 'password', shown: S.show,
+      showLabel: S.show ? 'Hide password' : 'Show password', toggleShow: () => this.setState({ show: !S.show }),
+      pwBad: S.pwBad, pwWrap: S.pwBad ? 'is-error' : '', cantPw: !S.pw || S.busy,
+      busy: S.busy, busyClass: S.busy ? 'is-loading' : '', pwLabel: S.busy ? 'Signing in' : 'Sign in again', codeLabel: S.busy ? 'Checking' : 'Continue',
+      submitPw: () => { if (!S.pw || S.busy) return; later(() => this.setState(this.state.pw.length < 6 ? { busy: false, pwBad: true } : { busy: false, step: 'code' })); },
+      digits: S.code.map((v, i) => ({ v: v, label: 'Digit ' + (i + 1), on: (e) => this.setDigit(i, e.target.value) })),
+      codeBad: S.codeBad, codeClass: S.codeBad ? 'is-error' : '', cantCode: !full || S.busy,
+      back: () => this.setState({ step: 'pw', code: ['', '', '', '', '', ''] }),
+      submitCode: () => {
+        if (!full || S.busy) return;
+        later(() => {
+          if (/^(\d)\1{5}$/.test(this.state.code.join(''))) { this.setState({ busy: false, codeBad: true, code: ['', '', '', '', '', ''] }); return; }
+          this.setState({ busy: false, step: 'done', toast: 'Welcome back. Your draft expense is still here.' });
+          if (this.tt) clearTimeout(this.tt);
+          this.tt = setTimeout(() => this.setState({ toast: '' }), 3000);
+        });
+      },
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

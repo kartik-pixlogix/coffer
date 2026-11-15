@@ -1,0 +1,27 @@
+<!-- @dsCard group="Forms" height=420 width=1200 subtitle="₹ prefix, IBM Plex Mono with tabular figures, Indian grouping" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Amount input</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.cf-inwrap>input{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:15px}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<div class="cf-field"><label class="cf-label" for="am1">Default</label><span class="cf-inwrap"><span class="cf-prefix" aria-hidden="true">₹</span><input id="am1" type="text" inputmode="numeric" placeholder="0"></span></div>
+<div class="cf-field"><label class="cf-label" for="am2">Hover</label><span class="cf-inwrap is-hover"><span class="cf-prefix" aria-hidden="true">₹</span><input id="am2" type="text" inputmode="numeric" value="1,14,900"></span></div>
+<div class="cf-field"><label class="cf-label" for="am3">Focus</label><span class="cf-inwrap is-focus"><span class="cf-prefix" aria-hidden="true">₹</span><input id="am3" type="text" inputmode="numeric" value="25,000"></span></div>
+<div class="cf-field"><label class="cf-label" for="am4">Disabled</label><span class="cf-inwrap is-disabled"><span class="cf-prefix" aria-hidden="true">₹</span><input id="am4" type="text" value="0" disabled></span></div>
+<div class="cf-field"><label class="cf-label" for="am5">Error</label><span class="cf-inwrap is-error"><span class="cf-prefix" aria-hidden="true">₹</span><input id="am5" type="text" inputmode="numeric" value="1,20,000" aria-invalid="true" aria-describedby="am5m"></span><span id="am5m" class="cf-errtext"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"/></svg>Payers add up to ₹5,100 more than the amount.</span></div>
+<div class="cf-field"><label class="cf-label" for="am6">Compact, right-aligned (payer row)</label><span class="cf-inwrap cf-inwrap--sm" style="max-width:170px"><span class="cf-prefix" aria-hidden="true">₹</span><input id="am6" type="text" inputmode="numeric" value="54,900" style="text-align:right"></span></div>
+</div>
+<p class="pv-note">Format with Indian grouping (₹18,42,350) as the person types; negative amounts read −₹ and are never typed as a minus.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

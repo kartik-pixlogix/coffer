@@ -1,0 +1,26 @@
+<!-- @dsCard group="Overlays" height=420 width=1200 subtitle="Floating panel with controls · password generator" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Popover</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}input[type=range]{width:100%;accent-color:var(--ink)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-pop cf-popover" role="dialog" aria-labelledby="pg-t" style="max-width:360px">
+<div class="cf-kv"><span id="pg-t" class="t-title">Generate password</span><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" aria-label="Close"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div>
+<div class="cf-inset" style="font-family:var(--font-mono);font-size:15px;overflow-wrap:anywhere;background:var(--surface-muted)">k7#Qv2!mR9@xTp4w</div>
+<div class="cf-field"><div class="cf-label-row"><label class="cf-label" for="pg-l">Length</label><span class="t-money-sm">16</span></div><input id="pg-l" type="range" min="8" max="64" value="16"></div>
+<div class="pv-row"><label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked><span class="cf-switch-track"></span><span>Symbols</span></label><label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch"><span class="cf-switch-track"></span><span>Passphrase</span></label></div>
+<div class="cf-field"><div class="cf-kv t-caption"><span>Strength</span><span class="t-pos" style="font-weight:600">Strong · about 104 bits</span></div><div class="cf-meter-dots" aria-hidden="true"><span style="background:var(--chart-ink)"></span><span style="background:var(--chart-ink)"></span><span style="background:var(--chart-ink)"></span><span style="background:var(--chart-ink)"></span></div></div>
+<div class="cf-actions"><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 11a7.5 7.5 0 1 0-2.2 5.3M19.5 5v6h-6"/></svg>Regenerate</button><button type="button" class="cf-btn cf-btn--primary cf-btn--sm">Use password</button></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

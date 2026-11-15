@@ -1,0 +1,31 @@
+<!-- @dsCard group="Feedback" height=520 width=1200 subtitle="Settlement alert (graphite), out of balance (warning), plus negative, info and positive" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alert banner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap pv-wrap--stack">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<section class="cf-alert cf-alert--graphite" aria-label="Settlement alert">
+<div class="cf-alert-main"><span class="cf-alert-ic"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M8.5 20h7M5 7.5h14M5 7.5l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7.5l-2.5 6a2.5 2.5 0 0 0 5 0z"/></svg></span><div><div class="cf-row" style="flex-wrap:wrap"><span class="cf-alert-title">Vertex Labs owes Bluefin Infotech <span class="t-money" style="font-size:16px">₹3,24,600</span></span><span class="cf-pill cf-pill--neg cf-pill--micro" style="height:22px">OWES</span></div><div class="cf-alert-sub">Saarthi Portal JV · 50/50 sides · Vertex Labs is entitled to <span class="t-money-sm">₹9,21,175</span> and holds <span class="t-money-sm">₹12,45,775</span></div></div></div>
+<button type="button" class="cf-btn cf-btn--onDark cf-btn--lg cf-btn--disc">Record transfer<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+</section>
+<section class="cf-alert cf-alert--warn" role="alert">
+<div class="cf-alert-main"><span class="cf-alert-ic"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"/></svg></span><div><div class="cf-alert-title">Out of balance — drift <span class="t-money" style="font-size:16px">₹1,250</span></div><div class="cf-alert-sub">Trial balance as of 15 Nov 2026 · FY 2026-27. Debits exceed credits; check the last import.</div></div></div>
+<button type="button" class="cf-btn cf-btn--secondary">Find the drift</button>
+</section>
+<div class="pv-row" style="align-items:stretch">
+<div class="cf-alert cf-alert--neg cf-alert--slim" role="alert" style="flex:1"><div class="cf-alert-main" style="flex-basis:200px"><span class="cf-alert-ic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/></svg></span><span class="t-body">1 vault password found in a breach.</span></div></div>
+<div class="cf-alert cf-alert--info cf-alert--slim" style="flex:1"><div class="cf-alert-main" style="flex-basis:200px"><span class="cf-alert-ic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 17 0a8.5 8.5 0 1 0 -17 0M12 11v5M12 8h.01"/></svg></span><span class="t-body">You’re offline. Changes will sync when you reconnect.</span></div></div>
+<div class="cf-alert cf-alert--pos cf-alert--slim" style="flex:1"><div class="cf-alert-main" style="flex-basis:200px"><span class="cf-alert-ic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="t-body">Balanced ✓ as of 15 Nov 2026.</span></div></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

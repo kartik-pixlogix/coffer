@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Run every company from one place</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.lp{background:var(--canvas);color:var(--ink);overflow:hidden}.lp-in{max-width:1200px;margin:0 auto;padding:0 32px}.lp-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:84px}.lp-links{display:flex;gap:4px}.lp-links a{height:40px;display:inline-flex;align-items:center;padding:0 14px;border-radius:9999px;color:var(--ink-secondary);text-decoration:none;font-weight:500}.lp-links a:hover{background:var(--surface);color:var(--ink)}.lp-h1{font-family:var(--font-display);font-size:76px;line-height:78px;font-weight:400;letter-spacing:-.035em;margin:0}.lp-h2{font-family:var(--font-display);font-size:48px;line-height:52px;font-weight:400;letter-spacing:-.03em;margin:0}.lp-h3{font-family:var(--font-display);font-size:24px;line-height:28px;font-weight:500;letter-spacing:-.02em;margin:0}.lp-lead{font-size:19px;line-height:28px;color:var(--ink-secondary);margin:0}.lp-eyebrow{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:9999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500}.lp-sec{padding:96px 0}.lp-hero{position:relative;padding:56px 0 0;text-align:center}.lp-glow{position:absolute;left:50%;top:180px;width:1100px;height:620px;transform:translateX(-50%);border-radius:50%;background:var(--gradient-lime);filter:blur(120px);opacity:.45;pointer-events:none}.lp-stage{position:relative;height:600px;margin-top:56px}.lp-layer{position:absolute;transition:transform 140ms ease-out;will-change:transform}.lp-win{left:50%;top:0;width:1040px;margin-left:-520px;height:560px;border-radius:28px;background:var(--surface);border:1px solid var(--line);box-shadow:0 40px 80px rgba(28,28,30,.14);overflow:hidden;text-align:left}.lp-float{border-radius:20px;box-shadow:var(--shadow-pop);text-align:left}.lp-logo{height:56px;border-radius:14px;border:1px dashed var(--line-strong);display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:13px;font-weight:500}.lp-pillar{display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:24px;background:var(--surface);border:1px solid var(--line)}.lp-ic{width:48px;height:48px;border-radius:14px;background:var(--gradient-lime);color:var(--on-lime);display:inline-flex;align-items:center;justify-content:center}.lp-ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}.lp-ul li{display:flex;gap:10px;align-items:flex-start;color:var(--ink-secondary)}.lp-ul li svg{flex:none;margin-top:1px;color:var(--ink)}.lp-step-n{width:44px;height:44px;border-radius:9999px;background:var(--ink);color:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:500}.lp-band{border-radius:32px;padding:56px}.lp-faq{border-top:1px solid var(--line)}.lp-faq button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:18px;font-weight:500;text-align:left;cursor:pointer}.lp-faq p{margin:0 0 22px;max-width:760px;color:var(--ink-secondary);font-size:16px;line-height:24px}.lp-foot a{color:var(--ink-secondary);text-decoration:none}.lp-foot a:hover{color:var(--ink)}.mini-bar{flex:1;border-radius:6px 6px 0 0;background:var(--chart-ink)}.mini-bar.neg{border-radius:0 0 6px 6px;background:var(--chart-negative)}.mini-bar.on{background:var(--gradient-lime)}@media (prefers-reduced-motion:reduce){.lp-layer{transition:none}}</style>
+</helmet>
+<div class="cf lp" data-theme="{{theme}}">
+<div class="lp-in">
+<header class="lp-nav">
+<a href="Landing.dc.html" class="cf-row" style="gap: 10px; text-decoration: none;" aria-label="Coffer home"><span class="cf-rail-logo" aria-hidden="true">C</span><span class="cf-wordmark" style="margin: 0;">Coffer</span></a>
+<nav class="lp-links" aria-label="Site"><a href="#product">Product</a><a href="#modules">Modules</a><a href="#security">Security</a><a href="Pricing.dc.html">Pricing</a><a href="#faq">FAQ</a></nav>
+<div class="cf-row" style="gap: 8px;">
+<button type="button" class="cf-iconbtn" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"></path></svg></sc-if></button>
+<a href="SignIn.dc.html" class="cf-btn cf-btn--ghost">Sign in</a>
+<a href="SignUp.dc.html" class="cf-btn cf-btn--primary">Start free trial</a>
+</div>
+</header>
+</div>
+
+<section class="lp-hero" onMouseMove="{{onMove}}" onMouseLeave="{{onLeave}}" aria-labelledby="hero-h">
+<div class="lp-glow" aria-hidden="true"></div>
+<div class="lp-in" style="position: relative;">
+<span class="lp-eyebrow"><span class="cf-dot-title"></span>For agencies, studios and joint ventures</span>
+<h1 id="hero-h" class="lp-h1" style="margin: 22px auto 0; max-width: 960px;">Every company you run, <span style="color: var(--ink-faint);">in one quiet place.</span></h1>
+<p class="lp-lead" style="margin: 22px auto 0; max-width: 680px;">Coffer keeps the books, timesheets, partner equity and shared logins for all your companies together. Month-end stops being a week of spreadsheets.</p>
+<div class="cf-row" style="justify-content: center; gap: 12px; margin-top: 32px; flex-wrap: wrap;">
+<a href="SignUp.dc.html" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc">Start free trial<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a>
+<a href="#demo" class="cf-btn cf-btn--secondary cf-btn--lg">Book a demo</a>
+</div>
+<p class="t-caption t-muted" style="margin: 16px 0 0;">Indian number formatting · April to March fiscal years · single companies and JVs</p>
+
+<div class="lp-stage" aria-label="Product preview" role="img">
+<div class="lp-layer lp-win" style="transform: {{px.win}};">
+<div style="display: flex; height: 100%;">
+<div style="width: 64px; background: var(--surface-muted); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 0;"><span class="cf-rail-logo" style="width: 32px; height: 32px; font-size: 16px;">C</span><sc-for list="{{railDots}}" as="d" hint-placeholder-count="7"><span style="width: 28px; height: 28px; border-radius: 9999px; background: {{d.bg}};"></span></sc-for></div>
+<div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+<div class="cf-kv" style="align-items: center;"><span class="cf-stack"><span class="t-caption t-muted">Saarthi Portal JV · FY 2026-27</span><span class="t-heading">Dashboard</span></span><span class="cf-row" style="gap: 8px;"><span class="cf-pill">Apr – Oct</span><span class="cf-avatar cf-avatar--sm">AM</span></span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="4"><div class="cf-card" style="display: flex; flex-direction: column; gap: 6px; background: {{k.bg}}; color: {{k.fg}};"><span class="t-caption" style="opacity: .75;">{{k.label}}</span><span class="t-money" style="font-size: 20px; line-height: 24px;">{{k.value}}</span></div></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; flex: 1; min-height: 0;">
+<div class="cf-card" style="display: flex; flex-direction: column; gap: 10px;"><span class="cf-dot-title t-label-strong">Profit by month</span><div style="flex: 1; display: flex; flex-direction: column;"><div style="flex: 1; display: flex; align-items: flex-end; gap: 10px; border-bottom: 1px solid var(--line-strong); padding: 0 6px;"><sc-for list="{{bars}}" as="b" hint-placeholder-count="7"><span class="mini-bar {{b.cls}}" style="height: {{b.up}};"></span></sc-for></div><div style="height: 26px; display: flex; align-items: flex-start; gap: 10px; padding: 0 6px;"><sc-for list="{{bars}}" as="b" hint-placeholder-count="7"><span class="mini-bar neg" style="height: {{b.down}}; opacity: {{b.negOp}};"></span></sc-for></div></div></div>
+<div class="cf-card" style="display: flex; flex-direction: column; gap: 8px;"><span class="cf-dot-title t-label-strong">Profit due</span><sc-for list="{{partnersMini}}" as="p" hint-placeholder-count="4"><div class="cf-kv" style="align-items: center;"><span class="cf-row" style="gap: 8px;"><span class="cf-avatar cf-avatar--sm">{{p.ini}}<span class="cf-avatar-dot" style="background: {{p.dot}};"></span></span><span class="t-body">{{p.name}}</span></span><span class="t-money-sm">{{p.due}}</span></div></sc-for></div>
+</div>
+</div>
+</div>
+</div>
+<div class="lp-layer lp-float cf-card cf-card--graphite" style="left: 40px; top: 300px; width: 300px; padding: 18px; transform: {{px.settle}};"><span class="t-caption" style="color: var(--on-graphite-muted);">Settlement due</span><div class="t-label-strong" style="margin: 6px 0 2px;">Vertex Labs owes Bluefin Infotech</div><div class="t-money" style="font-size: 26px; line-height: 32px; color: var(--lime);">₹3,24,600</div><span class="cf-btn cf-btn--lime cf-btn--sm" style="margin-top: 12px;">Record transfer</span></div>
+<div class="lp-layer lp-float cf-card" style="right: 30px; top: 70px; width: 270px; padding: 16px; background: var(--surface); border: 1px solid var(--line); transform: {{px.totp}};"><div class="cf-row" style="gap: 10px;"><span class="cf-avatar cf-avatar--tile" style="font-family: var(--font-display);">GH</span><span class="cf-stack"><span class="t-label-strong">GitHub — vertexlabs org</span><span class="t-caption t-muted">Internal vault</span></span></div><div class="cf-kv" style="margin-top: 12px; align-items: center;"><span class="t-money" style="font-size: 24px; letter-spacing: .06em;">492 039</span><span class="cf-ring cf-ring--onlight"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle class="cf-ring-track" cx="16" cy="16" r="13" stroke-width="3"></circle><circle class="cf-ring-bar" cx="16" cy="16" r="13" stroke-width="3" stroke-dasharray="81.68" stroke-dashoffset="32" transform="rotate(-90 16 16)"></circle></svg></span></div></div>
+<div class="lp-layer lp-float" style="right: 120px; top: 430px; width: 300px; padding: 14px 16px; background: var(--gradient-lime); color: var(--on-lime); transform: {{px.hours}};"><div class="cf-kv"><span class="t-label-strong">Log hours · Nov 2026</span><span class="t-caption">Month mode</span></div><div class="cf-row" style="margin-top: 8px; gap: 8px;"><span class="t-money" style="font-size: 24px;">57.33 h</span><span class="t-caption">21 working days → 2.73 hrs/day</span></div></div>
+</div>
+</div>
+</section>
+
+<section class="lp-in" style="padding: 40px 32px 24px;" aria-label="Customers">
+<p class="t-caption t-muted" style="text-align: center; margin: 0 0 18px;">Teams using Coffer</p>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px;"><sc-for list="{{logos}}" as="l" hint-placeholder-count="6"><span class="lp-logo">{{l}}</span></sc-for></div>
+</section>
+
+<section id="product" class="lp-sec" aria-labelledby="pl-h">
+<div class="lp-in">
+<div style="max-width: 720px; margin-bottom: 40px;"><span class="lp-eyebrow">What’s inside</span><h2 id="pl-h" class="lp-h2" style="margin-top: 16px;">Four jobs that used to live in four tools.</h2></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+<sc-for list="{{pillars}}" as="p" hint-placeholder-count="4">
+<article class="lp-pillar"><span class="lp-ic"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{p.d}}"></path></svg></span><h3 class="lp-h3">{{p.title}}</h3><p class="t-body t-muted" style="margin: 0;">{{p.body}}</p><ul class="lp-ul"><sc-for list="{{p.points}}" as="t" hint-placeholder-count="3"><li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width: 2.25;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span class="t-body">{{t}}</span></li></sc-for></ul></article>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="modules" class="lp-sec" style="padding-top: 0;" aria-labelledby="md-h">
+<div class="lp-in">
+<div class="cf-kv" style="flex-wrap: wrap; gap: 20px; align-items: flex-end; margin-bottom: 28px;"><h2 id="md-h" class="lp-h2" style="max-width: 620px;">See each part the way your team will.</h2>
+<div class="cf-tabs" role="tablist" aria-label="Modules"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button type="button" class="cf-tab" role="tab" aria-selected="{{t.on}}" aria-controls="md-panel" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div></div>
+<div id="md-panel" role="tabpanel" aria-label="{{mod.title}}" style="display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 32px; align-items: center; padding: 32px; border-radius: 32px; background: var(--surface); border: 1px solid var(--line);">
+<div style="display: flex; flex-direction: column; gap: 16px;"><h3 class="lp-h3" style="font-size: 30px; line-height: 34px;">{{mod.title}}</h3><p class="t-body t-muted" style="margin: 0; font-size: 16px; line-height: 24px;">{{mod.body}}</p><ul class="lp-ul"><sc-for list="{{mod.points}}" as="t" hint-placeholder-count="3"><li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width: 2.25;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span class="t-body">{{t}}</span></li></sc-for></ul><a href="{{mod.href}}" class="cf-link" style="align-self: flex-start;">Open the {{mod.title}} screen</a></div>
+<div style="padding: 20px; border-radius: 24px; background: var(--surface-muted); min-height: 320px; display: flex; flex-direction: column; gap: 12px;">
+<sc-if value="{{isDash}}" hint-placeholder-val="{{ true }}"><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;"><sc-for list="{{kpis}}" as="k" hint-placeholder-count="4"><div class="cf-card" style="background: {{k.bg}}; color: {{k.fg}};"><span class="t-caption" style="opacity: .75;">{{k.label}}</span><div class="t-money" style="font-size: 22px; line-height: 28px; margin-top: 6px;">{{k.value}}</div></div></sc-for></div><div class="cf-card" style="display: flex; align-items: flex-end; gap: 10px; height: 120px;"><sc-for list="{{bars}}" as="b" hint-placeholder-count="7"><span class="mini-bar {{b.cls}}" style="height: {{b.up}}; opacity: {{b.posOp}};"></span></sc-for></div></sc-if>
+<sc-if value="{{isTime}}" hint-placeholder-val="{{ false }}"><div class="cf-card" style="display: flex; flex-direction: column; gap: 12px;"><div class="cf-kv"><span class="t-label-strong">Rohan Desai · November 2026</span><span class="cf-pill cf-pill--lime">Month mode</span></div><div class="cf-kv"><span class="t-caption t-muted">Total hours</span><span class="t-money" style="font-size: 22px;">57.33 h</span></div><div class="cf-progress cf-progress--lime"><span style="width: 68%;"></span></div><span class="t-caption t-muted">21 working days → 2.73 hrs/day · 25 days with Saturdays</span></div><sc-for list="{{timeRows}}" as="r" hint-placeholder-count="3"><div class="cf-card cf-kv" style="align-items: center;"><span class="cf-row" style="gap: 10px;"><span class="cf-avatar cf-avatar--sm cf-avatar--graphite">{{r.ini}}</span><span class="t-body">{{r.name}}</span></span><span class="t-money-sm">{{r.hours}}</span></div></sc-for></sc-if>
+<sc-if value="{{isSettle}}" hint-placeholder-val="{{ false }}"><div class="cf-card cf-card--graphite"><span class="t-caption" style="color: var(--on-graphite-muted);">To settle the sides</span><div class="t-label-strong" style="margin-top: 4px;">Vertex Labs owes Bluefin Infotech</div><div class="t-money" style="font-size: 28px; line-height: 34px; color: var(--lime); margin-top: 4px;">₹3,24,600</div></div><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;"><div class="cf-card"><span class="t-caption t-muted">Vertex Labs holds</span><div class="t-money" style="margin-top: 4px;">₹12,45,775</div><span class="t-caption t-muted">entitled ₹9,21,175</span></div><div class="cf-card"><span class="t-caption t-muted">Bluefin Infotech holds</span><div class="t-money" style="margin-top: 4px;">₹5,96,575</div><span class="t-caption t-muted">entitled ₹9,21,175</span></div></div></sc-if>
+<sc-if value="{{isVault}}" hint-placeholder-val="{{ false }}"><sc-for list="{{vaultRows}}" as="r" hint-placeholder-count="4"><div class="cf-card cf-kv" style="align-items: center;"><span class="cf-row" style="gap: 10px;"><span class="cf-avatar cf-avatar--tile" style="font-family: var(--font-display);">{{r.mono}}</span><span class="cf-stack"><span class="t-label-strong">{{r.name}}</span><span class="t-caption t-muted">{{r.sub}}</span></span></span><span class="cf-pill cf-pill--sm {{r.pill}}">{{r.state}}</span></div></sc-for></sc-if>
+</div>
+</div>
+</div>
+</section>
+
+<section class="lp-sec" style="padding-top: 0;" aria-labelledby="hw-h">
+<div class="lp-in">
+<h2 id="hw-h" class="lp-h2" style="max-width: 640px; margin-bottom: 36px;">Up and running in an afternoon.</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3"><li class="lp-pillar" style="gap: 12px;"><span class="lp-step-n">{{s.n}}</span><h3 class="lp-h3">{{s.title}}</h3><p class="t-body t-muted" style="margin: 0;">{{s.body}}</p></li></sc-for>
+</ol>
+</div>
+</section>
+
+<section id="security" class="lp-in" style="padding-bottom: 96px;" aria-labelledby="sec-h">
+<div class="lp-band cf-card--graphite" style="display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 40px; align-items: center;">
+<div><span class="lp-eyebrow" style="background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); color: var(--on-graphite);">Security</span><h2 id="sec-h" class="lp-h2" style="margin-top: 16px; color: var(--on-graphite);">Your passwords and books, locked down.</h2><p class="t-body" style="margin: 16px 0 0; color: var(--on-graphite-muted); font-size: 16px; line-height: 24px;">The same rules protect every company: encryption, a second factor and a record of who did what.</p></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{security}}" as="s" hint-placeholder-count="3"><div style="padding: 20px; border-radius: 20px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); display: flex; flex-direction: column; gap: 10px;"><span class="lp-ic" style="width: 40px; height: 40px;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{s.d}}"></path></svg></span><span class="t-label-strong" style="color: var(--on-graphite);">{{s.title}}</span><span class="t-caption" style="color: var(--on-graphite-muted);">{{s.body}}</span></div></sc-for>
+</div>
+</div>
+</section>
+
+<section class="lp-in" style="padding-bottom: 96px;" aria-labelledby="pr-h">
+<div class="cf-kv" style="flex-wrap: wrap; gap: 20px; align-items: flex-end; margin-bottom: 28px;"><h2 id="pr-h" class="lp-h2" style="max-width: 600px;">A plan for one company or a whole group.</h2><a href="Pricing.dc.html" class="cf-btn cf-btn--secondary cf-btn--lg">Compare every plan</a></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="4"><article class="lp-pillar" style="background: {{p.bg}}; color: {{p.fg}}; border-color: {{p.border}};"><div class="cf-kv" style="align-items: center;"><h3 class="lp-h3" style="color: inherit;">{{p.name}}</h3><sc-if value="{{p.popular}}" hint-placeholder-val="{{ false }}"><span class="cf-pill cf-pill--graphite">Popular</span></sc-if></div><p class="t-body" style="margin: 0; opacity: .75;">{{p.body}}</p><div class="cf-row" style="gap: 6px; align-items: baseline;"><span class="t-money" style="font-size: 30px; line-height: 36px;">{{p.price}}</span><span class="t-caption" style="opacity: .75;">{{p.unit}}</span></div><a href="{{p.href}}" class="cf-btn {{p.btn}}" style="margin-top: auto;">{{p.cta}}</a></article></sc-for>
+</div>
+</section>
+
+<section id="faq" class="lp-in" style="padding-bottom: 96px; display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 40px;" aria-labelledby="fq-h">
+<div><h2 id="fq-h" class="lp-h2">Questions, answered.</h2><p class="t-body t-muted" style="margin: 16px 0 0; font-size: 16px; line-height: 24px;">Still unsure? <a href="#demo" class="cf-link">Book a demo</a> and we’ll walk through your setup.</p></div>
+<div>
+<sc-for list="{{faqs}}" as="f" hint-placeholder-count="6"><div class="lp-faq"><h3 style="margin: 0;"><button type="button" aria-expanded="{{f.open}}" aria-controls="{{f.id}}" onClick="{{f.toggle}}">{{f.q}}<svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; transform: {{f.rot}}; transition: transform 160ms ease-out;"><path d="M12 5v14M5 12h14"></path></svg></button></h3><sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><p id="{{f.id}}">{{f.a}}</p></sc-if></div></sc-for>
+</div>
+</section>
+
+<section id="demo" class="lp-in" style="padding-bottom: 72px;" aria-labelledby="cta-h">
+<div class="lp-band" style="background: var(--gradient-lime); color: var(--on-lime); position: relative; overflow: hidden; text-align: center;">
+<div aria-hidden="true" style="position: absolute; right: -80px; top: -120px; width: 380px; height: 380px; border-radius: 9999px; background: rgba(255,255,255,.7); filter: blur(70px);"></div>
+<h2 id="cta-h" class="lp-h2" style="position: relative; max-width: 760px; margin: 0 auto;">Bring every company under one roof.</h2>
+<p class="t-body" style="position: relative; margin: 16px auto 0; max-width: 560px; font-size: 17px; line-height: 26px;">Start with one company today. Add the JV, the team and the vault when you’re ready.</p>
+<div class="cf-row" style="position: relative; justify-content: center; gap: 12px; margin-top: 28px; flex-wrap: wrap;"><a href="SignUp.dc.html" class="cf-btn cf-btn--primary cf-btn--lg">Start free trial</a><button type="button" class="cf-btn cf-btn--glass cf-btn--lg" onClick="{{bookDemo}}">{{demoLabel}}</button></div>
+</div>
+</section>
+
+<footer class="lp-in lp-foot" style="padding-bottom: 48px;">
+<div style="display: grid; grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)); gap: 24px; padding-top: 40px; border-top: 1px solid var(--line);">
+<div class="cf-stack" style="gap: 12px;"><span class="cf-row" style="gap: 10px;"><span class="cf-rail-logo" aria-hidden="true">C</span><span class="cf-wordmark" style="margin: 0;">Coffer</span></span><span class="t-caption t-muted" style="max-width: 260px;">Books, hours, equity and shared logins for every company you run.</span></div>
+<sc-for list="{{footCols}}" as="c" hint-placeholder-count="4"><nav aria-label="{{c.title}}" class="cf-stack" style="gap: 10px;"><span class="t-label-strong">{{c.title}}</span><sc-for list="{{c.links}}" as="l" hint-placeholder-count="4"><a href="{{l.href}}" class="t-body">{{l.label}}</a></sc-for></nav></sc-for>
+</div>
+<div class="cf-kv" style="margin-top: 32px; flex-wrap: wrap;"><span class="t-caption t-muted">© 2026 Coffer</span><span class="cf-row" style="gap: 16px;"><a href="#privacy" class="t-caption">Privacy</a><a href="#terms" class="t-caption">Terms</a><a href="#status" class="t-caption">Status</a></span></div>
+</footer>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="cf-toast cf-toast--fixed" role="status" style="position: fixed;"><span class="cf-toast-ic"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":5600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, mx: 0, my: 0, sy: 0, tab: 'Dashboard', faq: 0, demo: false, toast: '' };
+  }
+
+  componentDidMount() {
+    this.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.onScroll = () => {
+      if (this.raf) return;
+      this.raf = requestAnimationFrame(() => { this.raf = 0; this.setState({ sy: window.scrollY || 0 }); });
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+  }
+
+  componentWillUnmount() {
+    if (this.onScroll) window.removeEventListener('scroll', this.onScroll);
+    if (this.raf) cancelAnimationFrame(this.raf);
+    if (this.tt) clearTimeout(this.tt);
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  shift(depth) {
+    if (this.reduce) return 'none';
+    const S = this.state;
+    const x = -S.mx * depth * 14;
+    const y = -S.my * depth * 10 - Math.min(S.sy, 900) * depth * 0.06;
+    return 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const S = this.state;
+    const profit = [-65000, 150000, 170000, 365000, -32650, 655000, 600000];
+    const bars = profit.map((p, i) => ({ up: (p > 0 ? Math.round((p / 655000) * 100) : 0) + '%', down: (p < 0 ? Math.round((-p / 65000) * 20) : 0) + 'px', negOp: p < 0 ? '1' : '0', posOp: p > 0 ? '1' : '0', cls: i === 6 ? 'on' : '' }));
+    const TABS = {
+      Dashboard: { title: 'Dashboard', href: 'Main.dc.html', body: 'Revenue, expenses, profit and hours for the company you’re in, with each partner’s share worked out.', points: ['Switch companies from the top bar', 'Profit by month with the losses shown below the line', 'Profit due per partner, by equity'] },
+      Timesheets: { title: 'Timesheets', href: 'Timesheets.dc.html', body: 'Log hours by day, or enter a month’s total and let Coffer spread it over the working days.', points: ['Day or month entry', 'Saturdays on or off per company', 'Hours feed salary cost per partner'] },
+      Settlements: { title: 'Settlements', href: 'Settlements.dc.html', body: 'In a joint venture, Coffer shows which side holds more than it’s owed and records the transfer that evens it out.', points: ['Entitled versus held, per side', 'Part payments tracked', 'Every transfer with its bank reference'] },
+      Vault: { title: 'Vault', href: 'Vault.dc.html', body: 'Shared logins, API keys and SSH keys for each company, with 2FA codes and a log of every reveal.', points: ['TOTP codes next to the password', 'Share by person or team, with an end date', 'Health score and fix-it lists'] }
+    };
+    const mod = TABS[S.tab] || TABS.Dashboard;
+    const FAQ = [
+      ['Can I run more than one company?', 'Yes. Each company has its own books, team and vault. Switch from the top bar, and reports never mix companies.'],
+      ['How do joint ventures work?', 'A JV has sides, one per partner company, and each side’s partners split its share. Coffer works out what each side is owed and records the transfers between them.'],
+      ['Does Coffer run payroll?', 'It turns hours and fixed salaries into salary cost per partner. You still pay people through your bank or payroll provider.'],
+      ['How are vault passwords protected?', 'Vault items are encrypted at rest. Revealing one asks for a fresh 2FA code, and every view, copy and share goes in the audit log.'],
+      ['Can my accountant get access?', 'Invite them as a Viewer. They see reports and statements, and nothing in the vault.'],
+      ['Can I bring in my spreadsheets?', 'Yes. Bulk import maps your columns, flags rows with problems and lets you fix them before anything is saved.']
+    ];
+    const ic = {
+      building: 'M4 20V6l8-3 8 3v14M4 20h16M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 20v-4h4v4',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      pie: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 4v8h8',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      key: 'M14.5 9.5a4 4 0 1 0 -3.9 4.4L4 20.5V23h2.5v-2h2v-2h2l1.6-1.6M15.5 8.5h.01',
+      shield: 'M12 3.5l7 3v5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5v-5zM9 12l2.2 2.2L15.5 10',
+      list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01'
+    };
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      onMove: (e) => {
+        if (this.reduce || !e.currentTarget) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        this.setState({ mx: ((e.clientX - r.left) / r.width - 0.5) * 2, my: ((e.clientY - r.top) / r.height - 0.5) * 2 });
+      },
+      onLeave: () => this.setState({ mx: 0, my: 0 }),
+      px: { win: this.shift(0.4), settle: this.shift(1.6), totp: this.shift(2.2), hours: this.shift(1.2) },
+      railDots: [0, 1, 2, 3, 4, 5, 6].map((i) => ({ bg: i === 0 ? 'var(--ink)' : 'var(--surface)' })),
+      kpis: [
+        { label: 'Revenue', value: '₹62,10,000', bg: 'var(--surface-card)', fg: 'var(--ink)' },
+        { label: 'Expenses', value: '₹43,67,650', bg: 'var(--surface-card)', fg: 'var(--ink)' },
+        { label: 'Net profit', value: '₹18,42,350', bg: 'var(--gradient-lime)', fg: 'var(--on-lime)' },
+        { label: 'Hours logged', value: '2,157.5 h', bg: 'var(--graphite)', fg: 'var(--on-graphite)' }
+      ],
+      bars: bars,
+      partnersMini: [['AM', 'Aarav', 'var(--partner-1)', '₹5,52,705'], ['IR', 'Ishita', 'var(--partner-2)', '₹3,68,470'], ['KS', 'Kabir', 'var(--partner-3)', '₹4,60,588'], ['MI', 'Meera', 'var(--partner-4)', '₹4,60,587']].map((p) => ({ ini: p[0], name: p[1], dot: p[2], due: p[3] })),
+      logos: ['Logo', 'Logo', 'Logo', 'Logo', 'Logo', 'Logo'],
+      pillars: [
+        { d: ic.building, title: 'Multi-company and JV accounting', body: 'Run single companies and joint ventures side by side, each with its own books.', points: ['One-click company switcher', 'Sides and partners for JVs', 'Trial balance and balance sheet'] },
+        { d: ic.clock, title: 'Timesheets to payroll', body: 'Hours become salary cost per partner, whether people are hourly or on a fixed salary.', points: ['Day or month entry', 'Bulk import from spreadsheets', 'Approvals for team expenses'] },
+        { d: ic.pie, title: 'Equity and settlements', body: 'Profit follows equity. Capital accounts, partner loans and settlements stay in step.', points: ['Profit due per partner', 'Who owes whom, per side', 'Close the year in one step'] },
+        { d: ic.lock, title: 'Credentials vault', body: 'The logins your team shares, kept next to the company they belong to.', points: ['TOTP codes built in', 'Reveal needs a fresh 2FA code', 'Health score and audit log'] }
+      ],
+      tabs: Object.keys(TABS).map((t) => ({ label: t, on: S.tab === t, pick: () => this.setState({ tab: t }) })),
+      mod: mod, isDash: S.tab === 'Dashboard', isTime: S.tab === 'Timesheets', isSettle: S.tab === 'Settlements', isVault: S.tab === 'Vault',
+      timeRows: [['RD', 'Rohan Desai', '160.0 h'], ['SQ', 'Sana Qureshi', '148.5 h'], ['DP', 'Dev Patel', '151.0 h']].map((r) => ({ ini: r[0], name: r[1], hours: r[2] })),
+      vaultRows: [['GH', 'GitHub — vertexlabs org', 'Strong · 2FA on', 'cf-pill--pos', 'Healthy'], ['MY', 'MySQL — production database', 'Changed 220 days ago', 'cf-pill--warn', 'Rotate'], ['GM', 'Gmail — support inbox', 'Seen in a breach list', 'cf-pill--neg', 'Breached'], ['VC', 'Vercel — team API token', 'Expires in 9 days', 'cf-pill--warn', 'Renew']].map((r) => ({ mono: r[0], name: r[1], sub: r[2], pill: r[3], state: r[4] })),
+      steps: [
+        { n: '1', title: 'Create your company', body: 'Single company or joint venture. Add partners, sides and equity, and Coffer checks it adds up to 100%.' },
+        { n: '2', title: 'Bring in the team', body: 'Invite people with the right role, log hours and expenses, and move shared logins into the vault.' },
+        { n: '3', title: 'Close the month', body: 'Reports, settlements and statements are ready when the last entry is in. Export them for your accountant.' }
+      ],
+      security: [
+        { d: ic.key, title: 'Encryption', body: 'Vault items and attachments are encrypted at rest and in transit.' },
+        { d: ic.shield, title: 'Two-factor everywhere', body: 'Sign-in, unlocking the vault and revealing a password each ask for a code.' },
+        { d: ic.list, title: 'Audit log', body: 'Every view, reveal, copy, edit and share is recorded with time, person, IP and device.' }
+      ],
+      plans: [
+        ['Starter', 'One company getting its books in order.', false, 'Start free trial', 'SignUp.dc.html'],
+        ['Growth', 'A few companies, or a joint venture.', true, 'Start free trial', 'SignUp.dc.html'],
+        ['Business', 'Groups that need roles, policies and audit.', false, 'Start free trial', 'SignUp.dc.html'],
+        ['Enterprise', 'Custom setup, SSO and invoicing.', false, 'Talk to us', '#demo']
+      ].map((p) => ({ name: p[0], body: p[1], popular: p[2], cta: p[3], href: p[4], price: p[0] === 'Enterprise' ? 'Custom' : '[PRICE]', unit: p[0] === 'Enterprise' ? '' : '/ month', bg: p[2] ? 'var(--gradient-lime)' : 'var(--surface)', fg: p[2] ? 'var(--on-lime)' : 'var(--ink)', border: p[2] ? 'transparent' : 'var(--line)', btn: p[2] ? 'cf-btn--primary' : 'cf-btn--secondary' })),
+      faqs: FAQ.map((f, i) => ({ q: f[0], a: f[1], id: 'faq-' + i, open: S.faq === i, rot: S.faq === i ? 'rotate(45deg)' : 'none', toggle: () => this.setState({ faq: S.faq === i ? -1 : i }) })),
+      demoLabel: S.demo ? 'Request sent ✓' : 'Book a demo',
+      bookDemo: () => {
+        this.setState({ demo: true, toast: 'Thanks. We’ll email you to pick a time.' });
+        if (this.tt) clearTimeout(this.tt);
+        this.tt = setTimeout(() => this.setState({ toast: '' }), 2800);
+      },
+      footCols: [
+        ['Product', [['Features', '#product'], ['Modules', '#modules'], ['Pricing', 'Pricing.dc.html'], ['Security', '#security']]],
+        ['Company', [['About', '#about'], ['Careers', '#careers'], ['Contact', '#contact']]],
+        ['Resources', [['Help centre', '#help'], ['Guides', '#guides'], ['Changelog', '#changelog']]],
+        ['Legal', [['Privacy', '#privacy'], ['Terms', '#terms'], ['Data processing', '#dpa']]]
+      ].map((c) => ({ title: c[0], links: c[1].map((l) => ({ label: l[0], href: l[1] })) })),
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

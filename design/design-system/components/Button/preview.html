@@ -1,0 +1,62 @@
+<!-- @dsCard group="Actions" height=760 width=1200 subtitle="Primary pill with arrow disc, secondary, ghost, destructive · large, medium, small" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Button</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:110px repeat(6,minmax(0,1fr))}</style>
+</head>
+<body>
+<div class="pv-wrap pv-wrap--stack">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row">
+<button type="button" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc">New company<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc">Save expense<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--sm cf-btn--disc">Add<span class="cf-disc"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></button>
+<span class="pv-state">Large 54 · Medium 40 · Small 32</span>
+</div>
+<div class="pv-grid m">
+<span></span><span class="pv-state">Default</span><span class="pv-state">Hover</span><span class="pv-state">Focus</span><span class="pv-state">Disabled</span><span class="pv-state">Loading</span><span class="pv-state">Error</span>
+<span class="pv-state">Primary</span>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc">Resolve<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc is-hover">Resolve<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc is-focus">Resolve<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc" disabled>Resolve<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc is-loading" aria-busy="true">Saving…<span class="cf-disc"><span class="cf-spinner"></span></span></button>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--disc is-error" aria-invalid="true">Retry<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M19.5 11a7.5 7.5 0 1 0-2.2 5.3M19.5 5v6h-6"/></svg></span></button>
+<span class="pv-state">Secondary</span>
+<button type="button" class="cf-btn cf-btn--secondary">Export</button>
+<button type="button" class="cf-btn cf-btn--secondary is-hover">Export</button>
+<button type="button" class="cf-btn cf-btn--secondary is-focus">Export</button>
+<button type="button" class="cf-btn cf-btn--secondary" disabled>Export</button>
+<button type="button" class="cf-btn cf-btn--secondary is-loading" aria-busy="true"><span class="cf-spinner"></span>Exporting…</button>
+<button type="button" class="cf-btn cf-btn--secondary is-error" aria-invalid="true">Export failed</button>
+<span class="pv-state">Ghost</span>
+<button type="button" class="cf-btn cf-btn--ghost">Cancel</button>
+<button type="button" class="cf-btn cf-btn--ghost is-hover">Cancel</button>
+<button type="button" class="cf-btn cf-btn--ghost is-focus">Cancel</button>
+<button type="button" class="cf-btn cf-btn--ghost" disabled>Cancel</button>
+<button type="button" class="cf-btn cf-btn--ghost is-loading" aria-busy="true"><span class="cf-spinner"></span>Loading</button>
+<button type="button" class="cf-btn cf-btn--ghost is-error" aria-invalid="true">Cancel</button>
+<span class="pv-state">Destructive</span>
+<button type="button" class="cf-btn cf-btn--danger">Delete</button>
+<button type="button" class="cf-btn cf-btn--danger is-hover">Delete</button>
+<button type="button" class="cf-btn cf-btn--danger is-focus">Delete</button>
+<button type="button" class="cf-btn cf-btn--danger" disabled>Delete</button>
+<button type="button" class="cf-btn cf-btn--danger is-loading" aria-busy="true"><span class="cf-spinner"></span>Deleting…</button>
+<button type="button" class="cf-btn cf-btn--danger is-error" aria-invalid="true">Delete</button>
+</div>
+<div class="pv-row">
+<button type="button" class="cf-btn cf-btn--secondary cf-btn--lg">Large secondary</button>
+<button type="button" class="cf-btn cf-btn--secondary cf-btn--sm">Small secondary</button>
+<button type="button" class="cf-btn cf-btn--ghost cf-btn--sm"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add payer</button>
+<button type="button" class="cf-btn cf-btn--danger cf-btn--sm">Reject</button>
+<button type="button" class="cf-link">Forgot password?</button>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!-- @dsCard group="Forms" height=380 width=1200 subtitle="Native select with the Coffer chevron · box and pill" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Select</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<div class="cf-field"><label class="cf-label" for="s1">Default</label><span class="cf-select"><select id="s1"><option>Hardware</option><option>Software</option><option>Travel</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></span></div>
+<div class="cf-field"><label class="cf-label" for="s2">Focus</label><span class="cf-select"><select id="s2" class="is-focus" style="border-color:var(--focus)"><option>Kabir Shah — Bluefin Infotech</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></span></div>
+<div class="cf-field"><label class="cf-label" for="s3">Disabled</label><span class="cf-select"><select id="s3" disabled><option>INR — Indian rupee</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></span></div>
+<div class="cf-field"><label class="cf-label" for="s4">Error</label><span class="cf-select is-error"><select id="s4" aria-invalid="true" aria-describedby="s4m"><option>Choose a partner</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></span><span id="s4m" class="cf-errtext"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"/></svg>Pick who paid.</span></div>
+<div class="cf-field"><span class="cf-label">Filter pills</span><div class="pv-row"><span class="cf-select cf-select--pill"><select aria-label="Category"><option>All categories</option></select><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></span><span class="cf-select cf-select--pill"><select aria-label="Paid by"><option>Anyone</option></select><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></span></div></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

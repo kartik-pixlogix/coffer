@@ -1,0 +1,31 @@
+<!-- @dsCard group="Forms" height=280 width=1200 subtitle="One choice from a short list, all options visible" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Radio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<fieldset class="cf-field" style="border:0;padding:0;margin:0;gap:10px"><legend class="cf-label" style="margin-bottom:8px">Income attribution</legend>
+<label class="cf-radio"><input class="cf-sr" type="radio" name="attr" checked><span class="cf-radio-dot"></span><span>Per partner</span></label>
+<label class="cf-radio is-hover"><input class="cf-sr" type="radio" name="attr"><span class="cf-radio-dot"></span><span>JV pooled (hover)</span></label>
+<label class="cf-radio is-focus"><input class="cf-sr" type="radio" name="attr"><span class="cf-radio-dot"></span><span>Focus</span></label>
+</fieldset>
+<fieldset class="cf-field" style="border:0;padding:0;margin:0;gap:10px"><legend class="cf-label" style="margin-bottom:8px">Disabled and error</legend>
+<label class="cf-radio"><input class="cf-sr" type="radio" name="cur" disabled checked><span class="cf-radio-dot"></span><span class="t-faint">INR (locked after first entry)</span></label>
+<label class="cf-radio is-error"><input class="cf-sr" type="radio" name="role" aria-invalid="true"><span class="cf-radio-dot"></span><span>Admin</span></label>
+<label class="cf-radio is-error"><input class="cf-sr" type="radio" name="role" aria-invalid="true"><span class="cf-radio-dot"></span><span>Partner</span></label>
+<span class="cf-errtext">Choose a role for Ishita.</span>
+</fieldset>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

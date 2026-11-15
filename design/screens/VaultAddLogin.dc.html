@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Vault · Add GitLab login</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.rng{width:100%;accent-color:var(--ink);height:24px;margin:0}.gen-out{font-family:var(--font-mono);font-size:16px;line-height:24px;word-break:break-all;color:var(--ink)}.chk{display:flex;align-items:center;gap:10px;min-height:36px}.chk-ic{width:24px;height:24px;flex:none;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div class="cf-shell">
+<nav class="cf-rail" aria-label="Main">
+<a href="Main.dc.html" class="cf-rail-logo" aria-label="Coffer home" title="Coffer">C</a>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="20">
+<sc-if value="{{n.sep}}" hint-placeholder-val="{{ false }}"><span class="cf-rail-sep" aria-hidden="true"></span></sc-if>
+<sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><a href="{{n.href}}" class="cf-rail-item" aria-label="{{n.label}}" title="{{n.label}}" aria-current="{{n.current}}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></a></sc-if>
+</sc-for>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<a href="SignIn.dc.html" class="cf-rail-item cf-rail-out" aria-label="Sign out" title="Sign out"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.logout}}"></path></svg></a>
+</nav>
+<main class="cf-main">
+<header class="cf-topbar">
+<div class="cf-topbar-l">
+<a href="Main.dc.html" class="cf-wordmark">Coffer</a>
+<button type="button" class="cf-switcher" aria-label="Switch company"><span class="cf-switcher-ini">SP</span><span class="cf-stack"><span class="t-label-strong">Saarthi Portal JV</span><span class="t-caption t-muted">Joint Venture · Admin</span></span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></button>
+<label class="cf-search"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.search}}"></path></svg><input type="search" aria-label="Search or jump to" placeholder="Search or jump to…" /><span class="cf-kbd" aria-hidden="true">⌘K</span></label>
+</div>
+<div class="cf-topbar-r">
+<span class="t-caption t-muted">Sunday, 15 Nov 2026</span>
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button>
+<a href="Notifications.dc.html" class="cf-iconbtn cf-iconbtn--lg" aria-label="Notifications, 3 unread"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.bell}}"></path></svg><span class="cf-badge" aria-hidden="true" style="top: 6px; right: 6px; border-color: var(--surface);">3</span></a>
+<a href="Profile.dc.html" class="cf-account" aria-label="Account, Aarav Mehta"><span class="cf-avatar" style="width: 40px; height: 40px;">AM<span class="cf-avatar-dot" style="background: var(--partner-1);"></span></span><span class="cf-stack"><span class="t-label-strong">Aarav Mehta</span><span class="t-caption t-muted">Admin</span></span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></a>
+</div>
+</header>
+
+<section class="cf-pagehead">
+<div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Saarthi Portal JV</li><li aria-hidden="true">/</li><li><a href="Vault.dc.html" class="cf-link" style="color: inherit;">Credentials Vault</a></li><li aria-hidden="true">/</li><li aria-current="page">Add item</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Vault</span><span class="t-display">Add GitLab login</span></h1>
+</div>
+<div class="cf-actions">
+<a href="VaultAddCatalog.dc.html" class="cf-btn cf-btn--secondary cf-btn--lg"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back</a>
+<button type="button" class="cf-btn cf-btn--muted cf-btn--lg" onClick="{{save}}">Save</button>
+<a href="VaultShare.dc.html" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc">Save and share<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a>
+</div>
+</section>
+
+<ol class="cf-stepper" aria-label="Add item steps">
+<li class="cf-step is-done"><span class="cf-step-n">1</span>GitLab</li><li class="cf-step-line is-done" aria-hidden="true"></li>
+<li class="cf-step" aria-current="step"><span class="cf-step-n">2</span>Details</li><li class="cf-step-line" aria-hidden="true"></li>
+<li class="cf-step"><span class="cf-step-n">3</span>Share</li>
+</ol>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<section class="cf-card" aria-labelledby="fm-h" style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 14px;">
+<h2 id="fm-h" class="cf-dot-title t-title">Website login</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px;">
+<div class="cf-field"><label class="cf-label" for="vl-v">Vault</label><span class="cf-select"><select id="vl-v" value="{{fVault}}" onChange="{{onVault}}"><option>Saarthi Portal JV</option><option>Internal</option><option>Asha Retail</option><option>Kiran Exports</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></span></div>
+<div class="cf-field"><span class="cf-label" id="vl-e">Environment</span><div class="cf-seg" role="group" aria-labelledby="vl-e"><sc-for list="{{envs}}" as="o" hint-placeholder-count="3"><button type="button" class="cf-seg-btn" aria-pressed="{{o.on}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+<div class="cf-field" style="grid-column: 1 / -1;"><label class="cf-label" for="vl-n">Name</label><input id="vl-n" class="cf-input" type="text" value="{{fName}}" onChange="{{onName}}" /></div>
+<div class="cf-field"><label class="cf-label" for="vl-u">URL</label><span class="cf-inwrap"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M4 12h16M12 4c2.5 2.5 2.5 13.5 0 16M12 4c-2.5 2.5-2.5 13.5 0 16"></path></svg><input id="vl-u" type="text" value="https://gitlab.com/users/sign_in" /></span></div>
+<div class="cf-field"><label class="cf-label" for="vl-un">Username or email</label><input id="vl-un" class="cf-input" type="text" value="deploy@saarthi-jv.in" /></div>
+</div>
+
+<div class="cf-field" style="position: relative;">
+<div class="cf-label-row"><label class="cf-label" for="vl-p">Password</label><span class="t-caption" style="font-weight: 600;"><span class="{{pw.ink}}">{{pw.label}}</span></span></div>
+<span class="cf-inwrap"><input id="vl-p" type="{{pwType}}" value="{{fPassword}}" onChange="{{onPassword}}" autocomplete="new-password" style="font-family: var(--font-mono);" aria-describedby="vl-p-h" /><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" onClick="{{toggleShow}}" aria-label="{{showLabel}}" aria-pressed="{{shown}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg></button><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm" onClick="{{toggleGen}}" aria-expanded="{{genOpen}}" aria-haspopup="dialog"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l11-11M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 11l.7 1.3L21 13l-1.3.7L19 15l-.7-1.3L17 13l1.3-.7z"></path></svg>Generate</button></span>
+<div class="cf-meter-dots" aria-hidden="true" style="margin-top: 2px;"><sc-for list="{{pw.dots}}" as="d" hint-placeholder-count="4"><span style="background: {{d}};"></span></sc-for></div>
+<span id="vl-p-h" class="cf-help">{{pw.help}}</span>
+
+<sc-if value="{{genOpen}}" hint-placeholder-val="{{ true }}">
+<div class="cf-pop cf-popover" role="dialog" aria-label="Generate password" style="position: absolute; top: calc(100% - 4px); right: 0; width: 420px; z-index: 30;">
+<div class="cf-kv" style="align-items: center;"><span class="t-label-strong">Generate password</span><button type="button" class="cf-iconbtn cf-iconbtn--sm" onClick="{{toggleGen}}" aria-label="Close generator"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></div>
+<div class="cf-seg cf-seg--sm" role="group" aria-label="Kind"><sc-for list="{{modes}}" as="m" hint-placeholder-count="2"><button type="button" class="cf-seg-btn" aria-pressed="{{m.on}}" onClick="{{m.pick}}">{{m.label}}</button></sc-for></div>
+<div class="cf-inset" style="display: flex; align-items: flex-start; gap: 8px; background: var(--surface-muted);"><span class="gen-out" style="flex: 1; min-width: 0;" aria-live="polite">{{gen.value}}</span><button type="button" class="cf-iconbtn cf-iconbtn--sm" onClick="{{regen}}" aria-label="Make another"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"></path></svg></button></div>
+<div class="cf-row" style="gap: 10px;"><div class="cf-meter-dots" aria-hidden="true"><sc-for list="{{gen.dots}}" as="d" hint-placeholder-count="4"><span style="background: {{d}};"></span></sc-for></div><span class="t-caption" style="font-weight: 600;"><span class="{{gen.ink}}">{{gen.label}}</span></span><span class="t-caption t-muted">{{gen.bits}}</span></div>
+<sc-if value="{{isRandom}}" hint-placeholder-val="{{ true }}">
+<div class="cf-field"><div class="cf-kv"><label class="cf-label" for="vl-len">Length</label><span class="t-money-sm">{{g.length}}</span></div><input id="vl-len" class="rng" type="range" min="8" max="64" value="{{g.length}}" onChange="{{onLength}}" /></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{g.symbols}}" onChange="{{toggleSymbols}}" /><span class="cf-switch-track"></span><span>Symbols</span></label>
+<label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{g.digits}}" onChange="{{toggleDigits}}" /><span class="cf-switch-track"></span><span>Numbers</span></label>
+</div>
+</sc-if>
+<sc-if value="{{isPhrase}}" hint-placeholder-val="{{ false }}">
+<div class="cf-field"><div class="cf-kv"><label class="cf-label" for="vl-w">Words</label><span class="t-money-sm">{{g.words}}</span></div><input id="vl-w" class="rng" type="range" min="3" max="8" value="{{g.words}}" onChange="{{onWords}}" /></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{g.caps}}" onChange="{{toggleCaps}}" /><span class="cf-switch-track"></span><span>Capitalise</span></label>
+<label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{g.digits}}" onChange="{{toggleDigits}}" /><span class="cf-switch-track"></span><span>Add a number</span></label>
+</div>
+</sc-if>
+<button type="button" class="cf-btn cf-btn--primary" onClick="{{usePw}}">Use this password</button>
+</div>
+</sc-if>
+</div>
+
+<div class="cf-field"><label class="cf-label" for="vl-t">2FA setup key (TOTP)</label><span class="cf-inwrap {{totpWrap}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.clock}}"></path></svg><input id="vl-t" type="text" value="{{fTotp}}" onChange="{{onTotp}}" aria-invalid="{{totpBad}}" aria-describedby="vl-t-h" style="font-family: var(--font-mono); letter-spacing: .04em;" /><sc-if value="{{totpOk}}" hint-placeholder-val="{{ true }}"><span class="cf-row" style="gap: 8px; padding-right: 6px;"><span class="t-money-sm">{{totpCode}}</span><span class="cf-ring cf-ring--onlight" role="timer" aria-label="{{totpLeftLabel}}"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle class="cf-ring-track" cx="14" cy="14" r="11" stroke-width="3"></circle><circle class="cf-ring-bar" cx="14" cy="14" r="11" stroke-width="3" stroke-dasharray="69.12" stroke-dashoffset="{{totpOffset}}" transform="rotate(-90 14 14)"></circle></svg></span></span></sc-if></span><span id="vl-t-h" class="{{totpHelpClass}}">{{totpHelp}}</span></div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px;">
+<div class="cf-field"><label class="cf-label" for="vl-tag">Tags</label><div class="cf-row" style="flex-wrap: wrap; gap: 6px;"><sc-for list="{{tags}}" as="t" hint-placeholder-count="2"><span class="cf-chip">{{t.label}}<button type="button" class="cf-chip-x" onClick="{{t.remove}}" aria-label="{{t.removeLabel}}"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></span></sc-for></div><span class="cf-inwrap cf-inwrap--sm"><input id="vl-tag" type="text" value="{{tagDraft}}" onChange="{{onTagDraft}}" onKeyDown="{{onTagKey}}" placeholder="Add a tag and press Enter" /><button type="button" class="cf-btn cf-btn--ghost cf-btn--sm" onClick="{{addTag}}">Add</button></span></div>
+<div class="cf-field"><label class="cf-label" for="vl-no">Notes</label><textarea id="vl-no" class="cf-textarea" rows="3" value="{{fNotes}}" onChange="{{onNotes}}"></textarea></div>
+</div>
+<div class="cf-field"><span class="cf-label">Attachment</span>
+<sc-if value="{{hasFile}}" hint-placeholder-val="{{ true }}"><div class="cf-file"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.file}}"></path></svg><span class="cf-file-name">gitlab-recovery-codes.pdf</span><span class="t-caption t-muted">2 KB · encrypted</span><button type="button" class="cf-iconbtn cf-iconbtn--sm" onClick="{{removeFile}}" aria-label="Remove gitlab-recovery-codes.pdf"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></div></sc-if>
+<label class="cf-drop cf-drop--row"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="color: var(--ink);" aria-hidden="true"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5M5 20h14"></path></svg><span><span style="color: var(--ink); font-weight: 500;">Attach a file</span> recovery codes, keys or certificates, up to 5 MB</span><input type="file" aria-label="Attach a file" /></label>
+</div>
+</section>
+
+<aside style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<section class="cf-card" aria-labelledby="pv-h" style="display: flex; flex-direction: column; gap: 12px;">
+<h2 id="pv-h" class="cf-dot-title t-title">Preview</h2>
+<div class="cf-row" style="gap: 12px;"><span class="cf-avatar cf-avatar--lg cf-avatar--tile" style="font-family: var(--font-display);">GL</span><span class="cf-stack" style="min-width: 0;"><span class="t-label-strong">{{fName}}</span><span class="t-caption t-muted">{{fVault}} · Code and deploys</span></span></div>
+<div class="cf-row" style="flex-wrap: wrap; gap: 6px;"><span class="cf-pill {{envPill}}">{{fEnv}}</span><sc-for list="{{tags}}" as="t" hint-placeholder-count="2"><span class="cf-pill cf-pill--outline">{{t.label}}</span></sc-for></div>
+</section>
+<section class="cf-card" aria-labelledby="sc-h" style="display: flex; flex-direction: column; gap: 4px;">
+<h2 id="sc-h" class="cf-dot-title t-title" style="margin-bottom: 6px;">Security check</h2>
+<sc-for list="{{checks}}" as="k" hint-placeholder-count="4"><div class="chk"><span class="chk-ic" style="background: {{k.bg}}; color: {{k.fg}};"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="{{k.d}}"></path></svg></span><span class="cf-stack"><span class="t-body">{{k.label}}</span><span class="t-caption t-muted">{{k.sub}}</span></span></div></sc-for>
+</section>
+</aside>
+</div>
+</main>
+</div>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="cf-toast cf-toast--fixed" role="status"><span class="cf-toast-ic"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}<a href="VaultShare.dc.html" class="cf-toast-action">Share it</a></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":1340}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      themeTick: 0, toast: '', gen: true, show: false, now: Date.now(), tagDraft: '', file: true,
+      f: { vault: 'Saarthi Portal JV', env: 'Production', name: 'GitLab — saarthi-portal group', password: 'gitlab2024!', totp: 'JBSW Y3DP EHPK 3PXP', notes: 'Shared deploy account for the Saarthi portal pipelines. Owner: Aarav.' },
+      g: { mode: 'Random', length: 20, symbols: true, digits: true, words: 5, caps: true, seed: 7 },
+      tags: ['client: saarthi', 'deploy']
+    };
+  }
+
+  componentDidMount() { this.iv = setInterval(() => this.setState({ now: Date.now() }), 1000); }
+
+  componentWillUnmount() { if (this.iv) clearInterval(this.iv); if (this.tt) clearTimeout(this.tt); }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      pie: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 4v8h8',
+      users: 'M5.8 8a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3.5 19.5c.7-3.2 2.9-5 5.5-5s4.8 1.8 5.5 5M14.6 9a2.4 2.4 0 1 0 4.8 0a2.4 2.4 0 1 0 -4.8 0M16.5 14.6c2 .3 3.4 1.8 4 4.4',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      trend: 'M4 16.5l5-5 3.5 3.5L20 7.5M15 7.5h5v5',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      landmark: 'M3.5 9.5L12 4.5l8.5 5M5 9.5h14M6.5 9.5v7.5M10 9.5v7.5M14 9.5v7.5M17.5 9.5v7.5M4 20h16',
+      coins: 'M5 7c0-1.5 3.1-2.5 7-2.5s7 1 7 2.5-3.1 2.5-7 2.5S5 8.5 5 7zM5 7v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5V7M5 12v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5v-5',
+      swap: 'M4 8h15M15.5 4.5L19 8l-3.5 3.5M20 16H5M8.5 12.5L5 16l3.5 3.5',
+      bars: 'M4 20h16M7 16.5v-4M11 16.5V7M15 16.5v-6M19 16.5V9.5',
+      scale: 'M12 4v16M8.5 20h7M5 7.5h14M5 7.5l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7.5l-2.5 6a2.5 2.5 0 0 0 5 0z',
+      file: 'M6.5 3.5h7l4 4v13h-11zM13.5 3.5v4h4M9 12h6M9 15.5h6',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      sliders: 'M4 7h9M17 7h3M4 17h3M11 17h9M13 7a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M7 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+      card: 'M5 5.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2zM3 9.5h18M7 14.5h4',
+      logout: 'M9.5 4.5h-3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h3M14 16l4-4-4-4M18 12H9',
+      chevron: 'M6 9.5l6 6 6-6',
+      search: 'M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3',
+      bell: 'M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15zM10 20.5a2 2 0 0 0 4 0',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  nav(active, ic) {
+    const def = [['Dashboard', 'grid', 'Main.dc.html'], 0, ['Partners', 'pie', 'Partners.dc.html'], ['Team', 'users', 'Team.dc.html'], ['Timesheets', 'clock', 'Timesheets.dc.html'], 0, ['Income', 'trend', 'Income.dc.html'], ['Expenses', 'receipt', 'Expenses.dc.html'], ['Capital Accounts', 'landmark', 'CapitalAccounts.dc.html'], ['Partner Loans', 'coins', 'PartnerLoans.dc.html'], ['Settlements', 'swap', 'Settlements.dc.html'], 0, ['Reports', 'bars', 'Reports.dc.html'], ['Trial Balance', 'scale', 'Statements.dc.html'], ['Balance Sheet', 'file', 'Statements.dc.html'], 0, ['Credentials Vault', 'lock', 'Vault.dc.html'], 0, ['Settings', 'sliders', 'SettingsCompany.dc.html'], ['Billing', 'card', 'Billing.dc.html']];
+    return def.map((n) => (n ? { sep: false, item: true, label: n[0], d: ic[n[1]], href: n[2], current: n[0] === active ? 'page' : null } : { sep: true, item: false }));
+  }
+
+  rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  charset(g) {
+    let s = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+    if (g.digits) s += '23456789';
+    if (g.symbols) s += '!@#$%^&*-_=+?';
+    return s;
+  }
+
+  generate(g) {
+    const r = this.rng(g.seed * 7919 + g.length * 31 + g.words);
+    if (g.mode === 'Passphrase') {
+      const W = ['amber', 'basket', 'cactus', 'dynamo', 'ember', 'falcon', 'garnet', 'harbor', 'island', 'jasmine', 'kettle', 'lantern', 'meadow', 'nectar', 'orchid', 'pepper', 'quartz', 'river', 'saffron', 'tundra', 'umber', 'velvet', 'walnut', 'yonder', 'zephyr', 'monsoon', 'pebble', 'cobalt', 'lotus', 'mango', 'tamarind', 'cedar'];
+      const out = [];
+      for (let i = 0; i < g.words; i++) { let w = W[Math.floor(r() * W.length)]; if (g.caps) w = w[0].toUpperCase() + w.slice(1); out.push(w); }
+      if (g.digits) out.push(String(10 + Math.floor(r() * 90)));
+      return out.join('-');
+    }
+    const set = this.charset(g);
+    let s = '';
+    for (let i = 0; i < g.length; i++) s += set[Math.floor(r() * set.length)];
+    return s;
+  }
+
+  genBits(g) { return g.mode === 'Passphrase' ? g.words * Math.log2(7776) + (g.digits ? Math.log2(90) : 0) : g.length * Math.log2(this.charset(g).length); }
+
+  pwBits(p) {
+    if (!p) return 0;
+    let pool = 0;
+    if (/[a-z]/.test(p)) pool += 26;
+    if (/[A-Z]/.test(p)) pool += 26;
+    if (/[0-9]/.test(p)) pool += 10;
+    if (/[^a-zA-Z0-9]/.test(p)) pool += 15;
+    let bits = p.length * Math.log2(Math.max(pool, 2));
+    if (/^[a-z]+[0-9]{2,4}[^a-zA-Z0-9]?$/i.test(p)) bits = Math.min(bits, 34);
+    return bits;
+  }
+
+  level(bits) {
+    const i = bits < 40 ? 0 : bits < 60 ? 1 : bits < 80 ? 2 : 3;
+    const L = ['Weak', 'Fair', 'Strong', 'Very strong'];
+    const C = ['var(--negative)', 'var(--warning)', 'var(--positive)', 'var(--positive)'];
+    const T = ['t-neg', 't-warn', 't-pos', 't-pos'];
+    return { i: i, label: L[i], ink: T[i], dots: [0, 1, 2, 3].map((k) => (k <= i ? C[i] : 'var(--line-strong)')) };
+  }
+
+  setG(patch) { this.setState({ g: Object.assign({}, this.state.g, patch) }); }
+
+  setF(patch) { this.setState({ f: Object.assign({}, this.state.f, patch) }); }
+
+  addTag() {
+    const t = this.state.tagDraft.trim().toLowerCase();
+    if (!t || this.state.tags.indexOf(t) >= 0) { this.setState({ tagDraft: '' }); return; }
+    this.setState({ tags: this.state.tags.concat([t]), tagDraft: '' });
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const S = this.state;
+    const F = S.f;
+    const G = S.g;
+    const genValue = this.generate(G);
+    const gb = this.genBits(G);
+    const gl = this.level(gb);
+    const pb = this.pwBits(F.password);
+    const pl = this.level(pb);
+    const secret = F.totp.replace(/\s+/g, '').toUpperCase();
+    const totpBad = !!secret && !/^[A-Z2-7]+=*$/.test(secret);
+    const totpOk = !!secret && !totpBad;
+    const step = Math.floor(S.now / 30000);
+    const left = 30 - Math.floor((S.now / 1000) % 30);
+    let h = 7;
+    for (let i = 0; i < secret.length; i++) h = (h * 31 + secret.charCodeAt(i)) % 1000003;
+    const code = String((h * 7919 + step * 104729) % 1000000).padStart(6, '0');
+    const ENV = { Production: 'cf-pill--neg', Staging: 'cf-pill--warn', Development: 'cf-pill--info' };
+    const ok = ['var(--positive-soft)', 'var(--on-positive-soft)', 'M5 12.5l4.5 4.5L19 7.5'];
+    const bad = ['var(--negative-soft)', 'var(--on-negative-soft)', 'M12 7v6M12 16.5h.01'];
+    const todo = ['var(--surface-muted)', 'var(--ink-secondary)', 'M5 12h14'];
+    const mk = (state, label, sub) => ({ bg: state[0], fg: state[1], d: state[2], label: label, sub: sub });
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, nav: this.nav('Credentials Vault', ic),
+      fVault: F.vault, onVault: (e) => this.setF({ vault: e.target.value }),
+      envs: ['Production', 'Staging', 'Development'].map((v) => ({ label: v, on: F.env === v, pick: () => this.setF({ env: v }) })),
+      fEnv: F.env, envPill: ENV[F.env],
+      fName: F.name, onName: (e) => this.setF({ name: e.target.value }),
+      fPassword: F.password, onPassword: (e) => this.setF({ password: e.target.value }),
+      pwType: S.show ? 'text' : 'password', shown: S.show, showLabel: S.show ? 'Hide password' : 'Show password', toggleShow: () => this.setState({ show: !S.show }),
+      pw: { label: F.password ? pl.label : 'Empty', ink: pl.ink, dots: pl.dots, help: !F.password ? 'Type one or generate it.' : (pl.i < 2 ? 'Easy to guess. Generate a longer one instead.' : 'Good. Coffer keeps a history of old passwords.') },
+      genOpen: S.gen, toggleGen: () => this.setState({ gen: !S.gen }),
+      modes: ['Random', 'Passphrase'].map((m) => ({ label: m, on: G.mode === m, pick: () => this.setG({ mode: m }) })),
+      isRandom: G.mode === 'Random', isPhrase: G.mode === 'Passphrase',
+      gen: { value: genValue, label: gl.label, ink: gl.ink, dots: gl.dots, bits: '≈ ' + Math.round(gb) + ' bits' + (G.mode === 'Passphrase' ? ' · 7,776-word list' : '') },
+      g: { length: String(G.length), words: String(G.words), symbols: G.symbols, digits: G.digits, caps: G.caps },
+      onLength: (e) => this.setG({ length: Number(e.target.value) || 20 }), onWords: (e) => this.setG({ words: Number(e.target.value) || 5 }),
+      toggleSymbols: () => this.setG({ symbols: !G.symbols }), toggleDigits: () => this.setG({ digits: !G.digits }), toggleCaps: () => this.setG({ caps: !G.caps }),
+      regen: () => this.setG({ seed: G.seed + 1 }),
+      usePw: () => this.setState({ f: Object.assign({}, F, { password: genValue }), gen: false, show: true }),
+      fTotp: F.totp, onTotp: (e) => this.setF({ totp: e.target.value }),
+      totpOk: totpOk, totpBad: totpBad, totpWrap: totpBad ? 'is-error' : '',
+      totpCode: code.slice(0, 3) + ' ' + code.slice(3), totpOffset: String(Math.round(69.12 * (1 - left / 30) * 100) / 100), totpLeftLabel: left + ' seconds left',
+      totpHelp: totpBad ? 'Setup keys use letters A–Z and digits 2–7.' : (totpOk ? 'Paste the key from GitLab’s 2FA screen. The code on the right should match your app.' : 'Optional. Paste the key from GitLab’s 2FA screen.'),
+      totpHelpClass: totpBad ? 'cf-errtext' : 'cf-help',
+      tags: S.tags.map((t) => ({ label: t, removeLabel: 'Remove tag ' + t, remove: () => this.setState({ tags: this.state.tags.filter((x) => x !== t) }) })),
+      tagDraft: S.tagDraft, onTagDraft: (e) => this.setState({ tagDraft: e.target.value }),
+      onTagKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.addTag(); } }, addTag: () => this.addTag(),
+      fNotes: F.notes, onNotes: (e) => this.setF({ notes: e.target.value }),
+      hasFile: S.file, removeFile: () => this.setState({ file: false }),
+      checks: [
+        F.password ? (pl.i >= 2 ? mk(ok, 'Strong password', pl.label + ' · ≈ ' + Math.round(pb) + ' bits') : mk(bad, 'Weak password', 'Use the generator before saving')) : mk(todo, 'No password yet', 'Type or generate one'),
+        totpOk ? mk(ok, '2FA key added', 'Codes show next to the password') : mk(bad, 'No 2FA key', 'Items without 2FA lower your health score'),
+        F.password === 'gitlab2024!' ? mk(bad, 'Used elsewhere', 'Same as Netlify — marketing site') : mk(ok, 'Not used elsewhere', 'Checked against 12 items in your vaults'),
+        mk(todo, 'Only you for now', 'Share it in the next step')
+      ],
+      save: () => {
+        this.setState({ toast: F.name + ' saved to ' + F.vault });
+        if (this.tt) clearTimeout(this.tt);
+        this.tt = setTimeout(() => this.setState({ toast: '' }), 3200);
+      },
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

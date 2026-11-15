@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Vault · Locked and policies</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.lock-wrap{position:relative;min-height:660px;border-radius:var(--radius-lg);overflow:hidden}.lock-bg{position:absolute;inset:0;padding:24px;display:flex;flex-direction:column;gap:14px;filter:blur(3px);opacity:.6}.lock-card{position:relative;z-index:1;width:440px;max-width:calc(100% - 32px);margin:72px auto 0;padding:28px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface);box-shadow:var(--shadow-pop);display:flex;flex-direction:column;gap:16px;align-items:stretch;text-align:center}.cf-radio.rcard{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface)}.cf-radio.rcard.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}.prow{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:12px 0;border-top:1px solid var(--line)}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div class="cf-shell">
+<nav class="cf-rail" aria-label="Main">
+<a href="Main.dc.html" class="cf-rail-logo" aria-label="Coffer home" title="Coffer">C</a>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="20">
+<sc-if value="{{n.sep}}" hint-placeholder-val="{{ false }}"><span class="cf-rail-sep" aria-hidden="true"></span></sc-if>
+<sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><a href="{{n.href}}" class="cf-rail-item" aria-label="{{n.label}}" title="{{n.label}}" aria-current="{{n.current}}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></a></sc-if>
+</sc-for>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<a href="SignIn.dc.html" class="cf-rail-item cf-rail-out" aria-label="Sign out" title="Sign out"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.logout}}"></path></svg></a>
+</nav>
+<main class="cf-main">
+<header class="cf-topbar">
+<div class="cf-topbar-l">
+<a href="Main.dc.html" class="cf-wordmark">Coffer</a>
+<button type="button" class="cf-switcher" aria-label="Switch company"><span class="cf-switcher-ini">SP</span><span class="cf-stack"><span class="t-label-strong">Saarthi Portal JV</span><span class="t-caption t-muted">Joint Venture · Admin</span></span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></button>
+<label class="cf-search"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.search}}"></path></svg><input type="search" aria-label="Search or jump to" placeholder="Search or jump to…" /><span class="cf-kbd" aria-hidden="true">⌘K</span></label>
+</div>
+<div class="cf-topbar-r">
+<span class="t-caption t-muted">Sunday, 15 Nov 2026</span>
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button>
+<a href="Notifications.dc.html" class="cf-iconbtn cf-iconbtn--lg" aria-label="Notifications, 3 unread"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.bell}}"></path></svg><span class="cf-badge" aria-hidden="true" style="top: 6px; right: 6px; border-color: var(--surface);">3</span></a>
+<a href="Profile.dc.html" class="cf-account" aria-label="Account, Aarav Mehta"><span class="cf-avatar" style="width: 40px; height: 40px;">AM<span class="cf-avatar-dot" style="background: var(--partner-1);"></span></span><span class="cf-stack"><span class="t-label-strong">Aarav Mehta</span><span class="t-caption t-muted">Admin</span></span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></a>
+</div>
+</header>
+
+<section class="cf-pagehead">
+<div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Saarthi Portal JV</li><li aria-hidden="true">/</li><li><a href="Vault.dc.html" class="cf-link" style="color: inherit;">Credentials Vault</a></li><li aria-hidden="true">/</li><li aria-current="page">{{crumb}}</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Vault</span><span class="t-display">{{crumb}}</span></h1>
+</div>
+<div class="cf-actions">
+<div class="cf-seg" role="group" aria-label="Screen"><sc-for list="{{screens}}" as="s" hint-placeholder-count="2"><button type="button" class="cf-seg-btn" aria-pressed="{{s.on}}" onClick="{{s.pick}}">{{s.label}}</button></sc-for></div>
+<sc-if value="{{isPolicies}}" hint-placeholder-val="{{ false }}"><sc-if value="{{dirty}}" hint-placeholder-val="{{ false }}"><button type="button" class="cf-btn cf-btn--ghost cf-btn--lg" onClick="{{discard}}">Discard</button></sc-if><button type="button" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc" onClick="{{save}}" disabled="{{clean}}">Save policies<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></button></sc-if>
+</div>
+</section>
+
+<sc-if value="{{isLocked}}" hint-placeholder-val="{{ true }}">
+<section class="cf-card lock-wrap" aria-label="Vault locked">
+<div class="lock-bg" aria-hidden="true">
+<div class="cf-row"><span class="cf-skel cf-skel--title" style="width: 220px;"></span><span class="cf-skel" style="width: 120px; height: 32px; border-radius: 9999px;"></span><span class="cf-skel" style="width: 120px; height: 32px; border-radius: 9999px;"></span></div>
+<sc-for list="{{skel}}" as="k" hint-placeholder-count="8"><div class="cf-row" style="gap: 14px;"><span class="cf-skel cf-skel--circle" style="width: 40px; height: 40px;"></span><span class="cf-skel cf-skel--line" style="width: {{k.w}};"></span><span class="cf-skel cf-skel--line" style="width: 140px; margin-left: auto;"></span></div></sc-for>
+</div>
+<sc-if value="{{showForm}}" hint-placeholder-val="{{ true }}">
+<div class="lock-card" role="dialog" aria-modal="false" aria-labelledby="lk-t">
+<span class="cf-disc" style="width: 56px; height: 56px; align-self: center;"><svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.lock}}"></path></svg></span>
+<div class="cf-stack" style="gap: 6px; align-items: center;"><h2 id="lk-t" class="t-heading" style="margin: 0;">Your vault is locked</h2><p class="t-body t-muted" style="margin: 0;">It locked after 15 minutes without activity. Enter the 6-digit code from your authenticator app to open it.</p></div>
+<fieldset class="cf-field" style="border: 0; padding: 0; margin: 0; align-items: center;"><legend class="cf-sr">6-digit code</legend>
+<div class="cf-code {{codeClass}}" style="justify-content: center;"><sc-for list="{{digits}}" as="d" hint-placeholder-count="6"><input class="cf-code-box" inputmode="numeric" maxlength="1" aria-label="{{d.label}}" value="{{d.v}}" onChange="{{d.on}}" aria-invalid="{{codeBad}}" /></sc-for></div>
+<sc-if value="{{codeBad}}" hint-placeholder-val="{{ false }}"><span class="cf-errtext" style="margin-top: 8px;">That code didn’t match. {{triesText}}</span></sc-if>
+</fieldset>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--lg {{unlockClass}}" onClick="{{unlock}}" disabled="{{cantUnlock}}" aria-busy="{{checking}}"><sc-if value="{{checking}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true"></span></sc-if>{{unlockLabel}}</button>
+<div class="cf-row" style="justify-content: center; gap: 14px; flex-wrap: wrap;"><button type="button" class="cf-link t-caption" onClick="{{useRecovery}}">Use a recovery code</button><span class="t-caption t-muted">·</span><a href="SignIn.dc.html" class="cf-link t-caption">Not Aarav? Sign out</a></div>
+<span class="t-caption t-muted">Set by your Admin: re-ask every {{reask}}. <button type="button" class="cf-link t-caption" onClick="{{goPolicies}}">See vault policies</button></span>
+</div>
+</sc-if>
+<sc-if value="{{unlocked}}" hint-placeholder-val="{{ false }}">
+<div class="lock-card" role="status" aria-labelledby="ok-t">
+<span class="cf-avatar cf-avatar--xl" style="align-self: center; background: var(--positive-soft); color: var(--on-positive-soft);"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<div class="cf-stack" style="gap: 6px; align-items: center;"><h2 id="ok-t" class="t-heading" style="margin: 0;">Vault unlocked</h2><p class="t-body t-muted" style="margin: 0;">It stays open until 10:12 if you keep working. Revealing a password still asks for a fresh code.</p></div>
+<a href="Vault.dc.html" class="cf-btn cf-btn--primary cf-btn--lg">Open the vault</a>
+<button type="button" class="cf-btn cf-btn--ghost" onClick="{{relock}}">Lock again</button>
+</div>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{isPolicies}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<section class="cf-card" aria-labelledby="p1-h" style="display: flex; flex-direction: column; gap: 12px;">
+<h2 id="p1-h" class="cf-dot-title t-title">Unlock and re-ask</h2>
+<div class="cf-field"><span class="cf-label" id="p1-r">Ask for a 2FA code again after</span><div class="cf-seg" role="group" aria-labelledby="p1-r"><sc-for list="{{reaskOpts}}" as="o" hint-placeholder-count="5"><button type="button" class="cf-seg-btn" aria-pressed="{{o.on}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div><span class="cf-help">How long the vault stays open without activity. Shorter is safer on shared desks.</span></div>
+<div class="prow"><span class="cf-stack"><span class="t-label-strong">Ask again before revealing a password</span><span class="t-caption t-muted">Even when the vault is open, showing a password needs a fresh code.</span></span><label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{p.revealAsk}}" onChange="{{tRevealAsk}}" aria-label="Ask again before revealing a password" /><span class="cf-switch-track"></span></label></div>
+<div class="prow"><span class="cf-stack"><span class="t-label-strong">Lock when the tab closes</span><span class="t-caption t-muted">Closing Coffer locks the vault straight away.</span></span><label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{p.tabLock}}" onChange="{{tTabLock}}" aria-label="Lock when the tab closes" /><span class="cf-switch-track"></span></label></div>
+</section>
+<section class="cf-card" aria-labelledby="p2-h" style="display: flex; flex-direction: column; gap: 12px;">
+<h2 id="p2-h" class="cf-dot-title t-title">Clipboard</h2>
+<div class="cf-field"><span class="cf-label" id="p2-c">Clear copied passwords after</span><div class="cf-seg" role="group" aria-labelledby="p2-c"><sc-for list="{{clipOpts}}" as="o" hint-placeholder-count="4"><button type="button" class="cf-seg-btn" aria-pressed="{{o.on}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div><span class="cf-help">Coffer wipes the clipboard if it still holds the password it copied.</span></div>
+<div class="prow"><span class="cf-stack"><span class="t-label-strong">Block copying on shared devices</span><span class="t-caption t-muted">Devices marked as shared can only autofill.</span></span><label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{p.sharedBlock}}" onChange="{{tSharedBlock}}" aria-label="Block copying on shared devices" /><span class="cf-switch-track"></span></label></div>
+</section>
+<section class="cf-card" aria-labelledby="p3-h" style="display: flex; flex-direction: column; gap: 12px;">
+<h2 id="p3-h" class="cf-dot-title t-title">Who can export</h2>
+<div role="radiogroup" aria-labelledby="p3-h" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;"><sc-for list="{{exportOpts}}" as="o" hint-placeholder-count="3"><label class="cf-radio rcard {{o.cls}}"><input class="cf-sr" type="radio" name="exp" checked="{{o.on}}" onChange="{{o.pick}}" /><span class="cf-radio-dot" style="margin-top: 2px;"></span><span class="cf-stack" style="gap: 4px;"><span class="t-label-strong">{{o.label}}</span><span class="t-caption t-muted">{{o.body}}</span></span></label></sc-for></div>
+<div class="prow"><span class="cf-stack"><span class="t-label-strong">Ask for a reason and 2FA on every export</span><span class="t-caption t-muted">The reason is saved in the audit log with the file name.</span></span><label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{p.exportReason}}" onChange="{{tExportReason}}" aria-label="Ask for a reason and 2FA on every export" /><span class="cf-switch-track"></span></label></div>
+</section>
+</div>
+<aside class="cf-card cf-card--graphite" style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 12px;" aria-labelledby="sm-h">
+<h2 id="sm-h" class="t-title" style="margin: 0;">What people will see</h2>
+<sc-for list="{{summary}}" as="s" hint-placeholder-count="4"><div class="cf-row" style="gap: 10px; align-items: flex-start;"><span class="cf-avatar cf-avatar--sm" style="background: var(--gradient-lime); color: var(--on-lime); flex: none;"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="t-body" style="color: var(--on-graphite);">{{s}}</span></div></sc-for>
+<span class="t-caption" style="color: var(--on-graphite-muted);">Applies to all 4 vaults in Saarthi Portal JV. Only Admins can change these.</span>
+</aside>
+</div>
+</sc-if>
+</main>
+</div>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="cf-toast cf-toast--fixed" role="status"><span class="cf-toast-ic"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"screen":{"editor":"enum","options":["Vault locked","Vault policies"],"default":"Vault locked","section":"State"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.base = { reask: '15 min', clip: '30 s', exportWho: 'Admins only', revealAsk: true, tabLock: true, sharedBlock: false, exportReason: true };
+    this.state = { themeTick: 0, toast: '', code: ['4', '8', '2', '9', '', ''], tries: 3, bad: false, checking: false, unlocked: false, p: Object.assign({}, this.base) };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  screenNow() {
+    const key = this.props.screen || 'Vault locked';
+    if (this.screenSeen !== key) { this.screenSeen = key; this.screenPick = key; }
+    return this.screenPick;
+  }
+
+  componentWillUnmount() { if (this.tt) clearTimeout(this.tt); if (this.ut) clearTimeout(this.ut); }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      pie: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 4v8h8',
+      users: 'M5.8 8a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3.5 19.5c.7-3.2 2.9-5 5.5-5s4.8 1.8 5.5 5M14.6 9a2.4 2.4 0 1 0 4.8 0a2.4 2.4 0 1 0 -4.8 0M16.5 14.6c2 .3 3.4 1.8 4 4.4',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      trend: 'M4 16.5l5-5 3.5 3.5L20 7.5M15 7.5h5v5',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      landmark: 'M3.5 9.5L12 4.5l8.5 5M5 9.5h14M6.5 9.5v7.5M10 9.5v7.5M14 9.5v7.5M17.5 9.5v7.5M4 20h16',
+      coins: 'M5 7c0-1.5 3.1-2.5 7-2.5s7 1 7 2.5-3.1 2.5-7 2.5S5 8.5 5 7zM5 7v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5V7M5 12v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5v-5',
+      swap: 'M4 8h15M15.5 4.5L19 8l-3.5 3.5M20 16H5M8.5 12.5L5 16l3.5 3.5',
+      bars: 'M4 20h16M7 16.5v-4M11 16.5V7M15 16.5v-6M19 16.5V9.5',
+      scale: 'M12 4v16M8.5 20h7M5 7.5h14M5 7.5l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7.5l-2.5 6a2.5 2.5 0 0 0 5 0z',
+      file: 'M6.5 3.5h7l4 4v13h-11zM13.5 3.5v4h4M9 12h6M9 15.5h6',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      sliders: 'M4 7h9M17 7h3M4 17h3M11 17h9M13 7a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M7 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+      card: 'M5 5.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2zM3 9.5h18M7 14.5h4',
+      logout: 'M9.5 4.5h-3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h3M14 16l4-4-4-4M18 12H9',
+      chevron: 'M6 9.5l6 6 6-6',
+      search: 'M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3',
+      bell: 'M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15zM10 20.5a2 2 0 0 0 4 0',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  nav(active, ic) {
+    const def = [['Dashboard', 'grid', 'Main.dc.html'], 0, ['Partners', 'pie', 'Partners.dc.html'], ['Team', 'users', 'Team.dc.html'], ['Timesheets', 'clock', 'Timesheets.dc.html'], 0, ['Income', 'trend', 'Income.dc.html'], ['Expenses', 'receipt', 'Expenses.dc.html'], ['Capital Accounts', 'landmark', 'CapitalAccounts.dc.html'], ['Partner Loans', 'coins', 'PartnerLoans.dc.html'], ['Settlements', 'swap', 'Settlements.dc.html'], 0, ['Reports', 'bars', 'Reports.dc.html'], ['Trial Balance', 'scale', 'Statements.dc.html'], ['Balance Sheet', 'file', 'Statements.dc.html'], 0, ['Credentials Vault', 'lock', 'Vault.dc.html'], 0, ['Settings', 'sliders', 'SettingsCompany.dc.html'], ['Billing', 'card', 'Billing.dc.html']];
+    return def.map((n) => (n ? { sep: false, item: true, label: n[0], d: ic[n[1]], href: n[2], current: n[0] === active ? 'page' : null } : { sep: true, item: false }));
+  }
+
+  flash(msg) {
+    this.setState({ toast: msg });
+    if (this.tt) clearTimeout(this.tt);
+    this.tt = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+
+  setDigit(i, v) {
+    const code = this.state.code.slice();
+    code[i] = String(v).replace(/[^0-9]/g, '').slice(-1);
+    this.setState({ code: code, bad: false });
+  }
+
+  setP(patch) { this.setState({ p: Object.assign({}, this.state.p, patch) }); }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const S = this.state;
+    const P = S.p;
+    const B = this.base;
+    const screen = this.screenNow();
+    const locked = screen === 'Vault locked';
+    const full = S.code.every((d) => d !== '');
+    const dirty = Object.keys(B).some((k) => B[k] !== P[k]);
+    const go = (s) => { this.screenPick = s; this.setState({ themeTick: S.themeTick + 1 }); };
+    const EXP = [['Admins only', 'Admins can export any vault they manage.'], ['Admins and partners', 'Partners can export vaults they can see.'], ['No one', 'Exports are switched off for everyone.']];
+    const CLIP = { '15 s': '15 seconds', '30 s': '30 seconds', '60 s': '1 minute', '90 s': '90 seconds' };
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, nav: this.nav('Credentials Vault', ic),
+      crumb: locked ? 'Locked' : 'Policies', isLocked: locked, isPolicies: !locked,
+      screens: [['Vault locked', 'Locked screen'], ['Vault policies', 'Policies']].map((s) => ({ label: s[1], on: screen === s[0], pick: () => go(s[0]) })),
+      skel: ['46%', '38%', '52%', '30%', '44%', '36%', '50%', '28%'].map((w) => ({ w: w })),
+      showForm: !S.unlocked, unlocked: S.unlocked,
+      digits: S.code.map((v, i) => ({ v: v, label: 'Digit ' + (i + 1), on: (e) => this.setDigit(i, e.target.value) })),
+      codeBad: S.bad, codeClass: S.bad ? 'is-error' : '', triesText: S.tries > 0 ? S.tries + (S.tries === 1 ? ' try left' : ' tries left') + ' before a 5-minute pause.' : 'Wait 5 minutes and try again.',
+      cantUnlock: !full || S.checking, checking: S.checking, unlockClass: S.checking ? 'is-loading' : '', unlockLabel: S.checking ? 'Checking code' : 'Unlock vault',
+      unlock: () => {
+        if (!full || S.checking) return;
+        this.setState({ checking: true });
+        if (this.ut) clearTimeout(this.ut);
+        this.ut = setTimeout(() => {
+          const c = this.state.code.join('');
+          if (/^(\d)\1{5}$/.test(c)) this.setState({ checking: false, bad: true, tries: Math.max(0, this.state.tries - 1), code: ['', '', '', '', '', ''] });
+          else this.setState({ checking: false, unlocked: true });
+        }, 900);
+      },
+      relock: () => this.setState({ unlocked: false, code: ['', '', '', '', '', ''], bad: false }),
+      useRecovery: () => this.flash('Recovery codes are 10 characters. Each one works once.'),
+      reask: B.reask === 'Every time' ? 'time you open it' : B.reask.replace('min', 'minutes').replace('1 hour', 'hour').replace('8 hours', '8 hours'),
+      goPolicies: () => go('Vault policies'),
+      reaskOpts: ['Every time', '5 min', '15 min', '1 hour', '8 hours'].map((o) => ({ label: o, on: P.reask === o, pick: () => this.setP({ reask: o }) })),
+      clipOpts: Object.keys(CLIP).map((o) => ({ label: o, on: P.clip === o, pick: () => this.setP({ clip: o }) })),
+      exportOpts: EXP.map((o) => ({ label: o[0], body: o[1], on: P.exportWho === o[0], cls: P.exportWho === o[0] ? 'on' : '', pick: () => this.setP({ exportWho: o[0] }) })),
+      p: P,
+      tRevealAsk: () => this.setP({ revealAsk: !P.revealAsk }), tTabLock: () => this.setP({ tabLock: !P.tabLock }), tSharedBlock: () => this.setP({ sharedBlock: !P.sharedBlock }), tExportReason: () => this.setP({ exportReason: !P.exportReason }),
+      summary: [
+        P.reask === 'Every time' ? 'Asked for a code every time they open the vault' : 'Asked for a code after ' + P.reask.replace('min', 'minutes') + ' without activity',
+        P.revealAsk ? 'A fresh code before any password is shown' : 'Passwords show without a fresh code while unlocked',
+        'Copied passwords cleared after ' + CLIP[P.clip] + (P.sharedBlock ? ', and no copying on shared devices' : ''),
+        P.exportWho === 'No one' ? 'Nobody can export vaults' : (P.exportWho === 'Admins only' ? 'Only Admins can export' : 'Admins and partners can export') + (P.exportReason ? ', with a reason and 2FA' : '')
+      ],
+      dirty: dirty, clean: !dirty,
+      discard: () => this.setState({ p: Object.assign({}, B) }),
+      save: () => { if (!dirty) return; this.base = Object.assign({}, P); this.flash('Vault policies saved. They apply on next unlock.'); },
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

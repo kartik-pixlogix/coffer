@@ -1,0 +1,27 @@
+<!-- @dsCard group="Forms" height=470 width=1200 subtitle="Vault secret with Reveal and Copy · masked, verifying, shown, sign-in entry" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Password field</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.sec{flex:1;min-width:0;font-family:var(--font-mono);font-size:14px;overflow-wrap:anywhere}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-field"><div class="cf-label-row"><span class="cf-label">Masked</span><span class="cf-help">Last changed 28 Sep 2026</span></div>
+<div class="cf-inwrap"><span class="sec" style="letter-spacing:.12em">••••••••••••••</span><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/></svg>Reveal</button><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" aria-label="Copy password"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 8.5h7.5a2 2 0 0 1 2 2v7.5a2 2 0 0 1 -2 2h-7.5a2 2 0 0 1 -2 -2v-7.5a2 2 0 0 1 2 -2zM15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></svg></button></div></div>
+<div class="cf-field"><div class="cf-label-row"><span class="cf-label">Shown · auto-hides</span><span class="cf-help">Hides in 24 s</span></div>
+<div class="cf-inwrap is-focus"><span class="sec" style="letter-spacing:.02em">Vx9#kq!4LmP2@zr8</span><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M10.6 6.1A9 9 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-2.7 3.4M6.7 7.3C4.1 9 2.5 12 2.5 12s3.5 6 9.5 6a9 9 0 0 0 4.2-1M9.9 10.2a3 3 0 0 0 4 4"/></svg>Hide</button><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare is-selected" aria-label="Copied"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></div></div>
+<div class="cf-field"><span class="cf-label">Revealing · checking your code</span><div class="cf-inwrap is-readonly" aria-busy="true"><span class="sec" style="letter-spacing:.12em">••••••••••••••</span><span class="cf-btn cf-btn--secondary cf-btn--sm is-loading"><span class="cf-spinner"></span>Verifying</span></div></div>
+<div class="pv-row" style="align-items:flex-start">
+<div class="cf-field" style="flex:1"><label class="cf-label" for="pw1">Sign-in password</label><span class="cf-inwrap"><input id="pw1" type="password" value="hunter22!" autocomplete="current-password"><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" aria-label="Show password"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/></svg></button></span></div>
+<div class="cf-field" style="flex:1"><label class="cf-label" for="pw2">Error</label><span class="cf-inwrap is-error"><input id="pw2" type="password" value="short" aria-invalid="true" aria-describedby="pw2m"></span><span id="pw2m" class="cf-errtext">Use at least 12 characters.</span></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

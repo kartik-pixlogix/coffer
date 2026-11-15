@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer mobile — Expenses</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.msb{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 30px;font-size:15px;font-weight:600}.xr{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:62px;padding:8px 12px;border-radius:var(--radius-md);background:var(--surface)}.fab{position:absolute;right:16px;bottom:96px;z-index:5;width:56px;height:56px;border-radius:9999px;border:0;background:var(--ink);color:var(--surface);display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--shadow-pop)}.amt{width:100%;border:0;background:transparent;color:var(--ink);font-family:var(--font-mono);font-size:40px;line-height:48px;font-weight:500;outline:none;padding:0}</style>
+</helmet>
+<div class="cf cf-phone" data-theme="{{theme}}">
+<div class="msb" aria-hidden="true"><span>9:41</span><svg width="68" height="12" viewBox="0 0 68 12"><path d="M1 9h2v2H1zM5 7h2v4H5zM9 5h2v6H9zM13 3h2v8h-2z" fill="currentColor"></path><path d="M24 4.5a8 8 0 0 1 11 0M26.5 7a4.5 4.5 0 0 1 6 0M29.5 10h.01" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"></path><rect x="44" y="1.5" width="20" height="9" rx="2.5" stroke="currentColor" fill="none"></rect><rect x="46" y="3.5" width="14" height="5" rx="1.2" fill="currentColor"></rect><path d="M65.5 4.5v3" stroke="currentColor" stroke-width="1.4"></path></svg></div>
+<header class="cf-mtop">
+<h1 class="t-heading" style="margin: 0; font-size: 26px; line-height: 30px;">Expenses</h1>
+<div class="cf-row" style="gap: 6px;"><button type="button" class="cf-iconbtn" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button><button type="button" class="cf-iconbtn" aria-label="Search expenses"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.search}}"></path></svg></button></div>
+</header>
+<main class="cf-mscroll">
+<div class="cf-seg" role="group" aria-label="Show" style="width: 100%;"><sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><button type="button" class="cf-seg-btn" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="flex: 1;">{{f.label}}</button></sc-for></div>
+<section class="cf-card cf-kv" style="align-items: center;" aria-label="November total"><span class="cf-stack"><span class="t-caption t-muted">November so far</span><span class="t-money" style="font-size: 22px; line-height: 28px;">{{totalText}}</span></span><span class="t-caption t-muted">{{countText}}</span></section>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<section style="display: flex; flex-direction: column; gap: 8px;" aria-label="{{g.day}}">
+<h2 class="t-label t-muted" style="margin: 6px 0 0;">{{g.day}}</h2>
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2">
+<div class="xr"><span class="cf-avatar cf-avatar--tile" style="background: var(--surface-muted);"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{r.d}}"></path></svg></span><span class="cf-stack" style="min-width: 0;"><span class="t-label-strong" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{r.name}}</span><span class="t-caption t-muted">{{r.cat}} · {{r.who}}</span></span><span class="cf-stack" style="align-items: flex-end; gap: 4px;"><span class="t-money">{{r.amount}}</span><span class="cf-pill cf-pill--sm {{r.pill}}">{{r.status}}</span></span></div>
+</sc-for>
+</section>
+</sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div class="cf-empty"><span class="t-label-strong">Nothing to approve</span><span class="t-caption t-muted">New expenses from the team show up here.</span></div></sc-if>
+</main>
+<button type="button" class="fab" onClick="{{openSheet}}" aria-label="Add expense"><svg class="ic" width="24" height="24" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+<nav class="cf-mtabbar" aria-label="Main"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><a href="{{t.href}}" class="cf-mtab" aria-current="{{t.current}}"><span class="cf-mtab-ic"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{t.d}}"></path></svg></span>{{t.label}}</a></sc-for></nav>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{ true }}">
+<div class="cf-scrim" aria-hidden="true"></div>
+<section class="cf-sheet" role="dialog" aria-modal="true" aria-labelledby="ax-t" style="top: 44px;">
+<div class="cf-sheet-grab" aria-hidden="true"></div>
+<div class="cf-sheet-head"><h2 id="ax-t" class="t-heading" style="margin: 0;">Add expense</h2><button type="button" class="cf-iconbtn" onClick="{{closeSheet}}" aria-label="Close"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></div>
+<div class="cf-sheet-body">
+<label class="cf-card" style="display: flex; flex-direction: column; gap: 2px;"><span class="t-caption t-muted">Amount</span><span class="cf-row" style="gap: 6px; align-items: baseline;"><span class="t-money" style="font-size: 28px;">₹</span><input class="amt" type="text" inputmode="numeric" value="{{fAmount}}" onChange="{{onAmount}}" aria-label="Amount in rupees" aria-invalid="{{amountBad}}" /></span></label>
+<div class="cf-field"><label class="cf-label" for="mx-n">What was it for?</label><input id="mx-n" class="cf-input" type="text" value="{{fName}}" onChange="{{onName}}" placeholder="Vendor or short note" /></div>
+<div class="cf-field"><span class="cf-label" id="mx-c">Category</span><div class="cf-row" role="group" aria-labelledby="mx-c" style="flex-wrap: wrap; gap: 6px;"><sc-for list="{{cats}}" as="c" hint-placeholder-count="6"><button type="button" class="cf-chip" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div class="cf-field"><label class="cf-label" for="mx-p">Paid by</label><span class="cf-select"><select id="mx-p" value="{{fBy}}" onChange="{{onBy}}"><option>Aarav Mehta</option><option>Ishita Rao</option><option>Kabir Shah</option><option>Meera Iyer</option><option>Rohan Desai</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></span></div>
+<div class="cf-field"><label class="cf-label" for="mx-d">Date</label><input id="mx-d" class="cf-input" type="text" value="15 Nov 2026" /></div>
+</div>
+<div class="cf-field"><label class="cf-label" for="mx-f">Paid from</label><span class="cf-select"><select id="mx-f"><option>Vertex Labs account</option><option>Bluefin Infotech account</option><option>Personal card (reimburse)</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></span></div>
+<div class="cf-field"><span class="cf-label">Receipt</span><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;"><button type="button" class="cf-btn cf-btn--secondary" onClick="{{snap}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4zM9 13a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg>Take photo</button><label class="cf-btn cf-btn--secondary" style="position: relative;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5M5 20h14"></path></svg>Choose file<input type="file" class="cf-sr" aria-label="Choose a receipt file" /></label></div><sc-if value="{{hasReceipt}}" hint-placeholder-val="{{ false }}"><div class="cf-file"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"></path></svg><span class="cf-file-name">IMG_2041.jpg</span><span class="t-caption t-muted">1.2 MB</span></div></sc-if></div>
+<label class="cf-switch" style="justify-content: space-between; width: 100%;"><span class="cf-stack"><span class="t-label-strong">Bill to a client</span><span class="t-caption t-muted">Shows on the client’s monthly summary</span></span><input class="cf-sr" type="checkbox" role="switch" checked="{{billable}}" onChange="{{toggleBillable}}" /><span class="cf-switch-track"></span></label>
+<sc-if value="{{needsApproval}}" hint-placeholder-val="{{ false }}"><div class="cf-alert cf-alert--info cf-alert--slim"><span class="t-caption">Over ₹10,000, so a partner approves it before it counts.</span></div></sc-if>
+</div>
+<div class="cf-sheet-foot"><button type="button" class="cf-btn cf-btn--primary cf-btn--lg" style="flex: 1;" onClick="{{save}}" disabled="{{amountBad}}">{{saveLabel}}</button></div>
+</section>
+</sc-if>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="cf-toast" role="status" style="position: absolute; left: 16px; right: 16px; bottom: 100px; z-index: 60;"><span class="cf-toast-ic"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      themeTick: 0, toast: '', filter: 'All', sheet: true, billable: false, receipt: false,
+      f: { amount: '2,350', name: 'Printer toner, Baner office', cat: 'Office', by: 'Aarav Mehta' },
+      rows: [
+        { id: 1, day: 'Today', name: 'AWS — October bill', cat: 'Hosting', who: 'Aarav', amt: 18450, status: 'Approved', mine: true },
+        { id: 2, day: 'Today', name: 'Uber to Asha Retail', cat: 'Travel', who: 'Rohan', amt: 640, status: 'Pending' },
+        { id: 3, day: 'Yesterday', name: 'Figma — 3 editor seats', cat: 'Software', who: 'Sana', amt: 7200, status: 'Approved' },
+        { id: 4, day: 'Yesterday', name: 'Team lunch', cat: 'Office', who: 'Kabir', amt: 4860, status: 'Pending' },
+        { id: 5, day: '12 Nov', name: 'Google Workspace', cat: 'Software', who: 'Aarav', amt: 5040, status: 'Approved', mine: true },
+        { id: 6, day: '12 Nov', name: 'Courier — Bluefin office', cat: 'Other', who: 'Kabir', amt: 12500, status: 'Approved' }
+      ]
+    };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  componentWillUnmount() { if (this.tt) clearTimeout(this.tt); }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      menu: 'M4 7h16M4 12h16M4 17h16',
+      chevron: 'M6 9.5l6 6 6-6',
+      search: 'M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4',
+      cloud: 'M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0 -11.5 1.5A3.3 3.3 0 0 0 7 18z',
+      car: 'M5 16V11l2-5h10l2 5v5M5 16h14M5 16v2M19 16v2M7.5 13h.01M16.5 13h.01',
+      code: 'M8.5 8L4.5 12l4 4M15.5 8l4 4-4 4M13.5 5.5l-3 13',
+      cup: 'M5 8h11v6a4 4 0 0 1 -4 4h-3a4 4 0 0 1 -4 -4zM16 9.5h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M11 3.5v2',
+      box: 'M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8',
+      tag: 'M4 4h7l9 9-7 7-9-9zM8 8h.01'
+    };
+  }
+
+  tabs(active, ic) {
+    return [['Home', 'grid', 'MobileDashboard.dc.html'], ['Expenses', 'receipt', 'MobileExpenses.dc.html'], ['Hours', 'clock', 'MobileLogHours.dc.html'], ['Vault', 'lock', 'MobileVault.dc.html'], ['Menu', 'menu', 'MobileNav.dc.html']].map((t) => ({ label: t[0], d: ic[t[1]], href: t[2], current: t[0] === active ? 'page' : null }));
+  }
+
+  digits(n) {
+    const s = String(Math.round(Math.abs(n)));
+    if (s.length <= 3) return s;
+    return s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + s.slice(-3);
+  }
+
+  num(v) { return Number(String(v).replace(/[^0-9]/g, '')) || 0; }
+
+  setF(patch) { this.setState({ f: Object.assign({}, this.state.f, patch) }); }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const S = this.state;
+    const CI = { Hosting: ic.cloud, Travel: ic.car, Software: ic.code, Office: ic.cup, Other: ic.box, Marketing: ic.tag };
+    const list = S.rows.filter((r) => S.filter === 'All' || (S.filter === 'Mine' ? r.mine : r.status === 'Pending'));
+    const days = [];
+    list.forEach((r) => { if (days.indexOf(r.day) < 0) days.push(r.day); });
+    const pending = S.rows.filter((r) => r.status === 'Pending').length;
+    const total = S.rows.reduce((a, r) => a + r.amt, 0);
+    const amt = this.num(S.f.amount);
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, tabs: this.tabs('Expenses', ic),
+      filters: [['All', 'All'], ['Mine', 'Mine'], ['Pending', 'To approve · ' + pending]].map((f) => ({ label: f[1], on: S.filter === f[0], pick: () => this.setState({ filter: f[0] }) })),
+      totalText: '₹' + this.digits(total), countText: S.rows.length + ' entries · ' + pending + ' waiting',
+      groups: days.map((d) => ({ day: d, rows: list.filter((r) => r.day === d).map((r) => ({ name: r.name, cat: r.cat, who: r.who, amount: '₹' + this.digits(r.amt), status: r.status, pill: r.status === 'Pending' ? 'cf-pill--warn' : 'cf-pill--pos', d: CI[r.cat] || ic.box })) })),
+      noRows: !list.length,
+      sheet: S.sheet, openSheet: () => this.setState({ sheet: true }), closeSheet: () => this.setState({ sheet: false }),
+      fAmount: S.f.amount, onAmount: (e) => this.setF({ amount: this.digits(this.num(e.target.value)) }), amountBad: !amt,
+      fName: S.f.name, onName: (e) => this.setF({ name: e.target.value }),
+      cats: ['Software', 'Hosting', 'Travel', 'Office', 'Marketing', 'Other'].map((c) => ({ label: c, on: S.f.cat === c, pick: () => this.setF({ cat: c }) })),
+      fBy: S.f.by, onBy: (e) => this.setF({ by: e.target.value }),
+      hasReceipt: S.receipt, snap: () => this.setState({ receipt: true }),
+      billable: S.billable, toggleBillable: () => this.setState({ billable: !S.billable }),
+      needsApproval: amt > 10000, saveLabel: amt ? 'Save ₹' + this.digits(amt) + ' expense' : 'Enter an amount',
+      save: () => {
+        if (!amt) return;
+        const row = { id: Date.now(), day: 'Today', name: S.f.name || 'Expense', cat: S.f.cat, who: S.f.by.split(' ')[0], amt: amt, status: amt > 10000 ? 'Pending' : 'Approved', mine: S.f.by === 'Aarav Mehta' };
+        this.setState({ rows: [row].concat(S.rows), sheet: false, filter: 'All', toast: 'Expense saved' + (amt > 10000 ? '. Sent for approval.' : ''), f: Object.assign({}, S.f, { amount: '', name: '' }), receipt: false });
+        if (this.tt) clearTimeout(this.tt);
+        this.tt = setTimeout(() => this.setState({ toast: '' }), 2600);
+      },
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

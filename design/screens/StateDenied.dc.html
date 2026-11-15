@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Permission denied · Member opening Reports</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.can{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:var(--radius-md);background:var(--surface);color:var(--ink);text-decoration:none}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div class="cf-shell">
+<nav class="cf-rail" aria-label="Main">
+<a href="Main.dc.html" class="cf-rail-logo" aria-label="Coffer home" title="Coffer">C</a>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+<sc-if value="{{n.sep}}" hint-placeholder-val="{{ false }}"><span class="cf-rail-sep" aria-hidden="true"></span></sc-if>
+<sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><a href="{{n.href}}" class="cf-rail-item" aria-label="{{n.label}}" title="{{n.label}}" aria-current="{{n.current}}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></a></sc-if>
+</sc-for>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<a href="SignIn.dc.html" class="cf-rail-item cf-rail-out" aria-label="Sign out" title="Sign out"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.logout}}"></path></svg></a>
+</nav>
+<main class="cf-main">
+<header class="cf-topbar">
+<div class="cf-topbar-l">
+<a href="Main.dc.html" class="cf-wordmark">Coffer</a>
+<button type="button" class="cf-switcher" aria-label="Switch company"><span class="cf-switcher-ini">SP</span><span class="cf-stack"><span class="t-label-strong">Saarthi Portal JV</span><span class="t-caption t-muted">Joint Venture · Member</span></span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></button>
+<label class="cf-search"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.search}}"></path></svg><input type="search" aria-label="Search or jump to" placeholder="Search or jump to…" /><span class="cf-kbd" aria-hidden="true">⌘K</span></label>
+</div>
+<div class="cf-topbar-r">
+<span class="t-caption t-muted">Sunday, 15 Nov 2026</span>
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button>
+<a href="Notifications.dc.html" class="cf-iconbtn cf-iconbtn--lg" aria-label="Notifications, 1 unread"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.bell}}"></path></svg><span class="cf-badge" aria-hidden="true" style="top: 6px; right: 6px; border-color: var(--surface);">1</span></a>
+<a href="Profile.dc.html" class="cf-account" aria-label="Account, Rohan Desai"><span class="cf-avatar cf-avatar--graphite" style="width: 40px; height: 40px;">RD</span><span class="cf-stack"><span class="t-label-strong">Rohan Desai</span><span class="t-caption t-muted">Member</span></span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></a>
+</div>
+</header>
+
+<section class="cf-pagehead">
+<div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Saarthi Portal JV</li><li aria-hidden="true">/</li><li aria-current="page">Reports</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Reports</span><span class="t-display">No access</span></h1>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;">
+<section class="cf-card" style="flex: 999 1 560px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 32px;" aria-labelledby="dn-h">
+<span class="cf-alert-ic" style="width: 56px; height: 56px; border-radius: 9999px; background: var(--warning-soft); color: var(--on-warning-soft); display: inline-flex; align-items: center; justify-content: center;"><svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.lock}}"></path></svg></span>
+<h2 id="dn-h" class="t-heading" style="margin: 0; font-size: 28px; line-height: 32px;">You can’t open Reports</h2>
+<p class="t-body t-muted" style="margin: 0; max-width: 560px; font-size: 15px; line-height: 22px;">Reports show company-wide money, so in Saarthi Portal JV they’re for Admins, Partners and Viewers. You’re a Member, which covers your own hours, expenses and the vault items shared with you.</p>
+<sc-if value="{{notAsked}}" hint-placeholder-val="{{ true }}">
+<div class="cf-field" style="width: 100%; max-width: 560px;"><label class="cf-label" for="dn-r">Why do you need it? <span class="t-muted" style="font-weight: 400;">Optional</span></label><input id="dn-r" class="cf-input" type="text" value="{{reason}}" onChange="{{onReason}}" placeholder="For example, checking hours billed to Asha Retail" /></div>
+<div class="cf-row" style="gap: 10px; flex-wrap: wrap;"><button type="button" class="cf-btn cf-btn--primary cf-btn--lg {{askClass}}" onClick="{{ask}}" aria-busy="{{sending}}"><sc-if value="{{sending}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true"></span></sc-if>{{askLabel}}</button><a href="Timesheets.dc.html" class="cf-btn cf-btn--secondary cf-btn--lg">Go to my timesheets</a></div>
+</sc-if>
+<sc-if value="{{asked}}" hint-placeholder-val="{{ false }}">
+<div class="cf-alert cf-alert--pos" role="status" style="width: 100%;"><div class="cf-alert-main"><span class="cf-alert-ic" style="width: 40px; height: 40px;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><div><div class="cf-alert-title">Request sent to Aarav Mehta and Kabir Shah</div><div class="cf-alert-sub">You’ll get a notification when one of them answers. Nothing changes until then.</div></div></div><button type="button" class="cf-btn cf-btn--ghost" onClick="{{undo}}">Cancel request</button></div>
+<a href="Timesheets.dc.html" class="cf-btn cf-btn--secondary cf-btn--lg">Go to my timesheets</a>
+</sc-if>
+</section>
+<aside class="cf-card" style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 8px;" aria-labelledby="cn-h">
+<h2 id="cn-h" class="cf-dot-title t-title" style="margin-bottom: 4px;">What you can open</h2>
+<sc-for list="{{can}}" as="c" hint-placeholder-count="5"><a href="{{c.href}}" class="can"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{c.d}}"></path></svg><span class="t-body" style="flex: 1; font-weight: 500;">{{c.label}}</span><span class="t-caption t-muted">{{c.note}}</span></a></sc-for>
+<p class="t-caption t-muted" style="margin: 6px 0 0;">Admins change these in Settings → Roles and permissions.</p>
+</aside>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, asked: false, sending: false, reason: '' };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  componentWillUnmount() { if (this.st) clearTimeout(this.st); }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      users: 'M5.8 8a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3.5 19.5c.7-3.2 2.9-5 5.5-5s4.8 1.8 5.5 5M14.6 9a2.4 2.4 0 1 0 4.8 0a2.4 2.4 0 1 0 -4.8 0M16.5 14.6c2 .3 3.4 1.8 4 4.4',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      logout: 'M9.5 4.5h-3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h3M14 16l4-4-4-4M18 12H9',
+      chevron: 'M6 9.5l6 6 6-6',
+      search: 'M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3',
+      bell: 'M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15zM10 20.5a2 2 0 0 0 4 0',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  nav(ic) {
+    const def = [['Dashboard', 'grid', 'Main.dc.html'], 0, ['Team', 'users', 'Team.dc.html'], ['Timesheets', 'clock', 'Timesheets.dc.html'], 0, ['Expenses', 'receipt', 'Expenses.dc.html'], 0, ['Credentials Vault', 'lock', 'Vault.dc.html']];
+    return def.map((n) => (n ? { sep: false, item: true, label: n[0], d: ic[n[1]], href: n[2], current: null } : { sep: true, item: false }));
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const S = this.state;
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, nav: this.nav(ic),
+      notAsked: !S.asked, asked: S.asked, sending: S.sending, askClass: S.sending ? 'is-loading' : '', askLabel: S.sending ? 'Sending' : 'Ask an Admin for access',
+      reason: S.reason, onReason: (e) => this.setState({ reason: e.target.value }),
+      ask: () => {
+        if (S.sending) return;
+        this.setState({ sending: true });
+        if (this.st) clearTimeout(this.st);
+        this.st = setTimeout(() => this.setState({ sending: false, asked: true }), 900);
+      },
+      undo: () => this.setState({ asked: false }),
+      can: [
+        ['Dashboard', 'grid', 'Main.dc.html', 'Your numbers'], ['Team', 'users', 'Team.dc.html', 'Read only'], ['Timesheets', 'clock', 'Timesheets.dc.html', 'Your hours'],
+        ['Expenses', 'receipt', 'Expenses.dc.html', 'Add and view yours'], ['Credentials Vault', 'lock', 'Vault.dc.html', '6 items shared with you']
+      ].map((c) => ({ label: c[0], d: ic[c[1]], href: c[2], note: c[3] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

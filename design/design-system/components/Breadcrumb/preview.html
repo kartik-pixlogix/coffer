@@ -1,0 +1,22 @@
+<!-- @dsCard group="Navigation" height=200 width=1200 subtitle="Group / company / page above every page title" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Breadcrumb</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li><a href="#">Vertex Group</a></li><li aria-hidden="true">/</li><li><a href="#">Saarthi Portal JV</a></li><li aria-hidden="true">/</li><li><a href="#">Settings</a></li><li aria-hidden="true">/</li><li aria-current="page">Roles &amp; permissions</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Settings</span><span class="t-display" style="font-size:36px;line-height:40px">Roles &amp; permissions</span></h1>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

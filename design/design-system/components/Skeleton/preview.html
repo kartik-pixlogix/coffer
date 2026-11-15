@@ -1,0 +1,24 @@
+<!-- @dsCard group="Feedback" height=330 width=1200 subtitle="Loading placeholders shaped like the content" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Skeleton loader</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row" style="align-items:stretch" aria-busy="true" aria-label="Loading dashboard">
+<div class="cf-card" style="flex:1;display:flex;flex-direction:column;gap:12px;min-height:130px"><span class="cf-skel cf-skel--circle" style="width:32px;height:32px"></span><span class="cf-skel" style="width:70%;height:32px"></span><span class="cf-skel cf-skel--line" style="width:45%"></span></div>
+<div class="cf-card" style="flex:1;display:flex;flex-direction:column;gap:12px"><span class="cf-skel cf-skel--title"></span><div style="display:flex;align-items:flex-end;gap:10px;height:70px"><span class="cf-skel" style="flex:1;height:40%;border-radius:9999px"></span><span class="cf-skel" style="flex:1;height:70%;border-radius:9999px"></span><span class="cf-skel" style="flex:1;height:55%;border-radius:9999px"></span><span class="cf-skel" style="flex:1;height:90%;border-radius:9999px"></span></div></div>
+</div>
+<div class="cf-inset" style="display:flex;align-items:center;gap:12px"><span class="cf-skel cf-skel--circle" style="width:36px;height:36px"></span><span style="flex:1;display:flex;flex-direction:column;gap:6px"><span class="cf-skel cf-skel--line" style="width:55%"></span><span class="cf-skel cf-skel--line" style="width:35%;height:10px"></span></span><span class="cf-skel" style="width:70px;height:24px;border-radius:9999px"></span></div>
+<p class="pv-note">Shimmer runs 1.4 s on ease-drift; with reduced motion the blocks stay still.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

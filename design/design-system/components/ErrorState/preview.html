@@ -1,0 +1,25 @@
+<!-- @dsCard group="Feedback" height=320 width=1200 subtitle="A panel or page that failed to load" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error state</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-error" role="alert">
+<span class="cf-error-ic"><svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"/></svg></span>
+<h3 class="t-heading" style="margin:0;font-size:20px;line-height:24px">Reports didn’t load</h3>
+<p>We couldn’t reach the server. Your data is safe; try again in a moment.</p>
+<div class="cf-actions" style="justify-content:center"><button type="button" class="cf-btn cf-btn--primary">Try again</button><button type="button" class="cf-btn cf-btn--ghost">Contact support</button></div>
+<span class="t-money-sm t-faint">Error ref 7F3A-21C9</span>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

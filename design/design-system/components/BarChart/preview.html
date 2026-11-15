@@ -1,0 +1,41 @@
+<!-- @dsCard group="Charts" height=520 width=1200 subtitle="Profit by month · negative bars below the axis, selected bar in lime, hover tooltip" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bar chart</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;position:relative}.n{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-card">
+<div class="cf-kv" style="margin-bottom:12px"><h3 class="cf-dot-title t-title">Profit by month</h3><span class="t-money-sm t-muted">Oct 2026 · ₹6,00,000</span></div>
+<div class="cf-bars" style="height:130px">
+<div class="c"></div>
+<div class="c"><button type="button" class="cf-bar" style="height:23px" aria-label="May 2026 profit ₹1,50,000"></button></div>
+<div class="c"><button type="button" class="cf-bar" style="height:26px" aria-label="Jun 2026 profit ₹1,70,000"></button></div>
+<div class="c"><button type="button" class="cf-bar" style="height:56px" aria-label="Jul 2026 profit ₹3,65,000"></button></div>
+<div class="c"></div>
+<div class="c"><span class="cf-tip cf-tip--arrow" style="bottom:112px;left:50%;transform:translateX(-50%)"><span class="cf-tip-muted">Sep 2026</span><br><span class="t-money-sm">₹6,55,000</span></span><button type="button" class="cf-bar is-hover" style="height:100px" aria-label="Sep 2026 profit ₹6,55,000"></button></div>
+<div class="c"><span class="cf-pill cf-pill--pos t-money-sm" style="height:22px;font-family:var(--font-mono)">₹6.0L</span><button type="button" class="cf-bar" aria-pressed="true" style="height:92px" aria-label="Oct 2026 profit ₹6,00,000"></button></div>
+</div>
+<div class="cf-bars-neg" style="height:38px">
+<div class="n"><button type="button" class="cf-bar is-neg" style="height:10px" aria-label="Apr 2026 profit −₹65,000"></button></div>
+<div class="n"></div><div class="n"></div><div class="n"></div>
+<div class="n"><button type="button" class="cf-bar is-neg" style="height:6px" aria-label="Aug 2026 profit −₹32,650"></button><span class="cf-pill cf-pill--neg" style="height:22px;font-family:var(--font-mono);font-size:12px">−₹33K</span></div>
+<div class="n"></div><div class="n"></div>
+</div>
+<div class="cf-axis-x" style="padding:0 6px" aria-hidden="true"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span></div>
+</div>
+<div class="pv-row" style="align-items:stretch">
+<div class="cf-card" style="flex:1" aria-busy="true"><span class="pv-state">Loading</span><div style="display:flex;align-items:flex-end;justify-content:space-between;height:70px;margin-top:8px"><span class="cf-skel" style="width:18px;height:30px;border-radius:9999px"></span><span class="cf-skel" style="width:18px;height:50px;border-radius:9999px"></span><span class="cf-skel" style="width:18px;height:40px;border-radius:9999px"></span><span class="cf-skel" style="width:18px;height:64px;border-radius:9999px"></span><span class="cf-skel" style="width:18px;height:44px;border-radius:9999px"></span></div></div>
+<div class="cf-card" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center"><span class="t-label-strong">No profit yet</span><span class="t-caption t-muted">Bars appear after the first month closes.</span></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

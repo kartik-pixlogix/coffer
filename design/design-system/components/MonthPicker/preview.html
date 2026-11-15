@@ -1,0 +1,34 @@
+<!-- @dsCard group="Forms" height=380 width=1200 subtitle="Months of the financial year, April to March" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Month picker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row" style="align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:8px">
+<button type="button" class="cf-btn cf-btn--secondary" aria-haspopup="dialog" aria-expanded="true"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2zM4 10h16M8.5 3v4M15.5 3v4"/></svg>Oct 2026<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+<div class="cf-pop" role="dialog" aria-label="Choose a month" style="width:280px;padding:14px">
+<div class="cf-cal-head"><button type="button" class="cf-iconbtn cf-iconbtn--sm" aria-label="Previous year"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6"/></svg></button><span class="t-title">FY 2026-27</span><button type="button" class="cf-iconbtn cf-iconbtn--sm" aria-label="Next year" disabled><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button></div>
+<div class="cf-monthgrid">
+<button type="button" class="cf-month">Apr</button><button type="button" class="cf-month">May</button><button type="button" class="cf-month">Jun</button>
+<button type="button" class="cf-month">Jul</button><button type="button" class="cf-month">Aug</button><button type="button" class="cf-month">Sep</button>
+<button type="button" class="cf-month" aria-pressed="true">Oct</button><button type="button" class="cf-month is-current">Nov</button><button type="button" class="cf-month" disabled>Dec</button>
+<button type="button" class="cf-month" disabled>Jan</button><button type="button" class="cf-month" disabled>Feb</button><button type="button" class="cf-month" disabled>Mar</button>
+</div></div></div>
+<div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px">
+<span class="pv-state">Selected Oct · current Nov ringed · future months disabled</span>
+<p class="pv-note">Used by Timesheets “Month” mode, the Expenses filter and salary runs. The year step moves by financial year, not calendar year.</p>
+</div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

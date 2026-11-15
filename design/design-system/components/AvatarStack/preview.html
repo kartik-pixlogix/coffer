@@ -1,0 +1,24 @@
+<!-- @dsCard group="Data display" height=220 width=1200 subtitle="Overlapping avatars with a +N count" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avatar stack</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row" style="gap:28px">
+<span class="cf-avatars" role="img" aria-label="Shared with Aarav Mehta, Ishita Rao, Rohan Desai and Sana Qureshi"><span class="cf-avatar cf-avatar--sm">AM<span class="cf-avatar-dot" style="background:var(--partner-1)"></span></span><span class="cf-avatar cf-avatar--sm">IR<span class="cf-avatar-dot" style="background:var(--partner-2)"></span></span><span class="cf-avatar cf-avatar--sm">RD<span class="cf-avatar-dot" style="background:var(--partner-1)"></span></span><span class="cf-avatars-more">+1</span></span>
+<span class="cf-avatars" role="img" aria-label="Paid by Aarav Mehta and Kabir Shah"><span class="cf-avatar">AM<span class="cf-avatar-dot" style="background:var(--partner-1)"></span></span><span class="cf-avatar">KS<span class="cf-avatar-dot" style="background:var(--partner-3)"></span></span></span>
+<span class="cf-avatars" role="img" aria-label="Four partners"><span class="cf-avatar cf-avatar--lg">AM</span><span class="cf-avatar cf-avatar--lg">IR</span><span class="cf-avatar cf-avatar--lg">KS</span><span class="cf-avatar cf-avatar--lg">MI</span></span>
+</div>
+<p class="pv-note">Show at most three, then +N. The stack’s label lists everyone.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!-- @dsCard group="Data display" height=260 width=1200 subtitle="Seconds left on a one-time code · on graphite and on surface" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TOTP countdown ring</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div style="display:flex;align-items:center;gap:14px;padding:12px 12px 12px 14px;border-radius:16px;background:var(--graphite);color:var(--on-graphite)">
+<span class="cf-ring cf-ring--dark" role="timer" aria-label="18 seconds left"><svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle class="cf-ring-track" cx="24" cy="24" r="20" stroke-width="4"/><circle class="cf-ring-bar" cx="24" cy="24" r="20" stroke-width="4" stroke-dasharray="125.66" stroke-dashoffset="50.26" transform="rotate(-90 24 24)"/></svg><span class="cf-ring-label t-money-sm" style="font-size:13px">18</span></span>
+<span style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="t-caption" style="color:var(--on-graphite-muted)">One-time code · refreshes every 30 s</span><span class="t-code">482 613</span></span>
+<button type="button" class="cf-iconbtn cf-iconbtn--glass" aria-label="Copy one-time code"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 8.5h7.5a2 2 0 0 1 2 2v7.5a2 2 0 0 1 -2 2h-7.5a2 2 0 0 1 -2 -2v-7.5a2 2 0 0 1 2 -2zM15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></svg></button>
+</div>
+<div class="pv-row">
+<span class="cf-ring cf-ring--onlight" role="timer" aria-label="24 seconds left"><svg width="40" height="40" viewBox="0 0 48 48" aria-hidden="true"><circle class="cf-ring-track" cx="24" cy="24" r="20" stroke-width="4"/><circle class="cf-ring-bar" cx="24" cy="24" r="20" stroke-width="4" stroke-dasharray="125.66" stroke-dashoffset="25.13" transform="rotate(-90 24 24)"/></svg><span class="cf-ring-label t-money-sm">24</span></span>
+<span class="cf-ring cf-ring--onlight is-warn" role="timer" aria-label="4 seconds left"><svg width="40" height="40" viewBox="0 0 48 48" aria-hidden="true"><circle class="cf-ring-track" cx="24" cy="24" r="20" stroke-width="4"/><circle class="cf-ring-bar" cx="24" cy="24" r="20" stroke-width="4" stroke-dasharray="125.66" stroke-dashoffset="108.9" transform="rotate(-90 24 24)"/></svg><span class="cf-ring-label t-money-sm">4</span></span>
+<span class="pv-state">On surface · last 5 seconds turn warning</span>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

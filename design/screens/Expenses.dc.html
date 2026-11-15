@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Expenses</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+:root,.cf[data-theme="light"]{color-scheme:light;--canvas:#e6e7eb;--surface:#ffffff;--surface-card:#fafafa;--surface-muted:#f0f1f5;--line:#e4e5e9;--line-strong:#d4d5da;--ink:#1c1c1e;--ink-secondary:#5f5f66;--ink-faint:#85868c;--lime:#d6fe68;--on-lime:#1c1c1e;--graphite:#2d2e32;--on-graphite:#ffffff;--on-graphite-muted:#c6c7cc;--focus:#2d2e32;--positive:#3f6212;--positive-soft:#d6fe68;--on-positive-soft:#1c1c1e;--negative:#b42318;--negative-soft:#fee4e2;--on-negative-soft:#b42318;--warning:#93370d;--warning-soft:#fef0c7;--on-warning-soft:#93370d;--info:#1d4ed8;--info-soft:#dbeafe;--on-info-soft:#1e40af;--chart-ink:#2d2e32;--chart-muted:#85868c;--chart-negative:#d92d20;--partner-1:#2a78d6;--partner-2:#eb6834;--partner-3:#1baf7a;--partner-4:#eda100;--scrim:rgba(28,28,30,0.34)}
+.cf[data-theme="dark"]{color-scheme:dark;--canvas:#0c0d0f;--surface:#15161a;--surface-card:#1c1d21;--surface-muted:#25262b;--line:#2e2f35;--line-strong:#3d3e45;--ink:#f3f4f6;--ink-secondary:#a3a4ab;--ink-faint:#8a8b92;--graphite:#34353b;--on-graphite-muted:#b9bac1;--focus:#d6fe68;--positive:#bef264;--positive-soft:#2b3a10;--on-positive-soft:#d6fe68;--negative:#f97066;--negative-soft:#3d1512;--on-negative-soft:#fda29b;--warning:#fdb022;--warning-soft:#3a2a06;--on-warning-soft:#fec84b;--info:#84adff;--info-soft:#172554;--on-info-soft:#bfdbfe;--chart-ink:#d9dadf;--chart-muted:#8a8b92;--chart-negative:#f97066;--partner-1:#3987e5;--partner-2:#d95926;--partner-3:#199e70;--partner-4:#c98500;--scrim:rgba(0,0,0,0.6)}
+:root{--gradient-lime:linear-gradient(135deg,#d6fe68 0%,#e2ff8f 55%,#f0ffc4 100%);--font-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--font-sans:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--ease-out:cubic-bezier(.22,1,.36,1)}
+body{margin:0;background:var(--canvas)}
+*{box-sizing:border-box}
+a{color:var(--ink)}a:hover{color:var(--ink-secondary)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+select{-webkit-appearance:none;appearance:none}
+.ic{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.t-display{font-family:var(--font-display);font-size:46px;line-height:48px;font-weight:400;letter-spacing:-.02em}
+.t-display-light{font-family:var(--font-display);font-size:38px;line-height:42px;font-weight:300;letter-spacing:-.02em}
+.t-heading{font-family:var(--font-display);font-size:24px;line-height:28px;font-weight:500;letter-spacing:-.02em}
+.t-title{font-family:var(--font-display);font-size:14px;line-height:18px;font-weight:500;letter-spacing:-.01em}
+.t-wordmark{font-family:var(--font-display);font-size:26px;line-height:30px;font-weight:600;letter-spacing:-.02em}
+.t-label-strong{font-size:14px;line-height:18px;font-weight:500}
+.t-body{font-size:13px;line-height:18px}
+.t-caption{font-size:12px;line-height:16px}
+.t-money-lg{font-family:var(--font-mono);font-size:36px;line-height:40px;font-variant-numeric:tabular-nums}
+.t-money-unit{font-family:var(--font-mono);font-size:20px;line-height:24px}
+.t-money{font-family:var(--font-mono);font-size:14px;line-height:18px;font-variant-numeric:tabular-nums}
+.t-money-sm{font-family:var(--font-mono);font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}
+.cf-lift{transition:transform 200ms var(--ease-out)}
+.cf-lift:hover{transform:translateY(-3px)}
+.cf-press{transition:transform 200ms var(--ease-out),filter 150ms}
+.cf-press:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.cf-ghost{transition:background 150ms}
+.cf-ghost:hover{background:var(--surface-muted) !important}
+.cf-row{transition:background 150ms}
+.cf-row:hover{background:var(--surface-muted) !important}
+.cf-pop{animation:cfPop 320ms var(--ease-out) both}
+.cf-toast{animation:cfToast 320ms var(--ease-out) both}
+*:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus) !important}
+input::placeholder{color:var(--ink-faint)}
+@keyframes cfPop{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes cfToast{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div class="cf" data-theme="{{theme}}" style="position: relative; min-height: 100vh; padding: 20px; background: var(--canvas); font-family: var(--font-sans); color: var(--ink); font-size: 14px; line-height: 18px;">
+<div style="max-width: 1400px; margin: 0 auto; background: var(--surface); border-radius: 24px; padding: 20px 40px 40px 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+
+<nav aria-label="Main" style="flex: 1 1 56px; max-width: 100%; padding: 8px; background: var(--surface-muted); border-radius: 9999px; display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 8px;">
+<a href="Main.dc.html" aria-label="Coffer home" title="Coffer" style="width: 40px; height: 40px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center; text-decoration: none; font-family: var(--font-display); font-size: 20px; font-weight: 700;">C</a>
+<span aria-hidden="true" style="width: 20px; height: 1px; margin: 4px 10px; background: var(--line-strong);"></span>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="20">
+<sc-if value="{{n.sep}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 20px; height: 1px; margin: 4px 10px; background: var(--line-strong);"></span></sc-if>
+<sc-if value="{{n.isLink}}" hint-placeholder-val="{{ false }}"><a href="{{n.href}}" aria-label="{{n.label}}" title="{{n.label}}" aria-current="{{n.current}}" style="width: 40px; height: 40px; border-radius: 9999px; border: 1px solid {{n.bd}}; background: {{n.bg}}; color: {{n.fg}}; display: flex; align-items: center; justify-content: center;"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></a></sc-if>
+<sc-if value="{{n.isBtn}}" hint-placeholder-val="{{ true }}"><button type="button" aria-label="{{n.label}}" title="{{n.label}}" style="width: 40px; height: 40px; padding: 0; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></button></sc-if>
+</sc-for>
+<span aria-hidden="true" style="width: 20px; height: 1px; margin: 4px 10px; background: var(--line-strong);"></span>
+<button type="button" aria-label="Sign out" title="Sign out" style="width: 40px; height: 40px; padding: 0; border: 0; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.logout}}"></path></svg></button>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px;">
+
+<header style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+<div style="flex: 1 1 520px; min-width: 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+<a href="Main.dc.html" class="t-wordmark" style="margin: 0 10px 0 4px; color: var(--ink); text-decoration: none;">Coffer</a>
+<div style="position: relative;">
+<button type="button" onClick="{{toggleCompany}}" aria-expanded="{{open}}" aria-label="Switch company" style="height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 16px 0 6px; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left;">
+<span style="width: 40px; height: 40px; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">{{companyIni}}</span>
+<span style="display: flex; flex-direction: column;"><span class="t-label-strong">{{company}}</span><span class="t-caption" style="color: var(--ink-secondary);">{{companyMeta}}</span></span>
+<svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg>
+</button>
+<sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 62px; left: 0; z-index: 30; width: 300px; padding: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; display: flex; flex-direction: column; gap: 4px;">
+<span class="t-caption" style="padding: 6px 10px 4px; color: var(--ink-secondary);">Vertex Group · your companies</span>
+<sc-for list="{{companies}}" as="c" hint-placeholder-count="4">
+<button type="button" onClick="{{c.pick}}" class="cf-ghost" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 0; border-radius: 12px; background: {{c.bg}}; color: var(--ink); text-align: left;">
+<span style="width: 32px; height: 32px; flex: none; border-radius: 9999px; background: var(--surface-muted); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">{{c.ini}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span class="t-label-strong">{{c.name}}</span><span class="t-caption" style="color: var(--ink-secondary);">{{c.meta}}</span></span>
+<sc-if value="{{c.on}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.check}}"></path></svg></sc-if>
+</button>
+</sc-for>
+<button type="button" class="cf-ghost" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 0; border-top: 1px solid var(--line); border-radius: 0 0 12px 12px; background: var(--surface); color: var(--ink); text-align: left;"><span style="width: 32px; height: 32px; flex: none; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.plus}}"></path></svg></span><span class="t-label-strong">New company</span></button>
+</div>
+</sc-if>
+</div>
+<label style="flex: 1 1 240px; max-width: 420px; height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 18px; border-radius: 9999px; background: var(--surface-muted); color: var(--ink-secondary);">
+<svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.search}}"></path></svg>
+<input type="search" aria-label="Search or jump to" placeholder="Search or jump to…" style="flex: 1; min-width: 0; height: 36px; border: 0; background: transparent; color: var(--ink); font-size: 14px;" />
+<span aria-hidden="true" class="t-caption" style="height: 32px; padding: 0 10px; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); display: flex; align-items: center;">⌘K</span>
+</label>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+<span class="t-caption" style="margin-right: 4px; color: var(--ink-secondary);">Sunday, 15 Nov 2026</span>
+<button type="button" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}" class="cf-ghost" style="width: 54px; height: 54px; padding: 0; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button>
+<a href="Notifications.dc.html" aria-label="Notifications, 3 unread" style="position: relative; width: 54px; height: 54px; padding: 0; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; text-decoration: none;"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.bell}}"></path></svg><span aria-hidden="true" style="position: absolute; top: 7px; right: 7px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); font-size: 11px; line-height: 18px; text-align: center;">3</span></a>
+<a href="Profile.dc.html" aria-label="Account, Aarav Mehta" style="height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 6px; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; text-decoration: none;">
+<span style="position: relative; width: 40px; height: 40px; border-radius: 9999px; background: var(--surface-muted); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">AM<span aria-hidden="true" style="position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 9999px; background: var(--partner-1); border: 2px solid var(--surface);"></span></span>
+<span style="display: flex; flex-direction: column;"><span class="t-label-strong">Aarav Mehta</span><span class="t-caption" style="color: var(--ink-secondary);">Admin</span></span>
+<svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg>
+</a>
+</div>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between;">
+<div>
+<nav aria-label="Breadcrumb" class="t-caption" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; color: var(--ink-secondary);"><span>Vertex Group</span><span aria-hidden="true">/</span><span>{{company}}</span><span aria-hidden="true">/</span><span aria-current="page" style="color: var(--ink);">Expenses</span></nav>
+<h1 style="margin: 0; font-weight: 400;"><span class="t-display-light" style="display: block; color: var(--ink-faint);">Finance</span><span class="t-display" style="display: block; color: var(--ink);">Expenses</span></h1>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+<button type="button" style="height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 16px 0 7px; border: 0; border-radius: 9999px; background: var(--surface-muted); color: var(--ink);"><span style="width: 40px; height: 40px; border-radius: 9999px; background: var(--surface); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.calendar}}"></path></svg></span><span>FY 2026-27</span><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></button>
+<button type="button" class="cf-ghost" style="height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 20px 0 16px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink);"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.download}}"></path></svg>Export</button>
+<button type="button" onClick="{{openModal}}" class="cf-press" style="height: 54px; display: flex; align-items: center; gap: 16px; padding: 0 7px 0 24px; border: 0; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); font-weight: 500;">Add expense<span style="width: 40px; height: 40px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.plus}}"></path></svg></span></button>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 12px;">
+<div class="cf-lift" style="flex: 1 1 260px; min-height: 136px; padding: 16px; border-radius: 20px; background: var(--surface-card); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+<span class="t-title" style="display: flex; align-items: center; gap: 10px;"><span style="width: 32px; height: 32px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.receipt}}"></path></svg></span>Total expenses</span>
+<div style="display: flex; align-items: baseline; gap: 4px;"><span class="t-money-unit">₹</span><span class="t-money-lg">{{kTotal}}</span></div>
+<span class="t-caption" style="color: var(--ink-secondary);">FY 2026-27 · {{totalCount}} entries</span>
+</div>
+<div class="cf-lift" style="flex: 1 1 260px; min-height: 136px; padding: 16px; border-radius: 20px; background: var(--surface-card); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+<span class="t-title" style="display: flex; align-items: center; gap: 10px;"><span style="width: 32px; height: 32px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.check}}"></path></svg></span>Approved</span>
+<div style="display: flex; align-items: baseline; gap: 4px;"><span class="t-money-unit">₹</span><span class="t-money-lg">{{kApproved}}</span></div>
+<span class="t-caption" style="color: var(--ink-secondary);">{{approvedCount}} entries · rejected entries excluded</span>
+</div>
+<div class="cf-lift" style="flex: 1 1 260px; min-height: 136px; padding: 16px; border-radius: 20px; background: var(--surface-card); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+<div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;"><span class="t-title" style="display: flex; align-items: center; gap: 10px;"><span style="width: 32px; height: 32px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.clock}}"></path></svg></span>Pending approval</span><span class="t-caption" style="height: 24px; padding: 0 8px; border-radius: 9999px; background: var(--warning-soft); color: var(--on-warning-soft); display: inline-flex; align-items: center;">{{pendingTag}}</span></div>
+<div style="display: flex; align-items: baseline; gap: 4px;"><span class="t-money-unit">₹</span><span class="t-money-lg">{{kPending}}</span></div>
+<span class="t-caption" style="color: var(--ink-secondary);">Partners approve or reject below</span>
+</div>
+</section>
+
+<section style="padding: 16px; border-radius: 20px; background: var(--surface-card); display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+<label style="flex: 1 1 240px; max-width: 360px; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-secondary);">
+<svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.search}}"></path></svg>
+<input type="search" value="{{q}}" onChange="{{onSearch}}" aria-label="Search expenses" placeholder="Search expenses" style="flex: 1; min-width: 0; height: 30px; border: 0; background: transparent; color: var(--ink); font-size: 14px;" />
+</label>
+<button type="button" style="height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); font-size: 14px;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.calendar}}"></path></svg>Oct 2026<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.chevron}}"></path></svg></button>
+<span style="position: relative; display: inline-flex; color: var(--ink);">
+<select value="{{cat}}" onChange="{{onCat}}" aria-label="Category" style="height: 40px; padding: 0 36px 0 14px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); font-size: 14px;">
+<option>All categories</option>
+<option>Salary</option>
+<option>Software</option>
+<option>Hardware</option>
+<option>Travel</option>
+<option>Marketing</option>
+<option>Office &amp; misc</option>
+</select>
+<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 14px; top: 13px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg>
+</span>
+<span style="position: relative; display: inline-flex; color: var(--ink);">
+<select value="{{payer}}" onChange="{{onPayer}}" aria-label="Paid by" style="height: 40px; padding: 0 36px 0 14px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); font-size: 14px;">
+<option>Anyone</option>
+<option>Aarav Mehta</option>
+<option>Ishita Rao</option>
+<option>Kabir Shah</option>
+<option>Meera Iyer</option>
+<option>Company account</option>
+</select>
+<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 14px; top: 13px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg>
+</span>
+<div role="group" aria-label="Status" style="display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto;">
+<sc-for list="{{chips}}" as="s" hint-placeholder-count="4">
+<button type="button" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid {{s.bd}}; border-radius: 8px; background: {{s.bg}}; color: {{s.ink}}; font-size: 14px;">{{s.label}}<span class="t-money-sm">{{s.n}}</span></button>
+</sc-for>
+</div>
+</div>
+
+<div style="overflow-x: auto; margin: 0 -4px; padding: 0 4px 4px;">
+<div role="table" aria-label="Expenses, October 2026" style="min-width: 1040px;">
+<div role="rowgroup">
+<div role="row" class="t-caption" style="display: grid; grid-template-columns: minmax(240px, 2.3fr) 118px 118px 104px 150px 178px 118px 148px; gap: 12px; align-items: center; height: 36px; padding: 0 14px; color: var(--ink-secondary);">
+<span role="columnheader">Description</span>
+<span role="columnheader">Category</span>
+<span role="columnheader" aria-sort="{{amtSort}}" style="text-align: right;"><button type="button" onClick="{{sortAmt}}" style="padding: 0; border: 0; background: transparent; color: var(--ink-secondary); font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">Amount<svg class="ic" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{ic.sort}}"></path></svg></button></span>
+<span role="columnheader" aria-sort="{{dateSort}}"><button type="button" onClick="{{sortDate}}" style="padding: 0; border: 0; background: transparent; color: var(--ink-secondary); font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">Date<svg class="ic" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{ic.sort}}"></path></svg></button></span>
+<span role="columnheader">Submitted by</span>
+<span role="columnheader">Paid by</span>
+<span role="columnheader">Status</span>
+<span role="columnheader" style="text-align: right;">Actions</span>
+</div>
+</div>
+<div role="rowgroup" style="display: flex; flex-direction: column; gap: 6px;">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div role="row" class="cf-row" style="display: grid; grid-template-columns: minmax(240px, 2.3fr) 118px 118px 104px 150px 178px 118px 148px; gap: 12px; align-items: center; min-height: 56px; padding: 8px 14px; border-radius: 12px; background: var(--surface);">
+<span role="cell" class="t-label-strong" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">{{r.desc}}<sc-if value="{{r.auto}}" hint-placeholder-val="{{ false }}"><span style="height: 20px; padding: 0 7px 0 5px; border-radius: 9999px; background: var(--surface-muted); color: var(--ink-secondary); display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 500;"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{ic.refresh}}"></path></svg>Auto</span></sc-if></span>
+<span role="cell" class="t-body" style="color: var(--ink-secondary);">{{r.cat}}</span>
+<span role="cell" class="t-money" style="text-align: right;">{{r.amt}}</span>
+<span role="cell" class="t-body" style="color: var(--ink-secondary);">{{r.date}}</span>
+<span role="cell" class="t-body" style="display: flex; align-items: center; gap: 8px;">
+<sc-if value="{{r.isAuto}}" hint-placeholder-val="{{ false }}"><span style="width: 28px; height: 28px; flex: none; border-radius: 9999px; background: var(--surface-muted); color: var(--ink-secondary); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.refresh}}"></path></svg></span></sc-if>
+<sc-if value="{{r.isPerson}}" hint-placeholder-val="{{ true }}"><span style="position: relative; width: 28px; height: 28px; flex: none; border-radius: 9999px; background: var(--surface-muted); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600;">{{r.subIni}}<span aria-hidden="true" style="position: absolute; right: -1px; bottom: -1px; width: 8px; height: 8px; border-radius: 9999px; background: {{r.subDot}}; border: 2px solid var(--surface);"></span></span></sc-if>
+{{r.subName}}
+</span>
+<span role="cell" class="t-body" style="display: flex; align-items: center; gap: 8px;">
+<sc-if value="{{r.isDirect}}" hint-placeholder-val="{{ false }}"><span style="width: 28px; height: 28px; flex: none; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.landmark}}"></path></svg></span></sc-if>
+<span style="display: flex;"><sc-for list="{{r.payers}}" as="p" hint-placeholder-count="1"><span style="position: relative; width: 28px; height: 28px; margin-right: -6px; flex: none; border: 2px solid var(--surface); border-radius: 9999px; background: var(--surface-muted); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600;">{{p.ini}}<span aria-hidden="true" style="position: absolute; right: -2px; bottom: -2px; width: 8px; height: 8px; border-radius: 9999px; background: {{p.dot}}; border: 2px solid var(--surface);"></span></span></sc-for></span>
+<span style="margin-left: 6px;">{{r.paidLabel}}</span>
+</span>
+<span role="cell"><span style="height: 26px; padding: 0 9px 0 6px; border-radius: 9999px; background: {{r.stBg}}; color: {{r.stInk}}; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500;"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{r.stIcon}}"></path></svg>{{r.status}}</span></span>
+<span role="cell" style="display: flex; justify-content: flex-end; gap: 6px;">
+<sc-if value="{{r.isPending}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{r.approve}}" aria-label="Approve {{r.desc}}" title="Approve" class="cf-press" style="width: 32px; height: 32px; padding: 0; border: 0; border-radius: 9999px; background: var(--positive-soft); color: var(--on-positive-soft); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{ic.check}}"></path></svg></button>
+<button type="button" onClick="{{r.reject}}" aria-label="Reject {{r.desc}}" title="Reject" class="cf-ghost" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--negative); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{ic.x}}"></path></svg></button>
+</sc-if>
+<button type="button" aria-label="Receipt for {{r.desc}}" title="Receipt" class="cf-ghost" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.clip}}"></path></svg></button>
+<button type="button" onClick="{{r.del}}" aria-label="Delete {{r.desc}}" title="Delete" class="cf-ghost" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.trash}}"></path></svg></button>
+</span>
+</div>
+</sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+<div style="min-height: 180px; border-radius: 12px; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center;"><span class="t-label-strong">No expenses match these filters</span><button type="button" onClick="{{clearFilters}}" class="cf-ghost" style="height: 32px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); font-size: 14px;">Clear filters</button></div>
+</sc-if>
+</div>
+</div>
+</div>
+
+<div class="t-caption" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; color: var(--ink-secondary);">
+<span>Showing {{shown}} of {{monthCount}} expenses in October 2026</span>
+<nav aria-label="Pagination" style="display: flex; gap: 6px; align-items: center;">
+<button type="button" disabled="{{yes}}" aria-label="Previous page" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink-faint); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.left}}"></path></svg></button>
+<button type="button" aria-current="page" style="min-width: 32px; height: 32px; padding: 0 8px; border: 0; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); font-size: 13px;">1</button>
+<button type="button" class="cf-ghost" style="min-width: 32px; height: 32px; padding: 0 8px; border: 0; border-radius: 9999px; background: transparent; color: var(--ink); font-size: 13px;">2</button>
+<button type="button" class="cf-ghost" style="min-width: 32px; height: 32px; padding: 0 8px; border: 0; border-radius: 9999px; background: transparent; color: var(--ink); font-size: 13px;">3</button>
+<button type="button" aria-label="Next page" class="cf-ghost" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.chevronRight}}"></path></svg></button>
+</nav>
+</div>
+</section>
+
+</main>
+</div>
+
+<sc-if value="{{modal}}" hint-placeholder-val="{{ true }}">
+<div aria-hidden="true" style="position: absolute; inset: 0; z-index: 40; background: var(--scrim);"></div>
+<div role="dialog" aria-modal="true" aria-labelledby="cf-add-title" class="cf-pop" style="position: absolute; top: 112px; left: 50%; transform: translateX(-50%); z-index: 41; width: 600px; max-width: calc(100% - 32px); padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); color: var(--ink); display: flex; flex-direction: column; gap: 16px;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<div style="display: flex; align-items: center; gap: 12px;"><span style="width: 40px; height: 40px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.receipt}}"></path></svg></span><div><h2 id="cf-add-title" class="t-heading" style="margin: 0;">Add expense</h2><span class="t-caption" style="color: var(--ink-secondary);">Saarthi Portal JV · goes to partners for approval</span></div></div>
+<button type="button" onClick="{{closeModal}}" aria-label="Close" class="cf-ghost" style="width: 40px; height: 40px; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.x}}"></path></svg></button>
+</div>
+
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500;">Description
+<input type="text" value="{{desc}}" onChange="{{onDesc}}" placeholder="What was it for?" style="height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px; font-weight: 400;" />
+</label>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px;">
+<label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500;">Amount
+<span style="height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);"><span aria-hidden="true" style="font-family: var(--font-mono); color: var(--ink-secondary); font-weight: 400;">₹</span><input type="text" inputmode="numeric" value="{{amountText}}" onChange="{{onAmount}}" aria-label="Amount in rupees" style="flex: 1; min-width: 0; height: 40px; border: 0; background: transparent; color: var(--ink); font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 400;" /></span>
+</label>
+<label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500;">Date
+<span style="height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink-secondary);"><input type="text" value="{{date}}" onChange="{{onDate}}" aria-label="Date" style="flex: 1; min-width: 0; height: 40px; border: 0; background: transparent; color: var(--ink); font-size: 14px; font-weight: 400;" /><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.calendar}}"></path></svg></span>
+</label>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;"><span id="cf-cat-label" style="font-size: 13px; line-height: 16px; font-weight: 500;">Category</span><sc-if value="{{canAddCat}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{startCat}}" style="height: 24px; padding: 0 4px; border: 0; background: transparent; color: var(--ink); display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.plus}}"></path></svg>Add category</button></sc-if></div>
+<sc-if value="{{showSelect}}" hint-placeholder-val="{{ true }}">
+<span style="position: relative; display: flex; color: var(--ink);">
+<select value="{{category}}" onChange="{{onCategory}}" aria-labelledby="cf-cat-label" style="flex: 1; height: 48px; padding: 0 44px 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px;">
+<option>Salary</option>
+<option>Software</option>
+<option>Hardware</option>
+<option>Travel</option>
+<option>Marketing</option>
+<option>Office &amp; misc</option>
+</select>
+<svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 16px; top: 16px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg>
+</span>
+</sc-if>
+<sc-if value="{{addingCat}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 8px;"><input type="text" value="{{newCat}}" onChange="{{onNewCat}}" aria-label="New category name" placeholder="New category name" style="flex: 1; min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px;" /><button type="button" onClick="{{saveCat}}" style="height: 48px; padding: 0 18px; border: 0; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); font-size: 14px;">Add</button><button type="button" onClick="{{cancelCat}}" class="cf-ghost" style="height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); font-size: 14px;">Cancel</button></div>
+</sc-if>
+<sc-if value="{{hasCustomCat}}" hint-placeholder-val="{{ false }}">
+<div style="height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 8px 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);"><span style="display: flex; align-items: center; gap: 8px; font-size: 14px;">{{customCat}}<span style="height: 20px; padding: 0 7px; border-radius: 9999px; background: var(--lime); color: var(--on-lime); display: inline-flex; align-items: center; font-size: 11px;">New</span></span><button type="button" onClick="{{clearCat}}" aria-label="Remove new category" class="cf-ghost" style="width: 32px; height: 32px; padding: 0; border: 0; border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.x}}"></path></svg></button></div>
+</sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span id="cf-paid-label" style="font-size: 13px; line-height: 16px; font-weight: 500;">Paid by</span>
+<div role="group" aria-labelledby="cf-paid-label" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 9999px; background: var(--surface-muted);">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="4">
+<button type="button" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="flex: 1 1 100px; height: 40px; padding: 0 12px; border: 0; border-radius: 9999px; background: {{m.bg}}; color: {{m.ink}}; font-size: 14px; font-weight: 500;">{{m.label}}</button>
+</sc-for>
+</div>
+
+<sc-if value="{{isFull}}" hint-placeholder-val="{{ false }}">
+<span style="position: relative; display: flex; color: var(--ink);">
+<select value="{{fullWho}}" onChange="{{onFullWho}}" aria-label="Partner who paid" style="flex: 1; height: 48px; padding: 0 44px 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px;">
+<option>Aarav Mehta — Vertex Labs</option>
+<option>Ishita Rao — Vertex Labs</option>
+<option>Kabir Shah — Bluefin Infotech</option>
+<option>Meera Iyer — Bluefin Infotech</option>
+</select>
+<svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 16px; top: 16px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg>
+</span>
+</sc-if>
+
+<sc-if value="{{isHalf}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; gap: 8px; align-items: center;"><span style="position: relative; display: flex; flex: 1; min-width: 0; color: var(--ink);"><select value="{{halfA}}" onChange="{{onHalfA}}" aria-label="First partner" style="flex: 1; min-width: 0; height: 48px; padding: 0 44px 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px;"><option>Aarav Mehta — Vertex Labs</option><option>Ishita Rao — Vertex Labs</option><option>Kabir Shah — Bluefin Infotech</option><option>Meera Iyer — Bluefin Infotech</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 16px; top: 16px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg></span><span class="t-money" style="width: 130px; flex: none; text-align: right;">{{halfEach}}</span></div>
+<div style="display: flex; gap: 8px; align-items: center;"><span style="position: relative; display: flex; flex: 1; min-width: 0; color: var(--ink);"><select value="{{halfB}}" onChange="{{onHalfB}}" aria-label="Second partner" style="flex: 1; min-width: 0; height: 48px; padding: 0 44px 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px;"><option>Aarav Mehta — Vertex Labs</option><option>Ishita Rao — Vertex Labs</option><option>Kabir Shah — Bluefin Infotech</option><option>Meera Iyer — Bluefin Infotech</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 16px; top: 16px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg></span><span class="t-money" style="width: 130px; flex: none; text-align: right;">{{halfEach}}</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isCustom}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<sc-for list="{{payerRows}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; gap: 8px; align-items: center;">
+<span style="position: relative; display: flex; flex: 1; min-width: 0; color: var(--ink);"><select value="{{p.who}}" onChange="{{p.onWho}}" aria-label="Payer {{p.n}}" style="flex: 1; min-width: 0; height: 48px; padding: 0 44px 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 14px;"><option>Aarav Mehta — Vertex Labs</option><option>Ishita Rao — Vertex Labs</option><option>Kabir Shah — Bluefin Infotech</option><option>Meera Iyer — Bluefin Infotech</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 16px; top: 16px; pointer-events: none;"><path d="{{ic.chevron}}"></path></svg></span>
+<span style="width: 150px; flex: none; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);"><span aria-hidden="true" style="font-family: var(--font-mono); color: var(--ink-secondary);">₹</span><input type="text" inputmode="numeric" value="{{p.amtText}}" onChange="{{p.onAmt}}" aria-label="Amount paid by payer {{p.n}}" style="flex: 1; min-width: 0; height: 40px; border: 0; background: transparent; color: var(--ink); text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 14px;" /></span>
+<button type="button" onClick="{{p.remove}}" disabled="{{p.locked}}" aria-label="Remove payer {{p.n}}" class="cf-ghost" style="width: 40px; height: 40px; flex: none; padding: 0; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.x}}"></path></svg></button>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
+<button type="button" onClick="{{addPayer}}" style="height: 32px; padding: 0 4px; border: 0; background: transparent; color: var(--ink); display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.plus}}"></path></svg>Add payer</button>
+<span role="status" style="height: 32px; padding: 0 12px 0 8px; border-radius: 9999px; background: {{totalBg}}; color: {{totalInk}}; display: inline-flex; align-items: center; gap: 6px; font-size: 13px;"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{totalIcon}}"></path></svg><span style="font-family: var(--font-mono); font-variant-numeric: tabular-nums;">{{totalText}}</span><span>{{totalNote}}</span></span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isDirect}}" hint-placeholder-val="{{ false }}">
+<div class="t-body" style="display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--surface-muted); color: var(--ink-secondary);"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ink);"><path d="{{ic.landmark}}"></path></svg>Paid from the company account. No partner balance or loan changes.</div>
+</sc-if>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px;">
+<label style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500;">Submitted by
+<span style="height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 12px; background: var(--surface-muted); color: var(--ink-secondary);"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.lock}}"></path></svg><input type="text" value="Aarav Mehta (you)" readonly="{{yes}}" aria-readonly="true" style="flex: 1; min-width: 0; height: 40px; border: 0; background: transparent; font-size: 14px; font-weight: 400; color: var(--ink-secondary);" /></span>
+</label>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 13px; line-height: 16px; font-weight: 500;">Receipt</span>
+<sc-if value="{{noFile}}" hint-placeholder-val="{{ true }}">
+<label style="position: relative; height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 14px; border: 1px dashed var(--line-strong); border-radius: 12px; background: var(--surface-card); font-size: 13px; color: var(--ink-secondary); cursor: pointer;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ink);"><path d="{{ic.upload}}"></path></svg><span><span style="color: var(--ink); font-weight: 500;">Upload</span> PDF, JPG or PNG, up to 10 MB</span><input type="file" onChange="{{onFile}}" aria-label="Upload receipt" accept=".pdf,.jpg,.jpeg,.png" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" /></label>
+</sc-if>
+<sc-if value="{{hasFile}}" hint-placeholder-val="{{ false }}">
+<div style="height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 13px;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.clip}}"></path></svg><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{file}}</span><button type="button" onClick="{{clearFile}}" aria-label="Remove receipt" class="cf-ghost" style="width: 32px; height: 32px; padding: 0; border: 0; border-radius: 9999px; background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.x}}"></path></svg></button></div>
+</sc-if>
+</div>
+</div>
+
+<sc-if value="{{showError}}" hint-placeholder-val="{{ false }}">
+<div role="alert" class="t-body" style="display: flex; gap: 8px; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--negative-soft); color: var(--on-negative-soft);"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.alert}}"></path></svg>{{errorText}}</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; padding-top: 4px; border-top: 1px solid var(--line);">
+<button type="button" onClick="{{closeModal}}" class="cf-ghost" style="margin-top: 12px; height: 54px; padding: 0 22px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink); font-size: 14px; font-weight: 500;">Cancel</button>
+<button type="button" onClick="{{save}}" class="cf-press" style="margin-top: 12px; height: 54px; display: flex; align-items: center; gap: 16px; padding: 0 7px 0 24px; border: 0; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); font-size: 14px; font-weight: 500;">Save expense<span style="width: 40px; height: 40px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 1.75;"><path d="{{ic.right}}"></path></svg></span></button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+<div role="status" class="cf-toast" style="position: fixed; top: 24px; right: 24px; z-index: 60; display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 10px; border-radius: 9999px; background: var(--graphite); color: var(--on-graphite); font-size: 14px;"><span style="width: 28px; height: 28px; border-radius: 9999px; background: var(--gradient-lime); color: var(--on-lime); display: flex; align-items: center; justify-content: center;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2;"><path d="{{ic.check}}"></path></svg></span>{{toast}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      t: 1, open: false, company: 0, toast: '', themeTick: 0,
+      rows: [
+        { id: 's1', desc: 'Salary — Rohan Desai — 2026-10', auto: true, cat: 'Salary', amt: 80000, day: 31, sub: 'auto', mode: 'Full', who: ['AM'], status: 'Approved' },
+        { id: 's2', desc: 'Salary — Sana Qureshi — 2026-10', auto: true, cat: 'Salary', amt: 67500, day: 31, sub: 'auto', mode: 'Full', who: ['KS'], status: 'Approved' },
+        { id: 's3', desc: 'Salary — Dev Patel — 2026-10', auto: true, cat: 'Salary', amt: 40000, day: 31, sub: 'auto', mode: 'Full', who: ['IR'], status: 'Approved' },
+        { id: 's4', desc: 'Salary — Vivaan Kapoor — 2026-10', auto: true, cat: 'Salary', amt: 35000, day: 31, sub: 'auto', mode: 'Full', who: ['MI'], status: 'Approved' },
+        { id: 's5', desc: 'Salary — Neha Joshi — 2026-10', auto: true, cat: 'Salary', amt: 32000, day: 31, sub: 'auto', mode: 'Full', who: ['KS'], status: 'Approved' },
+        { id: 'e6', desc: 'Team dinner — Diwali', cat: 'Office & misc', amt: 18500, day: 24, sub: 'AM', mode: 'Full', who: ['AM'], status: 'Rejected' },
+        { id: 'e7', desc: 'Meta ads — October', cat: 'Marketing', amt: 25000, day: 19, sub: 'MI', mode: 'Full', who: ['MI'], status: 'Pending' },
+        { id: 'e8', desc: 'Client visit — Jaipur', cat: 'Travel', amt: 9800, day: 12, sub: 'KS', mode: 'Full', who: ['KS'], status: 'Approved' },
+        { id: 'e9', desc: 'Figma organisation seats', cat: 'Software', amt: 14200, day: 5, sub: 'IR', mode: 'Half', who: ['IR', 'KS'], status: 'Approved' },
+        { id: 'e10', desc: 'Hostinger Business hosting (yearly)', cat: 'Software', amt: 6000, day: 3, sub: 'IR', mode: 'Direct', who: [], status: 'Approved' }
+      ],
+      status: 'All', cat: 'All categories', payer: 'Anyone', q: '', sort: 'date', dir: -1,
+      modal: true, desc: 'MacBook Air', amount: 114900, date: '22 Oct 2026', category: 'Hardware',
+      addingCat: false, newCat: '', customCat: '',
+      mode: 'Custom',
+      payers: [{ who: 'Aarav Mehta — Vertex Labs', amt: 60000 }, { who: 'Kabir Shah — Bluefin Infotech', amt: 54900 }],
+      fullWho: 'Aarav Mehta — Vertex Labs', halfA: 'Aarav Mehta — Vertex Labs', halfB: 'Kabir Shah — Bluefin Infotech',
+      file: '', tried: false
+    };
+  }
+
+  componentDidMount() {
+    let reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { reduce = false; }
+    if (reduce || typeof requestAnimationFrame !== 'function') return;
+    const start = Date.now();
+    const dur = 900;
+    const step = () => {
+      const x = Math.min(1, (Date.now() - start) / dur);
+      this.setState({ t: 1 - Math.pow(1 - x, 4) });
+      if (x < 1) { this.raf = requestAnimationFrame(step); }
+    };
+    this.setState({ t: 0 });
+    this.raf = requestAnimationFrame(step);
+  }
+
+  componentWillUnmount() {
+    if (this.raf && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(this.raf);
+    if (this.tt) clearTimeout(this.tt);
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  circ(cx, cy, r) {
+    return 'M' + (cx - r) + ' ' + cy + 'a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0';
+  }
+
+  rr(x, y, w, h, r) {
+    return 'M' + (x + r) + ' ' + y + 'h' + (w - 2 * r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + 'v' + (h - 2 * r) + 'a' + r + ' ' + r + ' 0 0 1 ' + (-r) + ' ' + r + 'h' + (-(w - 2 * r)) + 'a' + r + ' ' + r + ' 0 0 1 ' + (-r) + ' ' + (-r) + 'v' + (-(h - 2 * r)) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + (-r) + 'z';
+  }
+
+  icons() {
+    const c = (x, y, r) => this.circ(x, y, r);
+    const q = (x, y, w, h, r) => this.rr(x, y, w, h, r);
+    return {
+      grid: q(4, 4, 6.5, 6.5, 1.5) + q(13.5, 4, 6.5, 6.5, 1.5) + q(4, 13.5, 6.5, 6.5, 1.5) + q(13.5, 13.5, 6.5, 6.5, 1.5),
+      pie: c(12, 12, 8) + 'M12 4v8h8',
+      users: c(9, 8, 3.2) + 'M3.5 19.5c.7-3.2 2.9-5 5.5-5s4.8 1.8 5.5 5' + c(17, 9, 2.4) + 'M16.5 14.6c2 .3 3.4 1.8 4 4.4',
+      clock: c(12, 12, 8) + 'M12 8v4.2l2.8 1.8',
+      trend: 'M4 16.5l5-5 3.5 3.5L20 7.5M15 7.5h5v5',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      landmark: 'M3.5 9.5L12 4.5l8.5 5M5 9.5h14M6.5 9.5v7.5M10 9.5v7.5M14 9.5v7.5M17.5 9.5v7.5M4 20h16',
+      coins: 'M5 7c0-1.5 3.1-2.5 7-2.5s7 1 7 2.5-3.1 2.5-7 2.5S5 8.5 5 7zM5 7v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5V7M5 12v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5v-5',
+      swap: 'M4 8h15M15.5 4.5L19 8l-3.5 3.5M20 16H5M8.5 12.5L5 16l3.5 3.5',
+      bars: 'M4 20h16M7 16.5v-4M11 16.5V7M15 16.5v-6M19 16.5V9.5',
+      scale: 'M12 4v16M8.5 20h7M5 7.5h14M5 7.5l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7.5l-2.5 6a2.5 2.5 0 0 0 5 0z',
+      file: 'M6.5 3.5h7l4 4v13h-11zM13.5 3.5v4h4M9 12h6M9 15.5h6',
+      lock: q(5, 10.5, 14, 10, 2) + 'M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      sliders: 'M4 7h9M17 7h3M4 17h3M11 17h9' + c(15, 7, 2) + c(9, 17, 2),
+      card: q(3, 5.5, 18, 13, 2) + 'M3 9.5h18M7 14.5h4',
+      search: c(11, 11, 6.5) + 'M20 20l-4.3-4.3',
+      bell: 'M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15zM10 20.5a2 2 0 0 0 4 0',
+      chevron: 'M6 9.5l6 6 6-6',
+      chevronRight: 'M9.5 6l6 6-6 6',
+      left: 'M14.5 6l-6 6 6 6',
+      plus: 'M12 5v14M5 12h14',
+      right: 'M5 12h14M13 6l6 6-6 6',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      x: 'M6.5 6.5l11 11M17.5 6.5l-11 11',
+      alert: 'M12 4.5l8.5 15h-17zM12 10v4M12 17h.01',
+      calendar: q(4, 5, 16, 15, 2) + 'M4 10h16M8.5 3v4M15.5 3v4',
+      logout: 'M9.5 4.5h-3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h3M14 16l4-4-4-4M18 12H9',
+      download: 'M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14',
+      upload: 'M12 16V5M7.5 9.5L12 5l4.5 4.5M5 20h14',
+      refresh: 'M19.5 11a7.5 7.5 0 1 0-2.2 5.3M19.5 5v6h-6',
+      clip: 'M19.5 11.5l-7.6 7.6a4.8 4.8 0 0 1-6.8-6.8l8.2-8.2a3.2 3.2 0 0 1 4.5 4.5l-8.2 8.2a1.6 1.6 0 0 1-2.3-2.3l7.4-7.4',
+      trash: 'M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5',
+      sort: 'M8 9l4-4 4 4M8 15l4 4 4-4',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: c(12, 12, 4) + 'M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  digits(n) {
+    const s = String(Math.round(Math.abs(n)));
+    if (s.length <= 3) return s;
+    const last3 = s.slice(-3);
+    const rest = s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return rest + ',' + last3;
+  }
+
+  inr(n) {
+    return (n < 0 ? '−₹' : '₹') + this.digits(n);
+  }
+
+  num(v) {
+    return Number(String(v).replace(/[^0-9]/g, '')) || 0;
+  }
+
+  say(msg) {
+    this.setState({ toast: msg });
+    if (this.tt) clearTimeout(this.tt);
+    this.tt = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+
+  setStatus(id, status) {
+    const row = this.state.rows.filter((r) => r.id === id)[0];
+    this.setState({ rows: this.state.rows.map((r) => (r.id === id ? Object.assign({}, r, { status: status }) : r)) });
+    if (row) this.say(row.desc + ' ' + status.toLowerCase());
+  }
+
+  remove(id) {
+    this.setState({ rows: this.state.rows.filter((r) => r.id !== id) });
+    this.say('Expense deleted');
+  }
+
+  setPayer(i, patch) {
+    const payers = this.state.payers.map((p, j) => (j === i ? Object.assign({}, p, patch) : p));
+    this.setState({ payers: payers });
+  }
+
+  removePayer(i) {
+    if (this.state.payers.length < 2) return;
+    this.setState({ payers: this.state.payers.filter((p, j) => j !== i) });
+  }
+
+  save() {
+    const S = this.state;
+    const sum = S.payers.reduce((a, p) => a + (p.amt || 0), 0);
+    const okSplit = S.mode !== 'Custom' || sum === S.amount;
+    if (!S.desc.trim() || !S.amount || !okSplit) { this.setState({ tried: true }); return; }
+    const key = { 'Aarav Mehta — Vertex Labs': 'AM', 'Ishita Rao — Vertex Labs': 'IR', 'Kabir Shah — Bluefin Infotech': 'KS', 'Meera Iyer — Bluefin Infotech': 'MI' };
+    let who = [];
+    if (S.mode === 'Full') who = [key[S.fullWho]];
+    if (S.mode === 'Half') who = [key[S.halfA], key[S.halfB]];
+    if (S.mode === 'Custom') who = S.payers.map((p) => key[p.who]);
+    const row = {
+      id: 'n' + Date.now(), desc: S.desc.trim(), cat: S.customCat || S.category, amt: S.amount,
+      day: parseInt(S.date, 10) || 22, sub: 'AM', mode: S.mode === 'Direct company' ? 'Direct' : S.mode, who: who, status: 'Pending'
+    };
+    this.setState({ rows: [row].concat(S.rows), modal: false, tried: false, status: 'All', q: '', cat: 'All categories', payer: 'Anyone', sort: 'date', dir: -1 });
+    this.say(row.desc + ' sent for approval');
+  }
+
+  renderVals() {
+    const ic = this.icons();
+    const S = this.state;
+    const t = S.t;
+    const theme = this.themeNow();
+    const PEOPLE = { AM: ['Aarav Mehta', 'var(--partner-1)'], IR: ['Ishita Rao', 'var(--partner-2)'], KS: ['Kabir Shah', 'var(--partner-3)'], MI: ['Meera Iyer', 'var(--partner-4)'] };
+
+    const navDef = [
+      ['Dashboard', ic.grid, 'Main.dc.html'], 'sep',
+      ['Partners', ic.pie, 'Partners.dc.html'], ['Team', ic.users, 'Team.dc.html'], ['Timesheets', ic.clock, 'Timesheets.dc.html'], 'sep',
+      ['Income', ic.trend, 'Income.dc.html'], ['Expenses', ic.receipt, 'Expenses.dc.html'], ['Capital Accounts', ic.landmark, 'CapitalAccounts.dc.html'], ['Partner Loans', ic.coins, 'PartnerLoans.dc.html'], ['Settlements', ic.swap, 'Settlements.dc.html'], 'sep',
+      ['Reports', ic.bars, 'Reports.dc.html'], ['Trial Balance', ic.scale, 'Statements.dc.html'], ['Balance Sheet', ic.file, 'Statements.dc.html'], 'sep',
+      ['Credentials Vault', ic.lock, 'Vault.dc.html'], 'sep',
+      ['Settings', ic.sliders, 'SettingsCompany.dc.html'], ['Billing', ic.card, 'Billing.dc.html']
+    ];
+    const nav = navDef.map((n) => {
+      if (n === 'sep') return { sep: true, isLink: false, isBtn: false };
+      const active = n[0] === 'Expenses';
+      return {
+        sep: false, isLink: !!n[2], isBtn: !n[2], label: n[0], d: n[1], href: n[2] || null,
+        current: active ? 'page' : null,
+        bg: active ? 'var(--gradient-lime)' : 'var(--surface)', fg: active ? 'var(--on-lime)' : 'var(--ink)', bd: active ? 'transparent' : 'var(--line)'
+      };
+    });
+
+    const cos = [
+      ['Saarthi Portal JV', 'Joint Venture · Admin', 'SP'],
+      ['Vertex Labs Pvt Ltd', 'Single · Admin', 'VL'],
+      ['Northstar Studio', 'Single · Partner', 'NS'],
+      ['Kriya Commerce', 'Single · Viewer', 'KC']
+    ];
+    const companies = cos.map((c, i) => ({
+      name: c[0], meta: c[1], ini: c[2], on: i === S.company,
+      bg: i === S.company ? 'var(--surface-muted)' : 'var(--surface)',
+      pick: () => this.setState({ company: i, open: false })
+    }));
+    const cur = cos[S.company];
+
+    let apSum = 0;
+    let apN = 0;
+    let peSum = 0;
+    let peN = 0;
+    const counts = { All: S.rows.length, Pending: 0, Approved: 0, Rejected: 0 };
+    S.rows.forEach((r) => {
+      counts[r.status] += 1;
+      if (r.status === 'Approved') { apSum += r.amt; apN += 1; }
+      if (r.status === 'Pending') { peSum += r.amt; peN += 1; }
+    });
+    const approved = 4058150 + apSum;
+    const total = approved + peSum;
+    const approvedCount = 205 + apN;
+
+    const q = S.q.trim().toLowerCase();
+    const payerKey = { 'Aarav Mehta': 'AM', 'Ishita Rao': 'IR', 'Kabir Shah': 'KS', 'Meera Iyer': 'MI' }[S.payer];
+    const list = S.rows.filter((r) => (S.status === 'All' || r.status === S.status)
+      && (S.cat === 'All categories' || r.cat === S.cat)
+      && (S.payer === 'Anyone' || (S.payer === 'Company account' ? r.mode === 'Direct' : r.who.indexOf(payerKey) >= 0))
+      && (!q || r.desc.toLowerCase().indexOf(q) >= 0)).sort((a, b) => (S.sort === 'amt' ? (a.amt - b.amt) * S.dir : (a.day - b.day) * S.dir));
+
+    const st = {
+      Approved: ['var(--positive-soft)', 'var(--on-positive-soft)', ic.check],
+      Pending: ['var(--warning-soft)', 'var(--on-warning-soft)', ic.clock],
+      Rejected: ['var(--negative-soft)', 'var(--on-negative-soft)', ic.x]
+    };
+    const rows = list.map((r) => {
+      const s = st[r.status];
+      const payers = r.who.map((k) => ({ ini: k, dot: PEOPLE[k][1] }));
+      const paidLabel = r.mode === 'Direct' ? 'Company account' : (r.mode === 'Half' ? '50/50 split' : (r.mode === 'Custom' ? 'Custom split' : PEOPLE[r.who[0]][0]));
+      return {
+        desc: r.desc, auto: !!r.auto, cat: r.cat, amt: this.inr(r.amt), date: r.day + ' Oct 2026',
+        isAuto: r.sub === 'auto', isPerson: r.sub !== 'auto', subIni: r.sub === 'auto' ? '' : r.sub,
+        subName: r.sub === 'auto' ? 'Payroll' : PEOPLE[r.sub][0], subDot: r.sub === 'auto' ? 'var(--ink-faint)' : PEOPLE[r.sub][1],
+        payers: payers, isDirect: r.mode === 'Direct', paidLabel: paidLabel,
+        status: r.status, stBg: s[0], stInk: s[1], stIcon: s[2], isPending: r.status === 'Pending',
+        approve: () => this.setStatus(r.id, 'Approved'),
+        reject: () => this.setStatus(r.id, 'Rejected'),
+        del: () => this.remove(r.id)
+      };
+    });
+
+    const chips = ['All', 'Pending', 'Approved', 'Rejected'].map((k) => ({
+      label: k, n: String(counts[k]), on: S.status === k,
+      bg: S.status === k ? 'var(--lime)' : 'var(--surface)', ink: S.status === k ? 'var(--on-lime)' : 'var(--ink-secondary)', bd: S.status === k ? 'var(--lime)' : 'var(--line)',
+      pick: () => this.setState({ status: k })
+    }));
+
+    const sum = S.payers.reduce((a, p) => a + (p.amt || 0), 0);
+    const diff = S.amount - sum;
+    const balanced = diff === 0 && S.amount > 0;
+    const modes = ['Full', 'Half', 'Custom', 'Direct company'].map((m) => ({
+      label: m, on: S.mode === m,
+      bg: S.mode === m ? 'var(--lime)' : 'transparent', ink: S.mode === m ? 'var(--on-lime)' : 'var(--ink-secondary)',
+      pick: () => this.setState({ mode: m, tried: false })
+    }));
+    const payerRows = S.payers.map((p, i) => ({
+      who: p.who, amtText: this.digits(p.amt || 0), n: String(i + 1), locked: S.payers.length < 2,
+      onWho: (e) => this.setPayer(i, { who: e.target.value }),
+      onAmt: (e) => this.setPayer(i, { amt: this.num(e.target.value) }),
+      remove: () => this.removePayer(i)
+    }));
+    let errorText = '';
+    if (!S.desc.trim()) errorText = 'Add a description.';
+    else if (!S.amount) errorText = 'Enter an amount.';
+    else if (S.mode === 'Custom' && !balanced) errorText = 'Payer amounts must add up to ' + this.inr(S.amount) + '.';
+    const kv = (n) => this.digits(n * t);
+
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, nav: nav, yes: true,
+      companies: companies, company: cur[0], companyMeta: cur[1], companyIni: cur[2],
+      open: S.open, toggleCompany: () => this.setState({ open: !S.open }),
+      kTotal: kv(total), kApproved: kv(approved), kPending: kv(peSum),
+      totalCount: this.digits(approvedCount + peN), approvedCount: this.digits(approvedCount),
+      pendingTag: peN === 1 ? '1 waiting' : (peN === 0 ? 'Clear' : peN + ' waiting'),
+      q: S.q, onSearch: (e) => this.setState({ q: e.target.value }),
+      cat: S.cat, onCat: (e) => this.setState({ cat: e.target.value }),
+      payer: S.payer, onPayer: (e) => this.setState({ payer: e.target.value }),
+      chips: chips, rows: rows, noRows: rows.length === 0,
+      clearFilters: () => this.setState({ status: 'All', cat: 'All categories', payer: 'Anyone', q: '' }),
+      amtSort: S.sort === 'amt' ? (S.dir < 0 ? 'descending' : 'ascending') : 'none',
+      dateSort: S.sort === 'date' ? (S.dir < 0 ? 'descending' : 'ascending') : 'none',
+      sortAmt: () => this.setState({ sort: 'amt', dir: S.sort === 'amt' ? -S.dir : -1 }),
+      sortDate: () => this.setState({ sort: 'date', dir: S.sort === 'date' ? -S.dir : -1 }),
+      shown: String(rows.length), monthCount: String(14 + S.rows.length),
+      modal: S.modal,
+      openModal: () => this.setState({ modal: true, tried: false }),
+      closeModal: () => this.setState({ modal: false, tried: false }),
+      desc: S.desc, onDesc: (e) => this.setState({ desc: e.target.value }),
+      amountText: this.digits(S.amount), onAmount: (e) => this.setState({ amount: this.num(e.target.value) }),
+      date: S.date, onDate: (e) => this.setState({ date: e.target.value }),
+      category: S.category, onCategory: (e) => this.setState({ category: e.target.value }),
+      canAddCat: !S.addingCat && !S.customCat, showSelect: !S.addingCat && !S.customCat,
+      addingCat: S.addingCat, hasCustomCat: !!S.customCat && !S.addingCat, customCat: S.customCat,
+      startCat: () => this.setState({ addingCat: true, newCat: '' }),
+      newCat: S.newCat, onNewCat: (e) => this.setState({ newCat: e.target.value }),
+      saveCat: () => this.setState({ addingCat: false, customCat: S.newCat.trim() }),
+      cancelCat: () => this.setState({ addingCat: false }),
+      clearCat: () => this.setState({ customCat: '' }),
+      modes: modes, isFull: S.mode === 'Full', isHalf: S.mode === 'Half', isCustom: S.mode === 'Custom', isDirect: S.mode === 'Direct company',
+      fullWho: S.fullWho, onFullWho: (e) => this.setState({ fullWho: e.target.value }),
+      halfA: S.halfA, onHalfA: (e) => this.setState({ halfA: e.target.value }),
+      halfB: S.halfB, onHalfB: (e) => this.setState({ halfB: e.target.value }),
+      halfEach: this.inr(Math.round(S.amount / 2)),
+      payerRows: payerRows,
+      addPayer: () => this.setState({ payers: S.payers.concat([{ who: 'Ishita Rao — Vertex Labs', amt: 0 }]) }),
+      totalText: this.inr(sum) + ' / ' + this.inr(S.amount),
+      totalNote: balanced ? 'balanced' : (diff > 0 ? this.inr(diff) + ' left' : this.inr(-diff) + ' over'),
+      totalBg: balanced ? 'var(--positive-soft)' : (diff > 0 ? 'var(--warning-soft)' : 'var(--negative-soft)'),
+      totalInk: balanced ? 'var(--on-positive-soft)' : (diff > 0 ? 'var(--on-warning-soft)' : 'var(--on-negative-soft)'),
+      totalIcon: balanced ? ic.check : ic.alert,
+      noFile: !S.file, hasFile: !!S.file, file: S.file,
+      onFile: (e) => { const fl = e.target.files && e.target.files[0]; this.setState({ file: fl ? fl.name : '' }); },
+      clearFile: () => this.setState({ file: '' }),
+      showError: S.tried && !!errorText, errorText: errorText,
+      save: () => this.save(),
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

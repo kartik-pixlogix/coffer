@@ -1,0 +1,26 @@
+<!-- @dsCard group="Data display" height=260 width=1200 subtitle="Vault security score out of 100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Health score ring</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row" style="gap:24px">
+<div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--graphite);color:var(--on-graphite)">
+<span class="cf-ring cf-ring--dark"><svg width="60" height="60" viewBox="0 0 60 60" role="img" aria-label="Vault health 82 out of 100"><circle class="cf-ring-track" cx="30" cy="30" r="26" stroke-width="6"/><circle class="cf-ring-bar" cx="30" cy="30" r="26" stroke-width="6" stroke-dasharray="163.36" stroke-dashoffset="29.4" transform="rotate(-90 30 30)"/></svg><span class="cf-ring-label" style="font-family:var(--font-display);font-size:18px;font-weight:500" aria-hidden="true">82</span></span>
+<span class="cf-stack"><span class="t-title">Vault health</span><span class="t-caption" style="color:var(--on-graphite-muted)">82 / 100 · good</span></span></div>
+<span class="cf-ring cf-ring--onlight"><svg width="120" height="120" viewBox="0 0 60 60" role="img" aria-label="Vault health 82 out of 100"><circle class="cf-ring-track" cx="30" cy="30" r="26" stroke-width="5"/><circle class="cf-ring-bar" cx="30" cy="30" r="26" stroke-width="5" stroke-dasharray="163.36" stroke-dashoffset="29.4" transform="rotate(-90 30 30)"/></svg><span class="cf-ring-label" style="flex-direction:column" aria-hidden="true"><span class="t-figure-centre" style="font-size:30px;line-height:32px">82</span><span class="t-caption t-muted">of 100</span></span></span>
+<span class="cf-ring cf-ring--onlight is-warn"><svg width="60" height="60" viewBox="0 0 60 60" role="img" aria-label="Vault health 54 out of 100"><circle class="cf-ring-track" cx="30" cy="30" r="26" stroke-width="6"/><circle class="cf-ring-bar" cx="30" cy="30" r="26" stroke-width="6" stroke-dasharray="163.36" stroke-dashoffset="75.15" transform="rotate(-90 30 30)"/></svg><span class="cf-ring-label t-title" aria-hidden="true">54</span></span>
+<span class="pv-state">Graphite card · large on surface · below 60 turns warning</span>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

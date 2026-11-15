@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Create company, team and review</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div style="max-width: 1400px; margin: 0 auto; padding: 20px 40px 40px; border-radius: 24px; background: var(--surface); display: flex; flex-direction: column; gap: 24px;">
+
+<header class="cf-topbar">
+<a href="Main.dc.html" class="cf-wordmark" style="display: flex; align-items: center; gap: 10px;"><span class="cf-rail-logo" aria-hidden="true">C</span>Coffer</a>
+<ol class="cf-stepper" aria-label="Create company">
+<li class="cf-step is-done"><span class="cf-step-n"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>Company &amp; partners</li>
+<li class="cf-step-line is-done" aria-hidden="true"></li>
+<li class="cf-step {{s2class}}" aria-current="{{s2current}}"><span class="cf-step-n"><sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if><sc-if value="{{isTeam}}" hint-placeholder-val="{{ true }}">2</sc-if></span>Team</li>
+<li class="cf-step-line {{lineClass}}" aria-hidden="true"></li>
+<li class="cf-step" aria-current="{{s3current}}"><span class="cf-step-n">3</span>Review &amp; launch</li>
+</ol>
+<div class="cf-topbar-r">
+<a href="Main.dc.html" class="cf-btn cf-btn--ghost">Save and exit</a>
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"></path></svg></sc-if></button>
+</div>
+</header>
+
+<sc-if value="{{isTeam}}" hint-placeholder-val="{{ true }}">
+<section class="cf-pagehead"><div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Saarthi Portal JV</li><li aria-hidden="true">/</li><li>New company</li><li aria-hidden="true">/</li><li aria-current="page">Step 2 of 3</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Optional</span><span class="t-display">Add your team</span></h1>
+</div><button type="button" class="cf-btn cf-btn--ghost cf-btn--lg" onClick="{{toReview}}">Skip for now</button></section>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+<section class="cf-card" style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px;" aria-labelledby="tm-h">
+<h2 id="tm-h" class="cf-dot-title t-title">Team members</h2>
+<p class="t-body t-muted" style="margin: 0;">People who log hours or are paid a salary. Each one bills to a partner, so their cost lands on that partner’s P&amp;L.</p>
+<div class="cf-table-wrap"><div style="min-width: 860px; display: flex; flex-direction: column; gap: 8px;">
+<div class="t-caption t-muted" style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr) 210px 170px 170px 40px; gap: 10px;" aria-hidden="true"><span>Name</span><span>Designation</span><span>Cost type</span><span>Rate</span><span>Partner</span><span></span></div>
+<sc-for list="{{members}}" as="m" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr) 210px 170px 170px 40px; gap: 10px; align-items: center;">
+<input class="cf-input cf-input--sm" type="text" value="{{m.name}}" onChange="{{m.onName}}" aria-label="Member name" placeholder="Full name" />
+<input class="cf-input cf-input--sm" type="text" value="{{m.role}}" onChange="{{m.onRole}}" aria-label="Designation" placeholder="e.g. Developer" />
+<div class="cf-seg cf-seg--sm" role="group" aria-label="{{m.costLabel}}"><button type="button" class="cf-seg-btn" aria-pressed="{{m.isHourly}}" onClick="{{m.setHourly}}">Hourly</button><button type="button" class="cf-seg-btn" aria-pressed="{{m.isFixed}}" onClick="{{m.setFixed}}">Fixed monthly</button></div>
+<span class="cf-inwrap cf-inwrap--sm"><span class="cf-prefix" aria-hidden="true">₹</span><input type="text" inputmode="numeric" value="{{m.rate}}" onChange="{{m.onRate}}" aria-label="{{m.rateLabel}}" style="font-family: var(--font-mono); text-align: right;" /><span class="t-caption t-muted" style="margin-right: 8px; white-space: nowrap;">{{m.per}}</span></span>
+<span class="cf-select"><select value="{{m.partner}}" onChange="{{m.onPartner}}" aria-label="Bills to partner" style="height: 40px; padding-left: 12px;"><option>Aarav Mehta</option><option>Ishita Rao</option><option>Kabir Shah</option><option>Meera Iyer</option></select><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></span>
+<button type="button" class="cf-iconbtn cf-iconbtn--bare" onClick="{{m.remove}}" aria-label="{{m.removeLabel}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"></path></svg></button>
+</div>
+</sc-for>
+</div></div>
+<div class="cf-kv" style="flex-wrap: wrap;"><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm" onClick="{{addMember}}"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add member</button><span class="t-caption t-muted">You can add more later from Team, or import a CSV.</span></div>
+</section>
+<aside class="cf-card" style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 12px;" aria-label="Team cost">
+<h2 class="cf-dot-title t-title">Team cost</h2>
+<div class="cf-kv t-body"><span class="t-muted">Fixed monthly</span><span class="t-money">{{fixedTotal}}</span></div>
+<div class="cf-kv t-body"><span class="t-muted">Hourly rates</span><span class="t-money">{{hourlyNote}}</span></div>
+<div class="cf-divider"></div>
+<label class="cf-switch"><input class="cf-sr" type="checkbox" role="switch" checked="{{invite}}" onChange="{{toggleInvite}}" /><span class="cf-switch-track"></span><span class="t-body">Email each member an invite when I launch</span></label>
+<p class="t-caption t-muted" style="margin: 0;">Members can log hours and add expenses. Partners approve them.</p>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}">
+<section class="cf-pagehead"><div>
+<nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>Saarthi Portal JV</li><li aria-hidden="true">/</li><li>New company</li><li aria-hidden="true">/</li><li aria-current="page">Step 3 of 3</li></ol></nav>
+<h1 class="cf-h1"><span class="t-display-light">Almost there</span><span class="t-display">Review &amp; launch</span></h1>
+</div></section>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 10px;" aria-labelledby="rv-co">
+<div class="cf-kv"><h2 id="rv-co" class="cf-dot-title t-title">Company</h2><a href="CreateCompanyJV.dc.html" class="t-caption" style="font-weight: 500;">Edit</a></div>
+<div class="cf-row" style="gap: 12px;"><span class="cf-switcher-ini">SP</span><span class="cf-stack"><span class="t-label-strong">Saarthi Portal JV</span><span class="t-caption t-muted">Joint venture · SPJV</span></span></div>
+<div class="cf-kv t-body"><span class="t-muted">Opening balance</span><span class="t-money">₹0</span></div>
+<div class="cf-kv t-body"><span class="t-muted">Currency</span><span>INR (₹)</span></div>
+<div class="cf-kv t-body"><span class="t-muted">Financial year</span><span>April – March · FY 2026-27</span></div>
+</section>
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 10px;" aria-labelledby="rv-eq">
+<div class="cf-kv"><h2 id="rv-eq" class="cf-dot-title t-title">Sides &amp; partners</h2><a href="CreateCompanyJV.dc.html" class="t-caption" style="font-weight: 500;">Edit</a></div>
+<div class="cf-kv t-body" style="font-weight: 500;"><span>Vertex Labs</span><span class="t-money-sm">50.00%</span></div>
+<div class="cf-kv t-body"><span class="cf-row"><span class="cf-swatch" style="background: var(--partner-1);"></span>Aarav Mehta <span class="cf-pill cf-pill--sm cf-pill--graphite">Admin</span></span><span class="t-money-sm t-muted">60% → 30.00%</span></div>
+<div class="cf-kv t-body"><span class="cf-row"><span class="cf-swatch" style="background: var(--partner-2);"></span>Ishita Rao</span><span class="t-money-sm t-muted">40% → 20.00%</span></div>
+<div class="cf-kv t-body" style="font-weight: 500; padding-top: 4px;"><span>Bluefin Infotech</span><span class="t-money-sm">50.00%</span></div>
+<div class="cf-kv t-body"><span class="cf-row"><span class="cf-swatch" style="background: var(--partner-3);"></span>Kabir Shah</span><span class="t-money-sm t-muted">50% → 25.00%</span></div>
+<div class="cf-kv t-body"><span class="cf-row"><span class="cf-swatch" style="background: var(--partner-4);"></span>Meera Iyer</span><span class="t-money-sm t-muted">50% → 25.00%</span></div>
+</section>
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 10px;" aria-labelledby="rv-tm">
+<div class="cf-kv"><h2 id="rv-tm" class="cf-dot-title t-title">Team</h2><button type="button" class="cf-link" onClick="{{toTeam}}" style="font-size: 12px;">Edit</button></div>
+<sc-for list="{{members}}" as="m" hint-placeholder-count="3"><div class="cf-kv t-body"><span class="cf-row"><span class="cf-avatar cf-avatar--sm">{{m.ini}}<span class="cf-avatar-dot" style="background: {{m.dot}};"></span></span><span class="cf-stack"><span>{{m.name}}</span><span class="t-caption t-muted">{{m.role}} · bills to {{m.partner}}</span></span></span><span class="t-money-sm">₹{{m.rate}}{{m.per}}</span></div></sc-for>
+</section>
+<section class="cf-card" style="display: flex; flex-direction: column; gap: 10px;" aria-labelledby="rv-go">
+<h2 id="rv-go" class="cf-dot-title t-title">When you launch</h2>
+<ul class="t-body" style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px;">
+<li class="cf-row" style="align-items: flex-start;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="color: var(--positive); stroke-width: 2; margin-top: 1px;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Equity checks pass: sides 100%, each side 100%</li>
+<li class="cf-row" style="align-items: flex-start;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width: 1.75; margin-top: 1px;" aria-hidden="true"><path d="M5.5 5.5h13a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-13a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2zM4 7l8 6 8-6"></path></svg>{{inviteText}}</li>
+<li class="cf-row" style="align-items: flex-start;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width: 1.75; margin-top: 1px;" aria-hidden="true"><path d="M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"></path></svg>An empty credentials vault is created for the company</li>
+</ul>
+</section>
+</div>
+</sc-if>
+
+<footer style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--line);">
+<sc-if value="{{isTeam}}" hint-placeholder-val="{{ true }}"><a href="CreateCompanyJV.dc.html" class="cf-btn cf-btn--secondary cf-btn--lg"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back</a></sc-if>
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}"><button type="button" class="cf-btn cf-btn--secondary cf-btn--lg" onClick="{{toTeam}}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back</button></sc-if>
+<sc-if value="{{isTeam}}" hint-placeholder-val="{{ true }}"><button type="button" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc" onClick="{{toReview}}">Next: review<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></button></sc-if>
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}"><a href="Main.dc.html" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc">Launch Saarthi Portal JV<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a></sc-if>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["Team","Review & launch"],"default":"Team","section":"State"},"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, tick: 0, invite: true };
+    this.members = [
+      { id: 1, name: 'Rohan Desai', role: 'Senior developer', cost: 'Fixed', rate: '80,000', partner: 'Aarav Mehta' },
+      { id: 2, name: 'Sana Qureshi', role: 'Product designer', cost: 'Fixed', rate: '67,500', partner: 'Kabir Shah' },
+      { id: 3, name: 'Dev Patel', role: 'Developer', cost: 'Hourly', rate: '450', partner: 'Ishita Rao' }
+    ];
+    this.nextId = 4;
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  stepNow() {
+    const key = this.props.step || 'Team';
+    if (this.stepSeen !== key) { this.stepSeen = key; this.step = key === 'Review & launch' ? 'review' : 'team'; }
+    return this.step;
+  }
+
+  go(step) { this.step = step; this.setState({ tick: this.state.tick + 1 }); }
+
+  setM(id, patch) { this.members = this.members.map((m) => (m.id === id ? Object.assign({}, m, patch) : m)); this.setState({ tick: this.state.tick + 1 }); }
+
+  digits(n) {
+    const s = String(Math.round(Math.abs(n)));
+    if (s.length <= 3) return s;
+    return s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + s.slice(-3);
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const step = this.stepNow();
+    const dots = { 'Aarav Mehta': 'var(--partner-1)', 'Ishita Rao': 'var(--partner-2)', 'Kabir Shah': 'var(--partner-3)', 'Meera Iyer': 'var(--partner-4)' };
+    const val = (v) => Number(String(v).replace(/[^0-9]/g, '')) || 0;
+    const members = this.members.map((m) => ({
+      name: m.name, role: m.role || 'Member', rate: m.rate, partner: m.partner, dot: dots[m.partner] || 'var(--ink-faint)',
+      ini: (m.name || '?').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase(),
+      isHourly: m.cost === 'Hourly', isFixed: m.cost === 'Fixed', per: m.cost === 'Hourly' ? ' / hour' : ' / month',
+      costLabel: 'Cost type for ' + (m.name || 'new member'), rateLabel: (m.cost === 'Hourly' ? 'Hourly rate' : 'Monthly cost') + ' for ' + (m.name || 'new member'),
+      removeLabel: 'Remove ' + (m.name || 'new member'),
+      onName: (e) => this.setM(m.id, { name: e.target.value }),
+      onRole: (e) => this.setM(m.id, { role: e.target.value }),
+      setHourly: () => this.setM(m.id, { cost: 'Hourly' }),
+      setFixed: () => this.setM(m.id, { cost: 'Fixed' }),
+      onRate: (e) => this.setM(m.id, { rate: this.digits(val(e.target.value)) }),
+      onPartner: (e) => this.setM(m.id, { partner: e.target.value }),
+      remove: () => { this.members = this.members.filter((x) => x.id !== m.id); this.setState({ tick: this.state.tick + 1 }); }
+    }));
+    const fixed = this.members.filter((m) => m.cost === 'Fixed').reduce((a, m) => a + val(m.rate), 0);
+    const hourly = this.members.filter((m) => m.cost === 'Hourly');
+    const invite = this.state.invite;
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      isTeam: step === 'team', isReview: step === 'review',
+      s2class: step === 'review' ? 'is-done' : '', s2current: step === 'team' ? 'step' : null,
+      s3current: step === 'review' ? 'step' : null, lineClass: step === 'review' ? 'is-done' : '',
+      toReview: () => this.go('review'), toTeam: () => this.go('team'),
+      members: members,
+      addMember: () => { this.members = this.members.concat([{ id: this.nextId++, name: '', role: '', cost: 'Hourly', rate: '0', partner: 'Aarav Mehta' }]); this.setState({ tick: this.state.tick + 1 }); },
+      fixedTotal: '₹' + this.digits(fixed) + ' / month',
+      hourlyNote: hourly.length ? hourly.length + (hourly.length === 1 ? ' member' : ' members') + ', billed as logged' : 'None',
+      invite: invite, toggleInvite: () => this.setState({ invite: !invite }),
+      inviteText: invite ? 'Invites go to 3 partners and ' + this.members.length + ' team members' : 'Invites go to 3 partners; team members are added without an invite'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!-- @dsCard group="Overlays" height=240 width=1200 subtitle="Short label for an icon or a truncated value" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tooltip</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.t{display:flex;flex-direction:column;align-items:center;gap:10px}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row" style="gap:40px;align-items:flex-end">
+<div class="t"><span class="cf-tooltip" role="tooltip" id="tt1">Partner Loans</span><button type="button" class="cf-rail-item is-hover" aria-describedby="tt1" aria-label="Partner Loans"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7c0-1.5 3.1-2.5 7-2.5s7 1 7 2.5-3.1 2.5-7 2.5S5 8.5 5 7zM5 7v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5V7M5 12v5c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5v-5"/></svg></button></div>
+<div class="t"><span class="cf-tooltip" role="tooltip" id="tt2">Rotated 28 Sep 2026 by Ishita Rao</span><span class="cf-pill" tabindex="0" aria-describedby="tt2">Strong</span></div>
+<div class="t"><span class="cf-tooltip" role="tooltip" id="tt3"><span class="t-money-sm">₹12,45,775</span> held of <span class="t-money-sm">₹9,21,175</span> entitled</span><span class="t-money" tabindex="0" aria-describedby="tt3" style="text-decoration:underline dotted;text-underline-offset:3px">₹3,24,600</span></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

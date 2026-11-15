@@ -1,0 +1,599 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Expenses.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "Expenses — Add expense open",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1420,
+      "is_interactive": true,
+      "title": "Dashboard",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Vault.dc.html": {
+      "expand": "fill",
+      "h": 1460,
+      "is_interactive": true,
+      "title": "Credentials Vault — GitHub open",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "SignIn.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Sign in — 2FA and error in the State tweak",
+      "w": 1440,
+      "x": 0,
+      "y": 1900
+    },
+    "SignUp.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Start free trial",
+      "w": 1440,
+      "x": 1520,
+      "y": 1900
+    },
+    "AcceptInvite.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Accept invite — expired link in the State tweak",
+      "w": 1440,
+      "x": 3040,
+      "y": 1900
+    },
+    "CreateCompanySingle.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Create company · step 1 · Single",
+      "w": 1440,
+      "x": 4560,
+      "y": 1900
+    },
+    "CreateCompanyJV.dc.html": {
+      "expand": "fill",
+      "h": 1560,
+      "is_interactive": true,
+      "title": "Create company · step 1 · Joint venture",
+      "w": 1440,
+      "x": 6080,
+      "y": 1900
+    },
+    "CreateCompanySteps.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Create company · steps 2 and 3",
+      "w": 1440,
+      "x": 7600,
+      "y": 1900
+    },
+    "Partners.dc.html": {
+      "expand": "fill",
+      "h": 1960,
+      "is_interactive": true,
+      "title": "Partners — joint venture view",
+      "w": 1440,
+      "x": 0,
+      "y": 3900
+    },
+    "Team.dc.html": {
+      "expand": "fill",
+      "h": 1260,
+      "is_interactive": true,
+      "title": "Team members — Add member open",
+      "w": 1440,
+      "x": 1520,
+      "y": 3900
+    },
+    "Timesheets.dc.html": {
+      "expand": "fill",
+      "h": 1340,
+      "is_interactive": true,
+      "title": "Timesheets — Log hours open, Month mode",
+      "w": 1440,
+      "x": 3040,
+      "y": 3900
+    },
+    "BulkImport.dc.html": {
+      "expand": "fill",
+      "h": 1240,
+      "is_interactive": true,
+      "title": "Bulk import — steps in the State tweak",
+      "w": 1440,
+      "x": 4560,
+      "y": 3900
+    },
+    "Settlements.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "title": "Settlements — Record transfer open",
+      "w": 1440,
+      "x": 0,
+      "y": 6300
+    },
+    "CapitalAccounts.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "title": "Capital accounts — Record contribution open",
+      "w": 1440,
+      "x": 1520,
+      "y": 6300
+    },
+    "Income.dc.html": {
+      "expand": "fill",
+      "h": 1240,
+      "is_interactive": true,
+      "title": "Income — Add income open",
+      "w": 1440,
+      "x": 3040,
+      "y": 6300
+    },
+    "PartnerLoans.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "Partner loans — Record repayment open",
+      "w": 1440,
+      "x": 4560,
+      "y": 6300
+    },
+    "Reports.dc.html": {
+      "expand": "fill",
+      "h": 1780,
+      "is_interactive": true,
+      "title": "Reports — P&L, Export menu open",
+      "w": 1440,
+      "x": 0,
+      "y": 8140
+    },
+    "Statements.dc.html": {
+      "expand": "fill",
+      "h": 1990,
+      "is_interactive": true,
+      "title": "Trial balance and balance sheet — Balance tweak",
+      "w": 1440,
+      "x": 1520,
+      "y": 8140
+    },
+    "SettingsCompany.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "title": "Settings · Company — Close FY open",
+      "w": 1440,
+      "x": 3040,
+      "y": 8140
+    },
+    "SettingsMembers.dc.html": {
+      "expand": "fill",
+      "h": 1240,
+      "is_interactive": true,
+      "title": "Settings · Members (Invite open) and Roles — Tab tweak",
+      "w": 1440,
+      "x": 4560,
+      "y": 8140
+    },
+    "SettingsPartners.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "is_interactive": true,
+      "title": "Settings · Partners (Edit open) and Sides — Tab tweak",
+      "w": 1440,
+      "x": 6080,
+      "y": 8140
+    },
+    "VaultAddCatalog.dc.html": {
+      "expand": "fill",
+      "h": 1320,
+      "is_interactive": true,
+      "title": "Vault · Add item step 1 — provider catalog",
+      "w": 1440,
+      "x": 0,
+      "y": 10570
+    },
+    "VaultAddLogin.dc.html": {
+      "expand": "fill",
+      "h": 1340,
+      "is_interactive": true,
+      "title": "Vault · Add item step 2 — generator open",
+      "w": 1440,
+      "x": 1520,
+      "y": 10570
+    },
+    "VaultShare.dc.html": {
+      "expand": "fill",
+      "h": 1160,
+      "is_interactive": true,
+      "title": "Vault · Share drawer and access requests",
+      "w": 1440,
+      "x": 3040,
+      "y": 10570
+    },
+    "VaultHealth.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "Vault · Security health 82/100",
+      "w": 1440,
+      "x": 4560,
+      "y": 10570
+    },
+    "VaultAudit.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "Vault · Audit log",
+      "w": 1440,
+      "x": 6080,
+      "y": 10570
+    },
+    "VaultLockPolicies.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "is_interactive": true,
+      "title": "Vault · Locked screen and policies — Screen tweak",
+      "w": 1440,
+      "x": 7600,
+      "y": 10570
+    },
+    "Landing.dc.html": {
+      "expand": "fill",
+      "h": 5600,
+      "is_interactive": true,
+      "title": "Landing page — full length",
+      "w": 1440,
+      "x": 0,
+      "y": 12510
+    },
+    "Pricing.dc.html": {
+      "expand": "fill",
+      "h": 3420,
+      "is_interactive": true,
+      "title": "Pricing — monthly/yearly and INR/USD",
+      "w": 1440,
+      "x": 1520,
+      "y": 12510
+    },
+    "Billing.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "is_interactive": true,
+      "title": "Billing — Upgrade open",
+      "w": 1440,
+      "x": 3040,
+      "y": 12510
+    },
+    "Profile.dc.html": {
+      "expand": "fill",
+      "h": 1460,
+      "is_interactive": true,
+      "title": "Profile and security — 2FA setup, sessions",
+      "w": 1440,
+      "x": 4560,
+      "y": 12510
+    },
+    "MobileDashboard.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Mobile · Dashboard",
+      "w": 390,
+      "x": 0,
+      "y": 18550
+    },
+    "MobileExpenses.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Mobile · Expenses with Add sheet",
+      "w": 390,
+      "x": 470,
+      "y": 18550
+    },
+    "MobileVault.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Mobile · Vault item, Reveal and TOTP",
+      "w": 390,
+      "x": 940,
+      "y": 18550
+    },
+    "MobileLogHours.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Mobile · Log hours sheet",
+      "w": 390,
+      "x": 1410,
+      "y": 18550
+    },
+    "MobileNav.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Mobile · Menu with every module",
+      "w": 390,
+      "x": 1880,
+      "y": 18550
+    },
+    "StateEmpty.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Empty — No income yet",
+      "w": 1440,
+      "x": 0,
+      "y": 19880
+    },
+    "StateLoading.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "is_interactive": true,
+      "title": "Loading — dashboard skeleton",
+      "w": 1440,
+      "x": 1520,
+      "y": 19880
+    },
+    "State404.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "is_interactive": true,
+      "title": "404 — page not found",
+      "w": 1440,
+      "x": 3040,
+      "y": 19880
+    },
+    "StateDenied.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Permission denied — Member opening Reports",
+      "w": 1440,
+      "x": 4560,
+      "y": 19880
+    },
+    "StateSession.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Session expired",
+      "w": 1440,
+      "x": 6080,
+      "y": 19880
+    },
+    "StateToasts.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "is_interactive": true,
+      "title": "Toast examples",
+      "w": 1440,
+      "x": 7600,
+      "y": 19880
+    },
+    "Notifications.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Notification panel open",
+      "w": 1440,
+      "x": 9120,
+      "y": 19880
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-15T07:48:59Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/code/artifact/a7ffb93e-c10f-42cb-a16a-b502319fd65f",
+      "copiedAt": "2026-11-15T12:41:11Z",
+      "namespace": "design-system",
+      "title": "Coffer",
+      "version": "1794746449-6e2c"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "title": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Coffer — locked look, light and dark",
+      "w": 240,
+      "x": 0,
+      "y": -320
+    },
+    "tweaks": {
+      "fill": "green",
+      "size": 24,
+      "text": "Look locked: Lime gradient · Bricolage Grotesque, Plus Jakarta Sans, IBM Plex Mono. Use the moon/sun button in each top bar, or the Theme tweak, for dark mode.",
+      "w": 380,
+      "x": -460,
+      "y": 0
+    },
+    "p3title": {
+      "kind": "title1",
+      "maxW": 9040,
+      "text": "Sign-in and onboarding",
+      "x": 0,
+      "y": 1580
+    },
+    "p3note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Other states are in each screen’s State tweak: 2FA and error on Sign in, expired link on Accept invite, totals not 100% on Create company, and Team or Review on steps 2 and 3. Equity totals update as you type.",
+      "w": 380,
+      "x": -460,
+      "y": 1900
+    },
+    "p4title": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Team",
+      "x": 0,
+      "y": 3580
+    },
+    "p4note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Team tabs filter by partner. Log hours recalculates hrs/day when you change total hours or Include Saturdays. Bulk import walks Upload → Map columns → Preview; the hand-entry grid is its second tab.",
+      "w": 380,
+      "x": -460,
+      "y": 3900
+    },
+    "p5title": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Finance",
+      "x": 0,
+      "y": 5980
+    },
+    "p5note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Settlements has a Company tweak for the single-company empty state. Recording a transfer, contribution, income or repayment updates the totals on the page. Income sorts by amount or date; loans close when the outstanding amount reaches ₹0.",
+      "w": 380,
+      "x": -460,
+      "y": 6300
+    },
+    "p6title": {
+      "kind": "title1",
+      "maxW": 7520,
+      "text": "Reports, statements and settings",
+      "x": 0,
+      "y": 7820
+    },
+    "p6note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Reports recalculates for Q1, Q2 or October. Statements has a Balance tweak for the drift state. Members and Partners settings each have a Tab tweak, and the side menu switches tabs too. Permission ticks, side totals and Close FY all work.",
+      "w": 380,
+      "x": -460,
+      "y": 8140
+    },
+    "p7title": {
+      "kind": "title1",
+      "maxW": 9040,
+      "text": "The rest of the Vault",
+      "x": 0,
+      "y": 10250
+    },
+    "p7note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Search or filter the catalog, then Continue. The generator rescores as you drag the slider. In Share, type to add people and approve or deny requests. Rotate raises the health score. The audit log filters by date, person and action. The lock board has a Screen tweak for Policies.",
+      "w": 380,
+      "x": -460,
+      "y": 10570
+    },
+    "p8title": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Marketing site and account pages",
+      "x": 0,
+      "y": 12190
+    },
+    "p8note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Prices show as [PRICE], plan limits as [N] and the yearly saving as [X]% until plans are set. Billing usage bars are drawn at sample widths. The landing preview shifts with the pointer and on scroll, and stays still with reduced motion. Profile has a 2FA tweak for the On state.",
+      "w": 380,
+      "x": -460,
+      "y": 12510
+    },
+    "p9title": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "Mobile",
+      "x": 0,
+      "y": 18230
+    },
+    "p9note": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Phone boards are fixed at 390 × 844. Close the Add expense sheet to see the list, tap Reveal on the vault item (it hides again after 30 s), and switch Log hours between one day and a whole month.",
+      "w": 380,
+      "x": -460,
+      "y": 18550
+    },
+    "p9title2": {
+      "kind": "title1",
+      "maxW": 10560,
+      "text": "System states",
+      "x": 0,
+      "y": 19560
+    },
+    "p9note2": {
+      "fill": "blue",
+      "size": 24,
+      "text": "Empty, loading, 404, permission denied (Rohan as a Member), session expired, toasts and the notification panel. The buttons work: approve an expense in Notifications, or press Show it on any toast.",
+      "w": 380,
+      "x": -460,
+      "y": 19880
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Expenses.dc.html",
+    "Vault.dc.html",
+    "SignIn.dc.html",
+    "SignUp.dc.html",
+    "AcceptInvite.dc.html",
+    "CreateCompanySingle.dc.html",
+    "CreateCompanyJV.dc.html",
+    "CreateCompanySteps.dc.html",
+    "Partners.dc.html",
+    "Team.dc.html",
+    "Timesheets.dc.html",
+    "BulkImport.dc.html",
+    "Settlements.dc.html",
+    "CapitalAccounts.dc.html",
+    "Income.dc.html",
+    "PartnerLoans.dc.html",
+    "Reports.dc.html",
+    "Statements.dc.html",
+    "SettingsCompany.dc.html",
+    "SettingsMembers.dc.html",
+    "SettingsPartners.dc.html",
+    "VaultAddCatalog.dc.html",
+    "VaultAddLogin.dc.html",
+    "VaultShare.dc.html",
+    "VaultHealth.dc.html",
+    "VaultAudit.dc.html",
+    "VaultLockPolicies.dc.html",
+    "Landing.dc.html",
+    "Pricing.dc.html",
+    "Billing.dc.html",
+    "Profile.dc.html",
+    "MobileDashboard.dc.html",
+    "MobileExpenses.dc.html",
+    "MobileVault.dc.html",
+    "MobileLogHours.dc.html",
+    "MobileNav.dc.html",
+    "StateEmpty.dc.html",
+    "StateLoading.dc.html",
+    "State404.dc.html",
+    "StateDenied.dc.html",
+    "StateSession.dc.html",
+    "StateToasts.dc.html",
+    "Notifications.dc.html"
+  ],
+  "pages": [],
+  "title": "Coffer — Dashboard, Expenses & Vault"
+}

@@ -1,0 +1,30 @@
+<!-- @dsCard group="Navigation" height=280 width=1200 subtitle="Pill tabs for settings sections and filtered views, with counts" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tabs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-tabs" role="tablist" aria-label="Settings">
+<button type="button" class="cf-tab" role="tab" aria-selected="true">Company</button>
+<button type="button" class="cf-tab is-hover" role="tab" aria-selected="false">Members &amp; invites</button>
+<button type="button" class="cf-tab is-focus" role="tab" aria-selected="false">Roles</button>
+<button type="button" class="cf-tab" role="tab" aria-selected="false" disabled>Billing</button>
+</div>
+<div class="cf-tabs" role="tablist" aria-label="Team by partner">
+<button type="button" class="cf-tab" role="tab" aria-selected="false">All<span class="cf-tab-count">8</span></button>
+<button type="button" class="cf-tab" role="tab" aria-selected="true">Aarav<span class="cf-tab-count">3</span></button>
+<button type="button" class="cf-tab" role="tab" aria-selected="false">Kabir<span class="cf-tab-count">3</span></button>
+</div>
+<p class="pv-note">Selected: ink fill (near-black in light, near-white in dark). Hover: surface. Disabled: faint text.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

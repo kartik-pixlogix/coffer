@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Start free trial</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div style="max-width: 1400px; min-height: calc(100vh - 40px); margin: 0 auto; padding: 20px; border-radius: 24px; background: var(--surface); display: flex; flex-wrap: wrap; gap: 20px;">
+
+<main style="flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; padding: 8px 20px 20px;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<a href="Landing.dc.html" class="cf-wordmark" style="margin: 0; display: flex; align-items: center; gap: 10px;"><span class="cf-rail-logo" aria-hidden="true">C</span>Coffer</a>
+<div style="display: flex; align-items: center; gap: 12px;">
+<span class="t-body t-muted">Have an account? <a href="SignIn.dc.html" style="font-weight: 500;">Sign in</a></span>
+<button type="button" class="cf-iconbtn" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"></path></svg></sc-if></button>
+</div>
+</div>
+
+<form style="width: 100%; max-width: 440px; margin: auto; padding: 32px 0; display: flex; flex-direction: column; gap: 18px;" onSubmit="{{submit}}">
+<h1 class="cf-h1"><span class="t-display-light">Start your free trial</span><span class="t-display">Set up Coffer</span></h1>
+<button type="button" class="cf-btn cf-btn--secondary cf-btn--lg" style="width: 100%;"><span class="cf-avatar cf-avatar--sm" aria-hidden="true" style="font-family: var(--font-display); font-size: 13px;">G</span>Sign up with Google</button>
+<div style="display: flex; align-items: center; gap: 12px;" aria-hidden="true"><span class="cf-divider" style="flex: 1;"></span><span class="t-caption t-muted">or with email</span><span class="cf-divider" style="flex: 1;"></span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<div class="cf-field"><label class="cf-label" for="su-name">Your name</label><input id="su-name" class="cf-input" type="text" autocomplete="name" value="{{name}}" onChange="{{onName}}" /></div>
+<div class="cf-field"><label class="cf-label" for="su-co">Company name</label><input id="su-co" class="cf-input" type="text" autocomplete="organization" value="{{company}}" onChange="{{onCompany}}" /></div>
+</div>
+<div class="cf-field"><label class="cf-label" for="su-email">Work email</label><input id="su-email" class="cf-input {{emailClass}}" type="email" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" aria-invalid="{{emailBad}}" aria-describedby="su-email-m" />
+<sc-if value="{{emailBad}}" hint-placeholder-val="{{ false }}"><span id="su-email-m" class="cf-errtext">Use your work email so teammates can find the company.</span></sc-if></div>
+<div class="cf-field"><div class="cf-label-row"><label class="cf-label" for="su-pass">Password</label><span class="t-caption" style="color: {{strengthInk}}; font-weight: 600;">{{strengthLabel}}</span></div>
+<input id="su-pass" class="cf-input" type="password" autocomplete="new-password" value="{{pass}}" onChange="{{onPass}}" aria-describedby="su-pass-m" />
+<div class="cf-meter-dots" aria-hidden="true"><span style="background: {{s1}};"></span><span style="background: {{s2}};"></span><span style="background: {{s3}};"></span><span style="background: {{s4}};"></span></div>
+<span id="su-pass-m" class="cf-help">At least 12 characters. A short sentence works well.</span></div>
+<label class="cf-check" style="align-items: flex-start;"><input class="cf-sr" type="checkbox" checked="{{agree}}" onChange="{{toggleAgree}}" /><span class="cf-check-box" style="margin-top: 1px;"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="t-body">I agree to the <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</span></label>
+<a href="CreateCompanySingle.dc.html" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc" style="width: 100%; justify-content: space-between;">Create account<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a>
+<p class="t-caption t-muted" style="margin: 0;">No card needed for the trial. We’ll send a link to confirm your email.</p>
+</form>
+<p class="t-caption t-faint" style="margin: 0;">© 2026 Coffer · <a href="#terms" class="t-faint">Terms</a> · <a href="#privacy" class="t-faint">Privacy</a></p>
+</main>
+
+<aside aria-label="What happens next" class="cf-card--lime" style="flex: 1 1 520px; min-width: 0; min-height: 780px; position: relative; overflow: hidden; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 32px;">
+<div aria-hidden="true" style="position: absolute; left: -90px; bottom: -110px; width: 360px; height: 360px; border-radius: 9999px; background: rgba(255,255,255,0.85); filter: blur(60px); animation: cfDrift 18s cubic-bezier(.37,0,.63,1) infinite;"></div>
+<p class="t-display" style="position: relative; margin: 0; max-width: 480px; font-size: 52px; line-height: 54px; color: var(--on-lime);">Your books, partners and passwords, set up in three steps.</p>
+<ol style="position: relative; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; max-width: 460px;">
+<li style="display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.6); color: var(--on-lime);"><span class="cf-step-n" style="background: var(--on-lime); color: var(--lime);">1</span><span><span class="t-label-strong" style="display: block;">Create your company</span><span class="t-body">Single company or a joint venture, with your opening balance.</span></span></li>
+<li style="display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.6); color: var(--on-lime);"><span class="cf-step-n" style="background: var(--on-lime); color: var(--lime);">2</span><span><span class="t-label-strong" style="display: block;">Add partners and equity</span><span class="t-body">Coffer checks the split adds up to 100% before you go on.</span></span></li>
+<li style="display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.6); color: var(--on-lime);"><span class="cf-step-n" style="background: var(--on-lime); color: var(--lime);">3</span><span><span class="t-label-strong" style="display: block;">Invite your team</span><span class="t-body">Members log hours and expenses; partners approve.</span></span></li>
+</ol>
+</aside>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, name: 'Aarav Mehta', company: 'Vertex Labs Pvt Ltd', email: 'aarav@vertexlabs.in', pass: 'ledger for four partners', agree: true };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const S = this.state;
+    const p = S.pass;
+    let score = 0;
+    if (p.length >= 8) score += 1;
+    if (p.length >= 12) score += 1;
+    if (/[^a-z]/i.test(p) || /\s/.test(p)) score += 1;
+    if (p.length >= 16) score += 1;
+    const labels = ['Too short', 'Weak', 'Fair', 'Good', 'Strong'];
+    const inks = ['var(--negative)', 'var(--negative)', 'var(--warning)', 'var(--ink)', 'var(--positive)'];
+    const on = (n) => (score >= n ? (score <= 1 ? 'var(--chart-negative)' : (score === 2 ? 'var(--warning)' : 'var(--chart-ink)')) : 'var(--line-strong)');
+    const emailBad = S.email.length > 0 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(S.email);
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      name: S.name, onName: (e) => this.setState({ name: e.target.value }),
+      company: S.company, onCompany: (e) => this.setState({ company: e.target.value }),
+      email: S.email, onEmail: (e) => this.setState({ email: e.target.value }),
+      emailBad: emailBad, emailClass: emailBad ? 'is-error' : '',
+      pass: p, onPass: (e) => this.setState({ pass: e.target.value }),
+      strengthLabel: labels[score], strengthInk: inks[score],
+      s1: on(1), s2: on(2), s3: on(3), s4: on(4),
+      agree: S.agree, toggleAgree: () => this.setState({ agree: !S.agree }),
+      submit: (e) => { if (e && e.preventDefault) e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

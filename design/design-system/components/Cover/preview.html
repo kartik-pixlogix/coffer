@@ -1,0 +1,59 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=Plus+Jakarta+Sans:wght@300..600&amp;display=swap">
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--surface); color:var(--ink); font-family:var(--font-sans); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  /* the composition: a 480-wide box on the right half of the 960 layout, clear of the name */
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:288px; overflow:hidden; }
+  .lime { fill:var(--lime); }
+  .graphite { fill:var(--graphite); }
+  .relief { fill:var(--line-strong); }
+  .bar { fill:var(--chart-ink); }
+  .tile { rx:var(--radius-lg); }
+  /* name and tagline pinned to the bottom-left of the ground */
+  .words { position:absolute; left:var(--space-10); bottom:var(--space-5); max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-size:120px; line-height:.92; font-weight:600; letter-spacing:-.02em; color:var(--ink); }
+  .tag { margin:var(--space-4) 0 0 6px; font-size:14px; line-height:20px; font-weight:400; color:var(--ink-secondary); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      lime 176×200 slab bled off the top (the identity hue, largest) · graphite 288×112 pill bleeding off the right edge (the primary button's colour and shape) · line-strong 72×80 tile (relief that stays visible in both themes) — ≈24% of 960×288
+  arrangement a corner of the card grid: slab over tile on the left, the dark pill top-right, a row of bars on one baseline space-5 above the bottom edge; space-4 gutters
+  pattern     pills, from "Make everything clickable round" and the pill-bar charts: 12 chart-bar pills space-2 apart in chart-ink, the one selected bar in lime
+  scales      sides in space-2 multiples; gutters space-4; bar width chart-bar, gap space-2; corners radius-lg; pills rx half the short side
+-->
+<rect class="lime tile" x="16" y="-28" width="176" height="200" rx="20"/>
+<rect class="relief tile" x="16" y="188" width="72" height="80" rx="20"/>
+<rect class="graphite" x="208" y="24" width="288" height="112" rx="56"/>
+<rect class="bar" x="104" y="236" width="22" height="32" rx="11"/>
+<rect class="bar" x="134" y="220" width="22" height="48" rx="11"/>
+<rect class="bar" x="164" y="228" width="22" height="40" rx="11"/>
+<rect class="bar" x="194" y="204" width="22" height="64" rx="11"/>
+<rect class="lime" x="224" y="156" width="22" height="112" rx="11"/>
+<rect class="bar" x="254" y="180" width="22" height="88" rx="11"/>
+<rect class="bar" x="284" y="196" width="22" height="72" rx="11"/>
+<rect class="bar" x="314" y="172" width="22" height="96" rx="11"/>
+<rect class="bar" x="344" y="212" width="22" height="56" rx="11"/>
+<rect class="bar" x="374" y="188" width="22" height="80" rx="11"/>
+<rect class="bar" x="404" y="204" width="22" height="64" rx="11"/>
+<rect class="bar" x="434" y="164" width="22" height="104" rx="11"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">Coffer</h1>
+<p class="tag">Every company, partner and password in one ledger.</p>
+</div>
+</div>
+</body>
+</html>

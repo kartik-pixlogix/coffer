@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Toast examples</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.stack{position:absolute;top:24px;right:24px;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:8px;width:420px}.tx{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:20px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}.tx:first-child{border-top:0}.tx-x{width:24px;height:24px;margin-left:4px;padding:0;border:0;border-radius:9999px;background:transparent;color:var(--on-graphite-muted);display:inline-flex;align-items:center;justify-content:center}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div class="cf-shell">
+<nav class="cf-rail" aria-label="Main">
+<a href="Main.dc.html" class="cf-rail-logo" aria-label="Coffer home" title="Coffer">C</a>
+<span class="cf-rail-sep" aria-hidden="true"></span>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="20">
+<sc-if value="{{n.sep}}" hint-placeholder-val="{{ false }}"><span class="cf-rail-sep" aria-hidden="true"></span></sc-if>
+<sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><a href="{{n.href}}" class="cf-rail-item" aria-label="{{n.label}}" title="{{n.label}}" aria-current="{{n.current}}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{n.d}}"></path></svg></a></sc-if>
+</sc-for>
+</nav>
+<main class="cf-main">
+<header class="cf-topbar">
+<div class="cf-topbar-l">
+<a href="Main.dc.html" class="cf-wordmark">Coffer</a>
+<button type="button" class="cf-switcher" aria-label="Switch company"><span class="cf-switcher-ini">SP</span><span class="cf-stack"><span class="t-label-strong">Saarthi Portal JV</span><span class="t-caption t-muted">Joint Venture · Admin</span></span></button>
+</div>
+<div class="cf-topbar-r">
+<button type="button" class="cf-iconbtn cf-iconbtn--lg" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button>
+</div>
+</header>
+<section class="cf-pagehead"><div><nav aria-label="Breadcrumb"><ol class="cf-crumbs"><li>System states</li><li aria-hidden="true">/</li><li aria-current="page">Toasts</li></ol></nav><h1 class="cf-h1"><span class="t-display-light">Feedback</span><span class="t-display">Toasts</span></h1></div></section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<section class="cf-card" aria-labelledby="gl-h" style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column;">
+<h2 id="gl-h" class="cf-dot-title t-title" style="margin-bottom: 8px;">The six kinds</h2>
+<sc-for list="{{gallery}}" as="g" hint-placeholder-count="6">
+<div class="tx">
+<div class="cf-row" style="gap: 10px; flex-wrap: wrap;"><div class="cf-toast cf-toast--static {{g.cls}}"><span class="cf-toast-ic"><sc-if value="{{g.spin}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true" style="width: 14px; height: 14px;"></span></sc-if><sc-if value="{{g.icon}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="{{g.d}}"></path></svg></sc-if></span>{{g.text}}<sc-if value="{{g.hasAction}}" hint-placeholder-val="{{ false }}"><span class="cf-toast-action">{{g.action}}</span></sc-if></div><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm" onClick="{{g.fire}}" aria-label="{{g.fireLabel}}">Show it</button></div>
+<div class="cf-stack" style="gap: 2px;"><span class="t-label-strong">{{g.name}}</span><span class="t-caption t-muted">{{g.rule}}</span></div>
+</div>
+</sc-for>
+</section>
+<aside class="cf-card cf-card--graphite" style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 10px;" aria-labelledby="ru-h">
+<h2 id="ru-h" class="t-title" style="margin: 0;">How toasts behave</h2>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="5"><div class="cf-row" style="gap: 10px; align-items: flex-start;"><span class="cf-avatar cf-avatar--sm" style="background: var(--gradient-lime); color: var(--on-lime); flex: none;"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="t-body" style="color: var(--on-graphite);">{{r}}</span></div></sc-for>
+<button type="button" class="cf-btn cf-btn--lime" onClick="{{burst}}" style="align-self: flex-start; margin-top: 6px;">Show three at once</button>
+</aside>
+</div>
+</main>
+</div>
+
+<div class="stack" aria-live="polite">
+<sc-for list="{{live}}" as="t" hint-placeholder-count="2">
+<div class="cf-toast {{t.cls}}" role="{{t.role}}"><span class="cf-toast-ic"><sc-if value="{{t.spin}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true" style="width: 14px; height: 14px;"></span></sc-if><sc-if value="{{t.icon}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="{{t.d}}"></path></svg></sc-if></span>{{t.text}}<sc-if value="{{t.hasAction}}" hint-placeholder-val="{{ false }}"><button type="button" class="cf-toast-action" onClick="{{t.act}}">{{t.action}}</button></sc-if><button type="button" class="tx-x" onClick="{{t.close}}" aria-label="Dismiss"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button></div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.seq = 10;
+    this.timers = {};
+    this.state = { themeTick: 0, live: [{ id: 1, kind: 'error' }, { id: 2, kind: 'undo' }] };
+  }
+
+  componentWillUnmount() { Object.keys(this.timers).forEach((k) => clearTimeout(this.timers[k])); }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  kinds() {
+    const ok = 'M5 12.5l4.5 4.5L19 7.5', info = 'M12 11v5M12 7.5h.01M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0', warn = 'M12 4.5l8.5 15h-17zM12 10v4M12 17h.01', trash = 'M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12', wifi = 'M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01';
+    return {
+      success: { name: 'Success', text: 'Expense saved', d: ok, cls: '', action: '', ms: 4000, rule: 'After a save or create. Leaves after 4 seconds.' },
+      undo: { name: 'Undo', text: 'Entry deleted', d: trash, cls: '', action: 'Undo', ms: 8000, rule: 'For deletes. Offers Undo for 8 seconds instead of a confirm dialog.' },
+      info: { name: 'Info', text: 'Copied. Clipboard clears in 30 s.', d: info, cls: 'cf-toast--info', action: '', ms: 4000, rule: 'Neutral news, like a copy or a background change.' },
+      error: { name: 'Error', text: 'Couldn’t sync 1 expense', d: warn, cls: 'cf-toast--error', action: 'Retry', ms: 0, rule: 'Stays until retried or dismissed. Says what failed, not a code.' },
+      progress: { name: 'Progress', text: 'Exporting P&L as PDF', d: '', cls: 'cf-toast--info', action: '', ms: 1800, spin: true, rule: 'For work that takes a few seconds. Turns into a success with a link.' },
+      offline: { name: 'Offline', text: 'You’re offline. Changes sync when you’re back.', d: wifi, cls: 'cf-toast--info', action: '', ms: 5000, rule: 'Shown once when the connection drops, again when it returns.' }
+    };
+  }
+
+  push(kind, extra) {
+    const id = ++this.seq;
+    const K = this.kinds()[kind];
+    const item = Object.assign({ id: id, kind: kind }, extra || {});
+    this.setState((s) => ({ live: [item].concat(s.live).slice(0, 3) }));
+    if (K.ms) this.timers[id] = setTimeout(() => {
+      if (kind === 'progress') { this.drop(id); this.push('success', { text: 'P&L ready', action: 'Download' }); return; }
+      this.drop(id);
+    }, K.ms);
+  }
+
+  drop(id) {
+    if (this.timers[id]) { clearTimeout(this.timers[id]); delete this.timers[id]; }
+    this.setState((s) => ({ live: s.live.filter((t) => t.id !== id) }));
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const K = this.kinds();
+    const nav = [['Dashboard', 'grid', 'Main.dc.html'], 0, ['Expenses', 'receipt', 'Expenses.dc.html'], ['Timesheets', 'clock', 'Timesheets.dc.html'], 0, ['Credentials Vault', 'lock', 'Vault.dc.html']].map((n) => (n ? { sep: false, item: true, label: n[0], d: ic[n[1]], href: n[2], current: null } : { sep: true, item: false }));
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, nav: nav,
+      gallery: Object.keys(K).map((k) => ({ name: K[k].name, text: K[k].text, d: K[k].d, cls: K[k].cls, spin: !!K[k].spin, icon: !K[k].spin, hasAction: !!K[k].action, action: K[k].action, rule: K[k].rule, fireLabel: 'Show a ' + K[k].name.toLowerCase() + ' toast', fire: () => this.push(k) })),
+      live: this.state.live.map((t) => {
+        const k = K[t.kind];
+        const action = t.action !== undefined ? t.action : k.action;
+        return {
+          text: t.text || k.text, d: k.d, cls: k.cls, spin: !!k.spin, icon: !k.spin, role: t.kind === 'error' ? 'alert' : 'status', hasAction: !!action, action: action,
+          close: () => this.drop(t.id),
+          act: () => {
+            this.drop(t.id);
+            if (t.kind === 'undo') this.push('success', { text: 'Entry restored', action: '' });
+            else if (t.kind === 'error') this.push('progress', { text: 'Syncing 1 expense' });
+          }
+        };
+      }),
+      rules: [
+        'Top right on desktop, above the tab bar on mobile.',
+        'Up to three at once, newest on top.',
+        'Most leave after 4 seconds; errors stay until dismissed.',
+        'Undo replaces “Are you sure?” for anything that can be brought back.',
+        'Errors use role="alert"; everything else uses role="status".'
+      ],
+      burst: () => { this.push('success'); this.push('info'); this.push('undo'); }
+    };
+  }
+}
+</script>
+</body>
+</html>

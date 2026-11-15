@@ -1,0 +1,23 @@
+<!-- @dsCard group="Data display" height=300 width=1200 subtitle="Loan repayment, equity split, usage meters" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Progress bar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.b{display:flex;flex-direction:column;gap:6px}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="b"><div class="cf-kv t-caption"><span>Repaid · default</span><span class="t-money-sm">₹1,20,000 of ₹3,00,000</span></div><div class="cf-progress" role="progressbar" aria-label="Loan repaid" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"><span style="width:40%"></span></div></div>
+<div class="b"><div class="cf-kv t-caption"><span>Equity · lime</span><span class="t-money-sm">50.00%</span></div><div class="cf-progress cf-progress--lime" role="progressbar" aria-label="Aarav equity" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"><span style="width:50%"></span></div></div>
+<div class="b"><div class="cf-kv t-caption"><span>Usage near limit · warning</span><span class="t-money-sm">9 of 10 users</span></div><div class="cf-progress cf-progress--warn" role="progressbar" aria-label="Users used" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"><span style="width:90%"></span></div></div>
+<div class="b"><div class="cf-kv t-caption"><span>Over limit · negative</span><span class="t-money-sm">104%</span></div><div class="cf-progress cf-progress--neg" role="progressbar" aria-label="Vault items used" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><span style="width:100%"></span></div></div>
+<div class="b"><div class="cf-kv t-caption"><span>Thin · loading</span><span class="t-money-sm">…</span></div><div class="cf-progress cf-progress--thin"><span class="cf-skel" style="width:100%;height:4px;border-radius:9999px"></span></div></div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

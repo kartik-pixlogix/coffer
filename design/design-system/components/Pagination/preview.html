@@ -1,0 +1,30 @@
+<!-- @dsCard group="Tables" height=240 width=1200 subtitle="Count summary plus page buttons" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pagination</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-kv t-caption t-muted" style="flex-wrap:wrap">
+<span>Showing 1–10 of 24 expenses in October 2026</span>
+<nav class="cf-pager" aria-label="Pagination">
+<button type="button" class="cf-pagebtn cf-pagebtn--edge" disabled aria-label="Previous page"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6"/></svg></button>
+<button type="button" class="cf-pagebtn" aria-current="page">1</button>
+<button type="button" class="cf-pagebtn" style="background:var(--surface-muted)">2</button>
+<button type="button" class="cf-pagebtn is-focus">3</button>
+<span aria-hidden="true">…</span>
+<button type="button" class="cf-pagebtn">12</button>
+<button type="button" class="cf-pagebtn cf-pagebtn--edge" aria-label="Next page"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button>
+</nav></div>
+<p class="pv-note">Current page uses the ink fill; 2 shows hover, 3 focus; previous is disabled on page 1. Keep the page size picker out unless a list often passes 100 rows.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- @dsCard group="Forms" height=420 width=1200 subtitle="Notes and longer descriptions" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Textarea</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<label class="cf-field"><span class="cf-label">Default</span><textarea class="cf-textarea" placeholder="Add a note for the partners"></textarea></label>
+<label class="cf-field"><span class="cf-label">Focus</span><textarea class="cf-textarea cf-input is-focus" style="height:auto">Break-glass only. Daily work goes through IAM users with their own MFA.</textarea></label>
+<label class="cf-field"><span class="cf-label">Disabled</span><textarea class="cf-textarea" disabled>Locked after the FY was closed.</textarea></label>
+<div class="cf-field"><div class="cf-label-row"><label class="cf-label" for="ta-e">Error</label><span class="cf-help">512 / 500</span></div><textarea id="ta-e" class="cf-textarea" aria-invalid="true" aria-describedby="ta-em">The webhook secret is a custom field on this item. Rotate it with the live keys and update Razorpay before the old one is revoked…</textarea><span id="ta-em" class="cf-errtext"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"/></svg>Keep notes under 500 characters.</span></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

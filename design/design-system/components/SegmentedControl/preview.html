@@ -1,0 +1,31 @@
+<!-- @dsCard group="Forms" height=330 width=1200 subtitle="Full / Half / Custom / Direct company · lime selection" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Segmented control</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-field"><span class="cf-label" id="sg1">Paid by · default, hover, selected</span>
+<div class="cf-seg" role="group" aria-labelledby="sg1">
+<button type="button" class="cf-seg-btn" aria-pressed="false">Full</button>
+<button type="button" class="cf-seg-btn is-hover" aria-pressed="false">Half</button>
+<button type="button" class="cf-seg-btn" aria-pressed="true">Custom</button>
+<button type="button" class="cf-seg-btn" aria-pressed="false">Direct company</button>
+</div></div>
+<div class="pv-row">
+<div class="cf-field"><span class="cf-label" id="sg2">Focus · small</span>
+<div class="cf-seg cf-seg--sm" role="group" aria-labelledby="sg2"><button type="button" class="cf-seg-btn is-focus" aria-pressed="false">Day</button><button type="button" class="cf-seg-btn" aria-pressed="true">Month</button></div></div>
+<div class="cf-field"><span class="cf-label" id="sg3">Disabled option</span>
+<div class="cf-seg cf-seg--sm" role="group" aria-labelledby="sg3"><button type="button" class="cf-seg-btn" aria-pressed="true">Hourly</button><button type="button" class="cf-seg-btn" aria-pressed="false">Fixed monthly</button><button type="button" class="cf-seg-btn" aria-pressed="false" disabled>Per project</button></div></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

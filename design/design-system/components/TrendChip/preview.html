@@ -1,0 +1,27 @@
+<!-- @dsCard group="Data display" height=230 width=1200 subtitle="Change versus the previous period, arrow plus colour" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trend chip</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row">
+<span class="cf-trend cf-trend--up" aria-label="Up 6% on September"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>6%</span>
+<span class="cf-trend cf-trend--down" aria-label="Down 8% on September"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M7 7l10 10M17 9v8H9"/></svg>8%</span>
+<span class="cf-trend cf-trend--flat" aria-label="Up 28%, neutral for costs"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>28%</span>
+<span class="cf-trend cf-trend--flat" aria-label="No change"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M5 12h14"/></svg>0%</span>
+<span class="cf-trend cf-trend--up"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" style="stroke-width:2" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>₹6,00,000 net profit in October</span>
+<span class="cf-skel" style="width:52px;height:24px;border-radius:9999px" aria-label="Loading"></span>
+</div>
+<p class="pv-note">Up is good for income and profit (positive), down is bad (negative). For costs, a rise is shown neutral rather than red, so the chip never shouts about normal spending.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

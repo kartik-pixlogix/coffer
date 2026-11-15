@@ -1,0 +1,30 @@
+<!-- @dsCard group="Data display" height=250 width=1200 subtitle="Initials with the partner colour dot · 28, 36, 48, 64 px, tiles" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avatar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row">
+<span class="cf-avatar cf-avatar--sm" role="img" aria-label="Aarav Mehta, Vertex Labs">AM<span class="cf-avatar-dot" style="background:var(--partner-1)"></span></span>
+<span class="cf-avatar" role="img" aria-label="Ishita Rao, Vertex Labs">IR<span class="cf-avatar-dot" style="background:var(--partner-2)"></span></span>
+<span class="cf-avatar cf-avatar--lg" role="img" aria-label="Kabir Shah, Bluefin Infotech">KS<span class="cf-avatar-dot" style="background:var(--partner-3)"></span></span>
+<span class="cf-avatar cf-avatar--xl" role="img" aria-label="Meera Iyer, Bluefin Infotech">MI<span class="cf-avatar-dot" style="background:var(--partner-4);width:14px;height:14px"></span></span>
+<span class="cf-avatar cf-avatar--graphite" role="img" aria-label="Saarthi Portal JV">SP</span>
+<span class="cf-avatar cf-avatar--tile cf-avatar--graphite" role="img" aria-label="GitHub">GH</span>
+<span class="cf-avatar cf-avatar--tile" role="img" aria-label="Razorpay">RZ</span>
+<span class="cf-avatar" role="img" aria-label="Payroll, automatic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 11a7.5 7.5 0 1 0-2.2 5.3M19.5 5v6h-6"/></svg></span>
+<span class="cf-skel cf-skel--circle" style="width:36px;height:36px" aria-label="Loading"></span>
+</div>
+<p class="pv-note">Partner dots: Aarav partner-1, Ishita partner-2, Kabir partner-3, Meera partner-4; team members take the dot of the partner they bill to. Graphite tiles are companies and vault providers.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

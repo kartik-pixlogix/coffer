@@ -1,0 +1,28 @@
+<!-- @dsCard group="Forms" height=470 width=1200 subtitle="Label, help text, every state" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Text input</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.m{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-grid m">
+<label class="cf-field"><span class="cf-label">Default</span><input class="cf-input" type="text" placeholder="What was it for?"></label>
+<label class="cf-field"><span class="cf-label">Hover</span><input class="cf-input is-hover" type="text" value="MacBook Air"></label>
+<label class="cf-field"><span class="cf-label">Focus</span><input class="cf-input is-focus" type="text" value="Figma organisation seats"></label>
+<label class="cf-field"><span class="cf-label">Disabled</span><input class="cf-input" type="text" value="Saarthi Portal JV" disabled></label>
+<div class="cf-field"><label class="cf-label" for="ti-err">Error</label><input id="ti-err" class="cf-input" type="text" value="" aria-invalid="true" aria-describedby="ti-err-m" placeholder="Company name"><span id="ti-err-m" class="cf-errtext"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"/></svg>Add a company name.</span></div>
+<label class="cf-field"><span class="cf-label">Read-only</span><input class="cf-input" type="text" value="Aarav Mehta (you)" readonly></label>
+<div class="cf-field"><label class="cf-label" for="ti-load">Loading</label><span class="cf-inwrap"><input id="ti-load" type="text" value="VLABS" aria-describedby="ti-load-m"><span class="cf-spinner" style="margin-right:10px;color:var(--ink-secondary)"></span></span><span id="ti-load-m" class="cf-help">Checking the short code…</span></div>
+<div class="cf-field"><label class="cf-label" for="ti-help">With help text</label><input id="ti-help" class="cf-input cf-input--sm" type="text" value="VL" aria-describedby="ti-help-m"><span id="ti-help-m" class="cf-help">2–6 letters, shown on avatars and exports.</span></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

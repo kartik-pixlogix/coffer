@@ -1,0 +1,24 @@
+<!-- @dsCard group="Forms" height=330 width=1200 subtitle="2FA and reveal checks · one box per digit" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>6-digit code input</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.cf-code-box{width:44px;height:52px}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<fieldset class="cf-field" style="border:0;padding:0;margin:0"><legend class="cf-label" style="margin-bottom:6px">Typing · focus on the 4th box</legend>
+<div class="cf-code"><input class="cf-code-box" aria-label="Digit 1" inputmode="numeric" maxlength="1" value="4"><input class="cf-code-box" aria-label="Digit 2" inputmode="numeric" maxlength="1" value="8"><input class="cf-code-box" aria-label="Digit 3" inputmode="numeric" maxlength="1" value="2"><span class="cf-code-sep" aria-hidden="true"></span><input class="cf-code-box is-focus" aria-label="Digit 4" inputmode="numeric" maxlength="1"><input class="cf-code-box" aria-label="Digit 5" inputmode="numeric" maxlength="1"><input class="cf-code-box" aria-label="Digit 6" inputmode="numeric" maxlength="1"></div></fieldset>
+<fieldset class="cf-field" style="border:0;padding:0;margin:0"><legend class="cf-label" style="margin-bottom:6px">Error</legend>
+<div class="cf-code is-error"><input class="cf-code-box" aria-label="Digit 1" value="1" aria-invalid="true"><input class="cf-code-box" aria-label="Digit 2" value="1" aria-invalid="true"><input class="cf-code-box" aria-label="Digit 3" value="9" aria-invalid="true"><span class="cf-code-sep" aria-hidden="true"></span><input class="cf-code-box" aria-label="Digit 4" value="0" aria-invalid="true"><input class="cf-code-box" aria-label="Digit 5" value="0" aria-invalid="true"><input class="cf-code-box" aria-label="Digit 6" value="7" aria-invalid="true"></div>
+<span class="cf-errtext">That code didn’t match. Codes change every 30 seconds.</span></fieldset>
+<div class="pv-row"><div class="cf-code is-disabled" aria-busy="true"><input class="cf-code-box" aria-label="Digit 1" value="4" disabled><input class="cf-code-box" aria-label="Digit 2" value="8" disabled><input class="cf-code-box" aria-label="Digit 3" value="2" disabled><span class="cf-code-sep" aria-hidden="true"></span><input class="cf-code-box" aria-label="Digit 4" value="6" disabled><input class="cf-code-box" aria-label="Digit 5" value="1" disabled><input class="cf-code-box" aria-label="Digit 6" value="3" disabled></div><span class="pv-row t-caption t-muted" style="gap:6px"><span class="cf-spinner" style="width:12px;height:12px"></span>Verifying…</span></div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- @dsCard group="Forms" height=300 width=1200 subtitle="Global search with the ⌘K hint, and the in-page filter search" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search field</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.cf-search{max-width:none}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<span class="pv-state">Top bar · default</span>
+<label class="cf-search"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3"/></svg><input type="search" aria-label="Search or jump to" placeholder="Search or jump to…"><span class="cf-kbd" aria-hidden="true">⌘K</span></label>
+<span class="pv-state">Focus with a query</span>
+<label class="cf-search is-focus" style="box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3"/></svg><input type="search" aria-label="Search or jump to" value="razorpay"><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" aria-label="Clear search"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></label>
+<span class="pv-state">In-page filter · 40 px · disabled</span>
+<div class="pv-row"><label class="cf-inwrap cf-inwrap--sm" style="border-radius:9999px;max-width:260px"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3"/></svg><input type="search" aria-label="Search expenses" placeholder="Search expenses"></label><label class="cf-inwrap cf-inwrap--sm is-disabled" style="border-radius:9999px;max-width:200px"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0 -13 0M20 20l-4.3-4.3"/></svg><input type="search" aria-label="Search vault" placeholder="Vault locked" disabled></label></div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

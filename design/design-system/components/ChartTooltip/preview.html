@@ -1,0 +1,24 @@
+<!-- @dsCard group="Charts" height=300 width=1200 subtitle="Tooltip and legend styles shared by every chart" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chart tooltip and legend</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="pv-row" style="align-items:flex-start">
+<span class="cf-tip cf-tip--static cf-tip--arrow"><span class="cf-tip-muted">Oct 2026</span><br><span class="t-money-sm">₹6,00,000</span></span>
+<span class="cf-tip cf-tip--static" style="min-width:190px"><span class="cf-tip-muted">Sep 2026</span><span class="cf-tip-row" style="margin-top:4px"><span class="cf-row" style="gap:6px"><span class="cf-swatch" style="background:var(--chart-1)"></span>Revenue</span><span class="t-money-sm">₹10,85,000</span></span><span class="cf-tip-row"><span class="cf-row" style="gap:6px"><span class="cf-swatch" style="background:var(--chart-2)"></span>Expenses</span><span class="t-money-sm">₹4,30,000</span></span><span class="cf-tip-row" style="border-top:1px solid rgba(255,255,255,0.16);margin-top:4px;padding-top:4px"><span>Profit</span><span class="t-money-sm">₹6,55,000</span></span></span>
+</div>
+<ul class="cf-legend"><li><span class="cf-swatch"></span>Dot · series</li><li><span class="cf-swatch cf-swatch--line"></span>Dashed · comparison</li><li><span class="cf-swatch cf-swatch--sq" style="background:var(--chart-1)"></span>Square · grouped bars</li><li><span class="cf-swatch" style="background:var(--chart-negative)"></span>Below zero</li></ul>
+<div class="pv-row"><span class="cf-axis">₹12L ₹8L ₹4L ₹0</span><span class="pv-state">Axis labels: IBM Plex Mono 12 px in ink-secondary, compact units</span></div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

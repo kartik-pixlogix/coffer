@@ -1,0 +1,34 @@
+<!-- @dsCard group="Charts" height=470 width=1200 subtitle="Partner comparison · revenue, expenses and net, with a negative net" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Grouped bars</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}.g{flex:1;display:flex;justify-content:center;align-items:flex-end;gap:4px;height:100%}.gn{flex:1;display:flex;justify-content:center;align-items:flex-start;gap:4px}.b{width:16px;border-radius:9999px;border:0;padding:0}.sp{width:16px}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-card">
+<div class="cf-kv" style="margin-bottom:12px;flex-wrap:wrap"><h3 class="cf-dot-title t-title">Partner comparison</h3><ul class="cf-legend"><li><span class="cf-swatch cf-swatch--sq" style="background:var(--chart-1)"></span>Revenue</li><li><span class="cf-swatch cf-swatch--sq" style="background:var(--chart-2)"></span>Expenses</li><li><span class="cf-swatch cf-swatch--sq" style="background:var(--chart-3)"></span>Net</li><li><span class="cf-swatch cf-swatch--sq" style="background:var(--chart-negative)"></span>Net below zero</li></ul></div>
+<div style="display:flex;height:120px;border-bottom:1px solid var(--line-strong);padding:0 6px">
+<div class="g"><button type="button" class="b" style="height:100px;background:var(--chart-1)" aria-label="Aarav revenue ₹21,36,240"></button><button type="button" class="b" style="height:52px;background:var(--chart-2)" aria-label="Aarav expenses ₹11,12,400"></button><button type="button" class="b" style="height:48px;background:var(--chart-3)" aria-label="Aarav net ₹10,23,840"></button></div>
+<div class="g"><button type="button" class="b" style="height:59px;background:var(--chart-1)" aria-label="Ishita revenue ₹12,66,840"></button><button type="button" class="b" style="height:25px;background:var(--chart-2)" aria-label="Ishita expenses ₹5,44,250"></button><button type="button" class="b" style="height:34px;background:var(--chart-3)" aria-label="Ishita net ₹7,22,590"></button></div>
+<div class="g" style="position:relative"><button type="button" class="b" style="height:83px;background:var(--chart-1)" aria-label="Kabir revenue ₹17,63,640"></button><button type="button" class="b" style="height:97px;background:var(--chart-2)" aria-label="Kabir expenses ₹20,78,000"></button><span class="sp"></span></div>
+<div class="g"><button type="button" class="b" style="height:49px;background:var(--chart-1)" aria-label="Meera revenue ₹10,43,280"></button><button type="button" class="b" style="height:30px;background:var(--chart-2)" aria-label="Meera expenses ₹6,33,000"></button><button type="button" class="b" style="height:19px;background:var(--chart-3)" aria-label="Meera net ₹4,10,280"></button></div>
+</div>
+<div style="display:flex;height:34px;padding:0 6px">
+<div class="gn"></div><div class="gn"></div>
+<div class="gn"><span class="sp"></span><span class="sp"></span><button type="button" class="b" style="height:15px;background:var(--chart-negative)" aria-label="Kabir net −₹3,14,360"></button></div>
+<div class="gn"></div>
+</div>
+<div class="cf-axis-x" style="justify-content:space-around" aria-hidden="true"><span>Aarav</span><span>Ishita</span><span>Kabir <span class="t-money-sm t-neg">−₹3.1L</span></span><span>Meera</span></div>
+</div>
+<p class="pv-note">Series take chart-1, chart-2, chart-3 in that order; any bar below zero switches to chart-negative and gets its value written under the name.</p>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

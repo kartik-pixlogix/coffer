@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Pricing</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.lp{background:var(--canvas);color:var(--ink);overflow:hidden}.lp-in{max-width:1200px;margin:0 auto;padding:0 32px}.lp-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:84px}.lp-links{display:flex;gap:4px}.lp-links a{height:40px;display:inline-flex;align-items:center;padding:0 14px;border-radius:9999px;color:var(--ink-secondary);text-decoration:none;font-weight:500}.lp-links a:hover{background:var(--surface);color:var(--ink)}.lp-links a[aria-current="page"]{background:var(--surface);color:var(--ink)}.lp-h1{font-family:var(--font-display);font-size:64px;line-height:68px;font-weight:400;letter-spacing:-.035em;margin:0}.lp-h2{font-family:var(--font-display);font-size:40px;line-height:44px;font-weight:400;letter-spacing:-.03em;margin:0}.lp-h3{font-family:var(--font-display);font-size:24px;line-height:28px;font-weight:500;letter-spacing:-.02em;margin:0}.lp-eyebrow{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:9999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500}.plan{display:flex;flex-direction:column;gap:16px;padding:24px;border-radius:24px;background:var(--surface);border:1px solid var(--line)}.plan.pop{background:var(--gradient-lime);color:var(--on-lime);border-color:transparent}.lp-ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}.lp-ul li{display:flex;gap:10px;align-items:flex-start}.lp-ul li svg{flex:none;margin-top:1px}.cmp{display:grid;grid-template-columns:minmax(260px,1.6fr) repeat(4,minmax(120px,1fr));align-items:center;min-height:48px;border-bottom:1px solid var(--line)}.cmp>span{padding:10px 12px}.cmp>span:not(:first-child){text-align:center}.cmp-head{position:sticky;top:0;z-index:2;background:var(--canvas);border-bottom:1px solid var(--line-strong);min-height:64px}.cmp-group{padding:22px 12px 8px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-muted)}.cmp .col-pop{background:var(--selected)}.lp-faq{border-top:1px solid var(--line)}.lp-faq button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:17px;font-weight:500;text-align:left;cursor:pointer}.lp-faq p{margin:0 0 20px;max-width:760px;color:var(--ink-secondary);font-size:15px;line-height:23px}</style>
+</helmet>
+<div class="cf lp" data-theme="{{theme}}">
+<div class="lp-in">
+<header class="lp-nav">
+<a href="Landing.dc.html" class="cf-row" style="gap: 10px; text-decoration: none;" aria-label="Coffer home"><span class="cf-rail-logo" aria-hidden="true">C</span><span class="cf-wordmark" style="margin: 0;">Coffer</span></a>
+<nav class="lp-links" aria-label="Site"><a href="Landing.dc.html#product">Product</a><a href="Landing.dc.html#modules">Modules</a><a href="Landing.dc.html#security">Security</a><a href="Pricing.dc.html" aria-current="page">Pricing</a><a href="Landing.dc.html#faq">FAQ</a></nav>
+<div class="cf-row" style="gap: 8px;">
+<button type="button" class="cf-iconbtn" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"></path></svg></sc-if></button>
+<a href="SignIn.dc.html" class="cf-btn cf-btn--ghost">Sign in</a>
+<a href="SignUp.dc.html" class="cf-btn cf-btn--primary">Start free trial</a>
+</div>
+</header>
+</div>
+
+<section class="lp-in" style="padding-top: 48px; text-align: center;" aria-labelledby="pr-h">
+<span class="lp-eyebrow"><span class="cf-dot-title"></span>Pricing</span>
+<h1 id="pr-h" class="lp-h1" style="margin: 20px auto 0; max-width: 880px;">Pay for the companies you run, <span style="color: var(--ink-faint);">not the tools you juggle.</span></h1>
+<p class="t-body t-muted" style="margin: 18px auto 0; max-width: 620px; font-size: 18px; line-height: 27px;">Every plan includes timesheets, income and expenses, reports and a vault with 2FA codes. Try any plan before you pay.</p>
+<div class="cf-row" style="justify-content: center; gap: 12px; margin-top: 28px; flex-wrap: wrap;">
+<div class="cf-seg" role="group" aria-label="Billing period"><sc-for list="{{cycles}}" as="c" hint-placeholder-count="2"><button type="button" class="cf-seg-btn" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}<sc-if value="{{c.save}}" hint-placeholder-val="{{ false }}"><span class="cf-pill cf-pill--sm cf-pill--graphite" style="margin-left: 6px;">Save [X]%</span></sc-if></button></sc-for></div>
+<div class="cf-seg" role="group" aria-label="Currency"><sc-for list="{{currencies}}" as="c" hint-placeholder-count="2"><button type="button" class="cf-seg-btn" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+</div>
+</section>
+
+<section class="lp-in" style="padding-top: 40px;" aria-label="Plans">
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: stretch;">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="4">
+<article class="plan {{p.cls}}" aria-labelledby="{{p.id}}">
+<div class="cf-kv" style="align-items: center;"><h2 id="{{p.id}}" class="lp-h3" style="color: inherit;">{{p.name}}</h2><sc-if value="{{p.popular}}" hint-placeholder-val="{{ false }}"><span class="cf-pill cf-pill--graphite">Popular</span></sc-if></div>
+<p class="t-body" style="margin: 0; opacity: .78; min-height: 36px;">{{p.body}}</p>
+<div class="cf-stack" style="gap: 2px;"><div class="cf-row" style="gap: 6px; align-items: baseline;"><span class="t-money" style="font-size: 34px; line-height: 40px;">{{p.price}}</span><span class="t-caption" style="opacity: .78;">{{p.unit}}</span></div><span class="t-caption" style="opacity: .78;">{{p.note}}</span></div>
+<a href="{{p.href}}" class="cf-btn cf-btn--lg {{p.btn}}">{{p.cta}}</a>
+<div class="cf-stack" style="gap: 10px; padding-top: 14px; border-top: 1px solid {{p.rule}};"><span class="t-label-strong">{{p.lead}}</span><ul class="lp-ul"><sc-for list="{{p.points}}" as="t" hint-placeholder-count="5"><li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width: 2.25;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span class="t-body">{{t}}</span></li></sc-for></ul></div>
+</article>
+</sc-for>
+</div>
+<p class="t-caption t-muted" style="text-align: center; margin: 18px 0 0;">{{taxNote}}</p>
+</section>
+
+<section class="lp-in" style="padding-top: 88px;" aria-labelledby="cmp-h">
+<h2 id="cmp-h" class="lp-h2" style="margin-bottom: 20px;">Compare every plan</h2>
+<div role="table" aria-label="Plan comparison">
+<div class="cmp cmp-head" role="row"><span role="columnheader" class="t-label t-muted">Feature</span><sc-for list="{{plans}}" as="p" hint-placeholder-count="4"><span role="columnheader" class="cf-stack {{p.colCls}}" style="gap: 2px; align-items: center;"><span class="t-label-strong">{{p.name}}</span><span class="t-money-sm t-muted">{{p.short}}</span></span></sc-for></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="24">
+<sc-if value="{{r.isGroup}}" hint-placeholder-val="{{ false }}"><div class="cmp-group" role="row"><span role="rowheader">{{r.label}}</span></div></sc-if>
+<sc-if value="{{r.isRow}}" hint-placeholder-val="{{ true }}"><div class="cmp" role="row"><span role="rowheader" class="t-body">{{r.label}}</span><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="4"><span role="cell" class="{{c.cls}}"><sc-if value="{{c.yes}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 2.25;" aria-label="Included" role="img"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if><sc-if value="{{c.no}}" hint-placeholder-val="{{ false }}"><span class="t-faint" aria-label="Not included">—</span></sc-if><sc-if value="{{c.isText}}" hint-placeholder-val="{{ false }}"><span class="t-money-sm">{{c.text}}</span></sc-if></span></sc-for></div></sc-if>
+</sc-for>
+</div>
+</section>
+
+<section class="lp-in" style="padding-top: 88px; display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 40px;" aria-labelledby="fq-h">
+<div><h2 id="fq-h" class="lp-h2">Billing questions</h2><p class="t-body t-muted" style="margin: 14px 0 0; font-size: 15px; line-height: 23px;">Something else? <a href="Landing.dc.html#demo" class="cf-link">Talk to us</a>.</p></div>
+<div><sc-for list="{{faqs}}" as="f" hint-placeholder-count="5"><div class="lp-faq"><h3 style="margin: 0;"><button type="button" aria-expanded="{{f.open}}" aria-controls="{{f.id}}" onClick="{{f.toggle}}">{{f.q}}<svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; transform: {{f.rot}}; transition: transform 160ms ease-out;"><path d="M12 5v14M5 12h14"></path></svg></button></h3><sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><p id="{{f.id}}">{{f.a}}</p></sc-if></div></sc-for></div>
+</section>
+
+<section class="lp-in" style="padding: 88px 32px 64px;" aria-label="Get started">
+<div class="cf-card--graphite" style="border-radius: 32px; padding: 40px 48px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between;"><div><h2 class="lp-h2" style="color: var(--on-graphite); font-size: 34px; line-height: 38px;">Not sure which plan?</h2><p class="t-body" style="margin: 10px 0 0; color: var(--on-graphite-muted);">Start on Growth. You can move up or down at any time.</p></div><div class="cf-row" style="gap: 10px;"><a href="SignUp.dc.html" class="cf-btn cf-btn--lime cf-btn--lg">Start free trial</a><a href="Landing.dc.html#demo" class="cf-btn cf-btn--onDark cf-btn--lg">Book a demo</a></div></div>
+<div class="cf-kv" style="margin-top: 32px; flex-wrap: wrap;"><span class="t-caption t-muted">© 2026 Coffer</span><span class="cf-row" style="gap: 16px;"><a href="#privacy" class="t-caption t-muted">Privacy</a><a href="#terms" class="t-caption t-muted">Terms</a></span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":3420}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, cycle: 'Monthly', cur: 'INR', faq: 0 };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const S = this.state;
+    const sym = S.cur === 'INR' ? '₹' : '$';
+    const yearly = S.cycle === 'Yearly';
+    const P = [
+      ['Starter', 'One company getting its books in order.', 'What you get', ['A single company', 'Partners and equity', 'Timesheets, income and expenses', 'Reports with PDF and Excel export', 'Personal vault with 2FA codes']],
+      ['Growth', 'A few companies, or a joint venture with sides.', 'Everything in Starter, plus', ['Several companies and joint ventures', 'Settlements, capital accounts and loans', 'Bulk import from spreadsheets', 'Vault sharing and health score']],
+      ['Business', 'Groups that need roles, policies and an audit trail.', 'Everything in Growth, plus', ['Custom roles and permissions', 'Vault audit log and policies', 'Export controls', 'Priority support']],
+      ['Enterprise', 'Larger groups with their own setup and contracts.', 'Everything in Business, plus', ['Single sign-on with SAML', 'Custom limits and contract', 'Onboarding help', 'Invoicing by bank transfer']]
+    ];
+    const plans = P.map((p, i) => {
+      const ent = p[0] === 'Enterprise';
+      const pop = p[0] === 'Growth';
+      return {
+        id: 'plan-' + i, name: p[0], body: p[1], lead: p[2], points: p[3], popular: pop, cls: pop ? 'pop' : '', colCls: pop ? 'col-pop' : '',
+        price: ent ? 'Custom' : sym + '[PRICE]', unit: ent ? '' : (yearly ? '/ year' : '/ month'),
+        note: ent ? 'Priced for your group' : (yearly ? 'Billed once a year · save [X]%' : 'Billed every month'),
+        short: ent ? 'Custom' : sym + '[PRICE]' + (yearly ? '/yr' : '/mo'),
+        cta: ent ? 'Talk to us' : 'Start free trial', href: ent ? 'Landing.dc.html#demo' : 'SignUp.dc.html',
+        btn: pop ? 'cf-btn--primary' : (ent ? 'cf-btn--secondary' : 'cf-btn--muted'), rule: pop ? 'rgba(28,28,30,.18)' : 'var(--line)'
+      };
+    });
+    const Y = 'y', N = 'n';
+    const R = [
+      ['Companies and people'],
+      ['Companies', '[N]', '[N]', '[N]', 'Custom'],
+      ['Users', '[N]', '[N]', '[N]', 'Custom'],
+      ['Joint ventures with sides', N, Y, Y, Y],
+      ['Admin, Partner, Member and Viewer roles', Y, Y, Y, Y],
+      ['Custom permission matrix', N, N, Y, Y],
+      ['Money'],
+      ['Income, expenses and approvals', Y, Y, Y, Y],
+      ['Capital accounts and partner loans', N, Y, Y, Y],
+      ['Settlements between sides', N, Y, Y, Y],
+      ['Reports with PDF and Excel export', Y, Y, Y, Y],
+      ['Trial balance and balance sheet', N, Y, Y, Y],
+      ['Time'],
+      ['Timesheets, by day or by month', Y, Y, Y, Y],
+      ['Bulk import', N, Y, Y, Y],
+      ['Vault'],
+      ['Vault items', '[N]', '[N]', 'Unlimited', 'Unlimited'],
+      ['2FA codes (TOTP)', Y, Y, Y, Y],
+      ['Sharing with people and teams', N, Y, Y, Y],
+      ['Health score', N, Y, Y, Y],
+      ['Audit log', N, N, Y, Y],
+      ['Vault policies and export controls', N, N, Y, Y],
+      ['Support and security'],
+      ['Email support', Y, Y, Y, Y],
+      ['Priority support', N, N, Y, Y],
+      ['Single sign-on (SAML)', N, N, N, Y],
+      ['Onboarding help', N, N, N, Y]
+    ];
+    const rows = R.map((r) => (r.length === 1 ? { isGroup: true, isRow: false, label: r[0], cells: [] } : {
+      isGroup: false, isRow: true, label: r[0],
+      cells: r.slice(1).map((v, i) => ({ yes: v === Y, no: v === N, isText: v !== Y && v !== N, text: v, cls: i === 1 ? 'col-pop' : '' }))
+    }));
+    const FAQ = [
+      ['Can I try Coffer before I pay?', 'Yes. Every plan starts with a free trial. Pick a plan when you’re ready to keep going.'],
+      ['What counts as a company?', 'Each set of books counts as one company, whether it’s a single company or a joint venture. Sides inside a JV don’t count separately.'],
+      ['Can I change plans later?', 'Yes. Upgrades start straight away and you pay the difference for the rest of the billing period. Downgrades start at your next renewal.'],
+      ['Are prices shown with GST?', 'Rupee prices are shown before GST. Your invoice adds GST and shows your GSTIN.'],
+      ['Which currencies can I pay in?', 'Rupees or US dollars. Choose at checkout; your invoices use the same currency.']
+    ];
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      cycles: ['Monthly', 'Yearly'].map((c) => ({ label: c, on: S.cycle === c, save: c === 'Yearly', pick: () => this.setState({ cycle: c }) })),
+      currencies: [['INR', '₹ INR'], ['USD', '$ USD']].map((c) => ({ label: c[1], on: S.cur === c[0], pick: () => this.setState({ cur: c[0] }) })),
+      plans: plans, rows: rows,
+      taxNote: S.cur === 'INR' ? 'Rupee prices are before GST. Yearly plans are paid up front.' : 'Prices in US dollars. Local taxes may apply. Yearly plans are paid up front.',
+      faqs: FAQ.map((f, i) => ({ q: f[0], a: f[1], id: 'pfaq-' + i, open: S.faq === i, rot: S.faq === i ? 'rotate(45deg)' : 'none', toggle: () => this.setState({ faq: S.faq === i ? -1 : i }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

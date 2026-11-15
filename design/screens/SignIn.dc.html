@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer — Sign in</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="cf cf-page" data-theme="{{theme}}">
+<div style="max-width: 1400px; min-height: calc(100vh - 40px); margin: 0 auto; padding: 20px; border-radius: 24px; background: var(--surface); display: flex; flex-wrap: wrap; gap: 20px;">
+
+<main style="flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; padding: 8px 20px 20px;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<a href="Landing.dc.html" class="cf-wordmark" style="margin: 0; display: flex; align-items: center; gap: 10px;"><span class="cf-rail-logo" aria-hidden="true">C</span>Coffer</a>
+<div style="display: flex; align-items: center; gap: 12px;">
+<span class="t-body t-muted">New to Coffer? <a href="SignUp.dc.html" style="font-weight: 500;">Start free trial</a></span>
+<button type="button" class="cf-iconbtn" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" title="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"></path></svg></sc-if></button>
+</div>
+</div>
+
+<div style="width: 100%; max-width: 420px; margin: auto; padding: 40px 0; display: flex; flex-direction: column; gap: 20px;">
+
+<sc-if value="{{isSignin}}" hint-placeholder-val="{{ true }}">
+<h1 class="cf-h1"><span class="t-display-light">Welcome back,</span><span class="t-display">Sign in</span></h1>
+<button type="button" class="cf-btn cf-btn--secondary cf-btn--lg" style="width: 100%;"><span class="cf-avatar cf-avatar--sm" aria-hidden="true" style="font-family: var(--font-display); font-size: 13px;">G</span>Continue with Google</button>
+<div style="display: flex; align-items: center; gap: 12px;" aria-hidden="true"><span class="cf-divider" style="flex: 1;"></span><span class="t-caption t-muted">or with email</span><span class="cf-divider" style="flex: 1;"></span></div>
+<sc-if value="{{hasError}}" hint-placeholder-val="{{ false }}">
+<div class="cf-alert cf-alert--neg cf-alert--slim" role="alert"><div class="cf-alert-main" style="flex-basis: 200px;"><span class="cf-alert-ic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"></path></svg></span><span class="t-body">That email and password don’t match. 2 tries left before a 15-minute lock.</span></div></div>
+</sc-if>
+<div class="cf-field"><label class="cf-label" for="si-email">Work email</label><input id="si-email" class="cf-input" type="email" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" /></div>
+<div class="cf-field">
+<div class="cf-label-row"><label class="cf-label" for="si-pass">Password</label><a href="#forgot" class="t-caption" style="font-weight: 500;">Forgot password?</a></div>
+<span class="cf-inwrap {{passWrap}}"><input id="si-pass" type="{{passType}}" autocomplete="current-password" value="{{pass}}" onChange="{{onPass}}" aria-invalid="{{hasError}}" aria-describedby="si-pass-m" /><button type="button" class="cf-iconbtn cf-iconbtn--sm cf-iconbtn--bare" onClick="{{toggleShow}}" aria-label="{{showLabel}}"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg></button></span>
+<sc-if value="{{hasError}}" hint-placeholder-val="{{ false }}"><span id="si-pass-m" class="cf-errtext"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l8.5 15h-17zM12 10v4M12 17h.01"></path></svg>Check your password and try again.</span></sc-if>
+</div>
+<label class="cf-check"><input class="cf-sr" type="checkbox" checked="{{remember}}" onChange="{{toggleRemember}}" /><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span>Remember me on this device</span></label>
+<button type="button" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc" onClick="{{submit}}" style="width: 100%; justify-content: space-between;">Continue<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></button>
+<p class="t-caption t-muted" style="margin: 0;">Protected by 2FA. We’ll ask for a code from your authenticator app next.</p>
+</sc-if>
+
+<sc-if value="{{is2fa}}" hint-placeholder-val="{{ false }}">
+<button type="button" class="cf-link" onClick="{{back}}" style="align-self: flex-start; padding: 0; text-decoration: none;"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Use a different account</button>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<span class="cf-empty-ic" style="width: 48px; height: 48px; margin: 0;"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l7 2.8v5.4c0 4.2-2.9 7.3-7 8.8-4.1-1.5-7-4.6-7-8.8V6.3zM9 12l2 2 4-4"></path></svg></span>
+<h1 class="cf-h1"><span class="t-display-light">Two-step check</span><span class="t-display" style="font-size: 40px; line-height: 44px;">Enter your code</span></h1>
+<p class="t-body t-muted" style="margin: 0;">Open your authenticator app and enter the 6-digit code for <span style="color: var(--ink); font-weight: 500;">{{email}}</span>.</p>
+</div>
+<fieldset class="cf-field" style="border: 0; padding: 0; margin: 0;"><legend class="cf-label" style="margin-bottom: 8px;">6-digit code</legend>
+<div class="cf-code {{codeClass}}">
+<sc-for list="{{digits}}" as="d" hint-placeholder-count="6"><input class="cf-code-box" inputmode="numeric" maxlength="1" aria-label="{{d.label}}" value="{{d.v}}" onChange="{{d.on}}" aria-invalid="{{codeBad}}" /></sc-for>
+</div>
+<sc-if value="{{codeBad}}" hint-placeholder-val="{{ false }}"><span class="cf-errtext" style="margin-top: 8px;">That code didn’t match. Codes change every 30 seconds.</span></sc-if>
+</fieldset>
+<label class="cf-check"><input class="cf-sr" type="checkbox" checked="{{trust}}" onChange="{{toggleTrust}}" /><span class="cf-check-box"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span>Trust this device for 30 days</span></label>
+<a href="Main.dc.html" class="cf-btn cf-btn--primary cf-btn--lg cf-btn--disc" style="width: 100%; justify-content: space-between;">Verify and sign in<span class="cf-disc"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 1.75;" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 16px;"><button type="button" class="cf-link">Use a recovery code</button><button type="button" class="cf-link">Lost your device?</button></div>
+</sc-if>
+
+</div>
+<p class="t-caption t-faint" style="margin: 0;">© 2026 Coffer · <a href="#terms" class="t-faint">Terms</a> · <a href="#privacy" class="t-faint">Privacy</a></p>
+</main>
+
+<aside aria-label="About Coffer" class="cf-card--lime" style="flex: 1 1 520px; min-width: 0; min-height: 780px; position: relative; overflow: hidden; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 32px;">
+<div aria-hidden="true" style="position: absolute; right: -80px; top: -100px; width: 340px; height: 340px; border-radius: 9999px; background: rgba(255,255,255,0.85); filter: blur(60px); animation: cfDrift 16s cubic-bezier(.37,0,.63,1) infinite;"></div>
+<p class="t-display" style="position: relative; margin: 0; max-width: 480px; font-size: 52px; line-height: 54px; color: var(--on-lime);">Every company, partner and password in one ledger.</p>
+<div data-theme="light" class="cf" style="position: relative; display: flex; flex-direction: column; gap: 12px; max-width: 460px;">
+<div class="cf-card cf-card--white" style="display: flex; flex-direction: column; gap: 10px;">
+<div class="cf-kv"><span class="t-label-strong">Current balance</span><span class="t-caption t-muted">Saarthi Portal JV · FY 2026-27</span></div>
+<div style="display: flex; align-items: baseline; gap: 6px;"><span class="t-money-unit" style="font-family: var(--font-display);">₹</span><span class="t-figure-hero">18,42,350</span></div>
+<div class="t-body t-muted"><span class="t-money">₹62,10,000</span> income − <span class="t-money">₹43,67,650</span> expenses</div>
+</div>
+<div class="cf-alert cf-alert--graphite cf-alert--slim"><div class="cf-alert-main" style="flex-basis: 200px;"><span class="cf-alert-ic"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15M15.5 4.5L19 8l-3.5 3.5M20 16H5M8.5 12.5L5 16l3.5 3.5"></path></svg></span><span class="t-body">Vertex Labs owes Bluefin Infotech <span class="t-money">₹3,24,600</span></span></div></div>
+</div>
+<ul style="position: relative; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px;">
+<li class="cf-pill" style="background: rgba(255,255,255,0.6); color: var(--on-lime);">Multi-company and JV books</li>
+<li class="cf-pill" style="background: rgba(255,255,255,0.6); color: var(--on-lime);">Encrypted credentials vault</li>
+<li class="cf-pill" style="background: rgba(255,255,255,0.6); color: var(--on-lime);">Audit log on every reveal</li>
+</ul>
+</aside>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["Sign in","2FA code","Error"],"default":"Sign in","section":"State"},"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, tick: 0, email: 'aarav@vertexlabs.in', pass: 'correct-horse-battery', show: false, remember: true, trust: true, code: ['4', '8', '2', '', '', ''] };
+  }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  flow() {
+    const s = this.props.state || 'Sign in';
+    if (this.stateSeen !== s) {
+      this.stateSeen = s;
+      this.view = { step: s === '2FA code' ? '2fa' : 'signin', err: s === 'Error' };
+    }
+    return this.view;
+  }
+
+  go(patch) {
+    this.view = Object.assign({}, this.flow(), patch);
+    this.setState({ tick: this.state.tick + 1 });
+  }
+
+  setDigit(i, v) {
+    const code = this.state.code.slice();
+    code[i] = String(v).replace(/[^0-9]/g, '').slice(-1);
+    this.setState({ code: code });
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const f = this.flow();
+    const S = this.state;
+    const digits = S.code.map((v, i) => ({ v: v, label: 'Digit ' + (i + 1), on: (e) => this.setDigit(i, e.target.value) }));
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      isSignin: f.step === 'signin', is2fa: f.step === '2fa', hasError: !!f.err,
+      email: S.email, onEmail: (e) => this.setState({ email: e.target.value }),
+      pass: S.pass, onPass: (e) => this.setState({ pass: e.target.value }),
+      passType: S.show ? 'text' : 'password', showLabel: S.show ? 'Hide password' : 'Show password',
+      toggleShow: () => this.setState({ show: !S.show }),
+      passWrap: f.err ? 'is-error' : '',
+      remember: S.remember, toggleRemember: () => this.setState({ remember: !S.remember }),
+      submit: () => (S.pass.length < 8 ? this.go({ err: true }) : this.go({ step: '2fa', err: false })),
+      back: () => this.go({ step: 'signin', err: false }),
+      digits: digits, codeBad: false, codeClass: '',
+      trust: S.trust, toggleTrust: () => this.setState({ trust: !S.trust })
+    };
+  }
+}
+</script>
+</body>
+</html>

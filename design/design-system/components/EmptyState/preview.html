@@ -1,0 +1,24 @@
+<!-- @dsCard group="Feedback" height=330 width=1200 subtitle="First-run module and no-results variants" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Empty state</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>html,body{margin:0;background:var(--surface)}</style>
+</head>
+<body>
+<div class="pv-wrap">
+<section class="cf pv" data-theme="light" aria-label="Light theme">
+<div class="pv-head">Light</div>
+<div class="cf-empty">
+<span class="cf-empty-ic"><svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.5l5-5 3.5 3.5L20 7.5M15 7.5h5v5"/></svg></span>
+<h3 class="t-heading" style="margin:0;font-size:20px;line-height:24px">No income yet</h3>
+<p>Record what a client paid and Coffer splits it across partners and updates the dashboard and settlements.</p>
+<div class="cf-actions" style="justify-content:center"><button type="button" class="cf-btn cf-btn--primary cf-btn--disc">Add income<span class="cf-disc"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" style="stroke-width:1.75" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></button><button type="button" class="cf-btn cf-btn--secondary">Import CSV</button></div>
+</div>
+</section>
+</div>
+<script>(function(){var w=document.querySelector('.pv-wrap'),a=w.firstElementChild,b=a.cloneNode(true);b.setAttribute('data-theme','dark');b.setAttribute('aria-label','Dark theme');var h=b.querySelector('.pv-head');if(h)h.textContent='Dark';b.querySelectorAll('[id]').forEach(function(e){e.id+='-d'});['for','aria-labelledby','aria-describedby','aria-controls'].forEach(function(k){b.querySelectorAll('['+k+']').forEach(function(e){e.setAttribute(k,e.getAttribute(k).split(' ').map(function(x){return x+'-d'}).join(' '))})});b.querySelectorAll('[name]').forEach(function(e){e.setAttribute('name',e.getAttribute('name')+'-d')});w.appendChild(b)})();</script>
+</body>
+</html>

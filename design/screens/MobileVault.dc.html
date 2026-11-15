@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer mobile — Vault item</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/design-system/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}.msb{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 30px;font-size:15px;font-weight:600}.fld{display:flex;align-items:center;gap:10px;min-height:60px;padding:10px 12px;border-top:1px solid var(--line)}.fld:first-child{border-top:0}.fld-v{font-family:var(--font-mono);font-size:15px;line-height:20px;word-break:break-all}</style>
+</helmet>
+<div class="cf cf-phone" data-theme="{{theme}}">
+<div class="msb" aria-hidden="true"><span>9:41</span><svg width="68" height="12" viewBox="0 0 68 12"><path d="M1 9h2v2H1zM5 7h2v4H5zM9 5h2v6H9zM13 3h2v8h-2z" fill="currentColor"></path><path d="M24 4.5a8 8 0 0 1 11 0M26.5 7a4.5 4.5 0 0 1 6 0M29.5 10h.01" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"></path><rect x="44" y="1.5" width="20" height="9" rx="2.5" stroke="currentColor" fill="none"></rect><rect x="46" y="3.5" width="14" height="5" rx="1.2" fill="currentColor"></rect><path d="M65.5 4.5v3" stroke="currentColor" stroke-width="1.4"></path></svg></div>
+<header class="cf-mtop">
+<a href="MobileNav.dc.html" class="cf-iconbtn" aria-label="Back to vault"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></a>
+<span class="t-label-strong">Internal vault</span>
+<div class="cf-row" style="gap: 6px;"><button type="button" class="cf-iconbtn" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}"><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.moon}}"></path></svg></sc-if><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.sun}}"></path></svg></sc-if></button><button type="button" class="cf-iconbtn" aria-label="More actions"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" style="stroke-width: 2.5;" aria-hidden="true"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01"></path></svg></button></div>
+</header>
+<main class="cf-mscroll">
+<section class="cf-row" style="gap: 14px; padding: 4px 0 2px;" aria-label="Item">
+<span class="cf-avatar cf-avatar--xl cf-avatar--tile" style="background: var(--gradient-lime); color: var(--on-lime); font-family: var(--font-display);">GH</span>
+<div class="cf-stack" style="gap: 6px; min-width: 0;"><h1 class="t-heading" style="margin: 0; font-size: 22px; line-height: 26px;">GitHub — vertexlabs org</h1><div class="cf-row" style="gap: 6px; flex-wrap: wrap;"><span class="cf-pill cf-pill--sm cf-pill--neg">Production</span><span class="cf-pill cf-pill--sm cf-pill--pos">Strong</span><span class="cf-pill cf-pill--sm cf-pill--outline">2FA on</span></div></div>
+</section>
+
+<section class="cf-card cf-card--graphite" aria-label="2FA code" style="display: flex; align-items: center; gap: 14px; padding: 16px;">
+<span class="cf-ring cf-ring--dark" role="timer" aria-label="{{leftLabel}}"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><circle class="cf-ring-track" cx="28" cy="28" r="23" stroke-width="5"></circle><circle class="cf-ring-bar" cx="28" cy="28" r="23" stroke-width="5" stroke-dasharray="144.51" stroke-dashoffset="{{ringOffset}}" transform="rotate(-90 28 28)"></circle></svg><span class="cf-ring-label t-money-sm" style="font-size: 14px; color: var(--on-graphite);">{{left}}</span></span>
+<div class="cf-stack" style="flex: 1; gap: 2px;"><span class="t-caption" style="color: var(--on-graphite-muted);">2FA code</span><span class="t-money" style="font-size: 30px; line-height: 36px; letter-spacing: .08em; color: var(--lime);">{{code}}</span></div>
+<button type="button" class="cf-btn cf-btn--lime cf-btn--sm" onClick="{{copyCode}}">Copy</button>
+</section>
+
+<section class="cf-card" aria-label="Login details" style="padding: 4px 4px;">
+<div class="fld"><div class="cf-stack" style="flex: 1; min-width: 0;"><span class="t-caption t-muted">Username</span><span class="fld-v">vertexlabs-admin</span></div><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm" onClick="{{copyUser}}">Copy</button></div>
+<div class="fld"><div class="cf-stack" style="flex: 1; min-width: 0;"><span class="t-caption t-muted">{{pwLabel}}</span><span class="fld-v" aria-live="polite">{{pwValue}}</span></div>
+<sc-if value="{{masked}}" hint-placeholder-val="{{ true }}"><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm {{revealClass}}" onClick="{{reveal}}" aria-busy="{{verifying}}"><sc-if value="{{verifying}}" hint-placeholder-val="{{ false }}"><span class="cf-spinner" aria-hidden="true"></span></sc-if>{{revealLabel}}</button></sc-if>
+<sc-if value="{{shown}}" hint-placeholder-val="{{ false }}"><button type="button" class="cf-btn cf-btn--ghost cf-btn--sm" onClick="{{hide}}">Hide</button></sc-if>
+<button type="button" class="cf-btn cf-btn--secondary cf-btn--sm" onClick="{{copyPw}}">Copy</button></div>
+<div class="fld"><div class="cf-stack" style="flex: 1; min-width: 0;"><span class="t-caption t-muted">Website</span><span class="t-body">github.com/login</span></div><button type="button" class="cf-btn cf-btn--secondary cf-btn--sm">Open</button></div>
+</section>
+<p class="t-caption t-muted" style="margin: -4px 4px 0;">{{revealHint}}</p>
+
+<section class="cf-card" aria-labelledby="sw-h" style="display: flex; flex-direction: column; gap: 10px;">
+<div class="cf-kv"><h2 id="sw-h" class="cf-dot-title t-title">Shared with</h2><a href="VaultShare.dc.html" class="cf-link t-caption">Manage</a></div>
+<div class="cf-row" style="gap: 10px;"><span class="cf-avatars"><sc-for list="{{shared}}" as="s" hint-placeholder-count="4"><span class="cf-avatar cf-avatar--sm {{s.av}}">{{s.ini}}</span></sc-for></span><span class="t-caption t-muted">Aarav, Ishita, Rohan and Sana</span></div>
+</section>
+
+<section class="cf-card" aria-labelledby="ac-h" style="display: flex; flex-direction: column; gap: 8px;">
+<h2 id="ac-h" class="cf-dot-title t-title" style="margin-bottom: 2px;">Recent activity</h2>
+<sc-for list="{{activity}}" as="a" hint-placeholder-count="3"><div class="cf-kv t-body" style="align-items: center;"><span>{{a.what}}</span><span class="t-caption t-muted">{{a.when}}</span></div></sc-for>
+</section>
+</main>
+<nav class="cf-mtabbar" aria-label="Main"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><a href="{{t.href}}" class="cf-mtab" aria-current="{{t.current}}"><span class="cf-mtab-ic"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{t.d}}"></path></svg></span>{{t.label}}</a></sc-for></nav>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="cf-toast" role="status" style="position: absolute; left: 16px; right: 16px; bottom: 100px; z-index: 60;"><span class="cf-toast-ic"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" style="stroke-width: 2;" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Light","Dark"],"default":"Light","section":"Look"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { themeTick: 0, toast: '', now: Date.now(), reveal: 'masked', until: 0 };
+  }
+
+  componentDidMount() {
+    this.iv = setInterval(() => {
+      const next = { now: Date.now() };
+      if (this.state.reveal === 'shown' && Date.now() >= this.state.until) next.reveal = 'masked';
+      this.setState(next);
+    }, 1000);
+  }
+
+  componentWillUnmount() { if (this.iv) clearInterval(this.iv); if (this.tt) clearTimeout(this.tt); if (this.vt) clearTimeout(this.vt); }
+
+  themeNow() {
+    if (this.tweakSeen !== this.props.theme) { this.tweakSeen = this.props.theme; this.override = null; }
+    return this.override || (this.props.theme === 'Dark' ? 'dark' : 'light');
+  }
+
+  setTheme(next) {
+    this.override = next;
+    this.setState({ themeTick: this.state.themeTick + 1 });
+  }
+
+  icons() {
+    return {
+      grid: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5zM15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z',
+      receipt: 'M6.5 3.5h11v17l-2.75-1.6-2.75 1.6-2.75-1.6-2.75 1.6zM9.5 8h5M9.5 11.5h5M9.5 15h3',
+      clock: 'M4 12a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 8v4.2l2.8 1.8',
+      lock: 'M7 10.5h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2zM8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2',
+      menu: 'M4 7h16M4 12h16M4 17h16',
+      moon: 'M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z',
+      sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'
+    };
+  }
+
+  tabs(active, ic) {
+    return [['Home', 'grid', 'MobileDashboard.dc.html'], ['Expenses', 'receipt', 'MobileExpenses.dc.html'], ['Hours', 'clock', 'MobileLogHours.dc.html'], ['Vault', 'lock', 'MobileVault.dc.html'], ['Menu', 'menu', 'MobileNav.dc.html']].map((t) => ({ label: t[0], d: ic[t[1]], href: t[2], current: t[0] === active ? 'page' : null }));
+  }
+
+  flash(msg) {
+    this.setState({ toast: msg });
+    if (this.tt) clearTimeout(this.tt);
+    this.tt = setTimeout(() => this.setState({ toast: '' }), 2400);
+  }
+
+  renderVals() {
+    const theme = this.themeNow();
+    const ic = this.icons();
+    const S = this.state;
+    const step = Math.floor(S.now / 30000);
+    const left = 30 - Math.floor((S.now / 1000) % 30);
+    const code = String((step * 104729 + 492039) % 1000000).padStart(6, '0');
+    const shown = S.reveal === 'shown';
+    const hidesIn = Math.max(0, Math.ceil((S.until - S.now) / 1000));
+    return {
+      theme: theme, isLight: theme === 'light', isDark: theme === 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setTheme(theme === 'dark' ? 'light' : 'dark'),
+      ic: ic, tabs: this.tabs('Vault', ic),
+      code: code.slice(0, 3) + ' ' + code.slice(3), left: String(left), leftLabel: left + ' seconds left', ringOffset: String(Math.round(144.51 * (1 - left / 30) * 100) / 100),
+      copyCode: () => this.flash('Code copied. It changes in ' + left + ' s.'),
+      copyUser: () => this.flash('Username copied'),
+      copyPw: () => this.flash('Password copied. Clipboard clears in 30 s.'),
+      masked: !shown, shown: shown, verifying: S.reveal === 'verifying',
+      pwLabel: shown ? 'Password · hides in ' + hidesIn + ' s' : 'Password',
+      pwValue: shown ? 'Hq8!vR2#pL9@xT4m' : '••••••••••••••••',
+      revealClass: S.reveal === 'verifying' ? 'is-loading' : '', revealLabel: S.reveal === 'verifying' ? 'Checking' : 'Reveal',
+      reveal: () => {
+        if (S.reveal !== 'masked') return;
+        this.setState({ reveal: 'verifying' });
+        if (this.vt) clearTimeout(this.vt);
+        this.vt = setTimeout(() => this.setState({ reveal: 'shown', until: Date.now() + 30000, now: Date.now() }), 900);
+      },
+      hide: () => this.setState({ reveal: 'masked' }),
+      revealHint: shown ? 'Revealed with Face ID. This is in the audit log.' : 'Reveal asks for Face ID or your 2FA code, and shows the password for 30 seconds.',
+      shared: [['AM', ''], ['IR', ''], ['RD', 'cf-avatar--graphite'], ['SQ', 'cf-avatar--graphite']].map((s) => ({ ini: s[0], av: s[1] })),
+      activity: [['You copied the password', '2 days ago'], ['Sana viewed this item', '14 Nov'], ['Rohan rotated the password', '28 Sep']].map((a) => ({ what: a[0], when: a[1] })),
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
