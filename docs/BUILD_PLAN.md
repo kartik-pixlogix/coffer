@@ -44,14 +44,14 @@ Tick boxes here as you go (`- [x]`).
 
 **Read first:** every `design/design-system/components/<Name>/README.md` + `preview.html`, and `bundle.css`.
 
-- [ ] One component per design-system component in `resources/js/components/ui/` (54 including Cover):
+- [x] One component per design-system component in `resources/js/components/ui/` (54 including Cover):
   - **Feedback and overlays:** AlertBanner, Breadcrumb, BulkActionBar, ConfirmDialog (type-to-confirm), Drawer, EmptyState, ErrorState, Modal, Skeleton, Toast (+ provider), Tooltip.
   - **Forms:** AmountInput (₹, Indian grouping as you type, paise in/out), Checkbox, CodeInput (6-digit), Combobox, DatePicker, FileDrop, MonthPicker, PasswordField (reveal/copy), Radio, SearchField (⌘K hint), SegmentedControl, Select, TextInput, Textarea, Toggle.
   - **Actions and navigation:** Button (primary with disc, secondary, ghost, danger, lime, glass; lg/md/sm; loading), ButtonGroup, CommandPalette, CompanySwitcher, DropdownMenu, FilterChips, IconButton, NavRail, NotificationPanel, Pagination, Popover, Stepper, Tabs.
   - **Data and charts:** AreaChart, Avatar (+ partner dot, tile), AvatarStack, BarChart (negatives), ChartTooltip, DataTable (sort, row actions, selection, sticky header, empty and loading rows), DonutChart, GroupedBars, HealthRing, KpiTile (count-up), ProgressBar, StatusPill, TotpRing, TrendChip.
-- [ ] `<Money paise>` and `<Hours>` display components. Shared formatters in `resources/js/lib/format.ts`, with unit tests (Vitest).
-- [ ] Use Radix primitives for focus management where needed (Dialog, Popover, DropdownMenu, Tooltip, Tabs), styled with `cf-*` classes only.
-- [ ] `/dev/ui` gallery (local only) showing every component and state in light and dark.
+- [x] `<Money paise>` and `<Hours>` display components. Shared formatters in `resources/js/lib/format.ts`, with unit tests (Vitest).
+- [x] Use Radix primitives for focus management where needed (Dialog, Popover, DropdownMenu, Tooltip, Tabs), styled with `cf-*` classes only.
+- [x] `/dev/ui` gallery (local only) showing every component and state in light and dark.
 
 **Accept:**
 - Side by side with each `preview.html`, the gallery matches: markup classes, states, light and dark.
