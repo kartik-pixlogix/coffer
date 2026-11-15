@@ -15,11 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Demo owner from spec §24. The full demo workspace arrives with Phase 2.
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Aarav Mehta',
+            'email' => 'aarav@vertexlabs.in',
         ]);
     }
 }

@@ -19,7 +19,7 @@ export default function AppearanceToggleTab({
 
     return (
         <div
-            className={cn('cf-seg', className)}
+            className={cn('cf-seg max-w-[260px]', className)}
             role="group"
             aria-label="Theme"
             {...props}
@@ -28,7 +28,7 @@ export default function AppearanceToggleTab({
                 <button
                     key={value}
                     type="button"
-                    className="cf-seg-btn"
+                    className="cf-seg-btn inline-flex items-center justify-center gap-2"
                     aria-pressed={theme === value}
                     onClick={() => setTheme(value)}
                 >
