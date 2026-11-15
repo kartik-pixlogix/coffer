@@ -21,24 +21,24 @@ Tick boxes here as you go (`- [x]`).
 - the `components/NavRail` and `components/CompanySwitcher` READMEs and previews
 - `design/screens/Main.dc.html` (the shell only)
 
-- [ ] Laravel app from the official React starter kit (Inertia + React + TS) with Pest. PostgreSQL connection (migrations portable to MySQL 8). Redis optional locally.
-- [ ] Tooling: Pint, ESLint + Prettier, `tsc --noEmit` script, a GitHub Actions CI running tests, lint, types, `composer audit` and `npm audit`.
-- [ ] Design foundation:
+- [x] Laravel app from the official React starter kit (Inertia + React + TS) with Pest. MySQL connection (D3; migrations portable to PostgreSQL). Redis optional locally.
+- [x] Tooling: Pint, ESLint + Prettier (Vite+ `vp check`, D15), `tsc --noEmit` script, a GitHub Actions CI running tests, lint, types, `composer audit` and `npm audit`.
+- [x] Design foundation:
   - copy `bundle.css` to `resources/css/coffer-ui.css`, imported in `app.css`
   - Tailwind v4 `@theme` mapped to the token CSS variables
   - `@fontsource` fonts (Bricolage Grotesque variable, Plus Jakarta Sans, IBM Plex Mono)
   - root `class="cf" data-theme`
-- [ ] Logos and favicons from `design/design-system/assets/logos/` in `public/`.
-- [ ] Theme toggle: light/dark per user (DB column + localStorage), no flash of the wrong theme on load.
-- [ ] Authenticated layout matching `Main.dc.html`:
+- [x] Logos and favicons from `design/design-system/assets/logos/` in `public/`.
+- [x] Theme toggle: light/dark per user (DB column + localStorage), no flash of the wrong theme on load.
+- [x] Authenticated layout matching `Main.dc.html`:
   - floating shell on the canvas, NavRail (logo disc, grouped icons with tooltips, sign-out at the bottom)
   - top bar: wordmark, company switcher (placeholder data), ⌘K search (stub), date, theme toggle, notifications bell (stub), account menu
   - breadcrumb plus the two-tone page title component
-- [ ] `docs/DECISIONS.md` exists. Every remaining `[VERIFY]` decision is listed in it.
+- [x] `docs/DECISIONS.md` exists. Every remaining `[VERIFY]` decision is listed in it.
 
 **Accept:**
 - `composer run dev` serves an empty dashboard that looks like the shell of `Main.dc.html` in light and dark.
-- CI is green.
+- CI is green. (Workflow written and every step passes locally; needs a GitHub remote to run.)
 
 ## Phase 1: UI kit (React components for the design system)
 
