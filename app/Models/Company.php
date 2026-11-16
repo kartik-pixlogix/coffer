@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property CompanyType $type
  * @property string $currency
  * @property int $fy_start_month
+ * @property int $working_days Bitmask, Monday = 1 … Sunday = 64 (spec §3.2)
  * @property AttributionMode $attribution_mode
  * @property int $opening_balance_paise
  * @property string|null $legal_name
@@ -40,10 +41,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Collection<int, Side> $sides
  * @property-read Collection<int, Partner> $partners
  * @property-read Collection<int, Member> $members
+ * @property-read Collection<int, Project> $projects
  * @property-read Collection<int, Invite> $invites
  */
 #[Fillable([
-    'workspace_id', 'name', 'short_code', 'type', 'currency', 'fy_start_month',
+    'workspace_id', 'name', 'short_code', 'type', 'currency', 'fy_start_month', 'working_days',
     'attribution_mode', 'opening_balance_paise', 'legal_name', 'gstin', 'address',
 ])]
 class Company extends Model
@@ -58,6 +60,7 @@ class Company extends Model
             'attribution_mode' => AttributionMode::class,
             'opening_balance_paise' => 'integer',
             'fy_start_month' => 'integer',
+            'working_days' => 'integer',
         ];
     }
 
@@ -99,6 +102,12 @@ class Company extends Model
     public function members(): HasMany
     {
         return $this->hasMany(Member::class);
+    }
+
+    /** @return HasMany<Project, $this> */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class)->orderBy('name');
     }
 
     /** @return HasMany<Invite, $this> */

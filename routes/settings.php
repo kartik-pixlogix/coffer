@@ -3,6 +3,7 @@
 use App\Http\Controllers\Settings\InvitesController;
 use App\Http\Controllers\Settings\MembersController;
 use App\Http\Controllers\Settings\PartnersController;
+use App\Http\Controllers\Settings\ProjectsController;
 use App\Http\Controllers\Settings\RolesController;
 use App\Http\Controllers\Settings\SidesController;
 use App\Http\Controllers\Settings\ThemeController;
@@ -41,4 +42,10 @@ Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('set
 
     Route::get('sides', [SidesController::class, 'index'])->name('settings.sides');
     Route::put('sides', [SidesController::class, 'update'])->name('settings.sides.update');
+
+    Route::get('projects', [ProjectsController::class, 'index'])->name('settings.projects');
+    Route::post('projects', [ProjectsController::class, 'store'])->name('settings.projects.store');
+    Route::put('projects/{project}', [ProjectsController::class, 'update'])->name('settings.projects.update');
+    Route::patch('projects/{project}/status', [ProjectsController::class, 'status'])->name('settings.projects.status');
+    Route::delete('projects/{project}', [ProjectsController::class, 'destroy'])->name('settings.projects.destroy');
 });

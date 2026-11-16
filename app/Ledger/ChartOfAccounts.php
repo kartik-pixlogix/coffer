@@ -13,6 +13,7 @@ use App\Models\Company;
 use App\Models\Member;
 use App\Models\MoneyAccount;
 use App\Models\Partner;
+use App\Models\Project;
 use App\Models\Side;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\DB;
  */
 final class ChartOfAccounts
 {
-    /** Categories, money accounts and the accounts every company starts with. */
+    /** Categories, money accounts, the accounts and the "Internal" project every company starts with. */
     public function setUp(Company $company): void
     {
         DB::transaction(function () use ($company): void {
@@ -48,6 +49,8 @@ final class ChartOfAccounts
                 $this->capital($partner);
                 $this->partnerCurrent($partner);
             }
+
+            Project::ensureDefaults($company);
         });
     }
 

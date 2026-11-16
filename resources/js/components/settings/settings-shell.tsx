@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/shell/page-header';
 import {
     members as membersRoute,
     partners as partnersRoute,
+    projects as projectsRoute,
     roles as rolesRoute,
     sides as sidesRoute,
 } from '@/routes/settings';
@@ -16,6 +17,7 @@ export type SettingsTab =
     | 'partners'
     | 'sides'
     | 'categories'
+    | 'projects'
     | 'notifications'
     | 'billing';
 
@@ -39,6 +41,7 @@ const ITEMS: NavItem[] = [
         jvOnly: true,
     },
     { tab: 'categories', label: 'Categories', href: null },
+    { tab: 'projects', label: 'Projects', href: projectsRoute().url },
     { tab: 'notifications', label: 'Notifications', href: null },
     { tab: 'billing', label: 'Billing', href: null },
 ];
