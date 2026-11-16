@@ -25,6 +25,7 @@ use App\Policies\ExpensePolicy;
 use App\Services\Finance\Attachments;
 use App\Services\Finance\FiscalYearFilter;
 use App\Services\Finance\LedgerCounts;
+use App\Services\Finance\PersonalCardBalances;
 use App\Support\CurrentCompany;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
@@ -139,6 +140,8 @@ final class ExpensesController extends Controller
             'detail' => fn () => $this->detail($request, $user),
             'options' => $this->options(),
             'me' => $me,
+            // Payouts and loan conversions of personal-card balances (D50).
+            'cards' => fn () => ! $ownOnly && $user->can('action.capital.manage') ? app(PersonalCardBalances::class)->panel($company) : null,
             'abilities' => [
                 'create' => $user->can('create', Expense::class),
                 'approve' => $user->can('action.expenses.approve'),

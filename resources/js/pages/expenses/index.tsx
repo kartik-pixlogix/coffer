@@ -18,6 +18,7 @@ import type { ExpenseDetail } from '@/components/finance/expense-drawer';
 import type { MeProps } from '@/components/finance/expense-form';
 import { ExpenseModal } from '@/components/finance/expense-modal';
 import { ExpenseSheet } from '@/components/finance/expense-sheet';
+import { PersonalCards } from '@/components/finance/personal-cards';
 import { cleanQuery, FyMenu } from '@/components/finance/fy-menu';
 import { RejectDialog } from '@/components/finance/reject-dialog';
 import { PageHeader } from '@/components/shell/page-header';
@@ -61,6 +62,7 @@ import type {
     ExpenseStatus,
     FiscalYearProps,
     Paginated,
+    PersonalCardsPanel,
 } from '@/types/finance';
 
 type Filters = {
@@ -92,6 +94,8 @@ type Props = {
     detail: ExpenseDetail | null;
     options: ExpenseOptions;
     me: MeProps;
+    /** Personal-card payouts and loan conversions (D50); null without the ability. */
+    cards?: PersonalCardsPanel | null;
     abilities: {
         create: boolean;
         approve: boolean;
@@ -406,6 +410,7 @@ function PaidBy({ e }: { e: ExpenseRow }) {
 
 function DesktopExpenses({
     today,
+    cards,
     fy,
     filters,
     kpis,
@@ -620,6 +625,8 @@ function DesktopExpenses({
                     }
                 />
             </section>
+
+            {cards && <PersonalCards panel={cards} today={today} />}
 
             <section
                 className="cf-card flex min-w-0 flex-col gap-3.5"

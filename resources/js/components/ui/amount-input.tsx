@@ -18,6 +18,8 @@ import { cn } from '@/lib/utils';
 export type AmountInputProps = FieldMessageProps & {
     /** Says what the amount is: "Amount", "Opening balance". */
     label?: ReactNode;
+    /** Right side of the label row, e.g. a "Pay in full" link. */
+    labelAction?: ReactNode;
     /** Integer paise, or null when empty. Leave undefined for an uncontrolled field. */
     value?: number | null;
     defaultValue?: number | null;
@@ -56,6 +58,7 @@ const toPaise = (text: string): number | null =>
  */
 export function AmountInput({
     label,
+    labelAction,
     help,
     error,
     value,
@@ -209,6 +212,7 @@ export function AmountInput({
         <Field
             ids={ids}
             label={label}
+            labelAction={labelAction}
             help={help}
             error={error}
             className={fieldClassName}

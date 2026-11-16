@@ -7,6 +7,8 @@ use App\Enums\CompanyRole;
 use App\Ledger\ChartOfAccounts;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\JournalEntry;
+use App\Models\JournalLine;
 use App\Models\MoneyAccount;
 use App\Models\Partner;
 use App\Models\Side;
@@ -105,4 +107,24 @@ function category(Company $company, string $kind, string $name): Category
 function fyDay(int $days = 0): CarbonImmutable
 {
     return CarbonImmutable::create(2026, 4, 1)->addDays($days);
+}
+
+/**
+ * A journal entry's lines as "account: Dr|Cr paise [p=… s=… m=…]" strings, for exact
+ * comparison in posting tests.
+ *
+ * @return list<string>
+ */
+function journalLines(int|JournalEntry|null $entry): array
+{
+    $id = $entry instanceof JournalEntry ? $entry->id : $entry;
+
+    return JournalLine::query()->withoutGlobalScopes()->with(['account' => fn ($q) => $q->withoutGlobalScopes()])
+        ->where('journal_entry_id', $id)->orderBy('id')->get()
+        ->map(function (JournalLine $l) {
+            $dims = array_filter(['p' => $l->partner_id, 's' => $l->side_id, 'm' => $l->member_id]);
+            $dimText = $dims === [] ? '' : ' ['.implode(' ', array_map(fn ($k, $v) => "{$k}={$v}", array_keys($dims), $dims)).']';
+
+            return $l->account->name.': '.($l->debit_paise > 0 ? 'Dr '.$l->debit_paise : 'Cr '.$l->credit_paise).$dimText;
+        })->values()->all();
 }

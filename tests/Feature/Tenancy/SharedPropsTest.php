@@ -14,4 +14,4 @@ test('pages keep the shared permission props', function (string $route) {
         ->get(route($route))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->has('can.pages')->has('can.actions'));
-})->with(['partners.index', 'team.index', 'timesheets.index', 'timesheets.import', 'settings.projects', 'settings.categories', 'income.index', 'expenses.index']);
+})->with(['partners.index', 'team.index', 'timesheets.index', 'timesheets.import', 'settings.projects', 'settings.categories', 'income.index', 'expenses.index', 'capital-accounts.index', 'partner-loans.index', 'settlements.index']);

@@ -1580,3 +1580,305 @@ span.denied-can:not(#\#) {
         flex: 1 1 100%;
     }
 }
+
+/* Capital accounts (CapitalAccounts.dc.html) */
+.ca-kpis:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+}
+
+.ca-ledgers:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.ca-ledger:not(#\#) {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ca-entry:not(#\#) {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 120px;
+    gap: 10px;
+    align-items: center;
+}
+
+.ca-entry--acts:not(#\#) {
+    grid-template-columns: 110px minmax(0, 1fr) 120px 32px;
+}
+
+@media (max-width: 640px) {
+    .ca-entry:not(#\#),
+    .ca-entry--acts:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .ca-entry:not(#\#) > :first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Partner loans (PartnerLoans.dc.html) */
+.ln-top:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.ln-hero:not(#\#) {
+    flex: 1 1 380px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 210px;
+}
+
+.ln-hero-glow:not(#\#) {
+    position: absolute;
+    right: -60px;
+    top: -90px;
+    width: 260px;
+    height: 260px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.85);
+    filter: blur(56px);
+}
+
+.ln-hero-tag:not(#\#) {
+    position: relative;
+    align-self: flex-start;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.6);
+    display: inline-flex;
+    align-items: center;
+}
+
+.ln-hero-figure:not(#\#) {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.ln-hero-unit:not(#\#) {
+    font-family: var(--font-display);
+}
+
+.ln-hero-foot:not(#\#) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ln-hero-bar:not(#\#) {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.ln-kpis:not(#\#) {
+    flex: 999 1 600px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.ln-figs:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.ln-bottom:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.ln-history:not(#\#) {
+    flex: 999 1 620px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ln-hrow:not(#\#) {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 120px minmax(150px, 0.7fr);
+    gap: 12px;
+    align-items: center;
+}
+
+.ln-hrow--acts:not(#\#) {
+    grid-template-columns: 110px minmax(0, 1fr) 120px minmax(150px, 0.7fr) 32px;
+}
+
+.ln-explain:not(#\#) {
+    flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media (max-width: 640px) {
+    .ln-kpis:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ln-hrow:not(#\#),
+    .ln-hrow--acts:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+/* Settlements (Settlements.dc.html) */
+.st-top:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.st-hero:not(#\#) {
+    flex: 1 1 420px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 220px;
+}
+
+.st-strip:not(#\#) {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    padding: 10px 14px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.st-how:not(#\#) {
+    flex: 999 1 520px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.st-insets:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.st-fig:not(#\#) {
+    font-size: 18px;
+    line-height: 24px;
+}
+
+.st-note:not(#\#) {
+    display: block;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    color: var(--ink-secondary);
+}
+
+.st-owes:not(#\#) {
+    color: var(--negative);
+}
+
+.st-owed:not(#\#) {
+    color: var(--positive);
+}
+
+.st-moves:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+.st-move:not(#\#) {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.st-side-pill:not(#\#) {
+    background: var(--on-graphite);
+    color: var(--graphite);
+}
+
+.st-left:not(#\#) {
+    border-top: 1px solid var(--line);
+    padding-top: 6px;
+}
+
+.st-trow:not(#\#) {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 140px minmax(160px, 0.8fr) 130px;
+    gap: 12px;
+    align-items: center;
+}
+
+.st-trow--acts:not(#\#) {
+    grid-template-columns: 120px minmax(0, 1fr) 140px minmax(
+            160px,
+            0.8fr
+        ) 130px 32px;
+}
+
+.st-empty:not(#\#) {
+    padding: 48px 24px;
+}
+
+@media (max-width: 640px) {
+    .st-trow:not(#\#),
+    .st-trow--acts:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+/* Expenses: owed for personal cards (D50) */
+.ex-cards:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ex-card-row:not(#\#) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 120px auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.ex-payouts:not(#\#) > summary {
+    cursor: pointer;
+    padding: 6px 0;
+}
+
+.ex-payout:not(#\#) {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 120px 32px;
+    gap: 12px;
+    align-items: center;
+    padding: 4px 0;
+}

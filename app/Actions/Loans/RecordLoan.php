@@ -1,0 +1,180 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Actions\Loans;
+
+use App\Ledger\ChartOfAccounts;
+use App\Ledger\Postings;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Loan;
+use App\Models\LoanRepayment;
+use App\Models\MoneyAccount;
+use App\Models\User;
+use App\Services\Finance\EntryReverser;
+use App\Services\Finance\PeriodGuard;
+use App\Services\Finance\PersonalCardBalances;
+use App\Support\Money;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+/**
+ * Partner loans (spec §12, §4.2):
+ * - Record loan: money from partner P into M posts Dr M, Cr Loans payable P.
+ * - Convert: what the company owes P for personal-card spending becomes a loan,
+ *   Dr Partner current P, Cr Loans payable P (never more than is owed).
+ * - Repayment to P from M posts Dr Loans payable P, Cr M; it can't exceed what is
+ *   outstanding, and the loan closes on its own when that reaches ₹0.
+ * Deleting a repayment reverses it and reopens the loan; a loan can be deleted
+ * (reversed) only while nothing has been repaid. Closed fiscal years are locked.
+ */
+final class RecordLoan
+{
+    public function __construct(
+        private readonly Postings $postings,
+        private readonly ChartOfAccounts $chart,
+        private readonly EntryReverser $reverser,
+        private readonly PeriodGuard $periods,
+        private readonly PersonalCardBalances $balances,
+    ) {}
+
+    public function lend(Company $company, LoanData $data, User $by): Loan
+    {
+        $this->periods->assertOpen($company, [$data->lentOn], 'date');
+
+        return $this->periods->run(fn () => DB::transaction(function () use ($company, $data, $by): Loan {
+            if ($data->into === null) {
+                // Converting: serialise on the partner's current account, then check what is owed.
+                Account::query()->whereKey($this->chart->partnerCurrent($data->partner)->id)->lockForUpdate()->first();
+                $owed = $this->balances->owedTo($data->partner);
+
+                if ($data->amountPaise > $owed) {
+                    throw ValidationException::withMessages(['amount_paise' => $owed === 0
+                        ? "The company doesn’t owe {$data->partner->name} anything for personal-card spending."
+                        : 'That’s more than the '.Money::format($owed).' owed to '.$data->partner->name.'.']);
+                }
+            }
+
+            $loan = Loan::query()->create([
+                'company_id' => $company->id,
+                'number' => $this->nextNumber($company),
+                'partner_id' => $data->partner->id,
+                'amount_paise' => $data->amountPaise,
+                'lent_on' => $data->lentOn->toDateString(),
+                'money_account_id' => $data->into?->id,
+                'converted' => $data->into === null,
+                'purpose' => $data->purpose,
+                'instalment_paise' => $data->instalmentPaise,
+                'due_on' => $data->dueOn?->toDateString(),
+                'created_by' => $by->id,
+            ]);
+
+            $memo = $loan->code().' — '.$data->partner->name.($data->purpose !== null ? ' — '.$data->purpose : '');
+            $entry = $data->into === null
+                ? $this->postings->convertToLoan($company, $data->lentOn, $data->partner, $data->amountPaise, 'Personal-card balance converted to a loan — '.$memo, $loan, $by)
+                : $this->postings->loan($company, $data->lentOn, $data->partner, $data->amountPaise, $data->into, 'Loan '.$memo, $loan, $by);
+
+            $loan->update(['journal_entry_id' => $entry->id]);
+
+            return $loan;
+        }), 'date');
+    }
+
+    public function repay(Company $company, Loan $loan, int $amount, CarbonImmutable $date, MoneyAccount $from, ?string $note, User $by): LoanRepayment
+    {
+        $this->periods->assertOpen($company, [$date], 'date');
+
+        return $this->periods->run(fn () => DB::transaction(function () use ($company, $loan, $amount, $date, $from, $note, $by): LoanRepayment {
+            /** @var Loan $locked */
+            $locked = Loan::query()->with('partner')->lockForUpdate()->findOrFail($loan->id);
+            $outstanding = $locked->amount_paise - $this->repaid($locked);
+
+            if ($outstanding <= 0) {
+                throw ValidationException::withMessages(['loan_id' => "{$locked->code()} is already repaid."]);
+            }
+
+            if ($amount > $outstanding) {
+                throw ValidationException::withMessages(['amount_paise' => 'That’s more than the '.Money::format($outstanding).' outstanding.']);
+            }
+
+            if ($date->lessThan($locked->lent_on)) {
+                throw ValidationException::withMessages(['date' => 'A repayment can’t be dated before the loan ('.$locked->lent_on->format('j M Y').').']);
+            }
+
+            $repayment = LoanRepayment::query()->create([
+                'company_id' => $company->id,
+                'loan_id' => $locked->id,
+                'amount_paise' => $amount,
+                'paid_on' => $date->toDateString(),
+                'money_account_id' => $from->id,
+                'note' => $note,
+                'created_by' => $by->id,
+            ]);
+
+            $memo = 'Loan repayment — '.$locked->code().' — '.$locked->partner->name.($note !== null ? ' — '.$note : '');
+            $entry = $this->postings->repayment($company, $date, $locked->partner, $amount, $from, $memo, $repayment, $by);
+            $repayment->update(['journal_entry_id' => $entry->id]);
+
+            $this->syncClosed($locked);
+            $loan->setRawAttributes($locked->getAttributes(), true);
+
+            return $repayment;
+        }), 'date');
+    }
+
+    public function deleteRepayment(Company $company, LoanRepayment $repayment, User $by): void
+    {
+        $this->periods->assertOpen($company, [$repayment->paid_on], 'date');
+
+        $this->periods->run(fn () => DB::transaction(function () use ($repayment, $by): void {
+            /** @var Loan $loan */
+            $loan = Loan::query()->lockForUpdate()->findOrFail($repayment->loan_id);
+            $this->reverser->reverse($repayment->journal_entry_id, 'Loan repayment deleted — '.$loan->code().' — '.Money::format($repayment->amount_paise), $by);
+            $repayment->delete();
+            $this->syncClosed($loan);
+        }), 'date');
+    }
+
+    public function delete(Company $company, Loan $loan, User $by): void
+    {
+        $this->periods->assertOpen($company, [$loan->lent_on], 'date');
+
+        $this->periods->run(fn () => DB::transaction(function () use ($loan, $by): void {
+            /** @var Loan $locked */
+            $locked = Loan::query()->lockForUpdate()->findOrFail($loan->id);
+
+            if ($locked->repayments()->exists()) {
+                throw ValidationException::withMessages(['loan' => "{$locked->code()} has repayments. Delete those first."]);
+            }
+
+            $this->reverser->reverse($locked->journal_entry_id, 'Loan deleted — '.$locked->code(), $by);
+            $locked->delete();
+        }), 'date');
+    }
+
+    /** Live repayments so far, in paise. */
+    public function repaid(Loan $loan): int
+    {
+        return (int) LoanRepayment::query()->where('loan_id', $loan->id)->sum('amount_paise');
+    }
+
+    /** Closed on the last repayment's date once fully repaid; open otherwise. */
+    private function syncClosed(Loan $loan): void
+    {
+        $closed = $loan->amount_paise - $this->repaid($loan) <= 0;
+        $last = LoanRepayment::query()->where('loan_id', $loan->id)->max('paid_on');
+
+        $loan->update(['closed_on' => $closed && $last !== null ? CarbonImmutable::parse((string) $last)->toDateString() : null]);
+    }
+
+    private function nextNumber(Company $company): int
+    {
+        // Two loans recorded at once can't take the same number (PostgreSQL can't lock an aggregate, so lock the company row).
+        Company::query()->whereKey($company->id)->lockForUpdate()->first();
+        $max = Loan::query()->withoutGlobalScope('company')->withTrashed()->where('company_id', $company->id)->max('number');
+
+        return (int) $max + 1;
+    }
+}

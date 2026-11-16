@@ -17,10 +17,13 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { index as capitalIndex } from '@/routes/capital-accounts';
 import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomeIndex } from '@/routes/income';
+import { index as loansIndex } from '@/routes/partner-loans';
 import { index as partnersIndex } from '@/routes/partners';
 import { members as settingsMembers } from '@/routes/settings';
+import { index as settlementsIndex } from '@/routes/settlements';
 import { index as teamIndex } from '@/routes/team';
 import { index as timesheetsIndex } from '@/routes/timesheets';
 import type { Can, PageKey } from '@/types/permissions';
@@ -82,19 +85,19 @@ const RAIL: RailItem[][] = [
             page: 'capital_accounts',
             label: 'Capital Accounts',
             icon: Landmark,
-            href: null,
+            href: capitalIndex().url,
         },
         {
             page: 'partner_loans',
             label: 'Partner Loans',
             icon: Coins,
-            href: null,
+            href: loansIndex().url,
         },
         {
             page: 'settlements',
             label: 'Settlements',
             icon: ArrowLeftRight,
-            href: null,
+            href: settlementsIndex().url,
         },
     ],
     [
