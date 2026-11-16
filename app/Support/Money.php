@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use NumberFormatter;
+
 /**
  * Money is stored as integer paise (CLAUDE.md). Mirrors parseRupeesToPaise in
  * resources/js/lib/format.ts for amounts typed in rupees.
@@ -30,5 +32,25 @@ final class Money
         $amount = (int) $rupees * 100 + (int) str_pad($paise, 2, '0');
 
         return $amount <= self::MAX_PAISE ? $amount : null;
+    }
+
+    /**
+     * "₹12,34,567" / "₹1,234.50" / "−₹2,66,500" (CLAUDE.md: Indian grouping, a true minus).
+     * Paise show only when there are any.
+     */
+    public static function format(int $paise): string
+    {
+        $abs = abs($paise);
+        $formatter = new NumberFormatter('en_IN', NumberFormatter::DECIMAL);
+        $formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $abs % 100 === 0 ? 0 : 2);
+        $formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $abs % 100 === 0 ? 0 : 2);
+
+        return ($paise < 0 ? '−₹' : '₹').$formatter->format($abs / 100);
+    }
+
+    /** "350000.00" for CSV exports: rupees with two decimals, no grouping. */
+    public static function plain(int $paise): string
+    {
+        return ($paise < 0 ? '-' : '').intdiv(abs($paise), 100).'.'.str_pad((string) (abs($paise) % 100), 2, '0', STR_PAD_LEFT);
     }
 }

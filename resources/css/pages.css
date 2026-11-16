@@ -1377,3 +1377,32 @@ span.denied-can:not(#\#) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
+
+/* Income (Income.dc.html): KPI column beside the monthly trend. */
+.in-top:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.in-kpis:not(#\#) {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.in-kpi-pair:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.in-trend:not(#\#) {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}

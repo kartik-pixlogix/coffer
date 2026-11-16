@@ -39,3 +39,4 @@ require __DIR__.'/settings.php';
 require __DIR__.'/partners.php';
 require __DIR__.'/team.php';
 require __DIR__.'/timesheets.php';
+require __DIR__.'/finance.php';
