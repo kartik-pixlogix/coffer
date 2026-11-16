@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\Dashboard\DashboardVaultPanel;
+use App\Services\Dashboard\NoVaultPanel;
 use App\Services\Team\SalaryRecalc;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
@@ -23,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
         // One per request (and per queued job), reset between them.
         $this->app->scoped(CurrentCompany::class);
         $this->app->scoped(SalaryRecalc::class);
+
+        // TODO(Phase 7): the vault fills the dashboard's "Credentials expiring soon" (D64).
+        $this->app->bind(DashboardVaultPanel::class, NoVaultPanel::class);
     }
 
     /**

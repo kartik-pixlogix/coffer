@@ -31,6 +31,8 @@ export type BarChartProps = {
     onSelect?: (index: number) => void;
     /** Extra bars that also show their value chip. */
     labelledIndexes?: readonly number[];
+    /** Bars drawn highlighted (lime) instead of only the selected one, e.g. a period's months. */
+    highlightedIndexes?: readonly number[];
     /** Start with this bar hovered (documentation and tests). */
     defaultHoveredIndex?: number | null;
     /** Card title (`cf-dot-title`) with the selected value on the right. */
@@ -89,6 +91,7 @@ export function BarChart({
     selectedIndex = null,
     onSelect,
     labelledIndexes = [],
+    highlightedIndexes,
     defaultHoveredIndex = null,
     title,
     barMaxHeight = 100,
@@ -195,9 +198,11 @@ export function BarChart({
             )}
             aria-label={ariaFor(i)}
             aria-pressed={
-                onSelect
-                    ? i === selectedIndex
-                    : i === selectedIndex || undefined
+                highlightedIndexes
+                    ? highlightedIndexes.includes(i)
+                    : onSelect
+                      ? i === selectedIndex
+                      : i === selectedIndex || undefined
             }
             initial={grow ? { height: 0 } : false}
             animate={{ height: heights[i] }}

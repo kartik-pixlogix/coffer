@@ -67,6 +67,8 @@ final class SettlementsController extends Controller
                 'incomePaise' => $figures['income'],
                 'expensesPaise' => $figures['expenses'],
                 'capitalAndLoansPaise' => $figures['capitalAndLoans'],
+                'capitalPaise' => $figures['capital'],
+                'personalPaise' => $figures['personal'],
             ],
             'netProfitPaise' => $result->netProfit,
             'sides' => array_values(array_map(fn (SideSettlement $s) => [

@@ -10,6 +10,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { Fragment, useState } from 'react';
+import { BalanceStrip } from '@/components/finance/balance-strip';
 import { cleanQuery, FyMenu } from '@/components/finance/fy-menu';
 import { TransferDrawer } from '@/components/finance/transfer-drawer';
 import type { TransferTarget } from '@/components/finance/transfer-drawer';
@@ -51,6 +52,8 @@ type JvProps = {
         incomePaise: number;
         expensesPaise: number;
         capitalAndLoansPaise: number;
+        capitalPaise: number;
+        personalPaise: number;
     };
     netProfitPaise: number;
     sides: SideSettlementRow[];
@@ -315,47 +318,15 @@ function JointVenture(props: JvProps) {
                             })}
                         </span>
                     </div>
-                    <div className="t-body st-strip">
-                        <span>
-                            <span className="t-money">
-                                {formatInr(balance.openingPaise)}
-                            </span>{' '}
-                            opening
-                        </span>
-                        <span aria-hidden="true">+</span>
-                        <span>
-                            <span className="t-money">
-                                {formatInr(balance.incomePaise)}
-                            </span>{' '}
-                            income
-                        </span>
-                        <span aria-hidden="true">−</span>
-                        <span>
-                            <span className="t-money">
-                                {formatInr(balance.expensesPaise)}
-                            </span>{' '}
-                            expenses
-                        </span>
-                        {balance.capitalAndLoansPaise !== 0 && (
-                            <>
-                                <span aria-hidden="true">
-                                    {balance.capitalAndLoansPaise < 0
-                                        ? '−'
-                                        : '+'}
-                                </span>
-                                <span>
-                                    <span className="t-money">
-                                        {formatInr(
-                                            Math.abs(
-                                                balance.capitalAndLoansPaise,
-                                            ),
-                                        )}
-                                    </span>{' '}
-                                    capital &amp; loans
-                                </span>
-                            </>
-                        )}
-                    </div>
+                    <BalanceStrip
+                        terms={{
+                            ...balance,
+                            otherPaise:
+                                balance.capitalAndLoansPaise -
+                                balance.capitalPaise -
+                                balance.personalPaise,
+                        }}
+                    />
                 </article>
                 <article className="cf-card st-how">
                     <h2 className="cf-dot-title t-title">

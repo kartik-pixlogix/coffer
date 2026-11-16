@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessRequestController;
 use App\Http\Controllers\Companies\SwitchCompanyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Middleware\EnsureLocalEnvironment;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('companies.switch');
 
     Route::middleware('company')->group(function () {
-        Route::inertia('dashboard', 'dashboard')->middleware('page:dashboard')->name('dashboard');
+        Route::get('dashboard', DashboardController::class)->middleware('page:dashboard')->name('dashboard');
 
         Route::post('access-requests', [AccessRequestController::class, 'store'])
             ->middleware('throttle:10,1')
@@ -40,3 +41,4 @@ require __DIR__.'/partners.php';
 require __DIR__.'/team.php';
 require __DIR__.'/timesheets.php';
 require __DIR__.'/finance.php';
+require __DIR__.'/reports.php';

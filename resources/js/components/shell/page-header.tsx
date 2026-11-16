@@ -14,6 +14,8 @@ type PageHeaderProps = {
     /** Crumbs after Workspace / Company. The last one is the current page. */
     crumbs?: Crumb[];
     actions?: ReactNode;
+    /** One muted line under the title ("1 Apr – 31 Oct 2026 · FY 2026-27"). */
+    description?: ReactNode;
     /** Account pages: crumbs without the workspace and company ("Account / Profile and security"). */
     bare?: boolean;
 };
@@ -27,6 +29,7 @@ export function PageHeader({
     title,
     crumbs = [{ title }],
     actions,
+    description,
     bare = false,
 }: PageHeaderProps) {
     const { workspace, currentCompany } = useShell();
@@ -54,6 +57,9 @@ export function PageHeader({
                     )}
                     <span className="t-display">{title}</span>
                 </h1>
+                {description && (
+                    <p className="t-body t-muted mt-1.5 mb-0">{description}</p>
+                )}
             </div>
             {actions && <div className="cf-actions">{actions}</div>}
         </section>
