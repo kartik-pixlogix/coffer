@@ -865,3 +865,116 @@ span.denied-can:not(#\#) {
 .invite-side:not(#\#) .cf-seg-btn {
     white-space: nowrap;
 }
+
+/* ── Profile (Profile.dc.html) ─────────────────────────────────────────── */
+.profile-body:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.profile-col:not(#\#) {
+    flex: 1 1 520px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.profile-grid:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+@media (max-width: 640px) {
+    .profile-grid:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.profile-avatar:not(#\#) {
+    width: 72px;
+    height: 72px;
+    font-size: 22px;
+}
+
+.profile-avatar:not(#\#) img,
+.cf-avatar:not(#\#) > img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+}
+
+/* The QR sits on white in both themes so phones can read it (design). */
+.qr:not(#\#) {
+    width: 180px;
+    height: 180px;
+    flex: none;
+    padding: 8px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+.qr:not(#\#) svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.step:not(#\#) {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.step-n:not(#\#) {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: var(--radius-full);
+    background: var(--ink);
+    color: var(--surface);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+.recovery-grid:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    background: var(--surface-muted);
+}
+
+.rc:not(#\#) {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 20px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--surface);
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
+.sess:not(#\#) {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    min-height: 64px;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.profile-2fa-foot:not(#\#) {
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+}

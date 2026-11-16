@@ -6,6 +6,7 @@ import { TopBar } from '@/components/shell/top-bar';
 import { NavRail } from '@/components/ui/nav-rail';
 import type { NavRailItemData } from '@/components/ui/nav-rail';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { setNumberFormat } from '@/lib/format';
 import { isCurrent, railGroups } from '@/lib/navigation';
 import { home } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
@@ -43,6 +44,10 @@ export default function AppLayout({
     children: ReactNode;
 }) {
     const groups = useRailGroups();
+    const { auth } = usePage().props;
+
+    // Money and figures in the pages below follow the viewer's number format (spec §17).
+    setNumberFormat(auth.user.number_format);
 
     return (
         <ShellProvider>

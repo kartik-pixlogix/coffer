@@ -151,3 +151,25 @@ describe('hours and percent', () => {
         expect(formatPercent(-8.25, 1)).toBe(`${MINUS}8.3%`);
     });
 });
+
+describe('number format (spec §17)', () => {
+    it('groups by the viewer’s choice, Indian by default', async () => {
+        const {
+            setNumberFormat,
+            formatInr,
+            formatInrCompact,
+            formatIndianNumber,
+        } = await import('./format');
+
+        expect(formatInr(18_42_350_00)).toBe('₹18,42,350');
+
+        setNumberFormat('international');
+        expect(formatInr(18_42_350_00)).toBe('₹1,842,350');
+        expect(formatIndianNumber(1234567.5, 1)).toBe('1,234,567.5');
+        expect(formatInrCompact(18_42_350_00)).toBe('₹1.8M');
+        expect(formatInrCompact(45_000_00)).toBe('₹45K');
+
+        setNumberFormat('indian');
+        expect(formatInrCompact(18_42_350_00)).toBe('₹18.4L');
+    });
+});

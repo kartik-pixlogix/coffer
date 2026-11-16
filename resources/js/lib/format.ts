@@ -27,10 +27,30 @@ const MONTHS = [
 
 /* ---------------------------------------------------------------- numbers */
 
-/** Indian digit grouping of a non-negative integer string: 1234567 → 12,34,567. */
-function groupIndian(digits: string): string {
+export type NumberFormat = 'indian' | 'international';
+
+/** The viewer's digit grouping (spec §17), set once from their profile in app.tsx. */
+let numberFormat: NumberFormat = 'indian';
+
+export function setNumberFormat(format: NumberFormat): void {
+    numberFormat = format;
+}
+
+export function getNumberFormat(): NumberFormat {
+    return numberFormat;
+}
+
+/**
+ * Group a non-negative integer string by the viewer's format:
+ * Indian 1234567 → 12,34,567; International 1234567 → 1,234,567.
+ */
+function groupDigits(digits: string): string {
     if (digits.length <= 3) {
         return digits;
+    }
+
+    if (numberFormat === 'international') {
+        return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     const last3 = digits.slice(-3);
@@ -43,7 +63,7 @@ function groupIndian(digits: string): string {
 export function formatIndianNumber(value: number, fractionDigits = 0): string {
     const fixed = Math.abs(value).toFixed(fractionDigits);
     const [whole, fraction] = fixed.split('.');
-    const grouped = groupIndian(whole);
+    const grouped = groupDigits(whole);
 
     return fraction ? `${grouped}.${fraction}` : grouped;
 }
@@ -77,14 +97,14 @@ export function formatPaiseDigits(
     const abs = Math.abs(paise);
     const rupees = Math.floor(abs / 100);
     const rest = abs % 100;
-    const whole = groupIndian(String(rupees));
+    const whole = groupDigits(String(rupees));
 
     if (decimals === 'always' || (decimals === 'auto' && rest !== 0)) {
         return `${whole}.${String(rest).padStart(2, '0')}`;
     }
 
     if (decimals === 'never' && rest >= 50) {
-        return groupIndian(String(rupees + 1));
+        return groupDigits(String(rupees + 1));
     }
 
     return whole;
@@ -110,11 +130,21 @@ export function formatInrCompact(paise: number): string {
     const sign = paise < 0 ? MINUS : '';
     const trim = (n: number) => String(Math.round(n * 10) / 10);
 
-    if (rupees >= 1_00_00_000) {
+    if (numberFormat === 'international') {
+        if (rupees >= 1_000_000_000) {
+            return `${sign}₹${trim(rupees / 1_000_000_000)}B`;
+        }
+
+        if (rupees >= 1_000_000) {
+            return `${sign}₹${trim(rupees / 1_000_000)}M`;
+        }
+    }
+
+    if (numberFormat === 'indian' && rupees >= 1_00_00_000) {
         return `${sign}₹${trim(rupees / 1_00_00_000)}Cr`;
     }
 
-    if (rupees >= 1_00_000) {
+    if (numberFormat === 'indian' && rupees >= 1_00_000) {
         return `${sign}₹${trim(rupees / 1_00_000)}L`;
     }
 
@@ -160,7 +190,7 @@ export function formatRupeeInput(raw: string): string {
                   .slice(0, 2);
     const whole = wholeRaw.replace(/^0+(?=\d)/, '');
     const grouped =
-        whole === '' && fraction !== null ? '0' : groupIndian(whole);
+        whole === '' && fraction !== null ? '0' : groupDigits(whole);
 
     return fraction === null ? grouped : `${grouped}.${fraction}`;
 }

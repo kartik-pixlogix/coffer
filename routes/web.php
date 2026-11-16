@@ -32,6 +32,7 @@ Route::inertia('dev/ui', 'dev/ui')
     ->middleware(EnsureLocalEnvironment::class)
     ->name('dev.ui');
 
+require __DIR__.'/account.php';
 require __DIR__.'/auth.php';
 require __DIR__.'/companies.php';
 require __DIR__.'/settings.php';

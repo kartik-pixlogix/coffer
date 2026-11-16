@@ -14,6 +14,8 @@ type PageHeaderProps = {
     /** Crumbs after Workspace / Company. The last one is the current page. */
     crumbs?: Crumb[];
     actions?: ReactNode;
+    /** Account pages: crumbs without the workspace and company ("Account / Profile and security"). */
+    bare?: boolean;
 };
 
 /**
@@ -25,6 +27,7 @@ export function PageHeader({
     title,
     crumbs = [{ title }],
     actions,
+    bare = false,
 }: PageHeaderProps) {
     const { workspace, currentCompany } = useShell();
 
@@ -33,8 +36,12 @@ export function PageHeader({
             <div>
                 <Breadcrumb
                     items={[
-                        { label: workspace.name },
-                        { label: currentCompany.name },
+                        ...(bare
+                            ? []
+                            : [
+                                  { label: workspace.name },
+                                  { label: currentCompany.name },
+                              ]),
                         ...crumbs.map((c) => ({
                             label: c.title,
                             href: c.href,

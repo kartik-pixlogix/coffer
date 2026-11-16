@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 export type TextInputProps = FieldMessageProps & {
     /** Visible label above the input. Leave out only when an aria-label names it (table cells). */
     label?: ReactNode;
+    /** Right of the label: a status pill or a link. */
+    labelAction?: ReactNode;
     /** 48 px (default) or 40 px for dense forms (`cf-input--sm`). */
     size?: 'md' | 'sm';
     /** An async check is running: wraps the input in `cf-inwrap` with a spinner at the end. */
@@ -32,6 +34,7 @@ export function InputSpinner() {
  */
 export function TextInput({
     label,
+    labelAction,
     help,
     error,
     size = 'md',
@@ -92,6 +95,7 @@ export function TextInput({
         <Field
             ids={ids}
             label={label}
+            labelAction={labelAction}
             help={help}
             error={error}
             className={fieldClassName}

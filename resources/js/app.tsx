@@ -4,7 +4,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import AppLayout from '@/layouts/app-layout';
 import AuthSplitLayout from '@/layouts/auth/auth-split-layout';
-import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Coffer';
 
@@ -26,13 +25,6 @@ void createInertiaApp({
                 return null;
             case name.startsWith('auth/'):
                 return AuthSplitLayout;
-            // The starter kit's account pages, until Profile replaces them.
-            case [
-                'settings/profile',
-                'settings/security',
-                'settings/appearance',
-            ].includes(name):
-                return [AppLayout, SettingsLayout];
             default:
                 return AppLayout;
         }

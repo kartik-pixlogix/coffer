@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-@import 'tw-animate-css';
-
 /* Self-hosted fonts (D16). Bricolage carries the opsz axis (12–96) and wght 200–800. */
 @import '@fontsource-variable/bricolage-grotesque/opsz.css';
 @import '@fontsource/plus-jakarta-sans/300.css';
@@ -103,39 +101,6 @@
 
     --animate-rise: cfRise var(--duration-hero) var(--ease-out) both;
     --animate-drift: cfDrift 16s var(--ease-drift) infinite;
-
-    /*
-     * Temporary aliases for the starter kit's shadcn components (auth and settings pages)
-     * until Phase 1/2 replace them with cf-* components. They point at Coffer tokens so
-     * shadcn's default look never ships. Remove with the old components.
-     */
-    --color-background: var(--surface);
-    --color-foreground: var(--ink);
-    --color-card: var(--surface-card);
-    --color-card-foreground: var(--ink);
-    --color-popover: var(--surface);
-    --color-popover-foreground: var(--ink);
-    --color-primary: var(--graphite);
-    --color-primary-foreground: var(--on-graphite);
-    --color-secondary: var(--surface-muted);
-    --color-secondary-foreground: var(--ink);
-    --color-muted: var(--surface-muted);
-    --color-muted-foreground: var(--ink-secondary);
-    --color-accent: var(--surface-muted);
-    --color-accent-foreground: var(--ink);
-    --color-destructive: var(--negative);
-    --color-destructive-foreground: var(--on-graphite);
-    --color-border: var(--line);
-    --color-input: var(--line);
-    --color-ring: var(--focus);
-    --color-sidebar: var(--surface-muted);
-    --color-sidebar-foreground: var(--ink);
-    --color-sidebar-primary: var(--graphite);
-    --color-sidebar-primary-foreground: var(--on-graphite);
-    --color-sidebar-accent: var(--surface);
-    --color-sidebar-accent-foreground: var(--ink);
-    --color-sidebar-border: var(--line);
-    --color-sidebar-ring: var(--focus);
 }
 
 /* The variable Bricolage build registers as "Bricolage Grotesque Variable". */

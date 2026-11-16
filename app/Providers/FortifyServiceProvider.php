@@ -3,9 +3,13 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Fortify\DisableTwoFactorAuthentication;
+use App\Actions\Fortify\EnableTwoFactorAuthentication;
+use App\Actions\Fortify\GenerateNewRecoveryCodes;
 use App\Actions\Fortify\RedirectIfTwoFactorAuthenticatable;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Auth\LoginLockout;
+use App\Auth\RecoveryCodes;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Responses\LockoutResponse;
 use App\Models\User;
@@ -16,7 +20,10 @@ use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use Laravel\Fortify\Actions\AttemptToAuthenticate;
 use Laravel\Fortify\Actions\CanonicalizeUsername;
+use Laravel\Fortify\Actions\DisableTwoFactorAuthentication as FortifyDisableTwoFactor;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication as FortifyEnableTwoFactor;
 use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
+use Laravel\Fortify\Actions\GenerateNewRecoveryCodes as FortifyGenerateRecoveryCodes;
 use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Contracts\LockoutResponse as LockoutResponseContract;
 use Laravel\Fortify\Features;
@@ -33,6 +40,11 @@ class FortifyServiceProvider extends ServiceProvider
         // 5 failed tries lock sign-in for 15 minutes (spec §18).
         $this->app->bind(LoginRateLimiter::class, LoginLockout::class);
         $this->app->singleton(LockoutResponseContract::class, LockoutResponse::class);
+        // Admins can't turn 2FA off (spec §23).
+        $this->app->bind(FortifyDisableTwoFactor::class, DisableTwoFactorAuthentication::class);
+        // Ten XXXX-XXXX recovery codes, as on Profile (spec §17).
+        $this->app->bind(FortifyEnableTwoFactor::class, EnableTwoFactorAuthentication::class);
+        $this->app->bind(FortifyGenerateRecoveryCodes::class, GenerateNewRecoveryCodes::class);
     }
 
     /**
@@ -52,6 +64,8 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+        // A replaced code (one used at sign-in) keeps the same XXXX-XXXX shape.
+        Fortify::generateRecoveryCodesUsing(fn () => RecoveryCodes::one());
 
         // Fortify's pipeline, with the Coffer lockout and the trusted-device 2FA skip.
         Fortify::authenticateThrough(fn () => array_filter([

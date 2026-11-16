@@ -25,6 +25,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $email
  * @property CarbonImmutable|null $email_verified_at
  * @property string $password
+ * @property CarbonImmutable|null $password_changed_at
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property CarbonImmutable|null $two_factor_confirmed_at
@@ -65,6 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_changed_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
             'theme' => Theme::class,
             'number_format' => NumberFormat::class,
