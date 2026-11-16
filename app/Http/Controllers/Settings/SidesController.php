@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Ledger\ChartOfAccounts;
+use App\Models\Account;
+use App\Models\JournalLine;
+use App\Models\MoneyAccount;
 use App\Models\Partner;
 use App\Models\Side;
 use App\Support\CurrentCompany;
@@ -20,11 +24,11 @@ use Inertia\Response;
 /**
  * Settings › Partner sides (SettingsPartners.dc.html "Sides" tab, spec §16). Joint
  * ventures only: name and share per side, totalling 100%; a side can be removed only
- * while it has no partners. Bank accounts come with money accounts in Phase 3 (D27).
+ * while it has no partners and its money account has no entries.
  */
 final class SidesController extends Controller
 {
-    public function index(CurrentCompany $current): Response|RedirectResponse
+    public function index(CurrentCompany $current, ChartOfAccounts $chart): Response|RedirectResponse
     {
         $company = $current->require();
 
@@ -39,13 +43,13 @@ final class SidesController extends Controller
                 'id' => $side->id,
                 'name' => $side->name,
                 'equityBps' => $side->equity_bps,
-                'bankAccount' => null,
+                'bankAccount' => (fn (MoneyAccount $account) => $account->bank_label ?? $account->name)($chart->sideAccount($side)),
                 'partners' => $partners->where('side_id', $side->id)->map(fn (Partner $p) => ['id' => $p->id, 'name' => $p->name, 'colour' => $p->colour])->values(),
             ])->values(),
         ]);
     }
 
-    public function update(Request $request, CurrentCompany $current): RedirectResponse
+    public function update(Request $request, CurrentCompany $current, ChartOfAccounts $chart): RedirectResponse
     {
         $company = $current->require();
         abort_unless($company->isJv(), 404);
@@ -71,7 +75,7 @@ final class SidesController extends Controller
             throw ValidationException::withMessages(['sides' => "Side equity must add up to 100%. It’s {$shown}% now."]);
         }
 
-        DB::transaction(function () use ($rows, $request): void {
+        DB::transaction(function () use ($rows, $request, $chart): void {
             $existing = Side::query()->lockForUpdate()->get()->keyBy('id');
             $keep = $rows->pluck('id')->filter()->map(fn ($id) => (int) $id);
 
@@ -81,6 +85,7 @@ final class SidesController extends Controller
                         throw ValidationException::withMessages(['sides' => "{$side->name} still has partners. Move them to another side first."]);
                     }
 
+                    $this->deleteBooks($side);
                     $side->delete();
                 }
             }
@@ -93,7 +98,16 @@ final class SidesController extends Controller
                     abort(404);
                 }
 
-                $side === null ? Side::query()->create($attributes) : $side->update($attributes);
+                if ($side === null) {
+                    $side = Side::query()->create($attributes);
+                } else {
+                    $side->update($attributes);
+                }
+
+                // Each side has its own money account (spec §3.1), named after it.
+                $account = $chart->sideAccount($side);
+                $account->update(['name' => "{$side->name} account"]);
+                Account::query()->where('money_account_id', $account->id)->update(['name' => "{$side->name} account"]);
             }
 
             activity('partners')->causedBy($request->user())->withProperties(['sides' => $rows->all()])->log('updated the sides');
@@ -102,5 +116,19 @@ final class SidesController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Sides saved']);
 
         return back();
+    }
+
+    /** A side can only go while its money account has never been used. */
+    private function deleteBooks(Side $side): void
+    {
+        $accounts = MoneyAccount::query()->where('side_id', $side->id)->get();
+        $chartIds = Account::query()->whereIn('money_account_id', $accounts->pluck('id'))->pluck('id');
+
+        if (JournalLine::query()->whereIn('account_id', $chartIds)->exists()) {
+            throw ValidationException::withMessages(['sides' => "{$side->name}’s account has entries, so the side can’t be removed."]);
+        }
+
+        Account::query()->whereIn('id', $chartIds)->delete();
+        MoneyAccount::query()->whereIn('id', $accounts->pluck('id'))->delete();
     }
 }

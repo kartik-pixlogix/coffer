@@ -9,6 +9,8 @@ use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
 use App\Enums\CostType;
 use App\Enums\MemberStatus;
+use App\Ledger\ChartOfAccounts;
+use App\Ledger\OpeningBalance;
 use App\Models\Company;
 use App\Models\CompanyDraft;
 use App\Models\Member;
@@ -25,8 +27,8 @@ use Illuminate\Support\Str;
 /**
  * "Launch" in the create-company wizard (spec §3.1): one transaction creates the company,
  * its roles and permission matrix, the creator's Admin membership, sides, partners,
- * team members and invites (D23). Money accounts, the chart of accounts and the opening
- * journal entry come with the ledger in Phase 3 (D27).
+ * team members, invites (D23), and the books: categories, money accounts, the chart of
+ * accounts and the opening-balance entry.
  *
  * The first partner row is always the creating user, as Admin.
  */
@@ -37,6 +39,8 @@ final class LaunchCompany
         private readonly SetCompanyRole $setRole,
         private readonly IssueInvite $issueInvite,
         private readonly CurrentCompany $current,
+        private readonly ChartOfAccounts $chart,
+        private readonly OpeningBalance $openingBalance,
     ) {}
 
     /**
@@ -76,6 +80,10 @@ final class LaunchCompany
                     }
                 }
             });
+
+            // The books: categories, money accounts, chart of accounts and the opening balance (spec §3.1).
+            $this->chart->setUp($company);
+            $this->openingBalance->post($company, by: $creator);
 
             CompanyDraft::query()->where('workspace_id', $workspace->id)->where('user_id', $creator->id)->delete();
 

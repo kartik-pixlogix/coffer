@@ -89,9 +89,10 @@ class Partner extends Model
         return intdiv($this->side->equity_bps * $this->equity_bps, 10000);
     }
 
-    /** Partners with records can only be archived (spec §16). Phase 2's records are members. */
+    /** Partners with records (team members or anything in the books) can only be archived (spec §16). */
     public function hasRecords(): bool
     {
-        return $this->members()->withTrashed()->exists();
+        return $this->members()->withTrashed()->exists()
+            || JournalLine::query()->withoutGlobalScope('company')->where('partner_id', $this->id)->exists();
     }
 }

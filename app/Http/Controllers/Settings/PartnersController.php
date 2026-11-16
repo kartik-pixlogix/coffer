@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Actions\Partners\SavePartner;
+use App\Enums\AccountRole;
 use App\Enums\CompanyRole;
 use App\Http\Controllers\Controller;
+use App\Ledger\Lines;
+use App\Ledger\Period;
+use App\Ledger\ProfitAllocator;
+use App\Models\Account;
 use App\Models\Partner;
 use App\Models\Side;
 use App\Models\User;
 use App\Support\CurrentCompany;
 use App\Support\Equity;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -25,9 +31,17 @@ use Inertia\Response;
  */
 final class PartnersController extends Controller
 {
-    public function index(CurrentCompany $current): Response
+    public function index(CurrentCompany $current, ProfitAllocator $allocator): Response
     {
         $company = $current->require();
+        $year = Period::fiscalYearOf($company, CarbonImmutable::today());
+        $profitDue = $allocator->allocate($company, $year);
+        $revenue = Lines::profitAndLoss($company, $year)
+            ->where('a.role', AccountRole::Income->value)
+            ->whereNotNull('l.partner_id')
+            ->selectRaw('l.partner_id, COALESCE(SUM(l.credit_paise - l.debit_paise), 0) as amount')
+            ->groupBy('l.partner_id')
+            ->pluck('amount', 'partner_id');
         $sides = Side::query()->orderBy('position')->orderBy('id')->get();
         $partners = Partner::query()->active()->with('side')->orderBy('position')->orderBy('id')->get();
 
@@ -45,8 +59,9 @@ final class PartnersController extends Controller
                 'overallBps' => $p->side_id === null ? $p->equity_bps : intdiv($p->side->equity_bps * $p->equity_bps, Equity::WHOLE),
                 'linked' => $p->user_id !== null,
                 'hasRecords' => $p->hasRecords(),
-                // Revenue, profit due and hours arrive with the ledger (Phase 3–5, D27).
-                'stats' => ['revenuePaise' => 0, 'profitDuePaise' => 0, 'hours' => 0],
+                // This fiscal year: income they brought in and their share of profit (spec §4.4).
+                // Hours arrive with timesheets in Phase 4.
+                'stats' => ['revenuePaise' => (int) ($revenue[$p->id] ?? 0), 'profitDuePaise' => $profitDue[$p->id] ?? 0, 'hours' => 0],
             ])->values(),
         ]);
     }
@@ -97,6 +112,8 @@ final class PartnersController extends Controller
         if ($archived) {
             $partner->update(['archived_at' => now()]);
         } else {
+            // No lines reference them (hasRecords is false), so the partner's empty accounts go too.
+            Account::query()->where('partner_id', $partner->id)->delete();
             $partner->delete();
         }
 
