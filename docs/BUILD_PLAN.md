@@ -179,15 +179,15 @@ Tick boxes here as you go (`- [x]`).
 - spec §14 in full
 - screens: `Vault`, `VaultAddCatalog`, `VaultAddLogin`, `VaultShare`, `VaultHealth`, `VaultAudit`, `VaultLockPolicies`, `MobileVault`
 
-- [ ] `VaultCrypto` service:
+- [x] `VaultCrypto` service (D66):
   - per-company data keys wrapped by `VAULT_MASTER_KEY`, AES-256-GCM
   - key rotation command
   - HMAC fingerprints
   - unit tests (round-trip, tamper detection, wrong key)
-- [ ] Vaults, items (all types and custom fields), attachments (encrypted), versions with restore, favourites, tags, environments, expiry.
-- [ ] Provider catalog seed (monogram tiles). Add item step 1 (catalog) and step 2 (template form plus generator popover with zxcvbn).
-- [ ] Vault home: rail with vaults and smart filters, list/grid toggle, search, sort, item drawer.
-- [ ] Reveal, copy and TOTP endpoints:
+- [x] Vaults, items (all types and custom fields), attachments (encrypted), versions with restore, favourites, tags, environments, expiry (D67, D68).
+- [x] Provider catalog seed (monogram tiles). Add item step 1 (catalog) and step 2 (template form plus generator popover with zxcvbn) (D67, D70).
+- [x] Vault home: rail with vaults and smart filters, list/grid toggle, search, sort, item drawer (D68, D70).
+- [x] Reveal, copy and TOTP endpoints (D69):
   - step-up 2FA window, rate limits, audit events
   - auto-hide after 30 s and clipboard clear on the client
   - idle lock after 15 min with the unlock screen
