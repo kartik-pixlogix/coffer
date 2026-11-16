@@ -142,10 +142,11 @@ Tick boxes here as you go (`- [x]`).
   - Add/edit modal: Full / Half / Custom payers with live total check, paid-from including personal card, receipt upload, inline new category, bill to client
   - Approvals with reject reason, bulk approve/reject, filters, search, export
   - Receipt drawer, Auto rows read-only
-- [ ] Reimbursement payouts. Convert a personal-card balance into a loan.
-- [ ] Capital accounts: statement with FY selector, contribution and drawing modals.
-- [ ] Partner loans: record a loan, record a repayment, progress, auto-close.
-- [ ] Settlements: per-side table, banner (two sides, or minimal transfers for N sides), record/edit/delete transfer, non-JV empty state.
+- [x] Reimbursement payouts. Convert a personal-card balance into a loan. (D50, D51)
+- [x] Capital accounts: statement with FY selector, contribution and drawing modals. (D53, D55)
+- [x] Partner loans: record a loan, record a repayment, progress, auto-close. (D51, D52)
+- [x] Settlements: per-side table, banner (two sides, or minimal transfers for N sides), record/edit/delete transfer, non-JV empty state. (D54, D55)
+- [x] Demo books through the app's Actions (D57); success toasts show once (D56).
 
 **Accept:**
 - Every action posts the right journal lines (tests per posting rule).
