@@ -143,7 +143,10 @@ final class TimesheetsController extends Controller
                 'projects' => Project::query()->orderBy('name')->get()
                     ->map(fn (Project $p) => ['id' => $p->id, 'name' => $p->name, 'active' => $p->status === ProjectStatus::Active])->values(),
             ],
-            'can' => ['log' => $user->can('action.time.log') && (! $ownOnly || $ownMember !== null)],
+            'can' => [
+                'log' => $user->can('action.time.log') && (! $ownOnly || $ownMember !== null),
+                'import' => $user->can('action.time.log') && ! $ownOnly,
+            ],
         ]);
     }
 

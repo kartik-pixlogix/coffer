@@ -7,6 +7,7 @@ import {
     Pencil,
     Plus,
     Trash2,
+    Upload,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '@/components/shell/page-header';
@@ -14,7 +15,7 @@ import { LogHoursModal } from '@/components/timesheets/log-hours-modal';
 import { LogHoursSheet } from '@/components/timesheets/log-hours-sheet';
 import { initialsFrom, partnerColourVar } from '@/components/ui/avatar';
 import type { PartnerColour } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Button, ButtonLink } from '@/components/ui/button';
 import { ButtonGroupSelect } from '@/components/ui/button-group';
 import { DataTable } from '@/components/ui/data-table';
 import type { DataTableColumn } from '@/components/ui/data-table';
@@ -32,6 +33,7 @@ import { formatCenti } from '@/lib/hours';
 import { firstName, monthLong } from '@/lib/team';
 import {
     destroy as deleteEntry,
+    importMethod as importPage,
     index as timesheetsIndex,
 } from '@/routes/timesheets';
 import type { PartnerOption } from '@/types/team';
@@ -80,7 +82,7 @@ type Props = {
     entries: Paginated<TimeEntry>;
     week: { day: string; start: string; entries: TimeEntry[] };
     options: TimesheetOptions;
-    can: { log: boolean };
+    can: { log: boolean; import: boolean };
 };
 
 /** A full month is the bar's 100% in "Team this month" (Timesheets.dc.html uses 80 h at mid-month). */
@@ -291,16 +293,28 @@ function DesktopTimesheets({
                 title="Timesheets"
                 crumbs={[{ title: 'Timesheets' }]}
                 actions={
-                    can.log && (
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            disc={Plus}
-                            onClick={() => onLog(null)}
-                        >
-                            Log hours
-                        </Button>
-                    )
+                    <>
+                        {can.import && (
+                            <ButtonLink
+                                href={importPage().url}
+                                variant="secondary"
+                                size="lg"
+                                icon={Upload}
+                            >
+                                Bulk import
+                            </ButtonLink>
+                        )}
+                        {can.log && (
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                disc={Plus}
+                                onClick={() => onLog(null)}
+                            >
+                                Log hours
+                            </Button>
+                        )}
+                    </>
                 }
             />
 

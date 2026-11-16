@@ -114,6 +114,16 @@ final class LogTime
         return "{$member->name} has ".Hours::format((int) $row->centi)." h on {$date}, more than 12 h.";
     }
 
+    /**
+     * One imported day row (spec §8.2): already checked, so no further rules here.
+     *
+     * @param  array{project_id: int, partner_id: int|null, billable: bool, notes: string|null}  $details
+     */
+    public function imported(Member $member, CarbonImmutable $date, int $centi, array $details, ?User $actor, int $importId): TimeEntry
+    {
+        return $this->create($member, $date, $centi, $details, null, $actor, $importId);
+    }
+
     /** @param iterable<CarbonImmutable> $dates */
     public function assertOpen(Company $company, iterable $dates): void
     {

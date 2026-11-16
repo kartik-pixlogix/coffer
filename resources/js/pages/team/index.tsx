@@ -4,6 +4,7 @@ import {
     Pencil,
     Plus,
     Trash2,
+    Upload,
     UserRoundCheck,
     UserRoundX,
     Users,
@@ -15,7 +16,7 @@ import type { MemberConfirmState } from '@/components/team/member-confirm';
 import { MemberModal } from '@/components/team/member-modal';
 import { initialsFrom, partnerColourVar } from '@/components/ui/avatar';
 import type { PartnerColour } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Button, ButtonLink } from '@/components/ui/button';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/ui/empty-state';
 import { IconButton } from '@/components/ui/icon-button';
@@ -25,6 +26,7 @@ import { formatCenti } from '@/lib/hours';
 import { firstName, monthLong, rateLabel } from '@/lib/team';
 import { cn } from '@/lib/utils';
 import { show as memberProfile } from '@/routes/team';
+import { importMethod as importPage } from '@/routes/timesheets';
 import type {
     PartnerOption,
     TeamCan,
@@ -82,14 +84,24 @@ export default function TeamIndex({
                 crumbs={[{ title: 'Team' }]}
                 actions={
                     can.manage && (
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            disc={Plus}
-                            onClick={() => openModal(null)}
-                        >
-                            Add member
-                        </Button>
+                        <>
+                            <ButtonLink
+                                href={importPage().url}
+                                variant="secondary"
+                                size="lg"
+                                icon={Upload}
+                            >
+                                Import CSV
+                            </ButtonLink>
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                disc={Plus}
+                                onClick={() => openModal(null)}
+                            >
+                                Add member
+                            </Button>
+                        </>
                     )
                 }
             />

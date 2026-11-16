@@ -1219,3 +1219,89 @@ span.denied-can:not(#\#) {
     justify-content: space-between;
     flex-direction: row-reverse;
 }
+
+/* ── BulkImport ──────────────────────────────────────────── */
+.imp-cols:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.imp-format:not(#\#) {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.imp-upload:not(#\#) {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.imp-upload:not(#\#) .cf-drop {
+    min-height: 280px;
+}
+
+.imp-fmt-row:not(#\#) {
+    grid-template-columns: 110px minmax(0, 1fr);
+    min-height: 44px;
+}
+
+.imp-sample:not(#\#) {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.imp-kpis:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.imp-kpis:not(#\#) .cf-kpi {
+    min-height: 110px;
+}
+
+.imp-foot:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+.imp-billable:not(#\#) {
+    cursor: pointer;
+    border: 0;
+    font: inherit;
+}
+
+.imp-billable:not(#\#):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus);
+}
+
+.mcols:not(#\#) {
+    grid-template-columns: minmax(150px, 1fr) 30px minmax(200px, 1.1fr) minmax(
+            200px,
+            1.2fr
+        ) 130px;
+}
+
+.rcols:not(#\#) {
+    grid-template-columns: minmax(180px, 1.3fr) 150px 150px minmax(
+            150px,
+            1fr
+        ) 110px 40px;
+}
