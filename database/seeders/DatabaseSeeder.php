@@ -2,23 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Seed the application's database with the design's demo workspace (spec §24).
+     * Model events stay on: BelongsToCompany stamps company_id through them.
      */
     public function run(): void
     {
-        // Demo owner from spec §24. The full demo workspace arrives with Phase 2.
-        User::factory()->create([
-            'name' => 'Aarav Mehta',
-            'email' => 'aarav@vertexlabs.in',
-        ]);
+        $this->call(DemoWorkspaceSeeder::class);
     }
 }
