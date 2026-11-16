@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Vault;
 
 use App\Enums\VaultAuditAction;
+use App\Enums\VaultRequestStatus;
 use App\Enums\VaultType;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vault;
+use App\Models\VaultAccessRequest;
 use App\Models\VaultItem;
 use App\Services\Vault\ItemPresenter;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultAudit;
 use App\Services\Vault\VaultHealth;
 use App\Services\Vault\VaultSession;
+use App\Services\Vault\VaultSharing;
 use App\Support\CurrentCompany;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -35,7 +38,7 @@ use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
  */
 final class VaultController extends Controller
 {
-    public function index(Request $request, CurrentCompany $current, VaultAccess $access, ItemPresenter $presenter, VaultSession $session, VaultHealth $health, VaultAudit $audit): Response
+    public function index(Request $request, CurrentCompany $current, VaultAccess $access, ItemPresenter $presenter, VaultSession $session, VaultHealth $health, VaultAudit $audit, VaultSharing $sharing): Response
     {
         /** @var User $user */
         $user = $request->user();
@@ -88,9 +91,12 @@ final class VaultController extends Controller
                 return $presenter->detail($user, $item);
             },
             'openShare' => $request->boolean('share'),
+            'scope' => $this->scope($request),
+            'sharing' => $unlocked ? $this->sharing($user, $access, $sharing) : null,
             'abilities' => [
                 'create' => $creatable->isNotEmpty(),
                 'newVault' => $twoFactor && $access->isAdmin($user),
+                'admin' => $twoFactor && $access->isAdmin($user),
             ],
         ]);
     }
@@ -184,6 +190,50 @@ final class VaultController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => "{$vault->name} vault created"]);
 
         return back();
+    }
+
+    /** The rail's starting filter (`?scope=weak`, links from the health page). */
+    private function scope(Request $request): ?string
+    {
+        $scope = $request->query('scope');
+
+        return is_string($scope) && in_array($scope, ['fav', 'shared', 'expiring', 'weak', 'reused', 'breached', 'old', 'no2fa'], true) ? $scope : null;
+    }
+
+    /**
+     * Sharing on the vault home (D72): vaults the user can share, vaults they can ask for
+     * (their role allows more than they have), and the inbox badge for Managers.
+     *
+     * @return array{shareVaults: list<int>, requestable: list<array{id: int, name: string, level: string|null}>, ceiling: string|null, pending: int|null}
+     */
+    private function sharing(User $user, VaultAccess $access, VaultSharing $sharing): array
+    {
+        $ceiling = $access->ceiling($user);
+        $vaults = Vault::query()->where('type', VaultType::Shared->value)->orderBy('position')->orderBy('name')->get();
+        $manages = $sharing->managesAnything($user);
+
+        $shareVaults = [];
+        $requestable = [];
+
+        foreach ($vaults as $vault) {
+            if ($sharing->canShareVault($user, $vault)) {
+                $shareVaults[] = $vault->id;
+            }
+
+            $level = $access->vaultLevel($user, $vault);
+
+            if ($ceiling !== null && ! $access->isAdmin($user) && ($level === null || $level->rank() < $ceiling->rank())) {
+                $requestable[] = ['id' => $vault->id, 'name' => $vault->name, 'level' => $level?->value];
+            }
+        }
+
+        return [
+            'shareVaults' => $shareVaults,
+            'requestable' => $requestable,
+            'ceiling' => $ceiling?->value,
+            'pending' => $manages ? VaultAccessRequest::query()->where('status', VaultRequestStatus::Pending->value)->get()
+                ->filter(fn (VaultAccessRequest $r) => $sharing->canDecide($user, $r))->count() : null,
+        ];
     }
 
     private function codeMatches(User $user, string $code, TwoFactorAuthenticationProvider $provider): bool

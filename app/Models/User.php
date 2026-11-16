@@ -34,6 +34,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $timezone
  * @property NumberFormat $number_format
  * @property string|null $avatar_path
+ * @property array<string, array{mail?: bool, database?: bool}>|null $notification_preferences per event key (spec §16)
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Collection<int, Company> $companies
@@ -70,6 +71,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'two_factor_confirmed_at' => 'datetime',
             'theme' => Theme::class,
             'number_format' => NumberFormat::class,
+            'notification_preferences' => 'array',
         ];
     }
 
@@ -104,6 +106,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasTwoFactorEnabled(): bool
     {
         return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+    }
+
+    /**
+     * Whether this user wants `$event` (e.g. "vault.expiring") by `$channel` ("mail" or
+     * "database"). Both are on until the user turns one off (spec §19; Phase 8 adds the
+     * preferences screen).
+     */
+    public function wantsNotification(string $event, string $channel): bool
+    {
+        $choice = ($this->notification_preferences ?? [])[$event][$channel] ?? null;
+
+        return $choice !== false;
     }
 
     public function getAvatarUrlAttribute(): ?string

@@ -163,6 +163,12 @@ export type VaultItemDetail = VaultItemRow & {
         delete: boolean;
         share: boolean;
     };
+    /** The role allows more than the item gives: offer "Ask for more access". */
+    canAsk: boolean;
+    /** The most the role allows, or null. */
+    ceiling: VaultLevel | null;
+    /** The viewer's open request for more access, if any. */
+    pendingRequest: { level: VaultLevel; createdAt: string | null } | null;
 };
 
 export type VaultHealthCounts = {
@@ -189,9 +195,115 @@ export type VaultIndexProps = {
     health: VaultHealthSummary | null;
     selectedId: number | null;
     selected: VaultItemDetail | null;
-    /** `?share=1` after "Save and share" (part B opens the share drawer). */
+    /** `?share=1` after "Save and share": the share drawer opens. */
     openShare: boolean;
-    abilities: { create: boolean; newVault: boolean };
+    /** `?scope=weak` from the health page: the rail's starting filter. */
+    scope: VaultHealthKey | 'fav' | 'shared' | 'expiring' | null;
+    /** Null while locked. */
+    sharing: VaultSharingSummary | null;
+    abilities: { create: boolean; newVault: boolean; admin: boolean };
+};
+
+export type VaultHealthKey = keyof VaultHealthCounts;
+
+export type VaultSharingSummary = {
+    /** Vaults the viewer can share (Manage). */
+    shareVaults: number[];
+    /** Vaults the viewer can ask for more access to. */
+    requestable: { id: number; name: string; level: VaultLevel | null }[];
+    ceiling: VaultLevel | null;
+    /** Pending requests the viewer can decide (the inbox badge); null if they manage nothing. */
+    pending: number | null;
+};
+
+/* ---- Sharing (VaultShare.dc.html) ---- */
+
+export type VaultAccessDuration = 'never' | '24h' | '7d' | '30d';
+
+export type VaultAccessRow = {
+    userId: number;
+    name: string;
+    you: boolean;
+    colour: number | null;
+    /** "Partner · Vertex Labs", "Sr developer · team member", "Admin". */
+    about: string | null;
+    /** Effective level (the grant capped by the role). */
+    level: VaultLevel;
+    /** The grant's level, when there is one. */
+    granted: VaultLevel | null;
+    /** The role caps the grant. */
+    limited: boolean;
+    via: 'admin' | 'owner' | 'item' | 'vault';
+    grantId: number | null;
+    endsAt: string | null;
+    editable: boolean;
+};
+
+export type VaultShareCandidate = {
+    userId: number;
+    name: string;
+    colour: number | null;
+    about: string | null;
+    ceiling: VaultLevel;
+    twoFactor: boolean;
+};
+
+export type VaultSharePanel = {
+    target: {
+        kind: 'item' | 'vault';
+        id: number;
+        name: string;
+        vault: string;
+        monogram: string;
+        restricted: boolean;
+    };
+    access: VaultAccessRow[];
+    candidates: VaultShareCandidate[];
+    message: string | null;
+};
+
+export type VaultShareTarget = {
+    kind: 'item' | 'vault';
+    id: number;
+    name: string;
+};
+
+export type VaultAccessRequestRow = {
+    id: number;
+    name: string;
+    level: VaultLevel;
+    target: string;
+    targetKind: 'item' | 'vault';
+    itemId: number | null;
+    vault: string;
+    reason: string;
+    /** "for 24 hours", "no end date". */
+    span: string;
+    status: 'pending' | 'approved' | 'denied';
+    createdAt: string | null;
+    decidedBy: string | null;
+    decidedAt: string | null;
+    note: string | null;
+};
+
+export type VaultRequestsInbox = {
+    requests: VaultAccessRequestRow[];
+    mine: VaultAccessRequestRow[];
+    recent: {
+        id: number;
+        target: string;
+        who: string;
+        level: VaultLevel;
+        at: string | null;
+    }[];
+    managesAnything: boolean;
+};
+
+export type VaultRequestsProps = {
+    vaultState: VaultState;
+    /** Null while locked. */
+    inbox: VaultRequestsInbox | null;
+    tab: 'pending' | 'approved' | 'denied';
 };
 
 export type VaultVersion = {

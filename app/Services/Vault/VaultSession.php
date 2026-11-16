@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Vault;
 
+use App\Models\User;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Session\Session;
@@ -95,6 +96,32 @@ final readonly class VaultSession
             'verifiedUntil' => $unlocked && $this->isVerified() ? $this->verifiedUntil()?->toIso8601String() : null,
             'lockAt' => $unlocked ? $this->lockAt()?->toIso8601String() : null,
         ];
+    }
+
+    /**
+     * The `vaultState` prop of every vault page (the lock card and idle lock read it).
+     *
+     * @return array{twoFactor: bool, unlocked: bool, verifiedUntil: string|null, lockAt: string|null, policy: array<string, int|bool|string>}
+     */
+    public function pageState(User $user): array
+    {
+        $twoFactor = $user->hasTwoFactorEnabled();
+
+        if ($twoFactor && $this->isUnlocked()) {
+            $this->touch();
+        }
+
+        return [
+            'twoFactor' => $twoFactor,
+            ...($twoFactor ? $this->state() : ['unlocked' => false, 'verifiedUntil' => null, 'lockAt' => null]),
+            'policy' => $this->policy()->toArray(),
+        ];
+    }
+
+    /** May this request see vault contents (2FA on and unlocked)? */
+    public function opensFor(User $user): bool
+    {
+        return $user->hasTwoFactorEnabled() && $this->isUnlocked();
     }
 
     private function time(string $key): ?CarbonImmutable

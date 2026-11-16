@@ -8,6 +8,7 @@ use App\Services\Dashboard\VaultExpiringPanel;
 use App\Services\Team\SalaryRecalc;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultKeys;
+use App\Services\Vault\VaultSharing;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
 use Carbon\CarbonImmutable;
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         // Unwrapped vault keys and access caches live for one request or job.
         $this->app->scoped(VaultKeys::class);
         $this->app->scoped(VaultAccess::class);
+        $this->app->scoped(VaultSharing::class);
 
         // The dashboard's "Credentials expiring soon" (D64).
         $this->app->bind(DashboardVaultPanel::class, VaultExpiringPanel::class);
@@ -54,6 +56,12 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('vault-reveal', fn (Request $request): Limit => Limit::perMinute((int) config('vault.reveals_per_minute'))
             ->by('vault-reveal:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        // Part B (D72–D77): named so their counters don't mix with the plain `throttle:N,1` routes.
+        foreach (['vault-share' => 60, 'vault-requests' => 10, 'vault-files' => 10] as $name => $perMinute) {
+            RateLimiter::for($name, fn (Request $request): Limit => Limit::perMinute($perMinute)
+                ->by($name.':'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
+        }
     }
 
     /**

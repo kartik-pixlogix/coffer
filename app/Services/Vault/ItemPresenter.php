@@ -7,9 +7,11 @@ namespace App\Services\Vault;
 use App\Auth\DeviceLabel;
 use App\Enums\VaultAccessLevel;
 use App\Enums\VaultAuditAction;
+use App\Enums\VaultRequestStatus;
 use App\Models\Member;
 use App\Models\Partner;
 use App\Models\User;
+use App\Models\VaultAccessRequest;
 use App\Models\VaultAttachment;
 use App\Models\VaultAuditEvent;
 use App\Models\VaultFavourite;
@@ -137,8 +139,12 @@ final class ItemPresenter
                 'edit' => $level->atLeast(VaultAccessLevel::Edit),
                 'delete' => $level->atLeast(VaultAccessLevel::Manage),
                 // Part B's share drawer.
-                'share' => $level->atLeast(VaultAccessLevel::Manage),
+                'share' => $level->atLeast(VaultAccessLevel::Manage) && ! $item->vault->isPersonal(),
             ],
+            // Asking for more (spec §14.2): the role allows more than the item gives.
+            'canAsk' => ! $item->vault->isPersonal() && ($this->access->ceiling($user)?->rank() ?? 0) > $level->rank(),
+            'ceiling' => $this->access->ceiling($user)?->value,
+            'pendingRequest' => $this->pendingRequest($user, $item),
         ];
     }
 
@@ -174,6 +180,8 @@ final class ItemPresenter
             VaultAuditAction::Restored => "{$who} restored version ".(is_scalar($event->meta['restored_from'] ?? null) ? (string) $event->meta['restored_from'] : ''),
             VaultAuditAction::UsedCode => "{$who} used a one-time code",
             VaultAuditAction::Downloaded => "{$who} downloaded ".(is_scalar($event->meta['file'] ?? null) ? (string) $event->meta['file'] : 'an attachment'),
+            VaultAuditAction::Shared => $this->shareText($event, $who),
+            VaultAuditAction::Unshared => $this->unshareText($event, $who),
             default => "{$who} {$event->action->verb()} {$what}",
         };
 
@@ -207,6 +215,36 @@ final class ItemPresenter
             'via' => $via,
             'colour' => $this->colours[$user->id] ?? null,
         ];
+    }
+
+    /** @return array{level: string, createdAt: string|null}|null */
+    private function pendingRequest(User $user, VaultItem $item): ?array
+    {
+        $request = VaultAccessRequest::query()->where('user_id', $user->id)->where('vault_item_id', $item->id)
+            ->where('status', VaultRequestStatus::Pending->value)->latest('id')->first();
+
+        return $request === null ? null : ['level' => $request->level->value, 'createdAt' => $request->created_at?->toIso8601String()];
+    }
+
+    private function shareText(VaultAuditEvent $event, string $who): string
+    {
+        $to = is_scalar($event->meta['to_name'] ?? null) ? (string) $event->meta['to_name'] : 'someone';
+        $level = VaultAccessLevel::tryFrom(is_scalar($event->meta['level'] ?? null) ? (string) $event->meta['level'] : '')?->label() ?? '';
+
+        return isset($event->meta['from_level'])
+            ? "{$who} gave {$to} {$level} access"
+            : "{$who} shared this item with {$to} ({$level})";
+    }
+
+    private function unshareText(VaultAuditEvent $event, string $who): string
+    {
+        $to = is_scalar($event->meta['to_name'] ?? null) ? (string) $event->meta['to_name'] : 'Someone';
+
+        return match ($event->meta['reason'] ?? null) {
+            'expired' => "{$to}’s access ended",
+            'left' => "{$to} left the company; access removed",
+            default => "{$who} removed {$to}’s access",
+        };
     }
 
     /** @return array<int, int|null> */

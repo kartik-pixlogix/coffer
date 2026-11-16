@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Actions\Vault\SaveVaultItem;
+use App\Enums\VaultAccessDuration;
 use App\Enums\VaultAccessLevel;
 use App\Enums\VaultAuditAction;
+use App\Enums\VaultRequestStatus;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\Vault;
+use App\Models\VaultAccessRequest;
 use App\Models\VaultAuditEvent;
 use App\Models\VaultFavourite;
 use App\Models\VaultGrant;
@@ -98,6 +101,17 @@ class DemoVaultSeeder extends Seeder
             foreach (['github', 'aws', 'gworkspace'] as $key) {
                 VaultFavourite::query()->create(['vault_item_id' => $items[$key]->id, 'user_id' => $aarav->id, 'created_at' => now()]);
             }
+
+            // VaultShare.dc.html: two requests waiting and one already denied (D72).
+            $ask = fn (User $user, array $target, VaultAccessLevel $level, VaultAccessDuration $for, string $reason, string $at, array $decided = []) => VaultAccessRequest::query()->forceCreate([
+                'company_id' => $company->id, 'user_id' => $user->id, ...$target, 'level' => $level, 'duration' => $for, 'reason' => $reason,
+                'status' => $decided === [] ? VaultRequestStatus::Pending : VaultRequestStatus::Denied,
+                'decided_by' => $decided === [] ? null : $aarav->id, 'decided_at' => $decided['at'] ?? null, 'decision_note' => $decided['note'] ?? null,
+                'created_at' => $at, 'updated_at' => $decided['at'] ?? $at,
+            ]);
+            $ask($rohan, ['vault_item_id' => $items['gmail']->id], VaultAccessLevel::Use, VaultAccessDuration::Week, 'Covering support while Ishita is away.', now()->subHours(2)->toDateTimeString());
+            $ask($kabir, ['vault_id' => $vaults['Asha Retail']->id], VaultAccessLevel::Edit, VaultAccessDuration::Day, 'Moving the Asha Retail site to their own hosting.', now()->subDay()->setTime(18, 40)->toDateTimeString());
+            $ask($rohan, ['vault_item_id' => $items['aws']->id], VaultAccessLevel::Use, VaultAccessDuration::Day, 'Rotating the S3 keys for the Asha Retail bucket.', '2026-11-03 11:20:00', ['at' => '2026-11-04 09:05:00', 'note' => 'Use your IAM user instead']);
 
             $this->contaboKey($items['contabo'], $aarav);
             $this->activity($company, $items['github'], $aarav, $ishita, $rohan);

@@ -24,7 +24,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $expires_at
  * @property int|null $granted_by
  * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read User $user
+ * @property-read Vault|null $vault
+ * @property-read VaultItem|null $item
+ * @property-read User|null $granter
  */
 #[Fillable(['company_id', 'vault_id', 'vault_item_id', 'user_id', 'level', 'expires_at', 'granted_by'])]
 class VaultGrant extends Model
@@ -53,5 +57,23 @@ class VaultGrant extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** @return BelongsTo<Vault, $this> */
+    public function vault(): BelongsTo
+    {
+        return $this->belongsTo(Vault::class);
+    }
+
+    /** @return BelongsTo<VaultItem, $this> */
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(VaultItem::class, 'vault_item_id');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function granter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'granted_by');
     }
 }

@@ -4,6 +4,7 @@ use App\Enums\Theme;
 use App\Exceptions\PageDeniedException;
 use App\Http\Middleware\EnsureHasCompany;
 use App\Http\Middleware\EnsurePageAllowed;
+use App\Http\Middleware\EnsureVaultUnlocked;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetCurrentCompany;
@@ -41,11 +42,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'company' => EnsureHasCompany::class,
             'page' => EnsurePageAllowed::class,
+            'vault.unlocked' => EnsureVaultUnlocked::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Vault secrets never go back into the session as "old input" (spec §14.3).
-        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'secrets', 'custom_fields', 'code']);
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'secrets', 'custom_fields', 'code', 'passphrase', 'passphrase_confirmation']);
 
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),

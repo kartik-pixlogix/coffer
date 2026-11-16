@@ -1,11 +1,14 @@
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import {
     Clock,
     FolderPlus,
+    Inbox,
+    KeyRound,
     LayoutGrid,
     Lock,
     Star,
     TriangleAlert,
+    UserPlus,
     Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -18,11 +21,14 @@ import { Modal } from '@/components/ui/modal';
 import { TextInput } from '@/components/ui/text-input';
 import { scopeCount } from '@/components/vault/home/vault-home.utils';
 import type { VaultScope } from '@/components/vault/home/vault-home.utils';
+import { RequestAccessModal } from '@/components/vault/share/request-access-modal';
 import { cn } from '@/lib/utils';
+import { requests as requestsIndex } from '@/routes/vault';
 import { store as vaultStore } from '@/routes/vault/vaults';
 import type {
     VaultHealthSummary,
     VaultItemRow,
+    VaultSharingSummary,
     VaultSummary,
 } from '@/types/vault';
 
@@ -41,6 +47,14 @@ export const SMART_FILTERS: SmartFilter[] = [
     { scope: 'weak', label: 'Weak', icon: TriangleAlert, tone: 'neg' },
 ];
 
+/** Filters the health page links to (`?scope=reused`): not on the rail, but named in the heading. */
+const HEALTH_SCOPES = {
+    reused: 'Reused passwords',
+    breached: 'Found in a breach',
+    old: 'Older than 180 days',
+    no2fa: 'Without 2FA',
+} as const;
+
 /** The list heading for a scope: "All items", a vault name, a smart filter. */
 export function scopeLabel(scope: VaultScope, vaults: VaultSummary[]): string {
     if (scope === 'all') {
@@ -54,7 +68,11 @@ export function scopeLabel(scope: VaultScope, vaults: VaultSummary[]): string {
         );
     }
 
-    return SMART_FILTERS.find((f) => f.scope === scope)?.label ?? 'All items';
+    return (
+        SMART_FILTERS.find((f) => f.scope === scope)?.label ??
+        HEALTH_SCOPES[scope as keyof typeof HEALTH_SCOPES] ??
+        'All items'
+    );
 }
 
 type Props = {
@@ -66,6 +84,9 @@ type Props = {
     /** Locked: vault counts come from the server, smart filters have none. */
     locked: boolean;
     canAddVault: boolean;
+    /** Null while locked. */
+    sharing: VaultSharingSummary | null;
+    onShareVault: (vault: VaultSummary) => void;
 };
 
 function RailButton({
@@ -120,8 +141,18 @@ export function VaultRail({
     onScope,
     locked,
     canAddVault,
+    sharing,
+    onShareVault,
 }: Props) {
     const [adding, setAdding] = useState(false);
+    const [asking, setAsking] = useState(false);
+    const selectedVault = scope.startsWith('v:')
+        ? vaults.find((v) => v.id === Number(scope.slice(2)))
+        : undefined;
+    const canShareSelected =
+        selectedVault !== undefined &&
+        (sharing?.shareVaults.includes(selectedVault.id) ?? false);
+    const requestable = sharing?.requestable ?? [];
 
     return (
         <aside className="vh-rail" aria-label="Vaults and filters">
@@ -177,6 +208,28 @@ export function VaultRail({
                         New vault
                     </Button>
                 )}
+                {canShareSelected && selectedVault && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        icon={UserPlus}
+                        className="vh-rail-new"
+                        onClick={() => onShareVault(selectedVault)}
+                    >
+                        Share {selectedVault.name}
+                    </Button>
+                )}
+                {requestable.length > 0 && sharing?.ceiling && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        icon={KeyRound}
+                        className="vh-rail-new"
+                        onClick={() => setAsking(true)}
+                    >
+                        Ask for access
+                    </Button>
+                )}
             </div>
 
             <span
@@ -201,12 +254,37 @@ export function VaultRail({
                         onClick={() => onScope(filter.scope)}
                     />
                 ))}
+                {sharing !== null && sharing.pending !== null && (
+                    <Link
+                        href={requestsIndex().url}
+                        className="vh-rail-btn vh-rail-link"
+                    >
+                        <Icon icon={Inbox} size={16} />
+                        <span className="vh-rail-label">Access requests</span>
+                        {sharing.pending > 0 && (
+                            <span
+                                className="t-money-sm vh-rail-count vh-rail-count--warn"
+                                aria-label={`${sharing.pending} waiting`}
+                            >
+                                {sharing.pending}
+                            </span>
+                        )}
+                    </Link>
+                )}
             </div>
 
             {health && <HealthCard health={health} />}
 
             {canAddVault && (
                 <NewVaultModal open={adding} onOpenChange={setAdding} />
+            )}
+            {requestable.length > 0 && sharing?.ceiling && (
+                <RequestAccessModal
+                    open={asking}
+                    onOpenChange={setAsking}
+                    target={{ kind: 'vault', vaults: requestable }}
+                    ceiling={sharing.ceiling}
+                />
             )}
         </aside>
     );

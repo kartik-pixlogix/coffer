@@ -19,6 +19,7 @@ import type {
 import { VaultList } from '@/components/vault/home/vault-list';
 import { scopeLabel, VaultRail } from '@/components/vault/home/vault-rail';
 import { VaultSessionContext } from '@/components/vault/home/vault-session';
+import { ShareDrawer } from '@/components/vault/share/share-drawer';
 import type { VaultSessionValue } from '@/components/vault/home/vault-session';
 import { PHONE_QUERY, useMediaQuery } from '@/hooks/use-media-query';
 import { firstName } from '@/lib/team';
@@ -26,7 +27,7 @@ import { vaultRequest } from '@/lib/vault-api';
 import { edit as editProfile } from '@/routes/profile';
 import { index, lock } from '@/routes/vault';
 import { create, favourite } from '@/routes/vault/items';
-import type { VaultIndexProps } from '@/types/vault';
+import type { VaultIndexProps, VaultShareTarget } from '@/types/vault';
 
 const VIEW_KEY = 'coffer.vault.view';
 
@@ -70,7 +71,10 @@ export default function VaultIndex(props: VaultIndexProps) {
     const { vaultState, vaults, items, health, selected, abilities } = props;
     const phone = useMediaQuery(PHONE_QUERY);
 
-    const [scope, setScope] = useState<VaultScope>('all');
+    const [scope, setScope] = useState<VaultScope>(props.scope ?? 'all');
+    const [shareTarget, setShareTarget] = useState<VaultShareTarget | null>(
+        null,
+    );
     const [query, setQuery] = useState('');
     const [sort, setSort] = useState<VaultSort>('rotated');
     const [view, setView] = useState<VaultView>(readView);
@@ -142,8 +146,24 @@ export default function VaultIndex(props: VaultIndexProps) {
             setVerifiedUntil,
             onLocked: onServerLocked,
             timeZone,
+            share: setShareTarget,
         }),
         [vaultState.policy, verifiedUntil, onServerLocked, timeZone],
+    );
+
+    const closeShare = useCallback((open: boolean) => {
+        if (!open) {
+            setShareTarget(null);
+        }
+    }, []);
+
+    /** People changed in the share drawer: refresh avatars and the drawer. */
+    const reloadPeople = useCallback(
+        () =>
+            router.reload({
+                only: ['items', 'selected', 'sharing'],
+            }),
+        [],
     );
 
     const shown = useMemo(
@@ -289,6 +309,14 @@ export default function VaultIndex(props: VaultIndexProps) {
                         onScope={setScope}
                         locked={!unlocked}
                         canAddVault={abilities.newVault}
+                        sharing={unlocked ? props.sharing : null}
+                        onShareVault={(vault) =>
+                            setShareTarget({
+                                kind: 'vault',
+                                id: vault.id,
+                                name: vault.name,
+                            })
+                        }
                     />
 
                     {unlocked ? (
@@ -346,6 +374,15 @@ export default function VaultIndex(props: VaultIndexProps) {
                         />
                     )}
                 </section>
+            )}
+            {unlocked && (
+                <ShareDrawer
+                    target={shareTarget}
+                    onOpenChange={closeShare}
+                    onChanged={reloadPeople}
+                    onLocked={onServerLocked}
+                    timeZone={timeZone}
+                />
             )}
         </VaultSessionContext.Provider>
     );

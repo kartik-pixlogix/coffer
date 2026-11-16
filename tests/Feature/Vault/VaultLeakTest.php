@@ -58,17 +58,27 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
         assertBodyClean($this->get(route('vault.index')), 'the vault page');
         assertBodyClean($this->get(route('dashboard')), 'the dashboard');
         assertBodyClean($this->get(route('team.show', $member)), 'the member profile');
+        assertBodyClean($this->get(route('vault.requests')), 'the requests inbox');
 
         foreach ($items as $item) {
             assertBodyClean($this->get(route('vault.index', ['item' => $item->id])), "the drawer of {$item->name}");
             assertBodyClean($this->getJson(route('vault.items.history', $item)), "the history of {$item->name}");
             assertBodyClean($this->get(route('vault.items.edit', $item)), "the edit form of {$item->name}");
+            assertBodyClean($this->getJson(route('vault.items.share', $item)), "the share drawer of {$item->name}");
         }
     }
 
     $this->actingAs($aarav)->withSession(vaultUnlocked());
     assertBodyClean($this->get(route('vault.items.create')), 'the catalog');
     assertBodyClean($this->get(route('vault.items.create', ['provider' => 'github'])), 'the add form');
+
+    // Sharing writes audit rows and notifications: names and levels only.
+    $github = $items->firstWhere('name', 'GitHub — vertexlabs org');
+    $this->postJson(route('vault.items.grants.store', $github), ['user_ids' => [$rohan->id], 'level' => 'use', 'ends' => '7d'])->assertOk();
+    $this->actingAs($rohan)->withSession(vaultUnlocked())
+        ->post(route('vault.requests.store'), ['item_id' => $github->id, 'level' => 'edit', 'duration' => '24h', 'reason' => 'Rotating the deploy key.'])->assertRedirect();
+    $this->actingAs($aarav)->withSession(vaultUnlocked());
+    assertBodyClean($this->get(route('vault.requests')), 'the requests inbox with a request');
 
     // A ciphertext that no longer opens: the error is logged, without any secret.
     $row = VaultSecret::query()->withoutGlobalScopes()->where('vault_item_id', $items->firstWhere('name', 'MySQL — production database')->id)->where('field', 'password')->sole();
@@ -91,6 +101,8 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
     assertNoSecretIn(json_encode(DB::table('vault_items')->get()) ?: '', 'vault item metadata');
     assertNoSecretIn(json_encode(DB::table('vault_secrets')->get()) ?: '', 'stored ciphertext');
     assertNoSecretIn(json_encode(DB::table('vault_item_versions')->get()) ?: '', 'version snapshots');
+    expect(DB::table('notifications')->count())->toBeGreaterThan(0);
+    assertNoSecretIn(DB::table('notifications')->pluck('data')->implode(PHP_EOL), 'stored notifications');
 
     @unlink($log);
 });

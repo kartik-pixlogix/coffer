@@ -29,7 +29,7 @@ function xsrfToken(): string | null {
 export async function vaultRequest<T>(
     url: string,
     body?: Record<string, unknown>,
-    method: 'GET' | 'POST' = body ? 'POST' : 'GET',
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = body ? 'POST' : 'GET',
 ): Promise<VaultResult<T>> {
     const xsrf = xsrfToken();
     const init: RequestInit = {
@@ -44,7 +44,7 @@ export async function vaultRequest<T>(
         },
     };
 
-    if (method === 'POST') {
+    if (method !== 'GET') {
         init.body = JSON.stringify(body ?? {});
     }
 

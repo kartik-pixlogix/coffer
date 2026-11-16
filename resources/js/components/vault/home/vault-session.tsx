@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { VaultPolicy } from '@/types/vault';
+import type { VaultPolicy, VaultShareTarget } from '@/types/vault';
 
 export type VaultSessionValue = {
     policy: VaultPolicy;
@@ -10,6 +10,8 @@ export type VaultSessionValue = {
     onLocked: () => void;
     /** The person's timezone, for activity and version times. */
     timeZone: string;
+    /** Open the share drawer for an item or a vault (stable between renders). */
+    share: (target: VaultShareTarget) => void;
 };
 
 export const VaultSessionContext = createContext<VaultSessionValue | null>(

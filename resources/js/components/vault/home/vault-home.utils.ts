@@ -13,6 +13,10 @@ export type VaultScope =
     | 'shared'
     | 'expiring'
     | 'weak'
+    | 'reused'
+    | 'breached'
+    | 'old'
+    | 'no2fa'
     | `v:${number}`;
 
 export type VaultSort = 'rotated' | 'name';
@@ -39,6 +43,14 @@ export function inScope(item: VaultItemRow, scope: VaultScope): boolean {
             return isExpiring(item);
         case 'weak':
             return isWeak(item);
+        case 'reused':
+            return item.reused;
+        case 'breached':
+            return item.breached;
+        case 'old':
+            return item.old;
+        case 'no2fa':
+            return item.type === 'login' && !item.hasTotp;
         default:
             return item.vaultId === Number(scope.slice(2));
     }

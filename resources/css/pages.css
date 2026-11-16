@@ -3713,3 +3713,177 @@ span.denied-can:not(#\#) {
     }
 }
 /* vault-form: end */
+
+/* vault-share: VaultShare.dc.html (share drawer, requests inbox) and the subpage lock (D72) */
+.vh-rail-link:not(#\#) {
+    text-decoration: none;
+}
+
+.vs-drawer:not(#\#) {
+    width: 440px;
+    top: 110px;
+}
+
+.vs-tile:not(#\#) {
+    background: var(--gradient-lime);
+    color: var(--on-lime);
+    font-family: var(--font-display);
+}
+
+.vs-body:not(#\#) {
+    gap: 14px;
+}
+
+.vs-add:not(#\#) {
+    position: relative;
+}
+
+.vs-suggest:not(#\#) {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    padding: 6px;
+}
+
+.vs-option:not(#\#) {
+    width: 100%;
+}
+
+.vs-option-text:not(#\#) {
+    text-align: left;
+    min-width: 0;
+}
+
+.vs-none:not(#\#) {
+    padding: 8px;
+}
+
+.vs-chips:not(#\#) {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.vs-access:not(#\#) {
+    gap: 2px;
+}
+
+.vs-acc:not(#\#) {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 112px 32px;
+    gap: 10px;
+    align-items: center;
+    min-height: 52px;
+}
+
+.vs-acc-text:not(#\#) {
+    min-width: 0;
+}
+
+.vs-acc > .cf-pill:not(#\#) {
+    justify-self: start;
+}
+
+.vs-acc-select:not(#\#) select {
+    height: 36px;
+    padding-left: 12px;
+}
+
+.vq-page:not(#\#) {
+    gap: 20px;
+}
+
+.vq-card:not(#\#) {
+    gap: 14px;
+}
+
+.vq-head:not(#\#) {
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.vq-list:not(#\#) {
+    gap: 8px;
+}
+
+.vq-rq:not(#\#) {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.vq-rq-text:not(#\#) {
+    min-width: 0;
+}
+
+.vq-meta:not(#\#) {
+    margin-top: 2px;
+}
+
+.vq-quote:not(#\#) {
+    margin: 6px 0 0;
+    padding: 8px 12px;
+    border-left: 3px solid var(--line-strong);
+    color: var(--ink-secondary);
+    font-size: 13px;
+    line-height: 18px;
+    overflow-wrap: anywhere;
+}
+
+.vq-decided:not(#\#) {
+    margin-top: 6px;
+}
+
+.vq-acts:not(#\#) {
+    gap: 8px;
+}
+
+.vq-recent:not(#\#) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 90px 110px;
+    gap: 12px;
+    align-items: center;
+}
+
+.vq-recent-when:not(#\#) {
+    text-align: right;
+}
+
+.vq-mine:not(#\#) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.vg-lock:not(#\#) {
+    display: flex;
+}
+
+@media (max-width: 640px) {
+    .vs-drawer:not(#\#) {
+        width: auto;
+        top: 12px;
+    }
+
+    .vq-rq:not(#\#) {
+        grid-template-columns: 36px minmax(0, 1fr);
+    }
+
+    .vq-acts:not(#\#) {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+
+    .vq-recent:not(#\#),
+    .vq-mine:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+/* vault-share: end */

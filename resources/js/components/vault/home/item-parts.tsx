@@ -6,6 +6,7 @@ import {
     EyeOff,
     Globe,
     History,
+    KeyRound,
     Paperclip,
     Pencil,
     RefreshCw,
@@ -28,11 +29,14 @@ import { HistoryModal } from '@/components/vault/home/history-modal';
 import { StepUpForm } from '@/components/vault/home/step-up-form';
 import type { ItemSecrets } from '@/components/vault/home/use-item-secrets';
 import { LevelPill } from '@/components/vault/home/vault-bits';
+import { useVaultSession } from '@/components/vault/home/vault-session';
+import { RequestAccessModal } from '@/components/vault/share/request-access-modal';
 import {
     detailRows,
     displayUrl,
     eventMeta,
     formatDateIn,
+    LEVEL_LABEL,
     safeHref,
 } from '@/components/vault/home/vault-home.utils';
 import type { DetailRow } from '@/components/vault/home/vault-home.utils';
@@ -379,11 +383,14 @@ export function AccessBlock({
     focus,
 }: {
     item: VaultItemDetail;
-    /** `?share=1`: bring this section into view. */
+    /** `?share=1`: bring this section into view and open the share drawer. */
     focus: boolean;
 }) {
     const ref = useRef<HTMLElement>(null);
     const reduced = useReducedMotion();
+    const { share, timeZone } = useVaultSession();
+    const [asking, setAsking] = useState(false);
+    const canShare = item.abilities.share;
 
     useEffect(() => {
         if (focus) {
@@ -391,8 +398,12 @@ export function AccessBlock({
                 block: 'nearest',
                 behavior: reduced ? 'auto' : 'smooth',
             });
+
+            if (canShare) {
+                share({ kind: 'item', id: item.id, name: item.name });
+            }
         }
-    }, [focus, reduced]);
+    }, [focus, reduced, canShare, share, item.id, item.name]);
 
     return (
         <section ref={ref} className="vh-block" aria-labelledby="vh-access-t">
@@ -400,15 +411,33 @@ export function AccessBlock({
                 <h3 className="cf-label vh-label m-0" id="vh-access-t">
                     Who has access
                 </h3>
-                <Button
-                    size="sm"
-                    icon={UserPlus}
-                    disabled
-                    title="Coming soon"
-                    aria-label="Share (coming soon)"
-                >
-                    Share · coming soon
-                </Button>
+                {canShare && (
+                    <Button
+                        size="sm"
+                        icon={UserPlus}
+                        onClick={() =>
+                            share({
+                                kind: 'item',
+                                id: item.id,
+                                name: item.name,
+                            })
+                        }
+                    >
+                        Share
+                    </Button>
+                )}
+                {!canShare &&
+                    item.canAsk &&
+                    item.ceiling &&
+                    !item.pendingRequest && (
+                        <Button
+                            size="sm"
+                            icon={KeyRound}
+                            onClick={() => setAsking(true)}
+                        >
+                            Ask for access
+                        </Button>
+                    )}
             </div>
             <ul className="vh-people">
                 {item.people.map((person) => (
@@ -427,6 +456,29 @@ export function AccessBlock({
                     </li>
                 ))}
             </ul>
+            {item.pendingRequest && (
+                <p className="t-caption t-muted m-0">
+                    You asked for {LEVEL_LABEL[item.pendingRequest.level]}{' '}
+                    access
+                    {item.pendingRequest.createdAt
+                        ? ` on ${formatDateIn(item.pendingRequest.createdAt, timeZone)}`
+                        : ''}
+                    . A Manager will decide.
+                </p>
+            )}
+            {item.ceiling && item.canAsk && (
+                <RequestAccessModal
+                    open={asking}
+                    onOpenChange={setAsking}
+                    target={{
+                        kind: 'item',
+                        id: item.id,
+                        name: item.name,
+                        level: item.level,
+                    }}
+                    ceiling={item.ceiling}
+                />
+            )}
         </section>
     );
 }
