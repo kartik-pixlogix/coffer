@@ -1,46 +1,68 @@
-// Components
 import { Form, Head } from '@inertiajs/react';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/shadcn/button';
-import { Spinner } from '@/components/shadcn/spinner';
+import { MailCheck } from 'lucide-react';
+import { AlertBanner } from '@/components/ui/alert-banner';
+import { Button, TextButton } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
 
-export default function VerifyEmail({ status }: { status?: string }) {
+type Props = {
+    status?: string;
+    email: string | null;
+};
+
+/** "Confirm your email" after sign-up, on the sign-in layout (spec §18). */
+export default function VerifyEmail({ status, email }: Props) {
     return (
         <>
-            <Head title="Email verification" />
+            <Head title="Confirm your email" />
+
+            <div className="flex flex-col gap-2.5">
+                <span className="cf-empty-ic auth-shield">
+                    <Icon icon={MailCheck} size={22} />
+                </span>
+                <h1 className="cf-h1">
+                    <span className="t-display-light">One more step,</span>
+                    <span className="t-display auth-display-sm">
+                        Confirm your email
+                    </span>
+                </h1>
+                <p className="t-body t-muted m-0">
+                    We sent a link to{' '}
+                    <span className="font-medium text-ink">
+                        {email ?? 'your email'}
+                    </span>
+                    . Open it to confirm the address, then you’ll set up your
+                    company.
+                </p>
+            </div>
 
             {status === 'verification-link-sent' && (
-                <div className="text-green-600 mb-4 text-center text-sm font-medium">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
-                </div>
+                <AlertBanner variant="pos" slim role="status">
+                    We sent a new link. It works for 60 minutes.
+                </AlertBanner>
             )}
 
-            <Form {...send.form()} className="space-y-6 text-center">
+            <Form {...send.form()} className="flex flex-col gap-4">
                 {({ processing }) => (
-                    <>
-                        <Button disabled={processing} variant="secondary">
-                            {processing && <Spinner />}
-                            Resend verification email
-                        </Button>
-
-                        <TextLink
-                            href={logout()}
-                            className="mx-auto block text-sm"
-                        >
-                            Log out
-                        </TextLink>
-                    </>
+                    <Button
+                        type="submit"
+                        variant="secondary"
+                        size="lg"
+                        loading={processing}
+                        className="w-full"
+                    >
+                        Send the link again
+                    </Button>
                 )}
+            </Form>
+
+            <Form {...logout.form()}>
+                <TextButton type="submit">Use a different email</TextButton>
             </Form>
         </>
     );
 }
 
-VerifyEmail.layout = {
-    title: 'Email verification',
-    description:
-        'Please verify your email address by clicking on the link we just emailed to you.',
-};
+VerifyEmail.layout = {} satisfies AuthLayoutProps;

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CompanyRole;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Carbon;
 
 /**
  * A user's place in one company (`company_user`): exactly one role per company.
@@ -17,8 +17,8 @@ use Illuminate\Support\Carbon;
  * @property int $company_id
  * @property int $user_id
  * @property CompanyRole $role
- * @property Carbon|null $last_active_at
- * @property Carbon|null $created_at
+ * @property CarbonImmutable|null $last_active_at
+ * @property CarbonImmutable|null $created_at
  * @property-read Company $company
  * @property-read User $user
  */

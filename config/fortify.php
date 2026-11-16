@@ -115,7 +115,8 @@ return [
     */
 
     'limiters' => [
-        'login' => 'login',
+        // Sign-in is limited by App\Auth\LoginLockout (5 tries, then 15 minutes) instead.
+        'login' => null,
         'two-factor' => 'two-factor',
     ],
 

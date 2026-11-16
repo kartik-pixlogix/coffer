@@ -8,13 +8,20 @@ use Illuminate\Validation\Rules\Password;
 trait PasswordValidationRules
 {
     /**
-     * Get the validation rules used to validate passwords.
+     * Get the validation rules used to validate passwords: at least 12 characters (spec §17).
+     * Sign-up has a single password field (SignUp.dc.html); reset and change ask twice.
      *
      * @return array<int, Password|ValidationRule|array<mixed>|string>
      */
-    protected function passwordRules(): array
+    protected function passwordRules(bool $confirmed = true): array
     {
-        return ['required', 'string', Password::default(), 'confirmed'];
+        $rules = ['required', 'string', 'max:255', Password::default()];
+
+        if ($confirmed) {
+            $rules[] = 'confirmed';
+        }
+
+        return $rules;
     }
 
     /**

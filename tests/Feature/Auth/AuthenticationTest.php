@@ -1,77 +1,122 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Models\TrustedDevice;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
-use Laravel\Fortify\Features;
+use Illuminate\Support\Str;
+use Inertia\Testing\AssertableInertia as Assert;
 
-test('login screen can be rendered', function () {
-    $response = $this->get(route('login'));
-
-    $response->assertOk();
+test('the sign-in page renders', function () {
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/login')
+            ->where('canResetPassword', true)
+            ->has('googleEnabled'));
 });
 
-test('users can authenticate using the login screen', function () {
-    $user = User::factory()->create();
+test('users can sign in and land on their first page', function () {
+    $user = userWithRole();
 
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'password',
-    ]);
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertRedirect(route('home', absolute: false));
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('home', absolute: false));
+    $this->assertAuthenticatedAs($user);
 });
 
-test('users with two factor enabled are redirected to two factor challenge', function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
+test('users with two-factor authentication get the code challenge', function () {
     $user = User::factory()->withTwoFactor()->create();
 
-    $response = $this->post(route('login'), [
-        'email' => $user->email,
-        'password' => 'password',
-    ]);
-
-    $response->assertRedirect(route('two-factor.login'));
-    $response->assertSessionHas('login.id', $user->id);
-    $this->assertGuest();
-});
-
-test('users can not authenticate with invalid password', function () {
-    $user = User::factory()->create();
-
-    $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'wrong-password',
-    ]);
+    $this->post(route('login'), ['email' => $user->email, 'password' => 'password'])
+        ->assertRedirect(route('two-factor.login'))
+        ->assertSessionHas('login.id', $user->id);
 
     $this->assertGuest();
 });
 
-test('users can logout', function () {
+test('a wrong password says so on both fields', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->post(route('logout'));
-
-    $response->assertRedirect(route('welcome'));
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'wrong-password'])
+        ->assertSessionHasErrors([
+            'email' => 'That email and password don’t match.',
+            'password' => 'Check your password and try again.',
+        ]);
 
     $this->assertGuest();
 });
 
-test('users are rate limited', function () {
+test('from the third failure the error counts down to the lock', function () {
+    $user = User::factory()->create();
+    $attempt = fn () => $this->post(route('login.store'), ['email' => $user->email, 'password' => 'wrong-password']);
+
+    $attempt();
+    $attempt();
+
+    $attempt()->assertSessionHasErrors(['email' => 'That email and password don’t match. 2 tries left before a 15-minute lock.']);
+    $attempt()->assertSessionHasErrors(['email' => 'That email and password don’t match. 1 try left before a 15-minute lock.']);
+    $attempt()->assertSessionHasErrors(['email' => 'That email and password don’t match. Sign-in is locked for 15 minutes.']);
+});
+
+test('after five failures sign-in is locked for 15 minutes, even with the right password', function () {
     $user = User::factory()->create();
 
-    RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
+    foreach (range(1, 5) as $_) {
+        RateLimiter::hit(Str::lower($user->email).'|127.0.0.1', 15 * 60);
+    }
 
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'wrong-password',
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'Too many tries, so sign-in is locked. Try again in 15 minutes, or reset your password.']);
+
+    $this->assertGuest();
+
+    $this->travel(16)->minutes();
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
+    $this->assertAuthenticatedAs($user);
+});
+
+test('a trusted browser skips the 2FA code until the device expires', function () {
+    $user = User::factory()->withTwoFactor()->create();
+    $token = Str::random(64);
+    $user->trustedDevices()->create([
+        'token_hash' => hash('sha256', $token),
+        'label' => 'Chrome on Windows',
+        'expires_at' => now()->addDays(TrustedDevice::DAYS),
     ]);
 
-    $response->assertTooManyRequests();
+    $cookie = [TrustedDevice::COOKIE => $user->id.'|'.$token];
+
+    $this->withCookies($cookie)
+        ->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertRedirect(route('home', absolute: false));
+    $this->assertAuthenticatedAs($user);
+
+    auth()->logout();
+    $this->travel(TrustedDevice::DAYS + 1)->days();
+
+    $this->withCookies($cookie)
+        ->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertRedirect(route('two-factor.login'));
+});
+
+test('another user’s trusted-device cookie doesn’t skip the code', function () {
+    $owner = User::factory()->create();
+    $token = Str::random(64);
+    $owner->trustedDevices()->create(['token_hash' => hash('sha256', $token), 'label' => 'x', 'expires_at' => now()->addDay()]);
+    $user = User::factory()->withTwoFactor()->create();
+
+    $this->withCookies([TrustedDevice::COOKIE => $user->id.'|'.$token])
+        ->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertRedirect(route('two-factor.login'));
+});
+
+test('users can sign out', function () {
+    $this->actingAs(User::factory()->create())
+        ->post(route('logout'))
+        ->assertRedirect(route('welcome'));
+
+    $this->assertGuest();
 });

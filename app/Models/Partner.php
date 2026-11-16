@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CompanyRole;
 use App\Models\Concerns\BelongsToCompany;
+use Carbon\CarbonImmutable;
 use Database\Factories\PartnerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,7 +15,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
 /**
  * An owner with an equity share: of the company (Single) or of their side (JV).
@@ -28,7 +28,7 @@ use Illuminate\Support\Carbon;
  * @property int $colour 1–6, maps to --partner-N
  * @property int $equity_bps
  * @property int $position
- * @property Carbon|null $archived_at
+ * @property CarbonImmutable|null $archived_at
  * @property-read Side|null $side
  * @property-read User|null $user
  * @property-read Collection<int, Member> $members

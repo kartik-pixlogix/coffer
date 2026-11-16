@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CompanyRole;
 use App\Enums\InviteKind;
 use App\Models\Concerns\BelongsToCompany;
+use Carbon\CarbonImmutable;
 use Database\Factories\InviteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -14,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
@@ -31,13 +31,13 @@ use Illuminate\Support\Str;
  * @property int $invited_by
  * @property string $token_hash
  * @property string $token_encrypted
- * @property Carbon $expires_at
- * @property Carbon|null $accepted_at
- * @property Carbon|null $revoked_at
- * @property Carbon|null $declined_at
+ * @property CarbonImmutable $expires_at
+ * @property CarbonImmutable|null $accepted_at
+ * @property CarbonImmutable|null $revoked_at
+ * @property CarbonImmutable|null $declined_at
  * @property int $uses
- * @property Carbon|null $last_sent_at
- * @property Carbon|null $created_at
+ * @property CarbonImmutable|null $last_sent_at
+ * @property CarbonImmutable|null $created_at
  * @property-read Partner|null $partner
  * @property-read Member|null $member
  * @property-read User $inviter
@@ -154,7 +154,7 @@ class Invite extends Model
     }
 
     /** Why the link no longer works, for the expired state. */
-    public function endedAt(): Carbon
+    public function endedAt(): CarbonImmutable
     {
         return $this->revoked_at ?? $this->declined_at ?? $this->accepted_at ?? $this->expires_at;
     }

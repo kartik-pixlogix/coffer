@@ -1,96 +1,97 @@
 import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import { Button } from '@/components/shadcn/button';
-import { Input } from '@/components/shadcn/input';
-import { Label } from '@/components/shadcn/label';
-import { Spinner } from '@/components/shadcn/spinner';
+import { ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { MeterDots, StrengthLabel } from '@/components/auth/auth-parts';
+import { Button } from '@/components/ui/button';
+import { PasswordField } from '@/components/ui/password-field';
+import { TextInput } from '@/components/ui/text-input';
+import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
+import { profileStrength } from '@/lib/password-strength';
 import { update } from '@/routes/password';
 
 type Props = {
     token: string;
     email: string;
-    passwordRules: string;
 };
 
-export default function ResetPassword({ token, email, passwordRules }: Props) {
+/** Choose a new password from the emailed link, on the sign-in layout. */
+export default function ResetPassword({ token, email }: Props) {
+    const [password, setPassword] = useState('');
+    const [repeat, setRepeat] = useState('');
+    const meter = profileStrength(password);
+    const mismatch = repeat.length > 0 && repeat !== password;
+
     return (
         <>
-            <Head title="Reset password" />
+            <Head title="Choose a new password" />
+
+            <h1 className="cf-h1">
+                <span className="t-display-light">Almost back in,</span>
+                <span className="t-display">New password</span>
+            </h1>
 
             <Form
                 {...update.form()}
                 transform={(data) => ({ ...data, token, email })}
                 resetOnSuccess={['password', 'password_confirmation']}
+                className="flex flex-col gap-5"
             >
                 {({ processing, errors }) => (
-                    <div className="grid gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                name="email"
-                                autoComplete="email"
-                                value={email}
-                                className="mt-1 block w-full"
-                                readOnly
-                            />
-                            <InputError
-                                message={errors.email}
-                                className="mt-2"
-                            />
-                        </div>
+                    <>
+                        <TextInput
+                            name="email"
+                            type="email"
+                            label="Work email"
+                            autoComplete="email"
+                            value={email}
+                            readOnly
+                            error={errors.email}
+                        />
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
-                            <PasswordInput
-                                id="password"
-                                name="password"
-                                autoComplete="new-password"
-                                className="mt-1 block w-full"
-                                autoFocus
-                                placeholder="Password"
-                                passwordrules={passwordRules}
-                            />
-                            <InputError message={errors.password} />
-                        </div>
+                        <PasswordField
+                            name="password"
+                            label="New password"
+                            autoComplete="new-password"
+                            required
+                            autoFocus
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            labelAction={<StrengthLabel meter={meter} />}
+                            meter={<MeterDots meter={meter} />}
+                            help="At least 12 characters. A short sentence works well."
+                            error={errors.password}
+                        />
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">
-                                Confirm password
-                            </Label>
-                            <PasswordInput
-                                id="password_confirmation"
-                                name="password_confirmation"
-                                autoComplete="new-password"
-                                className="mt-1 block w-full"
-                                placeholder="Confirm password"
-                                passwordrules={passwordRules}
-                            />
-                            <InputError
-                                message={errors.password_confirmation}
-                                className="mt-2"
-                            />
-                        </div>
+                        <PasswordField
+                            name="password_confirmation"
+                            label="Repeat new password"
+                            autoComplete="new-password"
+                            required
+                            value={repeat}
+                            onChange={(e) => setRepeat(e.target.value)}
+                            error={
+                                mismatch
+                                    ? 'The two passwords don’t match.'
+                                    : errors.password_confirmation
+                            }
+                        />
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
-                            disabled={processing}
-                            data-test="reset-password-button"
+                            variant="primary"
+                            size="lg"
+                            disc={ArrowRight}
+                            loading={processing}
+                            disabled={mismatch}
+                            className="w-full justify-between"
                         >
-                            {processing && <Spinner />}
-                            Reset password
+                            Save and sign in
                         </Button>
-                    </div>
+                    </>
                 )}
             </Form>
         </>
     );
 }
 
-ResetPassword.layout = {
-    title: 'Reset password',
-    description: 'Please enter your new password below',
-};
+ResetPassword.layout = {} satisfies AuthLayoutProps;

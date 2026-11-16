@@ -113,6 +113,8 @@ export type FieldProps = FieldMessageProps & {
      * "512 / 500" or "Last changed 28 Sep 2026". Rendered as `cf-help`.
      */
     aside?: ReactNode;
+    /** Right side of the label row as-is, e.g. a "Forgot password?" link (SignIn). */
+    labelAction?: ReactNode;
     /** Render the label as a plain span (for controls that aren't labelable, like a masked secret). */
     labelAs?: 'label' | 'span';
     className?: string;
@@ -124,6 +126,7 @@ export function Field({
     ids,
     label,
     aside,
+    labelAction,
     labelAs = 'label',
     help,
     error,
@@ -142,10 +145,13 @@ export function Field({
 
     return (
         <div className={cn('cf-field', className)}>
-            {hasContent(aside) ? (
+            {hasContent(aside) || hasContent(labelAction) ? (
                 <div className="cf-label-row">
                     {labelNode}
-                    <span className="cf-help">{aside}</span>
+                    {hasContent(aside) && (
+                        <span className="cf-help">{aside}</span>
+                    )}
+                    {labelAction}
                 </div>
             ) : (
                 labelNode

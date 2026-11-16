@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // "Continue with Google" (spec §18). Leave the id empty to hide nothing but refuse the redirect.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
 ];

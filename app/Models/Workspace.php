@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Database\Factories\WorkspaceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
 /**
  * The paying tenant (spec §2): owns the subscription, its companies and their users.
@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property int $owner_id
- * @property Carbon|null $trial_ends_at
+ * @property CarbonImmutable|null $trial_ends_at
  * @property-read User $owner
  * @property-read Collection<int, Company> $companies
  */

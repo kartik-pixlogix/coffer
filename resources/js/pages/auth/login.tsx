@@ -1,114 +1,126 @@
-import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/shadcn/button';
-import { Checkbox } from '@/components/shadcn/checkbox';
-import { Input } from '@/components/shadcn/input';
-import { Label } from '@/components/shadcn/label';
-import { Spinner } from '@/components/shadcn/spinner';
+import { Form, Head, Link } from '@inertiajs/react';
+import { ArrowRight } from 'lucide-react';
+import { GoogleButton, OrDivider } from '@/components/auth/auth-parts';
+import { AlertBanner } from '@/components/ui/alert-banner';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { PasswordField } from '@/components/ui/password-field';
+import { TextInput } from '@/components/ui/text-input';
+import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
 import { register } from '@/routes';
+import { redirect as googleRedirect } from '@/routes/google';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
 type Props = {
     status?: string;
     canResetPassword: boolean;
+    googleEnabled: boolean;
 };
 
+/**
+ * Sign in (design/screens/SignIn.dc.html, "Sign in" and "Error" states). A wrong
+ * password shows the red line and, from the third try, how many are left before the
+ * 15-minute lock (spec §18). The 2FA code step is auth/two-factor-challenge.
+ */
 export default function Login({ status, canResetPassword }: Props) {
     return (
         <>
-            <Head title="Log in" />
+            <Head title="Sign in" />
+
+            <h1 className="cf-h1">
+                <span className="t-display-light">Welcome back,</span>
+                <span className="t-display">Sign in</span>
+            </h1>
+
+            <GoogleButton
+                href={googleRedirect({ query: { intent: 'login' } }).url}
+            >
+                Continue with Google
+            </GoogleButton>
+
+            <OrDivider />
+
+            {status && (
+                <AlertBanner variant="pos" slim role="status">
+                    {status}
+                </AlertBanner>
+            )}
 
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
+                resetOnError={['password']}
+                className="flex flex-col gap-5"
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="email"
-                                    placeholder="email@example.com"
-                                />
-                                <InputError message={errors.email} />
-                            </div>
+                        {errors.email && (
+                            <AlertBanner variant="neg" slim role="alert">
+                                {errors.email}
+                            </AlertBanner>
+                        )}
 
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={request()}
-                                            className="ml-auto text-sm"
-                                            tabIndex={5}
-                                        >
-                                            Forgot your password?
-                                        </TextLink>
-                                    )}
-                                </div>
-                                <PasswordInput
-                                    id="password"
-                                    name="password"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="current-password"
-                                    placeholder="Password"
-                                />
-                                <InputError message={errors.password} />
-                            </div>
+                        <TextInput
+                            id="si-email"
+                            name="email"
+                            type="email"
+                            label="Work email"
+                            autoComplete="email"
+                            required
+                            autoFocus
+                            aria-invalid={errors.email ? true : undefined}
+                        />
 
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
+                        <PasswordField
+                            id="si-pass"
+                            name="password"
+                            label="Password"
+                            required
+                            autoComplete="current-password"
+                            error={errors.password}
+                            labelAction={
+                                canResetPassword ? (
+                                    <Link
+                                        href={request()}
+                                        className="t-caption font-medium"
+                                    >
+                                        Forgot password?
+                                    </Link>
+                                ) : undefined
+                            }
+                        />
 
-                            <Button
-                                type="submit"
-                                className="mt-4 w-full"
-                                tabIndex={4}
-                                disabled={processing}
-                                data-test="login-button"
-                            >
-                                {processing && <Spinner />}
-                                Log in
-                            </Button>
-                        </div>
+                        <Checkbox name="remember" value="1">
+                            Remember me on this device
+                        </Checkbox>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5}>
-                                Sign up
-                            </TextLink>
-                        </div>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="lg"
+                            disc={ArrowRight}
+                            loading={processing}
+                            className="w-full justify-between"
+                        >
+                            Continue
+                        </Button>
+
+                        <p className="t-caption t-muted m-0">
+                            Protected by 2FA. We’ll ask for a code from your
+                            authenticator app next.
+                        </p>
                     </>
                 )}
             </Form>
-
-            {status && (
-                <div className="text-green-600 mb-4 text-center text-sm font-medium">
-                    {status}
-                </div>
-            )}
         </>
     );
 }
 
 Login.layout = {
-    title: 'Log in to your account',
-    description: 'Enter your email and password below to log in',
-};
+    prompt: {
+        text: 'New to Coffer?',
+        label: 'Start free trial',
+        href: register().url,
+    },
+} satisfies AuthLayoutProps;

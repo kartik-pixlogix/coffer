@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * A browser that skips the 2FA code for 30 days (spec §17). The cookie holds the
@@ -19,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property string $token_hash
  * @property string $label
  * @property string|null $ip_address
- * @property Carbon|null $last_used_at
- * @property Carbon $expires_at
+ * @property CarbonImmutable|null $last_used_at
+ * @property CarbonImmutable $expires_at
  */
 #[Fillable(['user_id', 'token_hash', 'label', 'ip_address', 'last_used_at', 'expires_at'])]
 #[Hidden(['token_hash'])]

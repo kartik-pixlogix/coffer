@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\AttributionMode;
 use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
+use Carbon\CarbonImmutable;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * A set of books inside a workspace (spec §3).
@@ -33,7 +33,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $legal_name
  * @property string|null $gstin
  * @property string|null $address
- * @property Carbon|null $created_at
+ * @property CarbonImmutable|null $created_at
  * @property-read Workspace $workspace
  * @property-read Collection<int, User> $users
  * @property-read Collection<int, Membership> $memberships

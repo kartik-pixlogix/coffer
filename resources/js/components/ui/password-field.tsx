@@ -12,6 +12,10 @@ import { cn } from '@/lib/utils';
 
 export type PasswordFieldProps = FieldMessageProps & {
     label?: ReactNode;
+    /** Right of the label: a "Forgot password?" link, or a strength word. */
+    labelAction?: ReactNode;
+    /** Under the input, above help/error: the strength meter. */
+    meter?: ReactNode;
     /** Show the eye button that toggles the password between hidden and shown (default true). */
     revealable?: boolean;
     wrapClassName?: string;
@@ -22,6 +26,8 @@ export type PasswordFieldProps = FieldMessageProps & {
 /** Your own password (sign-in, set password): `cf-inwrap` with a show/hide eye. */
 export function PasswordField({
     label,
+    labelAction,
+    meter,
     help,
     error,
     revealable = true,
@@ -41,6 +47,7 @@ export function PasswordField({
         <Field
             ids={ids}
             label={label}
+            labelAction={labelAction}
             help={help}
             error={error}
             className={fieldClassName}
@@ -75,6 +82,7 @@ export function PasswordField({
                     />
                 )}
             </span>
+            {meter}
         </Field>
     );
 }
