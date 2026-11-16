@@ -31,6 +31,7 @@ import { company as settingsCompany } from '@/routes/settings';
 import { index as settlementsIndex } from '@/routes/settlements';
 import { index as teamIndex } from '@/routes/team';
 import { index as timesheetsIndex } from '@/routes/timesheets';
+import { index as vaultIndex } from '@/routes/vault';
 import type { Can, PageKey } from '@/types/permissions';
 
 export type RailItem = {
@@ -125,7 +126,15 @@ const RAIL: RailItem[][] = [
             href: balanceSheetRoute().url,
         },
     ],
-    [{ page: 'vault', label: 'Credentials Vault', icon: Lock, href: null }],
+    [
+        {
+            page: 'vault',
+            label: 'Credentials Vault',
+            icon: Lock,
+            href: vaultIndex().url,
+            match: ['/vault'],
+        },
+    ],
     [
         {
             page: 'settings',

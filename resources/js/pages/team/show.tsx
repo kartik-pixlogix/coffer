@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
     KeyRound,
     Pencil,
@@ -14,20 +14,24 @@ import { MemberModal } from '@/components/team/member-modal';
 import { initialsFrom, partnerColourVar } from '@/components/ui/avatar';
 import type { PartnerColour } from '@/components/ui/avatar';
 import { BarChart } from '@/components/ui/bar-chart';
+import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import type { DataTableColumn } from '@/components/ui/data-table';
 import { StatusPill } from '@/components/ui/status-pill';
+import { LevelPill } from '@/components/vault/home/vault-bits';
 import { formatDate, formatInr, formatMonth } from '@/lib/format';
 import { formatCenti } from '@/lib/hours';
 import { firstName, monthLong, rateLabel } from '@/lib/team';
 import { cn } from '@/lib/utils';
 import { index as teamIndex } from '@/routes/team';
+import { index as vaultIndex } from '@/routes/vault';
 import type {
     CostType,
     PartnerOption,
     TeamCan,
     TeamMember,
+    TeamVaultAccess,
     UserOption,
 } from '@/types/team';
 
@@ -63,6 +67,7 @@ type Props = {
     salaries: Salary[];
     abilities: TeamCan;
     users: UserOption[];
+    vaultAccess: TeamVaultAccess;
 };
 
 const hoursText = (centi: number) => `${formatCenti(centi, 0)} h`;
@@ -81,6 +86,7 @@ export default function TeamShow({
     salaries,
     abilities: can,
     users,
+    vaultAccess,
 }: Props) {
     const [editOpen, setEditOpen] = useState(false);
     const [confirm, setConfirm] = useState<MemberConfirmState>(null);
@@ -384,18 +390,10 @@ export default function TeamShow({
                     <h2 id="va-h" className="cf-dot-title t-title">
                         Vault access
                     </h2>
-                    <div className="cf-inset cf-row gap-3">
-                        <KeyRound
-                            className="ic"
-                            size={20}
-                            strokeWidth={1.5}
-                            aria-hidden="true"
-                        />
-                        <span className="t-body t-muted">
-                            The credentials vault is coming soon. Items shared
-                            with {firstName(member.name)} will show here.
-                        </span>
-                    </div>
+                    <MemberVaultAccess
+                        name={firstName(member.name)}
+                        access={vaultAccess}
+                    />
                 </section>
             </div>
 
@@ -434,6 +432,77 @@ export default function TeamShow({
                 onClose={() => setConfirm(null)}
                 afterDelete={() => router.visit(teamIndex().url)}
             />
+        </>
+    );
+}
+
+/** Read-only list of the vault items this member can open (with the vault, Phase 7). */
+function MemberVaultAccess({
+    name,
+    access,
+}: {
+    name: string;
+    access: TeamVaultAccess;
+}) {
+    if (access === null || (access.items.length === 0 && access.hidden === 0)) {
+        return (
+            <div className="cf-inset cf-row gap-3">
+                <KeyRound
+                    className="ic"
+                    size={20}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                />
+                <span className="t-body t-muted">
+                    {name} has no vault access.
+                </span>
+            </div>
+        );
+    }
+
+    if (access.items.length === 0) {
+        return (
+            <p className="t-body t-muted m-0">
+                {name} can open {access.hidden}{' '}
+                {access.hidden === 1 ? 'item' : 'items'} you can’t see.
+            </p>
+        );
+    }
+
+    return (
+        <>
+            <ul className="tm-vault">
+                {access.items.map((item) => (
+                    <li key={item.id} className="tm-vault-item">
+                        <Avatar
+                            name={item.name}
+                            initials={item.monogram}
+                            size="sm"
+                            tile
+                            label={false}
+                        />
+                        <span className="tm-vault-text">
+                            <Link
+                                href={
+                                    vaultIndex({ query: { item: item.id } }).url
+                                }
+                                className="t-body tm-vault-link font-medium"
+                            >
+                                {item.name}
+                            </Link>
+                            <span className="t-caption t-muted">
+                                {item.vault}
+                            </span>
+                        </span>
+                        <LevelPill level={item.level} />
+                    </li>
+                ))}
+            </ul>
+            {access.hidden > 0 && (
+                <p className="t-caption t-muted m-0">
+                    and {access.hidden} more you can’t see
+                </p>
+            )}
         </>
     );
 }

@@ -619,33 +619,39 @@ function VaultPanel({ vault }: { vault: NonNullable<DashboardVaultPanel> }) {
                     <Icon icon={ArrowUpRight} size={16} strokeWidth={1.75} />
                 </Link>
             </div>
-            <ul className="db-list">
-                {vault.items.map((item) => (
-                    <li key={item.id} className="db-item">
-                        <Avatar
-                            name={item.name}
-                            initials={item.initials}
-                            size="sm"
-                            tile
-                            graphite
-                            label={false}
-                        />
-                        <div className="db-item-text">
-                            <div className="t-body font-medium">
-                                {item.name}
+            {vault.items.length === 0 ? (
+                <p className="t-body t-muted m-0">
+                    Nothing expires in the next 30 days.
+                </p>
+            ) : (
+                <ul className="db-list">
+                    {vault.items.map((item) => (
+                        <li key={item.id} className="db-item">
+                            <Avatar
+                                name={item.name}
+                                initials={item.initials}
+                                size="sm"
+                                tile
+                                graphite
+                                label={false}
+                            />
+                            <div className="db-item-text">
+                                <div className="t-body font-medium">
+                                    {item.name}
+                                </div>
+                                <div className="t-caption t-muted">
+                                    Expires {formatDate(item.expiresOn)}
+                                </div>
                             </div>
-                            <div className="t-caption t-muted">
-                                Expires {formatDate(item.expiresOn)}
-                            </div>
-                        </div>
-                        <span
-                            className={`cf-pill ${item.days <= 14 ? 'cf-pill--neg' : 'cf-pill--warn'}`}
-                        >
-                            {item.days} {item.days === 1 ? 'day' : 'days'}
-                        </span>
-                    </li>
-                ))}
-            </ul>
+                            <span
+                                className={`cf-pill ${item.days <= 14 ? 'cf-pill--neg' : 'cf-pill--warn'}`}
+                            >
+                                {item.days} {item.days === 1 ? 'day' : 'days'}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            )}
             <Link href={vault.href} className="t-caption db-more font-medium">
                 {vault.healthScore !== null
                     ? `Vault health ${vault.healthScore}/100 · `

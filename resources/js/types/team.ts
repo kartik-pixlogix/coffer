@@ -25,3 +25,16 @@ export type TeamCan = {
     /** "Run salaries" (Team page only). */
     runSalaries?: boolean;
 };
+
+/** Vault items a member can open (Team member page; null = no account or no vault access). */
+export type TeamVaultAccess = {
+    items: {
+        id: number;
+        name: string;
+        vault: string;
+        monogram: string;
+        level: 'view' | 'use' | 'edit' | 'manage';
+    }[];
+    /** Items they can open that the viewer can't see. */
+    hidden: number;
+} | null;
