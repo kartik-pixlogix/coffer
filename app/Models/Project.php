@@ -48,11 +48,13 @@ class Project extends Model
         return $this->hasMany(TimeEntry::class);
     }
 
-    /** Referenced by a timesheet entry or a journal line, so it can only be archived. */
+    /** Referenced by a timesheet entry, a journal line, income or an expense, so it can only be archived. */
     public function inUse(): bool
     {
         return $this->timeEntries()->exists()
-            || JournalLine::query()->where('project_id', $this->id)->exists();
+            || JournalLine::query()->where('project_id', $this->id)->exists()
+            || Income::query()->withTrashed()->where('project_id', $this->id)->exists()
+            || Expense::query()->withTrashed()->where('project_id', $this->id)->exists();
     }
 
     /** "Internal" is created with every company (spec §8.1). */

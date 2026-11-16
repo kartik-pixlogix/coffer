@@ -38,7 +38,7 @@ function incomePayload(object $books, array $overrides = []): array
 }
 
 /** @return list<array{account: string, debit: int, credit: int, partner: int|null, side: int|null}> */
-function linesOf(JournalEntry $entry): array
+function incomeLines(JournalEntry $entry): array
 {
     return JournalLine::query()->withoutGlobalScopes()->with('account')->where('journal_entry_id', $entry->id)->orderBy('id')->get()
         ->map(fn (JournalLine $l) => ['account' => $l->account->name, 'debit' => $l->debit_paise, 'credit' => $l->credit_paise, 'partner' => $l->partner_id, 'side' => $l->side_id])
@@ -112,7 +112,7 @@ test('income into a money account posts Dr account, Cr income with the partner w
     expect($entry->type)->toBe(JournalType::Income)
         ->and($entry->source_type)->toBe($income->getMorphClass())
         ->and($entry->source_id)->toBe($income->id)
-        ->and(linesOf($entry))->toBe([
+        ->and(incomeLines($entry))->toBe([
             ['account' => 'Bluefin Infotech account', 'debit' => 2_80_000_00, 'credit' => 0, 'partner' => null, 'side' => $books->bluefin->id],
             ['account' => 'Income — Project', 'debit' => 0, 'credit' => 2_80_000_00, 'partner' => $books->kabir->id, 'side' => $books->bluefin->id],
         ]);
@@ -130,7 +130,7 @@ test('income received personally posts to the partner’s current account', func
 
     $entry = JournalEntry::query()->withoutGlobalScopes()->findOrFail(incomesOf($books->company)->sole()->journal_entry_id);
 
-    expect(linesOf($entry))->toBe([
+    expect(incomeLines($entry))->toBe([
         ['account' => 'Partner current — Ishita Rao', 'debit' => 95_000_00, 'credit' => 0, 'partner' => $books->ishita->id, 'side' => null],
         ['account' => 'Income — Project', 'debit' => 0, 'credit' => 95_000_00, 'partner' => $books->aarav->id, 'side' => null],
     ]);
@@ -149,7 +149,7 @@ test('brought in by is required unless the company shares profit JV-pooled', fun
         ->assertSessionHasNoErrors();
 
     $entry = JournalEntry::query()->withoutGlobalScopes()->findOrFail(incomesOf($books->company)->sole()->journal_entry_id);
-    expect(linesOf($entry)[1]['partner'])->toBeNull();
+    expect(incomeLines($entry)[1]['partner'])->toBeNull();
 });
 
 test('validation covers every field', function () {
@@ -202,7 +202,7 @@ test('editing reverses the entry and posts a new one; notes alone don’t repost
 
     expect($old->isReversed())->toBeTrue()
         ->and($new->id)->not->toBe($first)
-        ->and(linesOf($new)[0])->toBe(['account' => 'Partner current — Aarav Mehta', 'debit' => 3_00_000_00, 'credit' => 0, 'partner' => $books->aarav->id, 'side' => null])
+        ->and(incomeLines($new)[0])->toBe(['account' => 'Partner current — Aarav Mehta', 'debit' => 3_00_000_00, 'credit' => 0, 'partner' => $books->aarav->id, 'side' => null])
         ->and(JournalLine::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->sum('credit_paise'))
         ->toEqual(JournalLine::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->sum('debit_paise'));
 

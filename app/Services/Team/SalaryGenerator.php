@@ -32,6 +32,7 @@ final class SalaryGenerator
         private readonly Postings $postings,
         private readonly LedgerPoster $poster,
         private readonly FiscalYears $years,
+        private readonly SalaryExpense $expenses,
     ) {}
 
     /** Run every member who earned, logged hours or already has a run that month. */
@@ -73,6 +74,7 @@ final class SalaryGenerator
             if ($same || (! $posted && $figure->amountPaise === 0)) {
                 if ($run->exists || $figure->amountPaise > 0) {
                     $run->save();
+                    $this->expenses->sync($company, $member, $run);
                 }
 
                 return $same ? 'unchanged' : 'none';
@@ -90,6 +92,9 @@ final class SalaryGenerator
                 $entry = $this->postings->salary($company, $member, $figure->amountPaise, $end, $run, $by);
                 $run->update(['journal_entry_id' => $entry->id]);
             }
+
+            // The run's read-only Auto row in Expenses (D43).
+            $this->expenses->sync($company, $member, $run);
 
             return match (true) {
                 ! $posted => 'posted',

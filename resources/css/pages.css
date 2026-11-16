@@ -1406,3 +1406,177 @@ span.denied-can:not(#\#) {
     flex-direction: column;
     justify-content: flex-end;
 }
+
+/* Expenses (Expenses.dc.html, MobileExpenses.dc.html) */
+.ex-kpis:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.ex-search:not(#\#) {
+    flex: 1 1 240px;
+    max-width: 360px;
+}
+
+.ex-payer:not(#\#) {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ex-from:not(#\#) {
+    flex: 0 1 180px;
+    min-width: 0;
+}
+
+.ex-amt:not(#\#) {
+    width: 150px;
+    flex: none;
+}
+
+.ex-each:not(#\#) {
+    width: 110px;
+    flex: none;
+    text-align: right;
+}
+
+.ex-direct:not(#\#) {
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-muted);
+}
+
+.ex-auto-ic:not(#\#),
+.ex-direct-ic:not(#\#) {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-muted);
+    color: var(--ink-secondary);
+}
+
+.ex-direct-ic:not(#\#) {
+    background: var(--graphite);
+    color: var(--on-graphite);
+}
+
+.ex-facts:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+}
+
+.ex-facts:not(#\#) dd {
+    margin: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.ex-receipt:not(#\#) {
+    width: 100%;
+    max-height: 360px;
+    object-fit: contain;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.ex-receipt--pdf:not(#\#) {
+    height: 360px;
+}
+
+.ex-history:not(#\#) {
+    margin: 0;
+    padding: 0 0 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ex-mamount:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ex-amt-big:not(#\#) {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 40px;
+    line-height: 48px;
+    font-weight: 500;
+    outline: none;
+    padding: 0;
+}
+
+.ex-mgrid:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.ex-mrow:not(#\#) {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    min-height: 62px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--ink);
+    width: 100%;
+}
+
+.ex-mrow:not(#\#):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+.ex-ellipsis:not(#\#) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ex-fab:not(#\#) {
+    position: fixed;
+    right: 16px;
+    bottom: 24px;
+    z-index: 30;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    border: 0;
+    background: var(--ink);
+    color: var(--surface);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-pop);
+}
+
+.ex-fab:not(#\#):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+    .ex-payer:not(#\#) {
+        flex-wrap: wrap;
+    }
+
+    .ex-from:not(#\#) {
+        flex: 1 1 100%;
+    }
+}

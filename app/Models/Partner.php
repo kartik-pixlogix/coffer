@@ -93,6 +93,8 @@ class Partner extends Model
     public function hasRecords(): bool
     {
         return $this->members()->withTrashed()->exists()
-            || JournalLine::query()->withoutGlobalScope('company')->where('partner_id', $this->id)->exists();
+            || JournalLine::query()->withoutGlobalScope('company')->where('partner_id', $this->id)->exists()
+            || Income::query()->withoutGlobalScope('company')->withTrashed()->where(fn ($q) => $q->where('brought_in_by', $this->id)->orWhere('received_by', $this->id))->exists()
+            || ExpensePayer::query()->withoutGlobalScope('company')->where('partner_id', $this->id)->exists();
     }
 }

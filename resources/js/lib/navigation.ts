@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomeIndex } from '@/routes/income';
 import { index as partnersIndex } from '@/routes/partners';
 import { members as settingsMembers } from '@/routes/settings';
@@ -71,7 +72,12 @@ const RAIL: RailItem[][] = [
             icon: TrendingUp,
             href: incomeIndex().url,
         },
-        { page: 'expenses', label: 'Expenses', icon: Receipt, href: null },
+        {
+            page: 'expenses',
+            label: 'Expenses',
+            icon: Receipt,
+            href: expensesIndex().url,
+        },
         {
             page: 'capital_accounts',
             label: 'Capital Accounts',

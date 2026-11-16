@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Services\Finance;
 
 use App\Models\Category;
+use App\Models\Expense;
 use App\Models\JournalLine;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-/** How many records use each category: posted journal entries on its account. */
+/** How many records use each category: posted journal entries on its account, plus expenses not posted (pending or rejected). */
 final class CategoryUsage
 {
     /**
@@ -24,7 +25,7 @@ final class CategoryUsage
             return [];
         }
 
-        return JournalLine::query()
+        $posted = JournalLine::query()
             ->join('accounts as a', 'a.id', '=', 'journal_lines.account_id')
             ->whereIn('a.category_id', $ids)
             ->groupBy('a.category_id')
@@ -32,5 +33,14 @@ final class CategoryUsage
             ->pluck('n', 'a.category_id')
             ->map(fn ($n) => (int) $n)
             ->all();
+
+        $unposted = Expense::query()->withTrashed()->whereIn('category_id', $ids)->whereNull('journal_entry_id')
+            ->groupBy('category_id')->selectRaw('category_id, COUNT(*) as n')->pluck('n', 'category_id');
+
+        foreach ($unposted as $id => $n) {
+            $posted[(int) $id] = ($posted[(int) $id] ?? 0) + (int) $n;
+        }
+
+        return $posted;
     }
 }

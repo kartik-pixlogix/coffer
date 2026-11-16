@@ -17,7 +17,12 @@ export type Paginated<T> = {
     total: number;
 };
 
-export type CategoryOption = { id: number; name: string; active: boolean };
+export type CategoryOption = {
+    id: number;
+    name: string;
+    active: boolean;
+    system?: boolean;
+};
 
 export type FinancePartner = {
     id: number;
@@ -112,6 +117,7 @@ export type MemberOption = {
     id: number;
     name: string;
     partnerId: number;
+    colour: number | null;
     active: boolean;
 };
 
