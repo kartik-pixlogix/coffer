@@ -1,39 +1,43 @@
-import { createContext, useContext, useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
+import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import {
-    placeholderCompanies,
-    placeholderWorkspace,
-} from '@/lib/placeholder-shell';
-import type { CompanySummary, WorkspaceSummary } from '@/types';
+import { switchMethod } from '@/routes/companies';
+import type { Can, CompanySummary, WorkspaceSummary } from '@/types';
 
 type ShellContextValue = {
     workspace: WorkspaceSummary;
     companies: CompanySummary[];
     currentCompany: CompanySummary;
+    can: Can;
     switchCompany: (id: number) => void;
 };
 
 const ShellContext = createContext<ShellContextValue | null>(null);
 
 /**
- * Workspace and company for the shell (switcher + breadcrumb).
- * Phase 0: placeholder data switched client-side only. Phase 2 sources it from
- * shared props and switching becomes a server request (spec §2).
+ * Workspace, companies and permissions for the shell (switcher, breadcrumb, rail),
+ * from the shared Inertia props. Switching asks the server, which keeps the
+ * choice in the session and lands on the role's first page (spec §2).
  */
 export function ShellProvider({ children }: { children: ReactNode }) {
-    const [currentId, setCurrentId] = useState(placeholderCompanies[0].id);
+    const { workspace, companies, currentCompany, can } = usePage().props;
 
-    const currentCompany =
-        placeholderCompanies.find((c) => c.id === currentId) ??
-        placeholderCompanies[0];
+    if (workspace === null || currentCompany === null) {
+        throw new Error('The app shell needs a current company.');
+    }
 
     return (
         <ShellContext.Provider
             value={{
-                workspace: placeholderWorkspace,
-                companies: placeholderCompanies,
+                workspace,
+                companies,
                 currentCompany,
-                switchCompany: setCurrentId,
+                can,
+                switchCompany: (id) => {
+                    if (id !== currentCompany.id) {
+                        router.post(switchMethod(id).url);
+                    }
+                },
             }}
         >
             {children}

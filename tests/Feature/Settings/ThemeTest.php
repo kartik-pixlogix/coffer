@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Enums\Theme;
-use App\Models\User;
 use Illuminate\Testing\TestResponse;
 
 /** The opening <html …> tag of a full-page response. */
@@ -20,7 +19,7 @@ test('guests cannot save a theme', function () {
 });
 
 test('a user can save their theme', function () {
-    $user = User::factory()->create();
+    $user = userWithRole();
 
     $response = $this->actingAs($user)
         ->from(route('dashboard'))
@@ -33,7 +32,7 @@ test('a user can save their theme', function () {
 });
 
 test('the theme must be light or dark', function (mixed $value) {
-    $user = User::factory()->create();
+    $user = userWithRole();
 
     $this->actingAs($user)
         ->patch(route('theme.update'), ['theme' => $value])
@@ -43,7 +42,7 @@ test('the theme must be light or dark', function (mixed $value) {
 })->with(['system', 'blue', '', null]);
 
 test('the page renders with the user theme before any script runs', function () {
-    $user = User::factory()->create(['theme' => Theme::Dark]);
+    $user = userWithRole(attributes: ['theme' => Theme::Dark]);
 
     $tag = htmlTag($this->actingAs($user)->get(route('dashboard'))->assertOk());
 
@@ -54,7 +53,7 @@ test('the page renders with the user theme before any script runs', function () 
 });
 
 test('the saved user theme wins over the cookie', function () {
-    $user = User::factory()->create(['theme' => Theme::Light]);
+    $user = userWithRole(attributes: ['theme' => Theme::Light]);
 
     $response = $this->actingAs($user)
         ->withUnencryptedCookie(Theme::COOKIE, 'dark')

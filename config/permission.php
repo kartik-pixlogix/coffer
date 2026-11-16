@@ -118,7 +118,7 @@ return [
      * Set this to false if you want to implement custom logic for checking permissions.
      */
 
-    'register_permission_check_method' => true,
+    'register_permission_check_method' => false, // page.* and action.* go through App\Support\Permissions\Access (AppServiceProvider)
 
     /*
      * When set to true, Laravel\Octane\Events\OperationTerminated event listener will be registered

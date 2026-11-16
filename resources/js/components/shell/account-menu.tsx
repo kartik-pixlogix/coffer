@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { ChevronDown, LogOut, Palette, UserRound } from 'lucide-react';
+import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import type { ButtonHTMLAttributes, Ref } from 'react';
 import { signOut } from '@/components/shell/sign-out';
 import { useShell } from '@/components/shell/shell-context';
@@ -7,7 +7,6 @@ import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import { Icon } from '@/components/ui/icon';
 import { useInitials } from '@/hooks/use-initials';
 import { formatRole } from '@/lib/format';
-import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editProfile } from '@/routes/profile';
 
 type AccountPillProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -70,11 +69,6 @@ export function AccountMenu() {
                     label: 'Profile & security',
                     icon: UserRound,
                     href: editProfile().url,
-                },
-                {
-                    label: 'Appearance',
-                    icon: Palette,
-                    href: editAppearance().url,
                 },
                 { type: 'separator' },
                 {

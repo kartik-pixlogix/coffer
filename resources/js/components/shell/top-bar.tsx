@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AccountMenu } from '@/components/shell/account-menu';
@@ -10,7 +10,8 @@ import { IconButton } from '@/components/ui/icon-button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { useTheme } from '@/hooks/use-theme';
 import { formatLongDate } from '@/lib/format';
-import { dashboard } from '@/routes';
+import { home } from '@/routes';
+import { create as createCompany } from '@/routes/companies';
 
 function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
@@ -51,7 +52,14 @@ function ShellCompanySwitcher() {
             currentId={currentCompany.id}
             workspaceName={workspace.name}
             onSwitch={switchCompany}
-            newCompanyDisabledReason="available soon"
+            onNewCompany={
+                workspace.isOwner
+                    ? () => router.visit(createCompany().url)
+                    : undefined
+            }
+            newCompanyDisabledReason={
+                workspace.isOwner ? undefined : 'workspace owner only'
+            }
         />
     );
 }
@@ -64,7 +72,7 @@ export function TopBar() {
     return (
         <header className="cf-topbar">
             <div className="cf-topbar-l">
-                <Link href={dashboard()} className="cf-wordmark">
+                <Link href={home()} className="cf-wordmark">
                     Coffer
                 </Link>
                 <ShellCompanySwitcher />

@@ -17,6 +17,7 @@ const COMPANIES: CompanySummary[] = [
         initials: 'SP',
         type: 'jv',
         role: 'admin',
+        workspace: null,
     },
     {
         id: 2,
@@ -24,6 +25,7 @@ const COMPANIES: CompanySummary[] = [
         initials: 'VL',
         type: 'single',
         role: 'admin',
+        workspace: null,
     },
     {
         id: 3,
@@ -31,6 +33,7 @@ const COMPANIES: CompanySummary[] = [
         initials: 'NS',
         type: 'single',
         role: 'partner',
+        workspace: null,
     },
     {
         id: 4,
@@ -38,6 +41,7 @@ const COMPANIES: CompanySummary[] = [
         initials: 'KC',
         type: 'single',
         role: 'viewer',
+        workspace: null,
     },
 ];
 

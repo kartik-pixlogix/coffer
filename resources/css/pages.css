@@ -1,0 +1,46 @@
+/*
+ * Page-level styles ported from the <style> blocks and inline styles of design/screens/*.dc.html.
+ * Every selector carries :not(#\#) like the generated coffer-ui.css (D22), so it ranks
+ * with the component rules it adjusts and, coming later, wins over them. Tokens only.
+ */
+
+/* ── StateDenied ─────────────────────────────────────────── */
+.denied-ic:not(#\#) {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--warning-soft);
+    color: var(--on-warning-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.denied-title:not(#\#) {
+    margin: 0;
+    font-size: 28px;
+    line-height: 32px;
+}
+
+.denied-body:not(#\#) {
+    margin: 0;
+    max-width: 560px;
+    font-size: 15px;
+    line-height: 22px;
+}
+
+.denied-can:not(#\#) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+}
+
+span.denied-can:not(#\#) {
+    color: var(--ink-faint);
+}

@@ -3,10 +3,9 @@ import type { ButtonHTMLAttributes, Ref } from 'react';
 import { Icon } from '@/components/ui/icon';
 import { NotificationPopover } from '@/components/ui/notification-panel';
 import type { NotificationItem } from '@/components/ui/notification-panel';
-import { placeholderUnreadNotifications } from '@/lib/placeholder-shell';
-
-/** Phase 8 fills this from the server (spec: notifications). */
+/** Phase 8 fills these from the server (spec §19). */
 const items: NotificationItem[] = [];
+const placeholderUnread = 0;
 
 type BellProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     unread: number;
@@ -39,11 +38,11 @@ function Bell54({ unread, ...rest }: BellProps) {
 }
 
 /**
- * Top-bar bell opening the NotificationPanel. Phase 1: an empty list with the
- * placeholder unread count; Phase 8 wires real notifications and Mark all read.
+ * Top-bar bell opening the NotificationPanel. Until Phase 8 wires real
+ * notifications and Mark all read, the list is empty.
  */
 export function NotificationsButton() {
-    const unread = placeholderUnreadNotifications;
+    const unread = placeholderUnread;
 
     return (
         <NotificationPopover

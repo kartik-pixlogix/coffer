@@ -1,26 +1,19 @@
+export type NumberFormat = 'indian' | 'international';
+
 export type User = {
     id: number;
     name: string;
     email: string;
-    avatar?: string;
     email_verified_at: string | null;
-    two_factor_enabled?: boolean;
+    avatar_url: string | null;
     theme: 'light' | 'dark' | null;
-    created_at: string;
-    updated_at: string;
-    [key: string]: unknown;
+    timezone: string;
+    number_format: NumberFormat;
+    two_factor_enabled: boolean;
 };
 
 export type Auth = {
     user: User;
-};
-
-export type Passkey = {
-    id: number;
-    name: string;
-    authenticator: string | null;
-    created_at_diff: string;
-    last_used_at_diff: string | null;
 };
 
 export type TwoFactorSetupData = {

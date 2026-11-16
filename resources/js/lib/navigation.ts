@@ -17,8 +17,10 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import type { Can, PageKey } from '@/types/permissions';
 
 export type RailItem = {
+    page: PageKey;
     label: string;
     icon: LucideIcon;
     /** Null until the module's phase ships: the item renders disabled (D18). */
@@ -33,32 +35,90 @@ export type RailItem = {
  * Partner Loans, Settlements · Reports, Trial Balance, Balance Sheet ·
  * Credentials Vault · Settings, Billing.
  */
-export function railGroups(): RailItem[][] {
-    return [
-        [{ label: 'Dashboard', icon: LayoutGrid, href: dashboard().url }],
-        [
-            { label: 'Partners', icon: ChartPie, href: null },
-            { label: 'Team', icon: Users, href: null },
-            { label: 'Timesheets', icon: Clock, href: null },
-        ],
-        [
-            { label: 'Income', icon: TrendingUp, href: null },
-            { label: 'Expenses', icon: Receipt, href: null },
-            { label: 'Capital Accounts', icon: Landmark, href: null },
-            { label: 'Partner Loans', icon: Coins, href: null },
-            { label: 'Settlements', icon: ArrowLeftRight, href: null },
-        ],
-        [
-            { label: 'Reports', icon: ChartColumn, href: null },
-            { label: 'Trial Balance', icon: Scale, href: null },
-            { label: 'Balance Sheet', icon: FileText, href: null },
-        ],
-        [{ label: 'Credentials Vault', icon: Lock, href: null }],
-        [
-            { label: 'Settings', icon: SlidersHorizontal, href: null },
-            { label: 'Billing', icon: CreditCard, href: null },
-        ],
-    ];
+const RAIL: RailItem[][] = [
+    [
+        {
+            page: 'dashboard',
+            label: 'Dashboard',
+            icon: LayoutGrid,
+            href: dashboard().url,
+        },
+    ],
+    [
+        { page: 'partners', label: 'Partners', icon: ChartPie, href: null },
+        { page: 'team', label: 'Team', icon: Users, href: null },
+        { page: 'timesheets', label: 'Timesheets', icon: Clock, href: null },
+    ],
+    [
+        { page: 'income', label: 'Income', icon: TrendingUp, href: null },
+        { page: 'expenses', label: 'Expenses', icon: Receipt, href: null },
+        {
+            page: 'capital_accounts',
+            label: 'Capital Accounts',
+            icon: Landmark,
+            href: null,
+        },
+        {
+            page: 'partner_loans',
+            label: 'Partner Loans',
+            icon: Coins,
+            href: null,
+        },
+        {
+            page: 'settlements',
+            label: 'Settlements',
+            icon: ArrowLeftRight,
+            href: null,
+        },
+    ],
+    [
+        { page: 'reports', label: 'Reports', icon: ChartColumn, href: null },
+        {
+            page: 'trial_balance',
+            label: 'Trial Balance',
+            icon: Scale,
+            href: null,
+        },
+        {
+            page: 'balance_sheet',
+            label: 'Balance Sheet',
+            icon: FileText,
+            href: null,
+        },
+    ],
+    [{ page: 'vault', label: 'Credentials Vault', icon: Lock, href: null }],
+    [
+        {
+            page: 'settings',
+            label: 'Settings',
+            icon: SlidersHorizontal,
+            href: null,
+            match: ['/settings'],
+        },
+        { page: 'billing', label: 'Billing', icon: CreditCard, href: null },
+    ],
+];
+
+/**
+ * The rail for one role: only the pages the company's permission matrix lets it
+ * open (spec §2.1), and Settlements only in a joint venture. Empty groups drop out.
+ */
+export function railGroups(
+    pages: Can['pages'],
+    options: { jv?: boolean } = {},
+): RailItem[][] {
+    return RAIL.map((group) =>
+        group.filter(
+            (item) =>
+                pages[item.page] === true &&
+                (item.page !== 'settlements' || options.jv === true),
+        ),
+    ).filter((group) => group.length > 0);
+}
+
+/** The rail icon for a page (also used by "What you can open"). */
+export function pageIcon(page: PageKey): LucideIcon {
+    return RAIL.flat().find((item) => item.page === page)?.icon ?? LayoutGrid;
 }
 
 export function isCurrent(item: RailItem, currentPath: string): boolean {

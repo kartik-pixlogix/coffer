@@ -17,6 +17,7 @@
  * same element, and its token declarations override Tailwind's theme layer.
  */
 @import './coffer-ui.css' layer(components);
+@import './pages.css' layer(components);
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

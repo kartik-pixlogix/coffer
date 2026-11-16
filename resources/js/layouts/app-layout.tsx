@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { ShellProvider } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
@@ -6,21 +7,26 @@ import { NavRail } from '@/components/ui/nav-rail';
 import type { NavRailItemData } from '@/components/ui/nav-rail';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { isCurrent, railGroups } from '@/lib/navigation';
-import { dashboard } from '@/routes';
+import { home } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 
-/** The rail's modules with the current page marked; unreleased modules say so (D18). */
+/**
+ * The pages the role may open, with the current one marked; modules whose phase
+ * hasn't shipped say so (D18).
+ */
 function useRailGroups(): NavRailItemData[][] {
     const { currentUrl } = useCurrentUrl();
+    const { can, currentCompany } = usePage().props;
 
-    return railGroups().map((group) =>
-        group.map((item) => ({
-            label: item.label,
-            icon: item.icon,
-            href: item.href,
-            current: isCurrent(item, currentUrl),
-            disabledReason: item.href === null ? 'coming soon' : undefined,
-        })),
+    return railGroups(can.pages, { jv: currentCompany?.type === 'jv' }).map(
+        (group) =>
+            group.map((item) => ({
+                label: item.label,
+                icon: item.icon,
+                href: item.href,
+                current: isCurrent(item, currentUrl),
+                disabledReason: item.href === null ? 'coming soon' : undefined,
+            })),
     );
 }
 
@@ -44,7 +50,7 @@ export default function AppLayout({
                 <div className="cf-shell">
                     <NavRail
                         groups={groups}
-                        homeHref={dashboard().url}
+                        homeHref={home().url}
                         onSignOut={signOut}
                     />
                     <main className="cf-main">

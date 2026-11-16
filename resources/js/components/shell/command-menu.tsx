@@ -9,6 +9,7 @@ import {
 import type { CommandGroup } from '@/components/ui/command-palette';
 import { Icon } from '@/components/ui/icon';
 import { useTheme } from '@/hooks/use-theme';
+import { usePage } from '@inertiajs/react';
 import { railGroups } from '@/lib/navigation';
 
 /** The platform never changes while the page is open. */
@@ -20,6 +21,7 @@ const subscribeNever = () => () => undefined;
  * Switch theme and Sign out actions; later phases add records, people and vault names.
  */
 export function CommandMenu() {
+    const { can, currentCompany } = usePage().props;
     const { open, setOpen } = useCommandPalette();
     const { theme, toggleTheme } = useTheme();
     const shortcut = useSyncExternalStore(
@@ -31,7 +33,7 @@ export function CommandMenu() {
     const groups: CommandGroup[] = [
         {
             label: 'Pages',
-            items: railGroups()
+            items: railGroups(can.pages, { jv: currentCompany?.type === 'jv' })
                 .flat()
                 .flatMap((item) =>
                     item.href === null
