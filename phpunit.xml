@@ -30,6 +30,10 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
+        <!-- Test-only vault keys (not secrets): 32 repeated bytes. -->
+        <env name="VAULT_MASTER_KEY" value="base64:dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ="/>
+        <env name="VAULT_FINGERPRINT_KEY" value="base64:ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY="/>
+        <env name="VAULT_PREVIOUS_MASTER_KEYS" value=""/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>

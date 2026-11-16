@@ -42,3 +42,4 @@ require __DIR__.'/team.php';
 require __DIR__.'/timesheets.php';
 require __DIR__.'/finance.php';
 require __DIR__.'/reports.php';
+require __DIR__.'/vault.php';

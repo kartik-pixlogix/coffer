@@ -10,10 +10,7 @@ use App\Models\User;
 /**
  * "Credentials expiring soon" on the dashboard (spec §5, Main.dc.html): vault items
  * expiring within 30 days and the vault health score, for users with vault access.
- * The vault ships in Phase 7; until then NoVaultPanel returns null and the panel isn't
- * rendered (D64).
- *
- * TODO(Phase 7): bind a vault-backed implementation in AppServiceProvider.
+ * Bound to VaultExpiringPanel (D64).
  */
 interface DashboardVaultPanel
 {

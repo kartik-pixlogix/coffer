@@ -4,14 +4,19 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Services\Dashboard\DashboardVaultPanel;
-use App\Services\Dashboard\NoVaultPanel;
+use App\Services\Dashboard\VaultExpiringPanel;
 use App\Services\Team\SalaryRecalc;
+use App\Services\Vault\VaultAccess;
+use App\Services\Vault\VaultKeys;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,8 +31,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(CurrentCompany::class);
         $this->app->scoped(SalaryRecalc::class);
 
-        // TODO(Phase 7): the vault fills the dashboard's "Credentials expiring soon" (D64).
-        $this->app->bind(DashboardVaultPanel::class, NoVaultPanel::class);
+        // Unwrapped vault keys and access caches live for one request or job.
+        $this->app->scoped(VaultKeys::class);
+        $this->app->scoped(VaultAccess::class);
+
+        // The dashboard's "Credentials expiring soon" (D64).
+        $this->app->bind(DashboardVaultPanel::class, VaultExpiringPanel::class);
     }
 
     /**
@@ -37,6 +46,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureAuthorization();
+        $this->configureRateLimits();
+    }
+
+    /** Spec §14.3: reveals, copies, one-time codes and downloads, 30 a minute per user. */
+    protected function configureRateLimits(): void
+    {
+        RateLimiter::for('vault-reveal', fn (Request $request): Limit => Limit::perMinute((int) config('vault.reveals_per_minute'))
+            ->by('vault-reveal:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
     }
 
     /**

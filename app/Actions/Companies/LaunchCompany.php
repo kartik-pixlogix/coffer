@@ -9,6 +9,7 @@ use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
 use App\Enums\CostType;
 use App\Enums\MemberStatus;
+use App\Enums\VaultType;
 use App\Ledger\ChartOfAccounts;
 use App\Ledger\OpeningBalance;
 use App\Models\Company;
@@ -17,6 +18,7 @@ use App\Models\Member;
 use App\Models\Partner;
 use App\Models\Side;
 use App\Models\User;
+use App\Models\Vault;
 use App\Models\Workspace;
 use App\Support\CurrentCompany;
 use App\Support\Equity;
@@ -84,6 +86,9 @@ final class LaunchCompany
             // The books: categories, money accounts, chart of accounts and the opening balance (spec §3.1).
             $this->chart->setUp($company);
             $this->openingBalance->post($company, by: $creator);
+
+            // "An empty credentials vault is created for the company" (the wizard's review step).
+            Vault::query()->create(['company_id' => $company->id, 'name' => 'Internal', 'type' => VaultType::Shared, 'created_by' => $creator->id]);
 
             CompanyDraft::query()->where('workspace_id', $workspace->id)->where('user_id', $creator->id)->delete();
 

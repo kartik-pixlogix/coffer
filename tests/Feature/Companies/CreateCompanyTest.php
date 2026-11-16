@@ -12,6 +12,7 @@ use App\Models\Member;
 use App\Models\Partner;
 use App\Models\Side;
 use App\Models\User;
+use App\Models\Vault;
 use App\Models\Workspace;
 use App\Notifications\CompanyInvitation;
 use App\Support\CurrentCompany;
@@ -161,6 +162,9 @@ test('launching a Single company creates everything in one go', function () {
 
     Notification::assertSentOnDemand(CompanyInvitation::class, fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'ishita@vertexlabs.in');
     Notification::assertSentOnDemandTimes(CompanyInvitation::class, 2);
+
+    // "An empty credentials vault is created for the company."
+    expect(Vault::query()->withoutGlobalScopes()->where('company_id', $company->id)->pluck('name')->all())->toBe(['Internal']);
 });
 
 test('team members get no invite with the switch off', function () {

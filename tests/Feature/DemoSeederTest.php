@@ -14,6 +14,10 @@ use App\Models\Income;
 use App\Models\JournalEntry;
 use App\Models\Partner;
 use App\Models\User;
+use App\Models\Vault;
+use App\Models\VaultItem;
+use App\Services\Vault\VaultHealth;
+use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -128,5 +132,25 @@ test('the demo books are real records, and the new pages land on their designs�
         ->where('cards.owed.1.owedPaise', 3_600_00)
         ->has('cards.recent', 2));
 
+    CarbonImmutable::setTestNow();
+});
+
+test('the demo vault matches the Vault board (D71)', function () {
+    CarbonImmutable::setTestNow('2026-11-15 10:00:00');
+    $this->seed(DatabaseSeeder::class);
+    $saarthi = Company::query()->where('name', 'Saarthi Portal JV')->sole();
+    $items = VaultItem::query()->withoutGlobalScopes()->where('company_id', $saarthi->id)->get();
+
+    expect(Vault::query()->withoutGlobalScopes()->where('company_id', $saarthi->id)->orderBy('position')->pluck('name')->all())
+        ->toBe(['Internal', 'Saarthi Portal JV', 'Asha Retail', 'Kiran Exports'])
+        ->and($items)->toHaveCount(13)
+        ->and($items->firstWhere('provider', 'aws')->restricted)->toBeTrue()
+        ->and($items->where('strength', '<=', 1)->whereNotNull('strength')->pluck('name')->sort()->values()->all())
+        ->toBe(['Gmail — support inbox', 'MySQL — production database', 'Netlify — marketing site', 'WordPress — Kiran Exports'])
+        ->and(User::query()->where('email', 'aarav@vertexlabs.in')->sole()->hasTwoFactorEnabled())->toBeTrue()
+        ->and(User::query()->where('email', 'meera@bluefininfotech.in')->sole()->hasTwoFactorEnabled())->toBeFalse();
+
+    $summary = app(CurrentCompany::class)->run($saarthi, fn () => app(VaultHealth::class)->summarise($items));
+    expect($summary['counts'])->toMatchArray(['weak' => 4, 'reused' => 2, 'breached' => 1, 'expiring' => 2]);
     CarbonImmutable::setTestNow();
 });

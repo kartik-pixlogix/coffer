@@ -18,9 +18,11 @@ use App\Models\MemberRate;
 use App\Models\Partner;
 use App\Models\TimeEntry;
 use App\Models\User;
+use App\Models\VaultItem;
 use App\Policies\MemberPolicy;
 use App\Services\Team\Earnings;
 use App\Services\Team\MemberRates;
+use App\Services\Vault\VaultAccess;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -125,7 +127,40 @@ final class TeamController extends Controller
             'salaries' => $this->salaries($member),
             'abilities' => ['manage' => $canManage, 'editRates' => $user->can('changeRate', $member)],
             'users' => $canManage ? $this->workspaceUsers($company) : [],
+            'vaultAccess' => $this->vaultAccess($member, $user),
         ]);
+    }
+
+    /**
+     * The vault items the member's account can open (read-only on the profile). Only items
+     * the viewer can see too are named; the rest are counted.
+     *
+     * @return array{items: list<array{id: int, name: string, vault: string, monogram: string, level: string}>, hidden: int}|null
+     */
+    private function vaultAccess(Member $member, User $viewer): ?array
+    {
+        $access = app(VaultAccess::class);
+        $account = $member->user;
+
+        if ($account === null || $access->ceiling($account) === null) {
+            return null;
+        }
+
+        $theirs = $access->visibleItems($account);
+        $levels = $theirs->mapWithKeys(fn (VaultItem $item) => [$item->id => $access->itemLevel($account, $item)->value ?? 'view']);
+        $mine = $viewer->hasTwoFactorEnabled() ? $access->visibleItems($viewer)->pluck('id')->flip() : collect();
+        $shown = $theirs->filter(fn (VaultItem $item) => $mine->has($item->id));
+
+        return [
+            'items' => array_values($shown->map(fn (VaultItem $item) => [
+                'id' => $item->id,
+                'name' => $item->name,
+                'vault' => $item->vault->name,
+                'monogram' => $item->monogram(),
+                'level' => (string) $levels[$item->id],
+            ])->all()),
+            'hidden' => $theirs->count() - $shown->count(),
+        ];
     }
 
     public function store(Request $request, SaveMember $save): RedirectResponse

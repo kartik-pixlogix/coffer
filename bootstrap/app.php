@@ -44,6 +44,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Vault secrets never go back into the session as "old input" (spec §14.3).
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'secrets', 'custom_fields', 'code']);
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
