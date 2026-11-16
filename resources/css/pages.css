@@ -1305,3 +1305,75 @@ span.denied-can:not(#\#) {
             1fr
         ) 110px 40px;
 }
+
+/* ── Partners ────────────────────────────────────────────── */
+.pt-charts:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.pt-compare:not(#\#) {
+    flex: 999 1 520px;
+    min-width: 0;
+}
+
+.pt-side-chart:not(#\#) {
+    flex: 1 1 300px;
+    min-width: 0;
+}
+
+.pt-band:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    background: var(--graphite);
+    color: var(--on-graphite);
+}
+
+.pt-band-ini:not(#\#) {
+    background: var(--on-graphite);
+    color: var(--graphite);
+}
+
+.pt-band-title:not(#\#) {
+    margin-right: auto;
+}
+
+.pt-band-name:not(#\#) {
+    font-family: var(--font-display);
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 500;
+}
+
+.pt-band-muted:not(#\#) {
+    color: var(--on-graphite-muted);
+}
+
+.pt-grid:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pt-card:not(#\#) {
+    flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pt-name:not(#\#) {
+    font-size: 16px;
+    line-height: 20px;
+}
+
+.pt-stats:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}

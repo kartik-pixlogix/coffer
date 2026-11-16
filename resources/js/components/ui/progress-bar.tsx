@@ -16,6 +16,8 @@ export type ProgressBarProps = {
     /** 4 px, for lists. */
     thin?: boolean;
     loading?: boolean;
+    /** Fill colour token, e.g. `var(--partner-2)` for an equity split (Partners.dc.html). */
+    fill?: string;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'role'>;
 
 /** Percent filled, 0–100, for a value within [min, max]. */
@@ -38,6 +40,7 @@ export function ProgressBar({
     variant = 'default',
     thin = false,
     loading = false,
+    fill,
     className,
     'aria-label': ariaLabel,
     ...rest
@@ -73,7 +76,12 @@ export function ProgressBar({
             aria-valuemax={max}
             {...rest}
         >
-            <span style={{ width: `${Number(pct.toFixed(2))}%` }} />
+            <span
+                style={{
+                    width: `${Number(pct.toFixed(2))}%`,
+                    ...(fill ? { background: fill } : {}),
+                }}
+            />
         </div>
     );
 }

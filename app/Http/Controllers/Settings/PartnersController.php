@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Actions\Partners\SavePartner;
-use App\Enums\AccountRole;
 use App\Enums\CompanyRole;
 use App\Http\Controllers\Controller;
-use App\Ledger\Lines;
+use App\Ledger\PartnerMetrics;
 use App\Ledger\Period;
 use App\Ledger\ProfitAllocator;
 use App\Models\Account;
@@ -31,17 +30,12 @@ use Inertia\Response;
  */
 final class PartnersController extends Controller
 {
-    public function index(CurrentCompany $current, ProfitAllocator $allocator): Response
+    public function index(CurrentCompany $current, ProfitAllocator $allocator, PartnerMetrics $metrics): Response
     {
         $company = $current->require();
         $year = Period::fiscalYearOf($company, CarbonImmutable::today());
         $profitDue = $allocator->allocate($company, $year);
-        $revenue = Lines::profitAndLoss($company, $year)
-            ->where('a.role', AccountRole::Income->value)
-            ->whereNotNull('l.partner_id')
-            ->selectRaw('l.partner_id, COALESCE(SUM(l.credit_paise - l.debit_paise), 0) as amount')
-            ->groupBy('l.partner_id')
-            ->pluck('amount', 'partner_id');
+        $figures = $metrics->forPeriod($company, $year);
         $sides = Side::query()->orderBy('position')->orderBy('id')->get();
         $partners = Partner::query()->active()->with('side')->orderBy('position')->orderBy('id')->get();
 
@@ -59,9 +53,12 @@ final class PartnersController extends Controller
                 'overallBps' => $p->side_id === null ? $p->equity_bps : intdiv($p->side->equity_bps * $p->equity_bps, Equity::WHOLE),
                 'linked' => $p->user_id !== null,
                 'hasRecords' => $p->hasRecords(),
-                // This fiscal year: income they brought in and their share of profit (spec §4.4).
-                // Hours arrive with timesheets in Phase 4.
-                'stats' => ['revenuePaise' => (int) ($revenue[$p->id] ?? 0), 'profitDuePaise' => $profitDue[$p->id] ?? 0, 'hours' => 0],
+                // This fiscal year: income they brought in, their share of profit (spec §4.4) and hours billed to them.
+                'stats' => [
+                    'revenuePaise' => $figures[$p->id]['revenue'] ?? 0,
+                    'profitDuePaise' => $profitDue[$p->id] ?? 0,
+                    'hours' => intdiv($figures[$p->id]['hoursCenti'] ?? 0, 100),
+                ],
             ])->values(),
         ]);
     }

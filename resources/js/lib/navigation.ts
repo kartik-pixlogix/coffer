@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { index as partnersIndex } from '@/routes/partners';
 import { members as settingsMembers } from '@/routes/settings';
 import { index as teamIndex } from '@/routes/team';
 import { index as timesheetsIndex } from '@/routes/timesheets';
@@ -48,7 +49,12 @@ const RAIL: RailItem[][] = [
         },
     ],
     [
-        { page: 'partners', label: 'Partners', icon: ChartPie, href: null },
+        {
+            page: 'partners',
+            label: 'Partners',
+            icon: ChartPie,
+            href: partnersIndex().url,
+        },
         { page: 'team', label: 'Team', icon: Users, href: teamIndex().url },
         {
             page: 'timesheets',
