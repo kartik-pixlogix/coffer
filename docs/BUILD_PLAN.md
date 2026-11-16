@@ -95,13 +95,13 @@ Tick boxes here as you go (`- [x]`).
 
 **Read first:** spec §4 in full.
 
-- [ ] Chart-of-accounts generator per company, and money accounts (company account, per-side accounts).
-- [ ] `journal_entries` and `journal_lines` with dimensions. `LedgerPoster` (post, reverse) with a balance guard. FY periods and lock dates.
-- [ ] Opening-balance posting (from the wizard and Settings).
-- [ ] Profit allocation service (equity and per-partner modes, largest-remainder rounding).
-- [ ] Settlement calculator (spec §13).
-- [ ] Report query services: P&L by month/category, trial balance, balance sheet, capital statement.
-- [ ] Integrity job (nightly) plus admin alert. Invariant tests 1–6 from spec §4.5, including property-style tests with random postings.
+- [x] Chart-of-accounts generator per company, and money accounts (company account, per-side accounts).
+- [x] `journal_entries` and `journal_lines` with dimensions. `LedgerPoster` (post, reverse) with a balance guard. FY periods and lock dates.
+- [x] Opening-balance posting (from the wizard and Settings).
+- [x] Profit allocation service (equity and per-partner modes, largest-remainder rounding).
+- [x] Settlement calculator (spec §13).
+- [x] Report query services: P&L by month/category, trial balance, balance sheet, capital statement.
+- [x] Integrity job (nightly) plus admin alert. Invariant tests 1–6 from spec §4.5, including property-style tests with random postings.
 
 **Accept:**
 - All invariant tests pass for both Single and JV fixtures.
