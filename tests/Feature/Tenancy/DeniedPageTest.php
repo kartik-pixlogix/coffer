@@ -16,8 +16,7 @@ test('landing sends each role to its first page', function (CompanyRole $role, s
     'admin' => [CompanyRole::Admin, 'dashboard'],
     'partner' => [CompanyRole::Partner, 'dashboard'],
     'viewer' => [CompanyRole::Viewer, 'dashboard'],
-    // Until Timesheets ships, a Member lands on the next page they can open: Team.
-    'member' => [CompanyRole::Member, 'team.index'],
+    'member' => [CompanyRole::Member, 'timesheets.index'],
 ]);
 
 test('a direct visit to a page the role can’t open renders Permission denied', function () {
@@ -35,8 +34,7 @@ test('a direct visit to a page the role can’t open renders Permission denied',
             ->where('explanation', "The dashboard shows company-wide money, so in {$company->name} they’re for Admins, Partners and Viewers. You’re a Member, which covers your own hours, expenses and the vault items shared with you.")
             ->where('admins', ['Aarav Mehta'])
             ->where('request', null)
-            // Timesheets ships in Phase 4; until then the way out is Profile.
-            ->where('landing.label', 'Go to my profile')
+            ->where('landing.label', 'Go to my timesheets')
             ->where('canOpen', fn ($items) => collect($items)->pluck('page')->all() === ['team', 'timesheets', 'expenses', 'vault', 'profile']));
 
     expect($admin)->not->toBeNull();

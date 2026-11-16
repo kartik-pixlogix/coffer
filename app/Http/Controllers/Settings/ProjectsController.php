@@ -31,7 +31,7 @@ final class ProjectsController extends Controller
             ->selectRaw('project_id, COUNT(DISTINCT journal_entry_id) as n')
             ->groupBy('project_id')
             ->pluck('n', 'project_id');
-        $projects = Project::query()->orderBy('status')->orderBy('name')->get();
+        $projects = Project::query()->withCount('timeEntries')->orderBy('status')->orderBy('name')->get();
 
         return Inertia::render('settings/projects', [
             'projects' => $projects->map(fn (Project $p) => [
@@ -39,7 +39,7 @@ final class ProjectsController extends Controller
                 'name' => $p->name,
                 'client' => $p->client,
                 'status' => $p->status->value,
-                'records' => (int) ($lines[$p->id] ?? 0),
+                'records' => (int) ($lines[$p->id] ?? 0) + (int) $p->getAttribute('time_entries_count'),
             ])->values(),
         ]);
     }

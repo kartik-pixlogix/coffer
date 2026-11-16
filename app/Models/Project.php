@@ -10,6 +10,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A project (spec §16): name, client and status. Timesheet entries, income and
@@ -41,10 +42,17 @@ class Project extends Model
         $query->where('status', ProjectStatus::Active->value);
     }
 
-    /** Referenced by a journal line, so it can only be archived. */
+    /** @return HasMany<TimeEntry, $this> */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
+    /** Referenced by a timesheet entry or a journal line, so it can only be archived. */
     public function inUse(): bool
     {
-        return JournalLine::query()->where('project_id', $this->id)->exists();
+        return $this->timeEntries()->exists()
+            || JournalLine::query()->where('project_id', $this->id)->exists();
     }
 
     /** "Internal" is created with every company (spec §8.1). */

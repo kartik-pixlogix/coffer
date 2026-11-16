@@ -37,3 +37,4 @@ require __DIR__.'/auth.php';
 require __DIR__.'/companies.php';
 require __DIR__.'/settings.php';
 require __DIR__.'/team.php';
+require __DIR__.'/timesheets.php';

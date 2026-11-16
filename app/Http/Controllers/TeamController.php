@@ -54,7 +54,7 @@ final class TeamController extends Controller
         $company = $current->require();
         $month = CarbonImmutable::today()->startOfMonth();
         $members = Member::query()->with('rates')->orderBy('name')->get();
-        $figures = $earnings->forMonth($members, $month, CarbonImmutable::today());
+        $figures = $earnings->forMonth($members, $month);
         $withHistory = $this->idsWithHistory($members->modelKeys());
         $canManage = $user->can('create', Member::class);
 
@@ -87,7 +87,7 @@ final class TeamController extends Controller
         $months = [];
 
         for ($m = CarbonImmutable::instance($year->from ?? $today)->startOfMonth(); $m->lessThanOrEqualTo($today); $m = $m->addMonth()) {
-            $month = $earnings->forMember($member, $m, $today);
+            $month = $earnings->forMember($member, $m);
             $months[] = [
                 'month' => $m->toDateString(),
                 'hoursCenti' => $month->hoursCenti,

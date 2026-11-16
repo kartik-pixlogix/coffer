@@ -1066,3 +1066,156 @@ span.denied-can:not(#\#) {
     margin: 0;
     overflow-wrap: anywhere;
 }
+
+/* ── Timesheets ──────────────────────────────────────────── */
+.ts-kpis:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.ts-body:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.ts-team:not(#\#) {
+    flex: 1 1 300px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ts-entries:not(#\#) {
+    flex: 999 1 620px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ts-search:not(#\#) {
+    border-radius: var(--radius-full);
+    width: 220px;
+}
+
+.lh-row:not(#\#) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+}
+
+.lh-sat:not(#\#) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: var(--surface-muted);
+}
+
+.lh-warn:not(#\#) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--on-warning-soft);
+}
+
+@media (max-width: 640px) {
+    .lh-row:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* MobileLogHours: week strip, hours stepper */
+.ts-mtop:not(#\#) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ts-mtop:not(#\#) h1 {
+    margin: 0;
+    font-size: 26px;
+    line-height: 30px;
+}
+
+.wk:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.wk:not(#\#) button {
+    height: 58px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.wk:not(#\#) button[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+}
+
+.wk:not(#\#) button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.wk:not(#\#) button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus);
+}
+
+.ts-mcard:not(#\#) {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.lh-stepper:not(#\#) {
+    display: grid;
+    grid-template-columns: 52px 1fr 52px;
+    align-items: center;
+    gap: 8px;
+}
+
+.lh-step:not(#\#) {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.lh-stepper-value:not(#\#) {
+    text-align: center;
+}
+
+.lh-stepper-value:not(#\#) .t-mono {
+    font-size: 34px;
+    line-height: 40px;
+    font-weight: 500;
+}
+
+.lh-switch-wide:not(#\#) {
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+}
