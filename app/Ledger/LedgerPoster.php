@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Ledger;
 
-use App\Enums\JournalType;
 use App\Ledger\Exceptions\LedgerException;
 use App\Ledger\Exceptions\PeriodLockedException;
 use App\Ledger\Exceptions\UnbalancedEntryException;
@@ -79,7 +78,7 @@ final class LedgerPoster
                 throw new LedgerException('This entry has already been reversed.');
             }
 
-            if ($locked->type === JournalType::Reversal) {
+            if ($locked->reverses_id !== null) {
                 throw new LedgerException('A reversal can’t be reversed. Post a new entry instead.');
             }
 
@@ -110,7 +109,8 @@ final class LedgerPoster
 
             $reversal = $this->post($company, new EntryData(
                 date: $when,
-                type: JournalType::Reversal,
+                // A reversal keeps the original's type, so it nets out of the same figures.
+                type: $locked->type,
                 lines: $lines,
                 memo: $memo ?? 'Reversal of entry #'.$locked->id.($locked->memo ? ': '.$locked->memo : ''),
                 source: $locked->source_type !== null ? $locked->source : null,

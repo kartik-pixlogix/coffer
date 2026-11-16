@@ -86,7 +86,7 @@ test('a reversal mirrors the lines and links both entries; it can’t happen twi
 
     $reversal = poster()->reverse($entry);
 
-    expect($reversal->type)->toBe(JournalType::Reversal)
+    expect($reversal->type)->toBe(JournalType::Income)
         ->and($reversal->reverses_id)->toBe($entry->id)
         ->and($entry->fresh()->reversed_by_id)->toBe($reversal->id)
         ->and((int) JournalLine::query()->withoutGlobalScopes()->where('account_id', $money->id)->sum('debit_paise'))->toBe(7_500_00)

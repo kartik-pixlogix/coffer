@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-/** What a journal entry records (spec §4.2). */
+/**
+ * What a journal entry records (spec §4.2). A reversal keeps the type of the entry it
+ * reverses (and points at it with `reverses_id`), so it nets out of the same figures.
+ */
 enum JournalType: string
 {
     case Opening = 'opening';
@@ -19,5 +22,4 @@ enum JournalType: string
     case LoanConversion = 'loan_conversion';
     case Settlement = 'settlement';
     case FyClose = 'fy_close';
-    case Reversal = 'reversal';
 }
