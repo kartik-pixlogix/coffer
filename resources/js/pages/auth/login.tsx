@@ -69,7 +69,6 @@ export default function Login({ status, canResetPassword }: Props) {
                             autoComplete="email"
                             required
                             autoFocus
-                            aria-invalid={errors.email ? true : undefined}
                         />
 
                         <PasswordField

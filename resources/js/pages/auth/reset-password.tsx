@@ -5,7 +5,6 @@ import { MeterDots, StrengthLabel } from '@/components/auth/auth-parts';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextInput } from '@/components/ui/text-input';
-import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
 import { profileStrength } from '@/lib/password-strength';
 import { update } from '@/routes/password';
 
@@ -93,5 +92,3 @@ export default function ResetPassword({ token, email }: Props) {
         </>
     );
 }
-
-ResetPassword.layout = {} satisfies AuthLayoutProps;

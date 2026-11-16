@@ -7,7 +7,6 @@ import { CodeInput } from '@/components/ui/code-input';
 import { Icon } from '@/components/ui/icon';
 import { Modal } from '@/components/ui/modal';
 import { TextInput } from '@/components/ui/text-input';
-import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
 import { login } from '@/routes';
 import { store } from '@/routes/two-factor/login';
 
@@ -168,5 +167,3 @@ export default function TwoFactorChallenge({ email }: Props) {
         </>
     );
 }
-
-TwoFactorChallenge.layout = {} satisfies AuthLayoutProps;

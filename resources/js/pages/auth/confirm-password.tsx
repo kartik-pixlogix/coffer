@@ -3,7 +3,6 @@ import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { PasswordField } from '@/components/ui/password-field';
-import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
 import { store } from '@/routes/password/confirm';
 
 /** Confirm your password before a sensitive change (2FA setup), on the sign-in layout. */
@@ -60,5 +59,3 @@ export default function ConfirmPassword() {
         </>
     );
 }
-
-ConfirmPassword.layout = {} satisfies AuthLayoutProps;

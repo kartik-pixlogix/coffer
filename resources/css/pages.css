@@ -359,3 +359,230 @@ span.denied-can:not(#\#) {
     max-width: 520px;
     padding: 40px 32px;
 }
+
+/* ── Create-company wizard (CreateCompanySingle / JV / Steps) ───────────── */
+.wiz-frame:not(#\#) {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 40px 40px;
+    border-radius: 24px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.wiz-body:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.wiz-form:not(#\#) {
+    flex: 999 1 640px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.wiz-card:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.wiz-card--tight:not(#\#) {
+    gap: 14px;
+}
+
+.wiz-card--team:not(#\#) {
+    flex: 999 1 640px;
+    min-width: 0;
+    gap: 12px;
+}
+
+.wiz-card--review:not(#\#) {
+    gap: 10px;
+}
+
+.wiz-aside:not(#\#) {
+    flex: 1 1 320px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.wiz-aside--team:not(#\#) {
+    flex-basis: 300px;
+    gap: 12px;
+}
+
+.wiz-grid-2:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.wiz-grid-4:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.wiz-span-2:not(#\#) {
+    grid-column: span 2;
+}
+
+.wiz-code:not(#\#) {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+}
+
+.wiz-total:not(#\#) {
+    height: 28px;
+    font-size: 13px;
+}
+
+.wiz-total-figure:not(#\#) {
+    font-size: 13px;
+}
+
+/* Row grids: the design's columns plus the optional invite email (D23). */
+.wiz-row:not(#\#) {
+    display: grid;
+    gap: 10px;
+    align-items: center;
+}
+
+.wiz-row--single:not(#\#) {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr) 130px 130px 40px;
+}
+
+.wiz-row--sides:not(#\#) {
+    grid-template-columns: minmax(0, 1fr) 150px 110px 40px;
+}
+
+.wiz-row--jv:not(#\#) {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(
+            0,
+            1fr
+        ) 120px 160px 120px 40px;
+}
+
+.wiz-row--team:not(#\#) {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(
+            0,
+            1.2fr
+        ) 210px 190px 170px 40px;
+}
+
+.wiz-team:not(#\#) {
+    min-width: 960px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wiz-dot:not(#\#) {
+    width: 14px;
+    height: 14px;
+    border-radius: var(--radius-full);
+}
+
+.wiz-avatar:not(#\#) {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    cursor: pointer;
+}
+
+.wiz-num:not(#\#) {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.wiz-suffix:not(#\#) {
+    margin-right: 8px;
+}
+
+.wiz-select:not(#\#) {
+    height: 40px;
+    padding-left: 12px;
+}
+
+.wiz-rate:not(#\#) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wiz-per:not(#\#) {
+    white-space: nowrap;
+}
+
+.wiz-bar:not(#\#) {
+    display: flex;
+    height: 14px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    gap: 2px;
+    background: var(--surface-muted);
+}
+
+.wiz-list:not(#\#) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wiz-review:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.wiz-edit:not(#\#) {
+    font-size: 12px;
+}
+
+.wiz-foot:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+@media (max-width: 760px) {
+    .wiz-frame:not(#\#) {
+        padding: 16px;
+    }
+
+    .wiz-grid-2:not(#\#),
+    .wiz-grid-4:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wiz-span-2:not(#\#) {
+        grid-column: auto;
+    }
+
+    .wiz-row--single:not(#\#),
+    .wiz-row--jv:not(#\#) {
+        grid-template-columns: 40px minmax(0, 1fr) 40px;
+    }
+
+    .wiz-row--single:not(#\#) > :nth-child(n + 3):not(:last-child),
+    .wiz-row--jv:not(#\#) > :nth-child(n + 3):not(:last-child) {
+        grid-column: 2;
+    }
+}

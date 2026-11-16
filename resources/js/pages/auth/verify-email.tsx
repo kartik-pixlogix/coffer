@@ -3,7 +3,6 @@ import { MailCheck } from 'lucide-react';
 import { AlertBanner } from '@/components/ui/alert-banner';
 import { Button, TextButton } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
-import type { AuthLayoutProps } from '@/layouts/auth/auth-split-layout';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
 
@@ -64,5 +63,3 @@ export default function VerifyEmail({ status, email }: Props) {
         </>
     );
 }
-
-VerifyEmail.layout = {} satisfies AuthLayoutProps;
