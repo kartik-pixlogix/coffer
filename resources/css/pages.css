@@ -856,10 +856,15 @@ span.denied-can:not(#\#) {
     gap: 8px;
 }
 
-@media (max-width: 900px) {
+/* Two cards a row only when each has room for its three figures. */
+@media (max-width: 1200px) {
     .partner-grid:not(#\#) {
         grid-template-columns: minmax(0, 1fr);
     }
+}
+
+.partner-stats:not(#\#) .t-money {
+    overflow-wrap: anywhere;
 }
 
 .invite-side:not(#\#) .cf-seg-btn {
