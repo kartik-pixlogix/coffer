@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useShell } from '@/components/shell/shell-context';
 import { PageHeader } from '@/components/shell/page-header';
 import {
+    categories as categoriesRoute,
     members as membersRoute,
     partners as partnersRoute,
     projects as projectsRoute,
@@ -40,7 +41,11 @@ const ITEMS: NavItem[] = [
         href: sidesRoute().url,
         jvOnly: true,
     },
-    { tab: 'categories', label: 'Categories', href: null },
+    {
+        tab: 'categories',
+        label: 'Categories',
+        href: categoriesRoute().url,
+    },
     { tab: 'projects', label: 'Projects', href: projectsRoute().url },
     { tab: 'notifications', label: 'Notifications', href: null },
     { tab: 'billing', label: 'Billing', href: null },

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\CategoriesController;
 use App\Http\Controllers\Settings\InvitesController;
 use App\Http\Controllers\Settings\MembersController;
 use App\Http\Controllers\Settings\PartnersController;
@@ -48,4 +49,9 @@ Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('set
     Route::put('projects/{project}', [ProjectsController::class, 'update'])->name('settings.projects.update');
     Route::patch('projects/{project}/status', [ProjectsController::class, 'status'])->name('settings.projects.status');
     Route::delete('projects/{project}', [ProjectsController::class, 'destroy'])->name('settings.projects.destroy');
+
+    Route::get('categories', [CategoriesController::class, 'index'])->name('settings.categories');
+    Route::post('categories', [CategoriesController::class, 'store'])->name('settings.categories.store');
+    Route::put('categories/{category}', [CategoriesController::class, 'update'])->name('settings.categories.update');
+    Route::patch('categories/{category}/archive', [CategoriesController::class, 'archive'])->name('settings.categories.archive');
 });
