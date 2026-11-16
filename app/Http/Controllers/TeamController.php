@@ -68,7 +68,7 @@ final class TeamController extends Controller
                 'earningsPaise' => $figures[$m->id]->amountPaise,
                 'hasHistory' => in_array($m->id, $withHistory, true),
             ])->values(),
-            'can' => [
+            'abilities' => [
                 'manage' => $canManage,
                 'editRates' => $user->can('changeRate', Member::class),
                 'runSalaries' => $user->can('runSalaries', Member::class),
@@ -123,7 +123,7 @@ final class TeamController extends Controller
             ])->values(),
             'months' => $months,
             'salaries' => $this->salaries($member),
-            'can' => ['manage' => $canManage, 'editRates' => $user->can('changeRate', $member)],
+            'abilities' => ['manage' => $canManage, 'editRates' => $user->can('changeRate', $member)],
             'users' => $canManage ? $this->workspaceUsers($company) : [],
         ]);
     }

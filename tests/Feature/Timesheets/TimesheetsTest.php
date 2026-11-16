@@ -216,7 +216,7 @@ test('Members see and log only their own hours', function () {
             ->where('entries.data.0.memberName', 'Rohan Desai')
             ->has('team', 1)
             ->has('options.members', 1)
-            ->where('can.log', true));
+            ->where('abilities.log', true));
 });
 
 test('viewers can’t open timesheets', function () {

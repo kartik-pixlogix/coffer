@@ -88,7 +88,7 @@ final class PartnersController extends Controller
                     'settlement' => $row === null ? null : ['status' => $row->status(), 'amountPaise' => abs($row->remaining)],
                 ];
             })->values() : [],
-            'can' => ['editEquity' => $user->can('page.settings')],
+            'abilities' => ['editEquity' => $user->can('page.settings')],
         ]);
     }
 

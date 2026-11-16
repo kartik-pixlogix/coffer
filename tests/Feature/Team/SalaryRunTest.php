@@ -205,5 +205,5 @@ test('Admins preview and run salaries from Team; others can’t', function () {
 
     $partner = userWithRole(CompanyRole::Partner, $books->company);
     $this->actingAs($partner)->post(route('team.salaries.store'), ['month' => '2026-10'])->assertForbidden();
-    $this->actingAs($admin)->get(route('team.index'))->assertInertia(fn (Assert $page) => $page->where('can.runSalaries', true));
+    $this->actingAs($admin)->get(route('team.index'))->assertInertia(fn (Assert $page) => $page->where('abilities.runSalaries', true));
 });

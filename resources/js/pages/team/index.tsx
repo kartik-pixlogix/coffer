@@ -44,7 +44,7 @@ type Props = {
     month: string;
     partners: PartnerOption[];
     members: Member[];
-    can: TeamCan;
+    abilities: TeamCan;
     users: UserOption[];
 };
 
@@ -58,7 +58,7 @@ export default function TeamIndex({
     month,
     partners,
     members,
-    can,
+    abilities: can,
     users,
 }: Props) {
     const [tab, setTab] = useState('all');
@@ -175,7 +175,7 @@ export default function TeamIndex({
                                         key={m.id}
                                         member={m}
                                         partner={partnerOf.get(m.partnerId)}
-                                        can={can}
+                                        abilities={can}
                                         onEdit={() => openModal(m)}
                                         onStatus={() =>
                                             setConfirm({
@@ -226,14 +226,14 @@ export default function TeamIndex({
 function MemberCard({
     member: m,
     partner,
-    can,
+    abilities: can,
     onEdit,
     onStatus,
     onDelete,
 }: {
     member: Member;
     partner: PartnerOption | undefined;
-    can: TeamCan;
+    abilities: TeamCan;
     onEdit: () => void;
     onStatus: () => void;
     onDelete: () => void;

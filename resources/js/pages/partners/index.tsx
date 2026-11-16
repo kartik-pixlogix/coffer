@@ -62,7 +62,7 @@ type Props = {
     };
     partners: PartnerRow[];
     sides: SideRow[];
-    can: { editEquity: boolean };
+    abilities: { editEquity: boolean };
 };
 
 const dot = (colour: number) => partnerColourVar(colour as PartnerColour);
@@ -73,7 +73,13 @@ const pct = (bps: number) => formatEquityShort(bps);
  * charts; partner cards (grouped under side bands in a JV, one grid in a Single
  * company); and the detail table for the fiscal year.
  */
-export default function Partners({ company, fy, partners, sides, can }: Props) {
+export default function Partners({
+    company,
+    fy,
+    partners,
+    sides,
+    abilities: can,
+}: Props) {
     const totalRevenue = partners.reduce((s, p) => s + p.revenuePaise, 0);
     const sum = (key: keyof PartnerRow) =>
         partners.reduce((s, p) => s + (p[key] as number), 0);

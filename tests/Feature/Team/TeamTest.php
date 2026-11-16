@@ -75,8 +75,8 @@ test('the team page lists members with this month’s billable hours and earning
             ->where('members.1.name', 'Rohan Desai')
             ->where('members.1.earningsPaise', 80_000_00)
             ->where('members.1.hasHistory', false)
-            ->where('can.manage', true)
-            ->where('can.editRates', true));
+            ->where('abilities.manage', true)
+            ->where('abilities.editRates', true));
 });
 
 test('partners see the team but can’t manage it; viewers are denied', function () {
@@ -84,7 +84,7 @@ test('partners see the team but can’t manage it; viewers are denied', function
     $partner = userWithRole(CompanyRole::Partner, $t->company);
 
     $this->actingAs($partner)->get(route('team.index'))
-        ->assertInertia(fn (Assert $page) => $page->where('can.manage', false)->where('users', []));
+        ->assertInertia(fn (Assert $page) => $page->where('abilities.manage', false)->where('users', []));
     $this->actingAs($partner)->post(route('team.store'), [])->assertForbidden();
 
     $this->actingAs(userWithRole(CompanyRole::Viewer, $t->company))->get(route('team.index'))->assertForbidden();
@@ -98,7 +98,7 @@ test('a Member only sees their own profile', function () {
 
     $this->actingAs($user)->get(route('team.index'))->assertRedirect(route('team.show', $own));
     $this->actingAs($user)->get(route('team.show', $own))
-        ->assertInertia(fn (Assert $page) => $page->component('team/show')->where('member.name', 'Rohan Desai')->where('can.manage', false));
+        ->assertInertia(fn (Assert $page) => $page->component('team/show')->where('member.name', 'Rohan Desai')->where('abilities.manage', false));
     $this->actingAs($user)->get(route('team.show', $other))->assertForbidden();
 
     // A Member with no linked team member has no profile to see.

@@ -86,7 +86,7 @@ test('the JV page groups partners by side with the settlement pill', function ()
             ->where('sides.0.name', 'Vertex Labs')
             ->where('sides.0.revenuePaise', 10_00_000_00)
             ->where('sides.0.settlement.status', fn ($status) => in_array($status, ['owes', 'owed', 'settled'], true))
-            ->where('can.editEquity', true));
+            ->where('abilities.editEquity', true));
 });
 
 test('a Single company shows one grid, no sides', function () {
@@ -101,7 +101,7 @@ test('partners see the page; members and viewers don’t', function () {
 
     $this->actingAs(userWithRole(CompanyRole::Partner, $books->company))->get(route('partners.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->where('can.editEquity', false));
+        ->assertInertia(fn (Assert $page) => $page->where('abilities.editEquity', false));
     $this->actingAs(userWithRole(CompanyRole::Member, $books->company))->get(route('partners.index'))->assertForbidden();
     $this->actingAs(userWithRole(CompanyRole::Viewer, $books->company))->get(route('partners.index'))->assertForbidden();
 });

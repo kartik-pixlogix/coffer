@@ -82,11 +82,17 @@ type Props = {
     entries: Paginated<TimeEntry>;
     week: { day: string; start: string; entries: TimeEntry[] };
     options: TimesheetOptions;
-    can: { log: boolean; import: boolean };
+    abilities: { log: boolean; import: boolean };
 };
 
 /** A full month is the bar's 100% in "Team this month" (Timesheets.dc.html uses 80 h at mid-month). */
 const BAR_FULL_CENTI = 16000;
+
+/** "Rohan Desai" · "Rohan Desai and Neha Joshi" · "Rohan Desai and 6 others" */
+const namesLabel = (names: string[]) =>
+    names.length <= 2
+        ? names.join(' and ')
+        : `${names[0]} and ${names.length - 1} others`;
 
 const dotFor = (partners: PartnerOption[], id: number) => {
     const p = partners.find((x) => x.id === id);
@@ -125,7 +131,7 @@ export default function Timesheets(props: Props) {
                 />
             )}
 
-            {props.can.log &&
+            {props.abilities.log &&
                 (phone ? (
                     <LogHoursSheet
                         open={logOpen}
@@ -174,7 +180,7 @@ function DesktopTimesheets({
     team,
     entries,
     options,
-    can,
+    abilities: can,
     onLog,
     onDelete,
 }: Props & {
@@ -228,7 +234,7 @@ function DesktopTimesheets({
         {
             key: 'member',
             header: 'Member',
-            width: 'minmax(170px,1.3fr)',
+            width: 'minmax(160px,1.3fr)',
             cell: (e) => (
                 <span className="cf-row t-label-strong">
                     <span
@@ -260,7 +266,7 @@ function DesktopTimesheets({
         {
             key: 'type',
             header: 'Type',
-            width: '130px',
+            width: '120px',
             skeleton: 'pill',
             cell: (e) => (
                 <StatusPill status={e.billable ? 'billable' : 'nonBillable'} />
@@ -277,7 +283,7 @@ function DesktopTimesheets({
         {
             key: 'partner',
             header: 'Partner',
-            width: '120px',
+            width: '110px',
             cell: (e) => (
                 <span className="t-body t-muted">
                     {partnerName(e.partnerId)}
@@ -359,7 +365,7 @@ function DesktopTimesheets({
                     caption={
                         kpis.todayEntries === 0
                             ? 'Nothing yet today'
-                            : `${kpis.todayEntries} ${kpis.todayEntries === 1 ? 'entry' : 'entries'} · ${kpis.todayNames.join(', ')}`
+                            : `${kpis.todayEntries} ${kpis.todayEntries === 1 ? 'entry' : 'entries'} · ${namesLabel(kpis.todayNames)}`
                     }
                 />
             </section>
@@ -591,7 +597,7 @@ const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 function PhoneTimesheets({
     today,
     week,
-    can,
+    abilities: can,
     onLog,
 }: Props & { onLog: () => void }) {
     const [day, setDay] = useState(week.day);

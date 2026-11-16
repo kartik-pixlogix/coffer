@@ -61,7 +61,7 @@ type Props = {
     rates: Rate[];
     months: Month[];
     salaries: Salary[];
-    can: TeamCan;
+    abilities: TeamCan;
     users: UserOption[];
 };
 
@@ -79,7 +79,7 @@ export default function TeamShow({
     rates,
     months,
     salaries,
-    can,
+    abilities: can,
     users,
 }: Props) {
     const [editOpen, setEditOpen] = useState(false);

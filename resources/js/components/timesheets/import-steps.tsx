@@ -173,6 +173,7 @@ export function UploadStep() {
                     ) : (
                         <FileDrop
                             aria-label="Upload timesheet CSV"
+                            title="Drop your CSV here"
                             accept=".csv"
                             maxSize={MAX_BYTES}
                             limits=".csv up to 5 MB · up to 5,000 rows"
