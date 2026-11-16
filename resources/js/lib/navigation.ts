@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { members as settingsMembers } from '@/routes/settings';
 import type { Can, PageKey } from '@/types/permissions';
 
 export type RailItem = {
@@ -92,7 +93,7 @@ const RAIL: RailItem[][] = [
             page: 'settings',
             label: 'Settings',
             icon: SlidersHorizontal,
-            href: null,
+            href: settingsMembers().url,
             match: ['/settings'],
         },
         { page: 'billing', label: 'Billing', icon: CreditCard, href: null },
