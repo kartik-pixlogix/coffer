@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import {
+    Banknote,
     Ellipsis,
     Pencil,
     Plus,
@@ -14,6 +15,7 @@ import { PageHeader } from '@/components/shell/page-header';
 import { MemberConfirm } from '@/components/team/member-confirm';
 import type { MemberConfirmState } from '@/components/team/member-confirm';
 import { MemberModal } from '@/components/team/member-modal';
+import { RunSalariesModal } from '@/components/team/run-salaries-modal';
 import { initialsFrom, partnerColourVar } from '@/components/ui/avatar';
 import type { PartnerColour } from '@/components/ui/avatar';
 import { Button, ButtonLink } from '@/components/ui/button';
@@ -63,6 +65,7 @@ export default function TeamIndex({
     const [editing, setEditing] = useState<TeamMember | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [confirm, setConfirm] = useState<MemberConfirmState>(null);
+    const [salariesOpen, setSalariesOpen] = useState(false);
 
     const partnerOf = new Map(partners.map((p) => [p.id, p]));
     const shown =
@@ -85,6 +88,16 @@ export default function TeamIndex({
                 actions={
                     can.manage && (
                         <>
+                            {can.runSalaries && (
+                                <Button
+                                    variant="ghost"
+                                    size="lg"
+                                    icon={Banknote}
+                                    onClick={() => setSalariesOpen(true)}
+                                >
+                                    Run salaries
+                                </Button>
+                            )}
                             <ButtonLink
                                 href={importPage().url}
                                 variant="secondary"
@@ -194,6 +207,14 @@ export default function TeamIndex({
                     companyName={company.name}
                     workspaceName={company.workspace}
                     canEditRates={can.editRates}
+                />
+            )}
+
+            {can.runSalaries && (
+                <RunSalariesModal
+                    open={salariesOpen}
+                    onOpenChange={setSalariesOpen}
+                    today={month}
                 />
             )}
 

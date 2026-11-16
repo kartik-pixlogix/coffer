@@ -68,7 +68,11 @@ final class TeamController extends Controller
                 'earningsPaise' => $figures[$m->id]->amountPaise,
                 'hasHistory' => in_array($m->id, $withHistory, true),
             ])->values(),
-            'can' => ['manage' => $canManage, 'editRates' => $user->can('changeRate', Member::class)],
+            'can' => [
+                'manage' => $canManage,
+                'editRates' => $user->can('changeRate', Member::class),
+                'runSalaries' => $user->can('runSalaries', Member::class),
+            ],
             'users' => $canManage ? $this->workspaceUsers($company) : [],
         ]);
     }

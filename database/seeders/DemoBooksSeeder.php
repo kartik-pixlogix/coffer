@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\ProjectStatus;
 use App\Ledger\ChartOfAccounts;
 use App\Ledger\OpeningBalance;
 use App\Ledger\PayerLine;
@@ -12,8 +13,13 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\Member;
 use App\Models\Partner;
+use App\Models\Project;
+use App\Models\SalaryRun;
 use App\Models\Side;
+use App\Models\TimeEntry;
 use App\Models\User;
+use App\Services\Team\SalaryGenerator;
+use App\Services\Timesheets\Hours;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
@@ -50,10 +56,22 @@ class DemoBooksSeeder extends Seeder
 
     private const array PROJECTS = ['Saarthi portal', 'Asha Retail store', 'Kiran Exports site'];
 
+    private const array CLIENTS = [
+        'Saarthi portal' => 'Saarthi Portal JV', 'Asha Retail store' => 'Asha Retail', 'Kiran Exports site' => 'Kiran Exports',
+    ];
+
+    /** Each member's usual project (spec §24 projects). */
+    private const array WORKS_ON = [
+        'Rohan Desai' => 'Saarthi portal', 'Neha Joshi' => 'Saarthi portal', 'Sana Qureshi' => 'Saarthi portal',
+        'Dev Patel' => 'Kiran Exports site', 'Vivaan Kapoor' => 'Kiran Exports site',
+        'Arjun Nair' => 'Asha Retail store', 'Priya Menon' => 'Asha Retail store', 'Tanvi Shah' => 'Asha Retail store',
+    ];
+
     public function __construct(
         private readonly ChartOfAccounts $chart,
         private readonly OpeningBalance $opening,
         private readonly Postings $postings,
+        private readonly SalaryGenerator $salaries,
     ) {}
 
     public function run(): void
@@ -64,6 +82,13 @@ class DemoBooksSeeder extends Seeder
         foreach (Company::query()->orderBy('id')->get() as $company) {
             $this->chart->setUp($company);
             $this->opening->post($company, $start, $aarav);
+
+            foreach (self::PROJECTS as $name) {
+                Project::query()->withoutGlobalScopes()->firstOrCreate(
+                    ['company_id' => $company->id, 'name' => $name],
+                    ['client' => self::CLIENTS[$name], 'status' => ProjectStatus::Active],
+                );
+            }
         }
 
         $this->saarthi(Company::query()->where('name', 'Saarthi Portal JV')->firstOrFail(), $start, $aarav);
@@ -101,11 +126,13 @@ class DemoBooksSeeder extends Seeder
                 }
             }
 
-            // Salaries on the last day of the month (spec §8.3).
+            // Timesheets for the month, then salaries from them on the last day (spec §8.3).
+            $this->hours($company, $members, $monthStart, $monthEnd, $by);
+
             foreach ($members as $member) {
-                $amount = isset(self::HOURS[$member->name]) ? self::HOURS[$member->name] * $member->rate_paise : $member->rate_paise;
-                $this->postings->salary($company, $member, $amount, $monthEnd, by: $by);
-                $spent[$this->sideOf($member, $sides)] += $amount;
+                $this->salaries->runMember($company, $member, $monthStart, $by);
+                $spent[$this->sideOf($member, $sides)] += (int) SalaryRun::query()->withoutGlobalScopes()
+                    ->where('member_id', $member->id)->whereDate('month', $monthStart->toDateString())->value('amount_paise');
             }
 
             // Running costs from each side's account.
@@ -145,6 +172,56 @@ class DemoBooksSeeder extends Seeder
 
         // One settlement already made in August.
         $this->postings->settlementTransfer($company, $start->addMonths(4)->addDays(20), $sides['Vertex Labs'], $sides['Bluefin Infotech'], 1_00_000_00, 'NEFT 0842', by: $by);
+
+        // This month so far: daily hours up to today, no salary yet (it runs on the 1st).
+        $today = CarbonImmutable::today();
+        $this->hours($company, $members, $today->startOfMonth(), $today, $by, daily: true);
+    }
+
+    /**
+     * A month of timesheets (spec §24): each member's billable hours spread over the weekdays
+     * on their usual project (hourly members bill exactly HOURS, so salaries match the books),
+     * plus a little non-billable Internal time. `daily` logs a working day's hours instead.
+     *
+     * @param  Collection<int, Member>  $members
+     */
+    private function hours(Company $company, Collection $members, CarbonImmutable $from, CarbonImmutable $to, User $by, bool $daily = false): void
+    {
+        $projects = Project::query()->withoutGlobalScopes()->where('company_id', $company->id)->pluck('id', 'name');
+        $days = array_values(array_filter(
+            Hours::workingDays($from, Hours::WEEKDAYS),
+            fn (CarbonImmutable $d) => $d->lessThanOrEqualTo($to),
+        ));
+        $rows = [];
+        $now = now();
+
+        foreach ($members as $i => $member) {
+            $billable = $daily ? 0 : (self::HOURS[$member->name] ?? 150) * 100;
+            $parts = $daily ? array_fill(0, count($days), [650, 700, 750, 800][$i % 4]) : Hours::distribute($billable, count($days));
+
+            foreach ($days as $d => $day) {
+                $rows[] = [
+                    'company_id' => $company->id, 'member_id' => $member->id, 'partner_id' => $member->partner_id,
+                    'project_id' => $projects[self::WORKS_ON[$member->name] ?? 'Saarthi portal'], 'date' => $day->toDateString(),
+                    'hours_centi' => $parts[$d], 'billable' => true, 'notes' => null, 'created_by' => $by->id,
+                    'created_at' => $now, 'updated_at' => $now,
+                ];
+
+                // Stand-ups and reviews: an hour of Internal time on Fridays.
+                if ($day->isFriday()) {
+                    $rows[] = [
+                        'company_id' => $company->id, 'member_id' => $member->id, 'partner_id' => $member->partner_id,
+                        'project_id' => $projects[Project::INTERNAL], 'date' => $day->toDateString(),
+                        'hours_centi' => 100, 'billable' => false, 'notes' => 'Stand-up and review', 'created_by' => $by->id,
+                        'created_at' => $now, 'updated_at' => $now,
+                    ];
+                }
+            }
+        }
+
+        foreach (array_chunk($rows, 500) as $chunk) {
+            TimeEntry::query()->insert($chunk);
+        }
     }
 
     private function vertexLabs(Company $company, CarbonImmutable $start, User $by): void

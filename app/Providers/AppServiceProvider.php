@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\Team\SalaryRecalc;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
 use Carbon\CarbonImmutable;
@@ -21,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // One per request (and per queued job), reset between them.
         $this->app->scoped(CurrentCompany::class);
+        $this->app->scoped(SalaryRecalc::class);
     }
 
     /**

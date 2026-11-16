@@ -211,7 +211,8 @@ final class TimesheetsController extends Controller
 
         $log->assertOpen($current->require(), $entries->pluck('date'));
 
-        DB::transaction(fn () => TimeEntry::query()->whereKey($entries->modelKeys())->delete());
+        // One by one, so each deletion re-runs a posted salary for its month (spec §8.3).
+        DB::transaction(fn () => $entries->each(fn (TimeEntry $e) => $e->delete()));
 
         activity('timesheets')->performedOn($entry->member)->causedBy($request->user())
             ->withProperties(['entries' => $entries->count()])

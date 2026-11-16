@@ -47,6 +47,12 @@ final class MemberPolicy
         return $user->can('action.team.manage');
     }
 
+    /** "Run salaries" posts money, so it needs "Manage team" (Admins by default). */
+    public function runSalaries(User $user): bool
+    {
+        return $user->can('action.team.manage');
+    }
+
     /** Members see and log only their own records (spec §2.1 "own" rows). */
     public function ownOnly(): bool
     {

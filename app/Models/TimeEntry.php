@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToCompany;
+use App\Services\Team\SalaryRecalc;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -33,6 +34,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TimeEntry extends Model
 {
     use BelongsToCompany;
+
+    protected static function booted(): void
+    {
+        // Changing hours in a month whose salary is posted re-runs that salary (spec §8.3).
+        $changed = function (TimeEntry $entry): void {
+            $recalc = app(SalaryRecalc::class);
+            $recalc->hoursChanged($entry->company_id, $entry->member_id, $entry->date);
+
+            if ($entry->wasChanged(['member_id', 'date'])) {
+                $recalc->hoursChanged($entry->company_id, (int) $entry->getOriginal('member_id'), CarbonImmutable::parse($entry->getOriginal('date')));
+            }
+        };
+
+        static::saved($changed);
+        static::deleted($changed);
+    }
 
     protected function casts(): array
     {

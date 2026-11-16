@@ -19,4 +19,9 @@ export type TeamMember = {
     hasHistory: boolean;
 };
 
-export type TeamCan = { manage: boolean; editRates: boolean };
+export type TeamCan = {
+    manage: boolean;
+    editRates: boolean;
+    /** "Run salaries" (Team page only). */
+    runSalaries?: boolean;
+};
