@@ -159,14 +159,14 @@ Tick boxes here as you go (`- [x]`).
 - spec §5, §15, §4.6
 - screens: `Main`, `Reports`, `Statements`, `SettingsCompany`, `StateEmpty`, `StateLoading`
 
-- [ ] Dashboard with real data:
+- [x] Dashboard with real data (D58, D59, D64):
   - period control, KPIs with trends, balance hero with formula strip
   - charts, pending approvals, expiring credentials
   - empty and loading states
-- [ ] Reports: period presets, KPIs, ratios, monthly table, partner P&L, PDF and Excel export (queued when large).
-- [ ] Trial balance and Balance sheet with status banners and "Find the drift".
-- [ ] Settings › Company (all fields), and FY close (preview, type-to-confirm, lock, reopen).
-- [ ] Cache report aggregates. Invalidate on posting.
+- [x] Reports: period presets, KPIs, ratios, monthly table, partner P&L, PDF and Excel export (queued when large). (D59, D61)
+- [x] Trial balance and Balance sheet with status banners and "Find the drift". (D60)
+- [x] Settings › Company (all fields), and FY close (preview, type-to-confirm, lock, reopen). (D63, D65)
+- [x] Cache report aggregates. Invalidate on posting. (D62)
 
 **Accept:**
 - Figures reconcile across Dashboard, Reports, TB, BS and Capital for the same period.
