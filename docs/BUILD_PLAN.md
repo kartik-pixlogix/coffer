@@ -113,23 +113,23 @@ Tick boxes here as you go (`- [x]`).
 - spec §6, §7, §8
 - screens: `Partners`, `Team`, `Timesheets`, `BulkImport`, `MobileLogHours`
 
-- [ ] Partners page (Single grid, JV grouped by side, charts, detailed table).
-- [ ] Team: list with partner tabs, add/edit modal (cost type switch, rate history), deactivate. Member profile page (derived).
-- [ ] Projects (Settings › Projects).
-- [ ] Timesheets:
+- [x] Partners page (Single grid, JV grouped by side, charts, detailed table). (D39)
+- [x] Team: list with partner tabs, add/edit modal (cost type switch, rate history), deactivate. Member profile page (derived). (D37)
+- [x] Projects (Settings › Projects).
+- [x] Timesheets:
   - KPIs, team summary, filters, pagination, edit and delete
-  - Log hours modal: Day mode, and Month mode with Saturdays preview and exact distribution
-- [ ] Bulk import:
+  - Log hours modal: Day mode, and Month mode with Saturdays preview and exact distribution (D35, D36)
+- [x] Bulk import:
   - upload, alias mapping, preview with row errors
   - queued commit, error CSV
-  - manual monthly entries tab
-- [ ] Salary generation job plus "Run now" (idempotent, reverse and re-post on change).
+  - manual monthly entries tab (D40)
+- [x] Salary generation job plus "Run now" (idempotent, reverse and re-post on change). (D38)
 
 **Accept:**
-- Hours distribution sums exactly.
+- Hours distribution sums exactly. (Property tests in PHP and Vitest, every month of FY 2026-27, with and without Saturdays.)
 - Imports handle every format in spec §8.2.
-- Salary expenses post correctly.
-- Pages match the designs, including mobile Log hours.
+- Salary expenses post correctly. (Seeded books still balance and hit the design figures; the integrity check passes.)
+- Pages match the designs, including mobile Log hours. (Checked in Chrome, light and dark, desktop and 390 px; D41.)
 
 ## Phase 5: Finance
 
