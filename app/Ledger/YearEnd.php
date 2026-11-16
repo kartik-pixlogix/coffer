@@ -27,6 +27,8 @@ final class YearEnd
         private readonly ChartOfAccounts $chart,
         private readonly ProfitAllocator $allocator,
         private readonly Reports $reports,
+        private readonly FiscalYears $fiscalYears,
+        private readonly ReportCache $cache,
     ) {}
 
     /**
@@ -69,6 +71,11 @@ final class YearEnd
             $entry = $this->postClosingEntry($company, $locked, $by);
 
             $locked->forceFill(['closed_at' => now(), 'closed_by' => $by->id, 'closing_entry_id' => $entry?->id])->save();
+
+            // Capital carries forward on its own (capital accounts run on); the next year's
+            // row exists so it shows as open straight away.
+            $this->fiscalYears->forDate($company, $locked->ends_on->addDay());
+            $this->cache->flush($company);
 
             return $entry;
         });

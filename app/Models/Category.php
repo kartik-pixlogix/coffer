@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CategoryKind;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use BelongsToCompany;
+    use FlushesReportCache;
 
     public const string SALARY = 'Salary';
 

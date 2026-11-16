@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\FlushesReportCache;
 use Database\Factories\SideFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Side extends Model
 {
     use BelongsToCompany;
+    use FlushesReportCache;
 
     /** @use HasFactory<SideFactory> */
     use HasFactory;

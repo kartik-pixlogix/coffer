@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\AccountRole;
 use App\Enums\AccountType;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\FlushesReportCache;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Account extends Model
 {
     use BelongsToCompany;
+    use FlushesReportCache;
 
     protected function casts(): array
     {

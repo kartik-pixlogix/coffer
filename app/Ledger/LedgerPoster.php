@@ -21,7 +21,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class LedgerPoster
 {
-    public function __construct(private readonly FiscalYears $fiscalYears) {}
+    public function __construct(
+        private readonly FiscalYears $fiscalYears,
+        private readonly ReportCache $reportCache,
+    ) {}
 
     public function post(Company $company, EntryData $entry): JournalEntry
     {
@@ -59,6 +62,11 @@ final class LedgerPoster
                 'member_id' => $line->memberId,
                 'project_id' => $line->projectId,
             ], $lines));
+
+            // Cached report aggregates are stale now (D62). Bump again once the transaction commits,
+            // so a request that read the old books meanwhile can't keep its result.
+            $this->reportCache->flush($company);
+            DB::afterCommit(fn () => $this->reportCache->flush($company));
 
             return $journal;
         });

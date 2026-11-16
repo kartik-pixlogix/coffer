@@ -219,7 +219,12 @@ final class Reports
      * The headline figures (spec §4.3): income, expenses, net, salary, other, and the
      * current balance with its formula strip (opening + income − expenses ± capital & loans).
      *
-     * @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int}
+     * `capitalAndLoans` is everything else that moved cash; it splits into `capital`
+     * (contributions, drawings, loans and repayments) and `personal` (money partners or
+     * members are owed for personal cards, less what partners hold personally), so the
+     * strip can name every term (D58).
+     *
+     * @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int, capital: int, personal: int}
      */
     public function figures(Company $company, Period $period): array
     {
@@ -228,13 +233,88 @@ final class Reports
         $opening = ($period->from === null ? 0 : $this->moneyBalance($company, Period::asOf($period->from->subDay())))
             + $this->openingInPeriod($company, $period);
 
+        $other = Lines::in($company, $period)
+            ->whereNotIn('e.type', [JournalType::Opening->value, JournalType::FyClose->value])
+            ->whereIn('a.role', [AccountRole::Capital->value, AccountRole::LoansPayable->value, AccountRole::PartnerCurrent->value, AccountRole::ReimbursementsPayable->value])
+            ->selectRaw('a.role, COALESCE(SUM(l.credit_paise - l.debit_paise), 0) as amount')
+            ->groupBy('a.role')
+            ->pluck('amount', 'role')
+            ->map(fn ($v) => (int) $v);
+
         return [
             ...$pnl,
             'currentBalance' => $currentBalance,
             'opening' => $opening,
             // Whatever else moved cash: capital, loans, personal cards and reimbursements.
             'capitalAndLoans' => $currentBalance - $opening - $pnl['net'],
+            'capital' => ($other[AccountRole::Capital->value] ?? 0) + ($other[AccountRole::LoansPayable->value] ?? 0),
+            'personal' => ($other[AccountRole::PartnerCurrent->value] ?? 0) + ($other[AccountRole::ReimbursementsPayable->value] ?? 0),
         ];
+    }
+
+    /**
+     * Trial balance on Statements (spec §15): each account's net balance as of a date, in
+     * the debit or credit column. Balance-sheet accounts run from the beginning; income and
+     * expenses only from the start of the fiscal year, before closing (the year's own FY
+     * close is left out on both sides, so a closed year still shows its income and
+     * expenses). Profit of earlier years that were never closed shows as its own equity
+     * row, so the columns always agree when every entry balances (D60).
+     *
+     * @return array{accounts: list<array{id: int|null, code: string, name: string, type: string, role: string|null, debit: int, credit: int}>, debit: int, credit: int, drift: int}
+     */
+    public function trialBalanceAsOf(Company $company, CarbonImmutable $fyStart, CarbonImmutable $asOf): array
+    {
+        $pnlRoles = [AccountRole::Income->value, AccountRole::Expense->value];
+        $fromDay = $fyStart->toDateString();
+
+        $select = 'a.id, a.code, a.name, a.type, a.role, COALESCE(SUM(l.debit_paise - l.credit_paise), 0) as net';
+        $balance = Lines::in($company, Period::asOf($asOf))
+            ->whereNotIn('a.role', $pnlRoles)
+            ->where(fn ($q) => $q->where('e.type', '!=', JournalType::FyClose->value)->orWhere('l.date', '<', $fromDay))
+            ->selectRaw($select)
+            ->groupBy('a.id', 'a.code', 'a.name', 'a.type', 'a.role');
+        $profit = Lines::profitAndLoss($company, Period::between($fyStart, $asOf))
+            ->selectRaw($select)
+            ->groupBy('a.id', 'a.code', 'a.name', 'a.type', 'a.role');
+
+        $accounts = [];
+
+        foreach ($balance->unionAll($profit)->get() as $row) {
+            $net = (int) $row->net;
+            $accounts[] = [
+                'id' => (int) $row->id,
+                'code' => (string) $row->code,
+                'name' => (string) $row->name,
+                'type' => (string) $row->type,
+                'role' => (string) $row->role,
+                'debit' => max($net, 0),
+                'credit' => max(-$net, 0),
+            ];
+        }
+
+        usort($accounts, fn (array $a, array $b) => strnatcmp($a['code'], $b['code']));
+
+        $earlier = (int) (Lines::in($company, Period::asOf($fyStart->subDay()))
+            ->whereIn('a.role', $pnlRoles)
+            ->selectRaw('COALESCE(SUM(l.debit_paise - l.credit_paise), 0) as net')
+            ->value('net') ?? 0);
+
+        if ($earlier !== 0) {
+            $accounts[] = [
+                'id' => null,
+                'code' => '3900',
+                'name' => 'Profit of earlier years, not yet closed',
+                'type' => 'equity',
+                'role' => null,
+                'debit' => max($earlier, 0),
+                'credit' => max(-$earlier, 0),
+            ];
+        }
+
+        $debit = array_sum(array_column($accounts, 'debit'));
+        $credit = array_sum(array_column($accounts, 'credit'));
+
+        return ['accounts' => $accounts, 'debit' => $debit, 'credit' => $credit, 'drift' => $debit - $credit];
     }
 
     /** @return array<int, int> partner id → capital balance (credit-positive) */

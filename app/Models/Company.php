@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\AttributionMode;
 use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
+use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -34,6 +35,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $legal_name
  * @property string|null $gstin
  * @property string|null $address
+ * @property int $hours_per_day_centi standard working day in hundredths of an hour (D63)
+ * @property string|null $logo_path private-disk path of the logo
  * @property CarbonImmutable|null $created_at
  * @property-read Workspace $workspace
  * @property-read Collection<int, User> $users
@@ -46,12 +49,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 #[Fillable([
     'workspace_id', 'name', 'short_code', 'type', 'currency', 'fy_start_month', 'working_days',
-    'attribution_mode', 'opening_balance_paise', 'legal_name', 'gstin', 'address',
+    'attribution_mode', 'opening_balance_paise', 'legal_name', 'gstin', 'address', 'hours_per_day_centi',
 ])]
 class Company extends Model
 {
     /** @use HasFactory<CompanyFactory> */
-    use HasFactory, SoftDeletes;
+    use FlushesReportCache, HasFactory, SoftDeletes;
 
     protected function casts(): array
     {
@@ -61,6 +64,7 @@ class Company extends Model
             'opening_balance_paise' => 'integer',
             'fy_start_month' => 'integer',
             'working_days' => 'integer',
+            'hours_per_day_centi' => 'integer',
         ];
     }
 
