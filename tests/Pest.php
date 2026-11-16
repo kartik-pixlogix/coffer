@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 use App\Actions\Companies\SetCompanyRole;
 use App\Enums\CompanyRole;
+use App\Ledger\ChartOfAccounts;
+use App\Models\Category;
 use App\Models\Company;
+use App\Models\MoneyAccount;
+use App\Models\Partner;
+use App\Models\Side;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -36,4 +42,67 @@ function companyOf(User $user): Company
 {
     /** @var Company */
     return $user->companies()->firstOrFail();
+}
+
+/**
+ * A Single company with books set up: Vertex Labs, Aarav 60% / Ishita 40%.
+ *
+ * @return object{company: Company, aarav: Partner, ishita: Partner, account: MoneyAccount}
+ */
+function singleBooks(int $openingPaise = 0): object
+{
+    $company = Company::factory()->create(['name' => 'Vertex Labs Pvt Ltd', 'opening_balance_paise' => $openingPaise]);
+    $aarav = Partner::factory()->for($company)->create(['name' => 'Aarav Mehta', 'equity_bps' => 6000, 'colour' => 1, 'position' => 0]);
+    $ishita = Partner::factory()->for($company)->create(['name' => 'Ishita Rao', 'equity_bps' => 4000, 'colour' => 2, 'position' => 1]);
+
+    $chart = app(ChartOfAccounts::class);
+    $chart->setUp($company);
+
+    return (object) ['company' => $company, 'aarav' => $aarav, 'ishita' => $ishita, 'account' => $chart->companyAccount($company)];
+}
+
+/**
+ * A joint venture with books set up: Saarthi Portal JV, Vertex Labs 50% (Aarav 60 / Ishita 40)
+ * and Bluefin Infotech 50% (Kabir 50 / Meera 50).
+ */
+function jvBooks(int $openingPaise = 0): object
+{
+    $company = Company::factory()->jv()->create(['name' => 'Saarthi Portal JV', 'opening_balance_paise' => $openingPaise]);
+    $vertex = Side::factory()->for($company)->create(['name' => 'Vertex Labs', 'equity_bps' => 5000, 'position' => 0]);
+    $bluefin = Side::factory()->for($company)->create(['name' => 'Bluefin Infotech', 'equity_bps' => 5000, 'position' => 1]);
+
+    $partner = fn (string $name, $side, int $bps, int $colour, int $position) => Partner::factory()->for($company)
+        ->create(['name' => $name, 'side_id' => $side->id, 'equity_bps' => $bps, 'colour' => $colour, 'position' => $position]);
+
+    $books = (object) [
+        'company' => $company,
+        'vertex' => $vertex,
+        'bluefin' => $bluefin,
+        'aarav' => $partner('Aarav Mehta', $vertex, 6000, 1, 0),
+        'ishita' => $partner('Ishita Rao', $vertex, 4000, 2, 1),
+        'kabir' => $partner('Kabir Shah', $bluefin, 5000, 3, 2),
+        'meera' => $partner('Meera Iyer', $bluefin, 5000, 4, 3),
+    ];
+
+    $chart = app(ChartOfAccounts::class);
+    $chart->setUp($company);
+
+    $books->account = $chart->companyAccount($company);
+    $books->vertexAccount = $chart->sideAccount($vertex);
+    $books->bluefinAccount = $chart->sideAccount($bluefin);
+
+    return $books;
+}
+
+/** A company's category by kind and name ("income", "Project"). */
+function category(Company $company, string $kind, string $name): Category
+{
+    return Category::query()->withoutGlobalScopes()
+        ->where('company_id', $company->id)->where('kind', $kind)->where('name', $name)->firstOrFail();
+}
+
+/** 1 April 2026 + `$days`. */
+function fyDay(int $days = 0): CarbonImmutable
+{
+    return CarbonImmutable::create(2026, 4, 1)->addDays($days);
 }
