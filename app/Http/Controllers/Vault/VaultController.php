@@ -97,6 +97,7 @@ final class VaultController extends Controller
                 'create' => $creatable->isNotEmpty(),
                 'newVault' => $twoFactor && $access->isAdmin($user),
                 'admin' => $twoFactor && $access->isAdmin($user),
+                'audit' => $twoFactor && $access->mayAudit($user),
             ],
         ]);
     }

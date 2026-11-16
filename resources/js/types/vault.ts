@@ -12,6 +12,11 @@ export type VaultPolicy = {
     idleLockMinutes: number;
     clipboardClearSeconds: number;
     revealSeconds: number;
+    /** Every reveal / copy needs a new code (D76). */
+    freshCodeEachReveal: boolean;
+    /** Lock when the tab closes or reloads (D76). */
+    lockOnClose: boolean;
+    generatorMinLength: number;
 };
 
 /** The session's lock and step-up state (App\Services\Vault\VaultSession::state). */
@@ -201,7 +206,12 @@ export type VaultIndexProps = {
     scope: VaultHealthKey | 'fav' | 'shared' | 'expiring' | null;
     /** Null while locked. */
     sharing: VaultSharingSummary | null;
-    abilities: { create: boolean; newVault: boolean; admin: boolean };
+    abilities: {
+        create: boolean;
+        newVault: boolean;
+        admin: boolean;
+        audit: boolean;
+    };
 };
 
 export type VaultHealthKey = keyof VaultHealthCounts;
@@ -531,7 +541,12 @@ export type VaultAuditRow = {
 };
 
 export type VaultAuditLog = {
-    kpis: { events: number; reveals: number; shares: number; newDevices: number };
+    kpis: {
+        events: number;
+        reveals: number;
+        shares: number;
+        newDevices: number;
+    };
     /** Events per action group (and "all") under the other filters. */
     counts: Record<string, number>;
     rows: VaultAuditRow[];
@@ -548,4 +563,37 @@ export type VaultAuditProps = {
     /** Null while locked. */
     log: VaultAuditLog | null;
     groups: { key: string; label: string }[];
+};
+
+/* ---- Policies (VaultLockPolicies.dc.html, D76) ---- */
+
+export type VaultExportWho = 'admins' | 'admins_partners' | 'none';
+
+/** The policies form, as the server validates it. */
+export type VaultPolicyForm = {
+    reauth_minutes: number;
+    idle_lock_minutes: number;
+    fresh_code_each_reveal: boolean;
+    lock_on_close: boolean;
+    clipboard_clear_seconds: number;
+    reveal_seconds: number;
+    export_who: VaultExportWho;
+    export_reason: boolean;
+    breach_checks: boolean;
+    generator_min_length: number;
+};
+
+export type VaultPoliciesProps = {
+    vaultState: VaultState;
+    policy: VaultPolicyForm;
+    options: {
+        reauth: number[];
+        idle: number[];
+        clipboard: number[];
+        reveal: number[];
+        generator: number[];
+    };
+    vaultCount: number;
+    /** VAULT_HIBP_ENABLED is on for this server. */
+    breachAvailable: boolean;
 };

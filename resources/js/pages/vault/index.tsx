@@ -10,6 +10,7 @@ import { ItemDetail, ItemLoading } from '@/components/vault/home/item-detail';
 import { LockCard } from '@/components/vault/home/lock-card';
 import type { LockReason } from '@/components/vault/home/lock-card';
 import { useIdleLock } from '@/components/vault/home/use-idle-lock';
+import { VaultToolsMenu } from '@/components/vault/home/tools-menu';
 import { visibleItems } from '@/components/vault/home/vault-home.utils';
 import type {
     VaultScope,
@@ -259,6 +260,7 @@ export default function VaultIndex(props: VaultIndexProps) {
                         Unlock vault
                     </Button>
                 ))}
+            {twoFactor && unlocked && <VaultToolsMenu abilities={abilities} />}
             {abilities.create && unlocked && (
                 <ButtonLink
                     href={create().url}

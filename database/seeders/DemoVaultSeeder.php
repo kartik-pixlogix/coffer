@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Actions\Vault\SaveVaultItem;
+use App\Auth\DeviceLabel;
 use App\Enums\VaultAccessDuration;
 use App\Enums\VaultAccessLevel;
 use App\Enums\VaultAuditAction;
@@ -115,6 +116,7 @@ class DemoVaultSeeder extends Seeder
 
             $this->contaboKey($items['contabo'], $aarav);
             $this->activity($company, $items['github'], $aarav, $ishita, $rohan);
+            $this->auditTrail($company, $items, $aarav, $ishita, $kabir, $rohan);
         });
     }
 
@@ -209,6 +211,35 @@ class DemoVaultSeeder extends Seeder
     }
 
     /** The GitHub drawer's timeline (Vault.dc.html). */
+    /**
+     * VaultAudit.dc.html's week: reveals, copies, edits and a new device (D75).
+     *
+     * @param  array<string, VaultItem>  $items
+     */
+    private function auditTrail(Company $company, array $items, User $aarav, User $ishita, User $kabir, User $rohan): void
+    {
+        $mac = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36';
+        $ubuntu = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0';
+        $iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
+        $android = 'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Mobile Safari/537.36';
+
+        foreach ([
+            [$aarav, VaultAuditAction::Revealed, 'aws', 'password', '2026-11-15 09:41', $mac, '198.51.100.24', false],
+            [$rohan, VaultAuditAction::Copied, 'mysql', 'password', '2026-11-15 09:12', $ubuntu, '203.0.113.41', true],
+            [$kabir, VaultAuditAction::Edited, 'razorpay', null, '2026-11-14 18:05', $iphone, '192.0.2.77', true],
+            [$ishita, VaultAuditAction::Revealed, 'gmail', 'password', '2026-11-13 22:31', $android, '198.51.100.87', true],
+            [$rohan, VaultAuditAction::Copied, 'contabo', 'passphrase', '2026-11-13 15:02', $ubuntu, '203.0.113.41', false],
+            [$aarav, VaultAuditAction::Edited, 'vercel', null, '2026-11-12 09:55', $mac, '198.51.100.24', true],
+        ] as [$user, $action, $key, $field, $at, $agent, $ip, $new]) {
+            $item = $items[$key];
+            VaultAuditEvent::query()->create([
+                'company_id' => $company->id, 'user_id' => $user->id, 'vault_id' => $item->vault_id, 'vault_item_id' => $item->id,
+                'item_name' => $item->name, 'action' => $action, 'field' => $field, 'ip' => $ip, 'user_agent' => $agent,
+                'device' => DeviceLabel::from($agent), 'new_device' => $new, 'created_at' => CarbonImmutable::parse($at),
+            ]);
+        }
+    }
+
     private function activity(Company $company, VaultItem $item, User $aarav, User $ishita, User $rohan): void
     {
         foreach ([
@@ -226,6 +257,8 @@ class DemoVaultSeeder extends Seeder
                 'field' => $field,
                 'ip' => $ip,
                 'user_agent' => $agent,
+                'device' => DeviceLabel::from($agent),
+                'new_device' => $user->is($aarav) && $action === VaultAuditAction::Revealed,
                 'meta' => ['label' => 'Password'],
                 'created_at' => CarbonImmutable::parse($at),
             ]);

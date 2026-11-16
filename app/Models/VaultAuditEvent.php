@@ -27,11 +27,13 @@ use LogicException;
  * @property string|null $field
  * @property string|null $ip
  * @property string|null $user_agent
+ * @property string|null $device "Chrome on macOS", set when written (D75)
+ * @property bool $new_device the first event from this person on this device
  * @property array<string, mixed>|null $meta
  * @property CarbonImmutable $created_at
  * @property-read User|null $user
  */
-#[Fillable(['company_id', 'user_id', 'vault_id', 'vault_item_id', 'item_name', 'action', 'field', 'ip', 'user_agent', 'meta', 'created_at'])]
+#[Fillable(['company_id', 'user_id', 'vault_id', 'vault_item_id', 'item_name', 'action', 'field', 'ip', 'user_agent', 'device', 'new_device', 'meta', 'created_at'])]
 class VaultAuditEvent extends Model
 {
     use BelongsToCompany;
@@ -49,6 +51,7 @@ class VaultAuditEvent extends Model
         return [
             'action' => VaultAuditAction::class,
             'meta' => 'array',
+            'new_device' => 'boolean',
             'created_at' => 'immutable_datetime',
         ];
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Vault\VaultAuditController;
 use App\Http\Controllers\Vault\VaultController;
 use App\Http\Controllers\Vault\VaultHealthController;
 use App\Http\Controllers\Vault\VaultItemController;
@@ -57,6 +58,10 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
         Route::post('vault/health/check', [VaultHealthController::class, 'check'])->middleware('throttle:vault-requests')->name('vault.health.check');
         Route::get('vault/health/export', [VaultHealthController::class, 'export'])->middleware('throttle:vault-files')->name('vault.health.export');
     });
+
+    // Audit log (spec §14.4, D75): Admins or "Export and view audit log"; the CSV is itself audited.
+    Route::get('vault/audit', [VaultAuditController::class, 'index'])->name('vault.audit');
+    Route::get('vault/audit/export', [VaultAuditController::class, 'export'])->middleware(['vault.unlocked', 'throttle:vault-files'])->name('vault.audit.export');
 
     // Offboarding rotate lists (D73).
     Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');

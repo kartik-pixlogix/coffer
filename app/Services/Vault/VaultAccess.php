@@ -251,7 +251,7 @@ final class VaultAccess
     /** The audit log (spec §14.4 "Admin only"; the matrix's "Export and view audit log" can open it to others, D75). */
     public function mayAudit(User $user): bool
     {
-        return $user->hasTwoFactorEnabled() && $this->ceiling($user) !== null && $this->allowsAction($user, 'vault.export');
+        return $this->ceiling($user) !== null && $this->allowsAction($user, 'vault.export');
     }
 
     /** @return array{vaults: array<int, VaultAccessLevel>, items: array<int, VaultAccessLevel>} */

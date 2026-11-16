@@ -4101,3 +4101,76 @@ span.denied-can:not(#\#) {
     }
 }
 /* vault-health: end */
+
+/* vault-audit: VaultAudit.dc.html (D75) */
+.va-page:not(#\#) {
+    gap: 20px;
+}
+
+.va-kpis:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.va-card:not(#\#) {
+    gap: 14px;
+    min-width: 0;
+}
+
+.va-head:not(#\#) {
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.va-filters:not(#\#) {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.va-search:not(#\#) {
+    width: 260px;
+    max-width: 100%;
+}
+
+.va-chips:not(#\#) {
+    flex-wrap: wrap;
+}
+
+.va-dates:not(#\#) {
+    max-width: 360px;
+}
+
+.va-table:not(#\#) {
+    min-width: 1000px;
+}
+
+.va-cols:not(#\#) {
+    grid-template-columns: 130px minmax(160px, 1fr) 120px minmax(
+            220px,
+            1.4fr
+        ) 140px minmax(190px, 1fr);
+}
+
+.va-user:not(#\#) {
+    gap: 8px;
+}
+
+.va-item:not(#\#) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.va-device:not(#\#) {
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+    .va-kpis:not(#\#) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+/* vault-audit: end */

@@ -14,3 +14,6 @@ Schedule::command('coffer:vault-expire-grants')->everyFifteenMinutes()->withoutO
 // Spec §14.4: expiry alerts at 30, 7 and 1 days; the optional breach check (D74).
 Schedule::command('coffer:vault-expiry-alerts')->dailyAt('08:00')->withoutOverlapping()->onOneServer();
 Schedule::command('coffer:vault-breach-check')->weeklyOn(1, '04:00')->withoutOverlapping()->onOneServer();
+
+// VaultAudit.dc.html: vault audit events are kept for 12 months (D75).
+Schedule::command('coffer:vault-audit-prune')->monthlyOn(2, '03:30')->withoutOverlapping()->onOneServer();
