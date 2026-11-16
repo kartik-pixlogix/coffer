@@ -137,8 +137,8 @@ Tick boxes here as you go (`- [x]`).
 - spec §9–§13
 - screens: `Income`, `Expenses`, `MobileExpenses`, `CapitalAccounts`, `PartnerLoans`, `Settlements`, `Notifications`
 
-- [ ] Income: CRUD with reversals, attachment, KPIs, trend, sorting.
-- [ ] Expenses:
+- [x] Income: CRUD with reversals, attachment, KPIs, trend, sorting. (D42, D48)
+- [x] Expenses (D43–D48), plus Settings › Categories (D49):
   - Add/edit modal: Full / Half / Custom payers with live total check, paid-from including personal card, receipt upload, inline new category, bill to client
   - Approvals with reject reason, bulk approve/reject, filters, search, export
   - Receipt drawer, Auto rows read-only
