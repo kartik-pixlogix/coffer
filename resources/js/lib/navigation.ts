@@ -18,6 +18,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
 import { members as settingsMembers } from '@/routes/settings';
+import { index as teamIndex } from '@/routes/team';
 import type { Can, PageKey } from '@/types/permissions';
 
 export type RailItem = {
@@ -47,7 +48,7 @@ const RAIL: RailItem[][] = [
     ],
     [
         { page: 'partners', label: 'Partners', icon: ChartPie, href: null },
-        { page: 'team', label: 'Team', icon: Users, href: null },
+        { page: 'team', label: 'Team', icon: Users, href: teamIndex().url },
         { page: 'timesheets', label: 'Timesheets', icon: Clock, href: null },
     ],
     [

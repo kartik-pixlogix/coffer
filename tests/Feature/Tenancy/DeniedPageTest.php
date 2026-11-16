@@ -16,8 +16,8 @@ test('landing sends each role to its first page', function (CompanyRole $role, s
     'admin' => [CompanyRole::Admin, 'dashboard'],
     'partner' => [CompanyRole::Partner, 'dashboard'],
     'viewer' => [CompanyRole::Viewer, 'dashboard'],
-    // Timesheets ships in Phase 4; until then a Member lands on their profile.
-    'member' => [CompanyRole::Member, 'profile.edit'],
+    // Until Timesheets ships, a Member lands on the next page they can open: Team.
+    'member' => [CompanyRole::Member, 'team.index'],
 ]);
 
 test('a direct visit to a page the role can’t open renders Permission denied', function () {

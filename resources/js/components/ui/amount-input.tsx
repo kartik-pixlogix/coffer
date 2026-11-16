@@ -27,6 +27,8 @@ export type AmountInputProps = FieldMessageProps & {
     size?: 'md' | 'sm';
     /** Right-align the figure (split/payer rows). */
     align?: 'left' | 'right';
+    /** Trailing caption inside the field: "/ hour", "/ month" (Team.dc.html). */
+    suffix?: ReactNode;
     /**
      * Form field name. A hidden input with this name carries the value in paise, so
      * plain form posts never see the grouped text.
@@ -61,6 +63,7 @@ export function AmountInput({
     onValueChange,
     size = 'md',
     align = 'left',
+    suffix,
     name,
     wrapClassName,
     fieldClassName,
@@ -182,6 +185,11 @@ export function AmountInput({
                 onKeyDown={handleKeyDown}
                 {...rest}
             />
+            {suffix !== undefined && (
+                <span className="t-caption t-muted whitespace-nowrap">
+                    {suffix}
+                </span>
+            )}
             {name !== undefined && (
                 <input
                     type="hidden"

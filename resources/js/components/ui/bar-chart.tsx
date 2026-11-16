@@ -42,8 +42,12 @@ export type BarChartProps = {
     emptyText?: ReactNode;
     /** Grow the bars in over duration-hero (off under reduced motion). */
     animate?: boolean;
+    /** Value text for chips, tooltips and labels; rupees by default ("142 h" for hours). */
+    format?: (value: number) => string;
     className?: string;
 };
+
+const formatRupees = (value: number) => formatInr(value);
 
 const GROW = { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const };
 
@@ -92,6 +96,7 @@ export function BarChart({
     emptyTitle = 'No profit yet',
     emptyText = 'Bars appear after the first month closes.',
     animate = true,
+    format = formatRupees,
     className,
 }: BarChartProps) {
     const reduced = useReducedMotion();
@@ -132,7 +137,7 @@ export function BarChart({
                 {selectedIndex !== null && values[selectedIndex] !== null && (
                     <span className="t-money-sm t-muted">
                         {labels[selectedIndex].period} ·{' '}
-                        {formatInr(values[selectedIndex] ?? 0)}
+                        {format(values[selectedIndex] ?? 0)}
                     </span>
                 )}
             </div>
@@ -175,7 +180,10 @@ export function BarChart({
     }
 
     const ariaFor = (i: number) =>
-        `${labels[i].period} ${metric} ${formatInr(values[i] ?? 0)}`;
+        `${labels[i].period} ${metric} ${format(values[i] ?? 0)}`;
+    // Rupee chips are compact (₹6L); other units show their own text.
+    const chip = (v: number) =>
+        format === formatRupees ? formatBarChip(v) : format(v);
 
     const bar = (i: number, negative: boolean) => (
         <motion.button
@@ -207,7 +215,7 @@ export function BarChart({
         <ChartTooltip
             arrow
             title={labels[i].period}
-            value={formatInr(values[i] ?? 0)}
+            value={format(values[i] ?? 0)}
             style={{ bottom, left: '50%', transform: 'translateX(-50%)' }}
         />
     );
@@ -234,7 +242,7 @@ export function BarChart({
                                             className="cf-pill cf-pill--pos t-money-sm"
                                             style={CHIP}
                                         >
-                                            {formatBarChip(v)}
+                                            {chip(v)}
                                         </span>
                                     )}
                                     {bar(i, false)}
@@ -256,7 +264,7 @@ export function BarChart({
                                             className="cf-pill cf-pill--neg"
                                             style={{ ...CHIP, fontSize: 12 }}
                                         >
-                                            {formatBarChip(v)}
+                                            {chip(v)}
                                         </span>
                                     )}
                                 </>
@@ -289,9 +297,7 @@ export function BarChart({
                     {data.map((d, i) => (
                         <tr key={i}>
                             <th scope="row">{labels[i].period}</th>
-                            <td>
-                                {d.value === null ? '—' : formatInr(d.value)}
-                            </td>
+                            <td>{d.value === null ? '—' : format(d.value)}</td>
                         </tr>
                     ))}
                 </tbody>

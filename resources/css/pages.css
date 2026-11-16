@@ -1012,3 +1012,57 @@ span.denied-can:not(#\#) {
         filter: none;
     }
 }
+
+/* ── Team ────────────────────────────────────────────────── */
+.team-grid:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.team-name:not(#\#) {
+    font-size: 15px;
+    line-height: 20px;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.team-name:not(#\#):hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.team-name:not(#\#):focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 0 3px var(--focus);
+    outline: none;
+}
+
+/* Member profile (derived from Team.dc.html cards) */
+.profile-row:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.profile-main:not(#\#) {
+    flex: 999 1 520px;
+    min-width: 0;
+}
+
+.profile-side:not(#\#) {
+    flex: 1 1 320px;
+    min-width: 0;
+}
+
+.profile-facts:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    margin: 0;
+}
+
+.profile-facts:not(#\#) dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
