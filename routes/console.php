@@ -10,3 +10,7 @@ Schedule::command('coffer:salaries')->monthlyOn(1, '03:00')->withoutOverlapping(
 
 // Spec §14.2: grants past their "Access ends" date are removed and audited.
 Schedule::command('coffer:vault-expire-grants')->everyFifteenMinutes()->withoutOverlapping()->onOneServer();
+
+// Spec §14.4: expiry alerts at 30, 7 and 1 days; the optional breach check (D74).
+Schedule::command('coffer:vault-expiry-alerts')->dailyAt('08:00')->withoutOverlapping()->onOneServer();
+Schedule::command('coffer:vault-breach-check')->weeklyOn(1, '04:00')->withoutOverlapping()->onOneServer();

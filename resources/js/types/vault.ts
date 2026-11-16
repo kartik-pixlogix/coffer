@@ -453,3 +453,99 @@ export type VaultOffboardingRow = {
         canRotate: boolean;
     }[];
 };
+
+/* ---- Security health (VaultHealth.dc.html, D74) ---- */
+
+export type VaultHealthRow = {
+    id: number;
+    name: string;
+    monogram: string;
+    vault: string;
+    /** "Last changed 9 Apr 2026 · 220 days ago". */
+    detail: string;
+    /** The viewer can Edit it (Rotate / Renew / Add 2FA). */
+    canFix: boolean;
+};
+
+export type VaultHealthList = {
+    key: VaultHealthKey;
+    title: string;
+    why: string;
+    /** "Rotate", "Rotate now", "Renew", "Add 2FA". */
+    action: string;
+    rows: VaultHealthRow[];
+};
+
+export type VaultHealthReport = {
+    score: number | null;
+    grade: string | null;
+    counts: VaultHealthCounts;
+    issues: number;
+    /** Items with at least one issue. */
+    affected: number;
+    total: number;
+    /** The category whose fixes raise the score most. */
+    biggest: VaultHealthKey | null;
+    /** Last breach check, ISO. */
+    checkedAt: string | null;
+    lists: VaultHealthList[];
+};
+
+export type VaultHealthProps = {
+    vaultState: VaultState;
+    /** Null while locked. */
+    report: VaultHealthReport | null;
+    offboardings: VaultOffboardingRow[];
+    filter: VaultHealthKey | null;
+    breachChecks: boolean;
+    abilities: { admin: boolean };
+};
+
+/* ---- Audit log (VaultAudit.dc.html, D75) ---- */
+
+export type VaultAuditFilters = {
+    range: 'today' | '7d' | '30d' | 'custom';
+    from: string;
+    to: string;
+    user: number | null;
+    /** An action group key ("revealed", "edited"…). */
+    action: string | null;
+    q: string;
+    item: number | null;
+    page: number;
+};
+
+export type VaultAuditRow = {
+    id: number;
+    at: string;
+    user: string | null;
+    colour: number | null;
+    action: string;
+    label: string;
+    field: string | null;
+    item: string | null;
+    itemId: number | null;
+    ip: string | null;
+    device: string | null;
+    newDevice: boolean;
+};
+
+export type VaultAuditLog = {
+    kpis: { events: number; reveals: number; shares: number; newDevices: number };
+    /** Events per action group (and "all") under the other filters. */
+    counts: Record<string, number>;
+    rows: VaultAuditRow[];
+    total: number;
+    page: number;
+    pages: number;
+    perPage: number;
+    people: { id: number; name: string }[];
+};
+
+export type VaultAuditProps = {
+    vaultState: VaultState;
+    filters: VaultAuditFilters;
+    /** Null while locked. */
+    log: VaultAuditLog | null;
+    groups: { key: string; label: string }[];
+};

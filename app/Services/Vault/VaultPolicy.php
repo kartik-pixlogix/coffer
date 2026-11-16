@@ -18,11 +18,12 @@ final readonly class VaultPolicy
         public int $idleLockMinutes,
         public int $clipboardClearSeconds,
         public int $revealSeconds,
+        public bool $breachChecks = true,
     ) {}
 
     public static function for(?Company $company = null): self
     {
-        /** @var array{reauth_minutes: int, idle_lock_minutes: int, clipboard_clear_seconds: int, reveal_seconds: int} $p */
+        /** @var array{reauth_minutes: int, idle_lock_minutes: int, clipboard_clear_seconds: int, reveal_seconds: int, breach_checks: bool} $p */
         $p = config('vault.policy');
 
         return new self(
@@ -30,6 +31,7 @@ final readonly class VaultPolicy
             idleLockMinutes: (int) $p['idle_lock_minutes'],
             clipboardClearSeconds: (int) $p['clipboard_clear_seconds'],
             revealSeconds: (int) $p['reveal_seconds'],
+            breachChecks: (bool) $p['breach_checks'],
         );
     }
 

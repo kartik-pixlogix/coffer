@@ -14,6 +14,7 @@ use Database\Seeders\DemoWorkspaceSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Spec §14.3 "Never leak secrets" and the Phase 7 acceptance test: with the demo vault
@@ -32,7 +33,8 @@ function assertNoSecretIn(string $haystack, string $where): void
 function assertBodyClean(TestResponse $response, string $where): void
 {
     expect($response->getStatusCode())->toBeLessThan(500, "{$where} failed");
-    assertNoSecretIn((string) $response->getContent(), $where);
+    $body = $response->baseResponse instanceof StreamedResponse ? $response->streamedContent() : (string) $response->getContent();
+    assertNoSecretIn($body, $where);
 }
 
 test('no seeded secret appears in pages, props, logs, activity diffs, audit rows or queue payloads', function () {
@@ -59,6 +61,8 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
         assertBodyClean($this->get(route('dashboard')), 'the dashboard');
         assertBodyClean($this->get(route('team.show', $member)), 'the member profile');
         assertBodyClean($this->get(route('vault.requests')), 'the requests inbox');
+        assertBodyClean($this->get(route('vault.health')), 'the health page');
+        assertBodyClean($this->get(route('vault.health.export')), 'the health report CSV');
 
         foreach ($items as $item) {
             assertBodyClean($this->get(route('vault.index', ['item' => $item->id])), "the drawer of {$item->name}");

@@ -23,7 +23,10 @@ import { scopeCount } from '@/components/vault/home/vault-home.utils';
 import type { VaultScope } from '@/components/vault/home/vault-home.utils';
 import { RequestAccessModal } from '@/components/vault/share/request-access-modal';
 import { cn } from '@/lib/utils';
-import { requests as requestsIndex } from '@/routes/vault';
+import {
+    health as healthPage,
+    requests as requestsIndex,
+} from '@/routes/vault';
 import { store as vaultStore } from '@/routes/vault/vaults';
 import type {
     VaultHealthSummary,
@@ -273,7 +276,7 @@ export function VaultRail({
                 )}
             </div>
 
-            {health && <HealthCard health={health} />}
+            {health && <HealthCard health={health} onScope={onScope} />}
 
             {canAddVault && (
                 <NewVaultModal open={adding} onOpenChange={setAdding} />
@@ -301,7 +304,13 @@ const HEALTH_ROWS: {
     { key: 'expiring', label: 'Expiring soon' },
 ];
 
-function HealthCard({ health }: { health: VaultHealthSummary }) {
+function HealthCard({
+    health,
+    onScope,
+}: {
+    health: VaultHealthSummary;
+    onScope: (scope: VaultScope) => void;
+}) {
     return (
         <section className="vh-health" aria-labelledby="vh-health-t">
             <div className="cf-row" style={{ gap: 12 }}>
@@ -319,25 +328,29 @@ function HealthCard({ health }: { health: VaultHealthSummary }) {
                     </span>
                 </span>
             </div>
-            <ul className="t-caption vh-health-list">
+            <ul className="t-caption vh-health-rows">
                 {HEALTH_ROWS.map((row) => (
                     <li key={row.key}>
-                        <span>{row.label}</span>
-                        <span className="t-money-sm">
-                            {health.counts[row.key]}
-                        </span>
+                        <button
+                            type="button"
+                            className="vh-health-row"
+                            aria-label={`Show ${row.label.toLocaleLowerCase('en-IN')}: ${health.counts[row.key]}`}
+                            onClick={() => onScope(row.key)}
+                        >
+                            <span>{row.label}</span>
+                            <span className="t-money-sm">
+                                {health.counts[row.key]}
+                            </span>
+                        </button>
                     </li>
                 ))}
             </ul>
-            <button
-                type="button"
+            <Link
+                href={healthPage().url}
                 className="cf-btn cf-btn--glass cf-btn--sm vh-health-link"
-                disabled
-                title="Coming soon"
-                aria-label="Open health report (coming soon)"
             >
                 Open health report
-            </button>
+            </Link>
         </section>
     );
 }

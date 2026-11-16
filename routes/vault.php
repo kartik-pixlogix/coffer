@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Vault\VaultController;
+use App\Http\Controllers\Vault\VaultHealthController;
 use App\Http\Controllers\Vault\VaultItemController;
 use App\Http\Controllers\Vault\VaultOffboardingController;
 use App\Http\Controllers\Vault\VaultRequestsController;
@@ -50,6 +51,13 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
     Route::get('vault/requests', [VaultRequestsController::class, 'index'])->name('vault.requests');
     Route::post('vault/requests', [VaultRequestsController::class, 'store'])->middleware('throttle:vault-requests')->name('vault.requests.store');
     Route::delete('vault/requests/{accessRequest}', [VaultRequestsController::class, 'destroy'])->name('vault.requests.destroy');
+    // Security health (spec §14.4, D74): fix-it lists, the optional breach check, a CSV of the issues.
+    Route::get('vault/health', [VaultHealthController::class, 'index'])->name('vault.health');
+    Route::middleware('vault.unlocked')->group(function () {
+        Route::post('vault/health/check', [VaultHealthController::class, 'check'])->middleware('throttle:vault-requests')->name('vault.health.check');
+        Route::get('vault/health/export', [VaultHealthController::class, 'export'])->middleware('throttle:vault-files')->name('vault.health.export');
+    });
+
     // Offboarding rotate lists (D73).
     Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');
 

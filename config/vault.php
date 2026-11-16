@@ -32,6 +32,8 @@ return [
         'clipboard_clear_seconds' => 30,
         // A revealed value hides itself after this.
         'reveal_seconds' => 30,
+        // Have I Been Pwned checks (D74): on per company, but only if VAULT_HIBP_ENABLED is true.
+        'breach_checks' => true,
     ],
 
     // Spec §14.3: reveals (and copies, codes and downloads) are rate-limited per user.
