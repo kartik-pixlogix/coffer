@@ -64,27 +64,27 @@ Tick boxes here as you go (`- [x]`).
 - spec §2, §3, §16, §17, §18
 - screens: `SignIn`, `SignUp`, `AcceptInvite`, `CreateCompanySingle`, `CreateCompanyJV`, `CreateCompanySteps`, `SettingsMembers`, `SettingsPartners`, `StateDenied`, `StateSession`, `Profile`
 
-- [ ] Auth pages restyled to the designs:
+- [x] Auth pages restyled to the designs:
   - sign in (+ 2FA challenge, error and lockout copy)
   - sign up, forgot and reset password, verify email
   - Google sign-in (Socialite)
   - 2FA setup with recovery codes, trusted devices
-- [ ] Models and tables:
+- [x] Models and tables:
   - Workspace, Company (type single/jv, FY start, currency, attribution mode)
   - Side, Partner (colour, role, equity), `company_user` with role
   - spatie/permission teams (team = company)
   - default page and action permissions seeded per company
-- [ ] Current-company middleware plus the switcher. `BelongsToCompany` scope. Policies on every route. A cross-company access test.
-- [ ] Create-company wizard:
+- [x] Current-company middleware plus the switcher. `BelongsToCompany` scope. Policies on every route. A cross-company access test.
+- [x] Create-company wizard:
   - Single and JV step 1 with live validation (100% totals, even split)
   - Team step, Review & launch (single transaction)
   - "Save and exit" draft
-- [ ] Invites by email or share link (role, link to partner/member, expiry), the accept page (valid and expired states), revoke and resend.
-- [ ] Settings › Members & invites, and Roles & permissions (editable matrices, reset).
-- [ ] Settings › Partners & equity (edit partner modal, colours, archive) and Partner sides (JV totals), from `SettingsPartners`.
-- [ ] Profile and security: profile fields, number format, password change (signs out others), sessions list with sign-out.
-- [ ] Session-expired re-auth dialog. "Permission denied" page.
-- [ ] Demo seeders: workspace, companies, sides, partners, users.
+- [x] Invites by email or share link (role, link to partner/member, expiry), the accept page (valid and expired states), revoke and resend.
+- [x] Settings › Members & invites, and Roles & permissions (editable matrices, reset).
+- [x] Settings › Partners & equity (edit partner modal, colours, archive) and Partner sides (JV totals), from `SettingsPartners`.
+- [x] Profile and security: profile fields, number format, password change (signs out others), sessions list with sign-out.
+- [x] Session-expired re-auth dialog. "Permission denied" page.
+- [x] Demo seeders: workspace, companies, sides, partners, users.
 
 **Accept:**
 - Each role sees exactly the pages and actions in spec §2 (feature tests per role).

@@ -56,7 +56,7 @@ These are "Design Component" prototypes. Use them as a visual and behavioural re
 | `VaultAudit.dc.html` | `/vault/audit` | `vault/audit` | Filters by date, person, action |
 | `VaultLockPolicies.dc.html` | `/vault/locked` (state), `/vault/policies` | `vault/locked`, `vault/policies` | Screen tweak |
 | `Billing.dc.html` | `/billing` | `billing/index` | Upgrade modal; usage bars |
-| `Profile.dc.html` | `/profile` | `settings/profile` | 2FA tweak (Off/On); sessions |
+| `Profile.dc.html` | `/profile` | `account/profile` | 2FA tweak (Off/On); sessions |
 | `Notifications.dc.html` | panel in the top bar + `/notifications` | `notifications/index` | Filters; approve inline |
 | `MobileDashboard.dc.html` | `/dashboard` at 390 px | (responsive) | |
 | `MobileExpenses.dc.html` | `/expenses` at 390 px | (responsive) | Add expense as a full-height sheet; paid from / personal card; bill to client |
