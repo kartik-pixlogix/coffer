@@ -4,6 +4,7 @@ import { useShell } from '@/components/shell/shell-context';
 import { PageHeader } from '@/components/shell/page-header';
 import {
     categories as categoriesRoute,
+    company as companyRoute,
     members as membersRoute,
     partners as partnersRoute,
     projects as projectsRoute,
@@ -31,7 +32,7 @@ type NavItem = {
 };
 
 const ITEMS: NavItem[] = [
-    { tab: 'company', label: 'Company', href: null },
+    { tab: 'company', label: 'Company', href: companyRoute().url },
     { tab: 'members', label: 'Members & invites', href: membersRoute().url },
     { tab: 'roles', label: 'Roles & permissions', href: rolesRoute().url },
     { tab: 'partners', label: 'Partners & equity', href: partnersRoute().url },

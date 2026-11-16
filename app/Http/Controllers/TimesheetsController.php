@@ -108,7 +108,7 @@ final class TimesheetsController extends Controller
         ];
 
         return Inertia::render('timesheets/index', [
-            'company' => ['name' => $company->name, 'workingDays' => $company->working_days],
+            'company' => ['name' => $company->name, 'workingDays' => $company->working_days, 'hoursPerDayCenti' => $company->hours_per_day_centi],
             'today' => $today->toDateString(),
             'month' => $month->toDateString(),
             'filters' => (object) $filters,

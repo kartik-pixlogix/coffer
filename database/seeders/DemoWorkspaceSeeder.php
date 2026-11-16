@@ -70,6 +70,12 @@ class DemoWorkspaceSeeder extends Seeder
     private function saarthi(Workspace $workspace, User $aarav, User $ishita, User $kabir, User $meera, User $rohan, User $accounts): void
     {
         $company = $this->company($workspace, 'Saarthi Portal JV', 'SPJV', CompanyType::Jv, 0);
+        // SettingsCompany.dc.html's details.
+        $company->update([
+            'legal_name' => 'Saarthi Portal Joint Venture',
+            'gstin' => '27ABCDE1234F1Z5',
+            'address' => 'Office 402, Baner Road, Pune, Maharashtra 411045',
+        ]);
 
         $this->current->run($company, function () use ($company, $aarav, $ishita, $kabir, $meera, $rohan, $accounts): void {
             $vertex = Side::query()->create(['name' => 'Vertex Labs', 'equity_bps' => 5000, 'position' => 0]);

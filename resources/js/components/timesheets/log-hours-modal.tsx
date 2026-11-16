@@ -25,6 +25,8 @@ type Props = {
     companyName: string;
     today: string;
     workingDays: number;
+    /** The company's standard day (Settings › Company), for a full month's hint. */
+    hoursPerDayCenti?: number;
 };
 
 /**
@@ -40,6 +42,7 @@ export function LogHoursModal({
     companyName,
     today,
     workingDays,
+    hoursPerDayCenti,
 }: Props) {
     const internal = options.projects.find(
         (p) => p.active && p.name === 'Internal',
@@ -174,7 +177,9 @@ export function LogHoursModal({
                     label={draft.mode === 'month' ? 'Total hours' : 'Hours'}
                     help={
                         draft.mode === 'month'
-                            ? 'Accepts 57.33 or 57:20'
+                            ? hoursPerDayCenti
+                                ? `A full month is ${formatCenti(days * hoursPerDayCenti)} h. Accepts 57.33 or 57:20`
+                                : 'Accepts 57.33 or 57:20'
                             : 'Accepts 7.5 or 7:30'
                     }
                     error={form.hoursError ?? undefined}

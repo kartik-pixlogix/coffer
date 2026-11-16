@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\CategoriesController;
+use App\Http\Controllers\Settings\CompanyController;
 use App\Http\Controllers\Settings\InvitesController;
 use App\Http\Controllers\Settings\MembersController;
 use App\Http\Controllers\Settings\PartnersController;
@@ -18,7 +19,15 @@ Route::middleware(['auth'])->group(function () {
 
 // Company settings (spec §16): the Settings page permission, Admins by default.
 Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('settings')->group(function () {
-    Route::redirect('/', '/settings/members');
+    Route::redirect('/', '/settings/company');
+
+    Route::get('company', [CompanyController::class, 'index'])->name('settings.company');
+    Route::put('company', [CompanyController::class, 'update'])->name('settings.company.update');
+    Route::get('company/logo', [CompanyController::class, 'logo'])->name('settings.company.logo');
+    Route::post('company/logo', [CompanyController::class, 'uploadLogo'])->middleware('throttle:20,1')->name('settings.company.logo.store');
+    Route::delete('company/logo', [CompanyController::class, 'removeLogo'])->name('settings.company.logo.destroy');
+    Route::post('company/fiscal-years/{fiscalYear}/close', [CompanyController::class, 'close'])->middleware('throttle:10,1')->name('settings.company.close');
+    Route::post('company/fiscal-years/{fiscalYear}/reopen', [CompanyController::class, 'reopen'])->middleware('throttle:10,1')->name('settings.company.reopen');
 
     Route::get('members', [MembersController::class, 'index'])->name('settings.members');
     Route::patch('members/{user}/role', [MembersController::class, 'updateRole'])->name('settings.members.role');

@@ -22,7 +22,12 @@ import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomeIndex } from '@/routes/income';
 import { index as loansIndex } from '@/routes/partner-loans';
 import { index as partnersIndex } from '@/routes/partners';
-import { members as settingsMembers } from '@/routes/settings';
+import {
+    balanceSheet as balanceSheetRoute,
+    index as reportsIndex,
+    trialBalance as trialBalanceRoute,
+} from '@/routes/reports';
+import { company as settingsCompany } from '@/routes/settings';
 import { index as settlementsIndex } from '@/routes/settlements';
 import { index as teamIndex } from '@/routes/team';
 import { index as timesheetsIndex } from '@/routes/timesheets';
@@ -101,18 +106,23 @@ const RAIL: RailItem[][] = [
         },
     ],
     [
-        { page: 'reports', label: 'Reports', icon: ChartColumn, href: null },
+        {
+            page: 'reports',
+            label: 'Reports',
+            icon: ChartColumn,
+            href: reportsIndex().url,
+        },
         {
             page: 'trial_balance',
             label: 'Trial Balance',
             icon: Scale,
-            href: null,
+            href: trialBalanceRoute().url,
         },
         {
             page: 'balance_sheet',
             label: 'Balance Sheet',
             icon: FileText,
-            href: null,
+            href: balanceSheetRoute().url,
         },
     ],
     [{ page: 'vault', label: 'Credentials Vault', icon: Lock, href: null }],
@@ -121,7 +131,7 @@ const RAIL: RailItem[][] = [
             page: 'settings',
             label: 'Settings',
             icon: SlidersHorizontal,
-            href: settingsMembers().url,
+            href: settingsCompany().url,
             match: ['/settings'],
         },
         { page: 'billing', label: 'Billing', icon: CreditCard, href: null },

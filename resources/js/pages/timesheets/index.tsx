@@ -65,7 +65,7 @@ type Paginated<T> = {
 };
 
 type Props = {
-    company: { name: string; workingDays: number };
+    company: { name: string; workingDays: number; hoursPerDayCenti: number };
     today: string;
     /** First day of the month shown. */
     month: string;
@@ -148,6 +148,7 @@ export default function Timesheets(props: Props) {
                         entry={editing}
                         options={props.options}
                         companyName={props.company.name}
+                        hoursPerDayCenti={props.company.hoursPerDayCenti}
                         today={props.today}
                         workingDays={props.company.workingDays}
                     />

@@ -27,6 +27,8 @@ type ConfirmLookProps = {
     confirmPhrase?: string;
     /** The destructive action is running. */
     loading?: boolean;
+    /** Extra content under the description (a preview, warnings). */
+    children?: ReactNode;
     className?: string;
     style?: CSSProperties;
 };
@@ -63,6 +65,7 @@ function ConfirmBody({
     cancelRef,
     inputRef,
     inputClassName,
+    children,
 }: ConfirmBodyProps) {
     const inputId = useId();
     const matches = confirmPhrase === undefined || typed === confirmPhrase;
@@ -92,6 +95,7 @@ function ConfirmBody({
                     {description}
                 </p>
             )}
+            {children}
             {confirmPhrase !== undefined && (
                 <div className="cf-field">
                     <label className="cf-label" htmlFor={inputId}>

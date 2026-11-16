@@ -27,7 +27,7 @@ final class PageRoutes
         'trial_balance' => 'reports.trial-balance',
         'balance_sheet' => 'reports.balance-sheet',
         'vault' => 'vault.index',
-        'settings' => 'settings.members',
+        'settings' => 'settings.company',
         'billing' => 'billing.index',
     ];
 
