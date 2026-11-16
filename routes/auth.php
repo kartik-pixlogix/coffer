@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\ReauthController;
 use App\Http\Controllers\Invites\InviteController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,14 @@ Route::post('invites/{token}/decline', [InviteController::class, 'decline'])
 Route::post('invites/{token}/renew', [InviteController::class, 'renew'])
     ->middleware('throttle:5,1')
     ->name('invites.renew');
+
+// The session-expired dialog (D30): sign back in over the current page, JSON only.
+Route::get('session/token', [ReauthController::class, 'token'])
+    ->middleware('throttle:30,1')
+    ->name('session.token');
+Route::post('session/reauth', [ReauthController::class, 'password'])
+    ->middleware('throttle:10,1')
+    ->name('session.reauth');
+Route::post('session/reauth/code', [ReauthController::class, 'code'])
+    ->middleware('throttle:10,1')
+    ->name('session.reauth.code');

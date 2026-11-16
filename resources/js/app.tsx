@@ -3,6 +3,7 @@ import { ToastProvider } from '@/components/ui/toast';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import AppLayout from '@/layouts/app-layout';
+import { installSessionExpiryHandler } from '@/lib/session-expiry';
 import AuthSplitLayout from '@/layouts/auth/auth-split-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Coffer';
@@ -13,6 +14,9 @@ function FlashToasts() {
 
     return null;
 }
+
+// A request that finds the session gone opens the re-auth dialog over the page (D30).
+installSessionExpiryHandler();
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

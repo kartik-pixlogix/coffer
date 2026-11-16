@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
+import { SessionExpiredDialog } from '@/components/shell/session-expired-dialog';
 import { ShellProvider } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
 import { TopBar } from '@/components/shell/top-bar';
@@ -8,6 +9,8 @@ import type { NavRailItemData } from '@/components/ui/nav-rail';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { setNumberFormat } from '@/lib/format';
 import { isCurrent, railGroups } from '@/lib/navigation';
+import { useSessionExpired } from '@/lib/session-expiry';
+import { cn } from '@/lib/utils';
 import { home } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 
@@ -48,11 +51,15 @@ export default function AppLayout({
 
     // Money and figures in the pages below follow the viewer's number format (spec §17).
     setNumberFormat(auth.user.number_format);
+    const expired = useSessionExpired();
 
     return (
         <ShellProvider>
             <div className="cf-page">
-                <div className="cf-shell">
+                <div
+                    className={cn('cf-shell', expired && 'session-dim')}
+                    aria-hidden={expired || undefined}
+                >
                     <NavRail
                         groups={groups}
                         homeHref={home().url}
@@ -63,6 +70,10 @@ export default function AppLayout({
                         {children}
                     </main>
                 </div>
+                <SessionExpiredDialog
+                    email={auth.user.email}
+                    name={auth.user.name}
+                />
             </div>
         </ShellProvider>
     );

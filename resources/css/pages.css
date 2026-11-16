@@ -978,3 +978,32 @@ span.denied-can:not(#\#) {
     padding-top: 12px;
     border-top: 1px solid var(--line);
 }
+
+/* ── Session-expired dialog (StateSession) ─────────────────────────────── */
+.session-dim:not(#\#) {
+    filter: blur(2px);
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+.session-modal:not(#\#) {
+    position: fixed;
+    width: 460px;
+    max-width: calc(100vw - 32px);
+    top: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 60;
+}
+
+.session-disc:not(#\#) {
+    width: 52px;
+    height: 52px;
+    align-self: flex-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .session-dim:not(#\#) {
+        filter: none;
+    }
+}
