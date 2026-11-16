@@ -82,11 +82,25 @@ final class DeniedPage
                 ->whereNull('cancelled_at')
                 ->latest()
                 ->first(['id', 'reason']),
-            'landing' => [
-                'url' => route('home'),
-                'label' => $role === CompanyRole::Member ? 'Go to my timesheets' : 'Go to the dashboard',
-            ],
+            'landing' => self::landing($role, $allowed),
         ];
+    }
+
+    /**
+     * Where "Go to …" leads: the role's landing page when it exists, else Profile.
+     *
+     * @param  array<string, bool>  $allowed
+     * @return array{url: string, label: string}
+     */
+    private static function landing(CompanyRole $role, array $allowed): array
+    {
+        $page = Catalog::landingPageFor($role);
+
+        if (($allowed[$page] ?? false) && PageRoutes::url($page) !== null) {
+            return ['url' => route('home'), 'label' => $page === 'timesheets' ? 'Go to my timesheets' : 'Go to the dashboard'];
+        }
+
+        return ['url' => route('profile.edit'), 'label' => 'Go to my profile'];
     }
 
     private static function explanation(string $page, string $company, CompanyRole $role): string
