@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Actions\Companies\SetCompanyRole;
+use App\Actions\Vault\OffboardVaultUser;
 use App\Enums\CompanyRole;
 use App\Enums\InviteKind;
 use App\Http\Controllers\Controller;
@@ -14,6 +15,7 @@ use App\Models\Member;
 use App\Models\Membership;
 use App\Models\Partner;
 use App\Models\User;
+use App\Services\Vault\OffboardingList;
 use App\Support\CurrentCompany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ use Inertia\Response;
  */
 final class MembersController extends Controller
 {
-    public function index(Request $request, CurrentCompany $current): Response
+    public function index(Request $request, CurrentCompany $current, OffboardVaultUser $offboard, OffboardingList $offboardings): Response
     {
         $company = $current->require();
         /** @var User $viewer */
@@ -40,7 +42,7 @@ final class MembersController extends Controller
         $partnerByUser = $partners->whereNotNull('user_id')->keyBy('user_id');
         $memberByUser = $members->whereNotNull('user_id')->keyBy('user_id');
 
-        $users = $company->users()->orderBy('users.name')->get()->map(function (User $user) use ($viewer, $company, $partnerByUser, $memberByUser): array {
+        $users = $company->users()->orderBy('users.name')->get()->map(function (User $user) use ($viewer, $company, $partnerByUser, $memberByUser, $offboard): array {
             /** @var Membership $membership */
             $membership = $user->getRelation('membership');
             /** @var Partner|null $partner */
@@ -65,6 +67,8 @@ final class MembersController extends Controller
                 },
                 'joined' => $membership->created_at?->toDateString(),
                 'lastActive' => $membership->last_active_at?->toIso8601String(),
+                // The remove dialog: "They can use N vault items" (spec §16, D73).
+                'vaultItems' => $user->is($viewer) ? 0 : $offboard->usable($user)->count(),
             ];
         })->values();
 
@@ -88,11 +92,12 @@ final class MembersController extends Controller
             'expiryDays' => Invite::EXPIRY_DAYS,
             'defaultExpiryDays' => Invite::DEFAULT_EXPIRY_DAYS,
             'viewerIsAdmin' => $current->isAdmin(),
+            'offboardings' => $offboardings->forViewer($viewer),
         ]);
     }
 
     /** Change someone's role (the inline select). */
-    public function updateRole(Request $request, User $user, CurrentCompany $current, SetCompanyRole $setRole): RedirectResponse
+    public function updateRole(Request $request, User $user, CurrentCompany $current, SetCompanyRole $setRole, OffboardVaultUser $offboard): RedirectResponse
     {
         $company = $current->require();
         $validated = $request->validate(['role' => ['required', Rule::enum(CompanyRole::class)]]);
@@ -110,7 +115,10 @@ final class MembersController extends Controller
             $this->guardLastAdmin($company, $user);
         }
 
+        $before = $offboard->usable($user);
         $setRole->handle($company, $user, $role);
+        $after = $offboard->usable($user)->pluck('id')->flip();
+        $lost = $offboard->record($user, $this->viewer($request), 'role', $before->reject(fn ($item) => $after->has($item->id))->values());
 
         // A linked partner record keeps the same Admin / Partner role.
         if (in_array($role, CompanyRole::partnerRoles(), true)) {
@@ -121,13 +129,13 @@ final class MembersController extends Controller
             ->withProperties(['user_id' => $user->id, 'from' => $was->value, 'to' => $role->value])
             ->log('changed a role');
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "{$user->name} is now {$role->withArticle()}"]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => "{$user->name} is now {$role->withArticle()}".($lost === null ? '' : self::rotateHint($lost->item_ids))]);
 
         return back();
     }
 
     /** Remove someone from the company (their account stays; spec §16). */
-    public function destroy(Request $request, User $user, CurrentCompany $current, SetCompanyRole $setRole): RedirectResponse
+    public function destroy(Request $request, User $user, CurrentCompany $current, SetCompanyRole $setRole, OffboardVaultUser $offboard): RedirectResponse
     {
         $company = $current->require();
         $membership = $this->membershipOf($company, $user);
@@ -139,7 +147,10 @@ final class MembersController extends Controller
             $this->guardLastAdmin($company, $user);
         }
 
+        $usable = $offboard->usable($user);
         $setRole->remove($company, $user);
+        $offboarding = $offboard->record($user, $this->viewer($request), 'removed', $usable);
+        $offboard->removeAccess($user, $this->viewer($request));
         Partner::query()->where('user_id', $user->id)->update(['user_id' => null]);
         Member::query()->where('user_id', $user->id)->update(['user_id' => null]);
 
@@ -147,7 +158,7 @@ final class MembersController extends Controller
             ->withProperties(['user_id' => $user->id])
             ->log('removed someone from the company');
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "{$user->name} was removed from {$company->name}"]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => "{$user->name} was removed from {$company->name}".($offboarding === null ? '' : self::rotateHint($offboarding->item_ids))]);
 
         return back();
     }
@@ -175,6 +186,21 @@ final class MembersController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => "2FA reset for {$user->name}. They’ll set it up again from Profile."]);
 
         return back();
+    }
+
+    /** @param list<int> $ids */
+    private static function rotateHint(array $ids): string
+    {
+        $n = count($ids);
+
+        return $n === 0 ? '' : ". They could use {$n} vault ".($n === 1 ? 'item' : 'items').': rotate '.($n === 1 ? 'it' : 'them').' from the list below.';
+    }
+
+    private function viewer(Request $request): ?User
+    {
+        $user = $request->user();
+
+        return $user instanceof User ? $user : null;
     }
 
     private function membershipOf(Company $company, User $user): Membership

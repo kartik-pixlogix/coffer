@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Team\SaveMember;
+use App\Actions\Vault\OffboardVaultUser;
 use App\Enums\CostType;
 use App\Enums\JournalType;
 use App\Enums\MemberStatus;
@@ -201,11 +202,12 @@ final class TeamController extends Controller
     }
 
     /** Deactivate (from today, or a chosen day) or reactivate. Deactivated members keep their history. */
-    public function status(Request $request, Member $member): RedirectResponse
+    public function status(Request $request, Member $member, OffboardVaultUser $offboard): RedirectResponse
     {
         Gate::authorize('update', $member);
 
         $deactivate = $member->isActive();
+        $offboarding = null;
 
         if ($deactivate) {
             /** @var array{on?: string|null} $data */
@@ -214,12 +216,20 @@ final class TeamController extends Controller
                 'status' => MemberStatus::Inactive,
                 'deactivated_on' => isset($data['on']) ? CarbonImmutable::parse($data['on']) : CarbonImmutable::today(),
             ]);
+
+            // Spec §14.2: a linked account's vault items go on the rotate list (D73).
+            if ($member->user !== null) {
+                $by = $request->user();
+                $offboarding = $offboard->record($member->user, $by instanceof User ? $by : null, 'deactivated', $offboard->usable($member->user));
+            }
         } else {
             $member->update(['status' => MemberStatus::Active, 'deactivated_on' => null]);
         }
 
         activity('team')->performedOn($member)->causedBy($request->user())->log($deactivate ? 'deactivated a team member' : 'reactivated a team member');
-        Inertia::flash('toast', ['type' => 'success', 'message' => $deactivate ? "{$member->name} deactivated. Their history stays." : "{$member->name} is active again"]);
+        $n = $offboarding === null ? 0 : count($offboarding->item_ids);
+        $hint = $n === 0 ? '' : " They could use {$n} vault ".($n === 1 ? 'item: rotate it' : 'items: rotate them').' from Security health.';
+        Inertia::flash('toast', ['type' => 'success', 'message' => $deactivate ? "{$member->name} deactivated. Their history stays.{$hint}" : "{$member->name} is active again"]);
 
         return back();
     }

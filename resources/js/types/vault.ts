@@ -430,3 +430,26 @@ export type VaultReuseResponse = {
     matches: { id: number; name: string }[];
     checked: number;
 };
+
+/* ---- Offboarding (spec §14.2, D73) ---- */
+
+export type VaultOffboardingRow = {
+    id: number;
+    name: string;
+    /** "was removed", "lost vault access", "was deactivated". */
+    reason: string;
+    at: string;
+    total: number;
+    /** Items not rotated since. */
+    open: number;
+    /** Items the viewer can't see (counted, not named). */
+    hidden: number;
+    items: {
+        id: number;
+        name: string;
+        monogram: string;
+        vault: string;
+        rotated: boolean;
+        canRotate: boolean;
+    }[];
+};

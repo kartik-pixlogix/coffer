@@ -3887,3 +3887,47 @@ span.denied-can:not(#\#) {
     }
 }
 /* vault-share: end */
+
+/* vault-offboarding: the rotate list after someone leaves (D73) */
+.vo-card:not(#\#) {
+    gap: 12px;
+}
+
+.vo-person:not(#\#) {
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+}
+
+.vo-person-head:not(#\#) {
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.vo-who:not(#\#),
+.vo-acts:not(#\#) {
+    gap: 10px;
+}
+
+.vo-row:not(#\#) {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    min-height: 56px;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.vo-row-text:not(#\#) {
+    min-width: 0;
+}
+
+.vo-hidden:not(#\#) {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+/* vault-offboarding: end */

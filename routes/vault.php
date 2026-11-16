@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Vault\VaultController;
 use App\Http\Controllers\Vault\VaultItemController;
+use App\Http\Controllers\Vault\VaultOffboardingController;
 use App\Http\Controllers\Vault\VaultRequestsController;
 use App\Http\Controllers\Vault\VaultSecretController;
 use App\Http\Controllers\Vault\VaultShareController;
@@ -49,6 +50,9 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
     Route::get('vault/requests', [VaultRequestsController::class, 'index'])->name('vault.requests');
     Route::post('vault/requests', [VaultRequestsController::class, 'store'])->middleware('throttle:vault-requests')->name('vault.requests.store');
     Route::delete('vault/requests/{accessRequest}', [VaultRequestsController::class, 'destroy'])->name('vault.requests.destroy');
+    // Offboarding rotate lists (D73).
+    Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');
+
     Route::middleware('vault.unlocked')->group(function () {
         Route::post('vault/requests/{accessRequest}/approve', [VaultRequestsController::class, 'approve'])->name('vault.requests.approve');
         Route::post('vault/requests/{accessRequest}/deny', [VaultRequestsController::class, 'deny'])->name('vault.requests.deny');

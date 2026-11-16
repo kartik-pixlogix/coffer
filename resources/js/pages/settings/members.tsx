@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import {
     Check,
     Ellipsis,
@@ -26,6 +26,7 @@ import { SearchField } from '@/components/ui/search-field';
 import { Select } from '@/components/ui/select';
 import { StatusPill } from '@/components/ui/status-pill';
 import { useShell } from '@/components/shell/shell-context';
+import { OffboardingCard } from '@/components/vault/offboarding/offboarding-card';
 import { formatDate, formatRole } from '@/lib/format';
 import {
     destroy as removeMember,
@@ -33,6 +34,7 @@ import {
     role as updateRole,
 } from '@/routes/settings/members';
 import type { CompanyRole } from '@/types';
+import type { VaultOffboardingRow } from '@/types/vault';
 
 type UserRow = {
     id: number;
@@ -47,6 +49,8 @@ type UserRow = {
     linked: { label: string; kind: string } | null;
     joined: string | null;
     lastActive: string | null;
+    /** Vault items they can use now (the remove dialog, D73). */
+    vaultItems: number;
 };
 
 type TeamGroup = {
@@ -71,6 +75,7 @@ type Props = {
     expiryDays: number[];
     defaultExpiryDays: number;
     viewerIsAdmin: boolean;
+    offboardings: VaultOffboardingRow[];
 };
 
 const ROLES: CompanyRole[] = ['admin', 'partner', 'member', 'viewer'];
@@ -97,8 +102,10 @@ export default function Members({
     expiryDays,
     defaultExpiryDays,
     viewerIsAdmin,
+    offboardings,
 }: Props) {
     const { currentCompany } = useShell();
+    const { auth } = usePage().props;
     const [query, setQuery] = useState('');
     const [inviteOpen, setInviteOpen] = useState(false);
     const [removing, setRemoving] = useState<UserRow | null>(null);
@@ -425,6 +432,12 @@ export default function Members({
                 </section>
             )}
 
+            <OffboardingCard
+                offboardings={offboardings}
+                canDismiss={viewerIsAdmin}
+                timeZone={auth.user.timezone}
+            />
+
             <section
                 className="cf-alert cf-alert--info cf-alert--slim"
                 aria-label="Pending invites"
@@ -465,7 +478,7 @@ export default function Members({
                 onOpenChange={(open) => !open && setRemoving(null)}
                 icon={UserMinus}
                 title={`Remove ${removing?.name ?? ''} from ${currentCompany.name}?`}
-                description="They lose access to this company straight away. Their account, and their records here, stay. Vault items shared with them should be rotated."
+                description={`They lose access to this company straight away. Their account, and their records here, stay.${removing && removing.vaultItems > 0 ? ` They can use ${removing.vaultItems} vault ${removing.vaultItems === 1 ? 'item' : 'items'}: you’ll get a list to rotate.` : ''}`}
                 confirmLabel="Remove"
                 cancelLabel="Keep them"
                 onConfirm={() => {
