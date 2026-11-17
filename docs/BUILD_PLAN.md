@@ -210,11 +210,11 @@ Tick boxes here as you go (`- [x]`).
 - [x] Notifications: events, database + mail channels, top-bar panel with filters and inline actions, `/notifications` page, preferences, brand email template. (D78, D79)
 - [x] Plans table (placeholder prices and limits), 14-day trial, Cashier (Stripe) Checkout + Billing Portal. (D80; owner checklist in `docs/BILLING_TESTING.md`; Razorpay deferred [VERIFY])
 - [x] Billing page: plan, usage meters, invoices, upgrade modal. Soft limit enforcement. (D80, D81, D82)
-- [ ] Marketing site with Inertia SSR:
+- [x] Marketing site with Inertia SSR (D83, D84; SSR proof in `docs/DEPLOY_NOTES_SSR.md`):
   - landing (spotlight and parallax with reduced-motion fallback), pricing toggles
   - feature template, security, contact/demo form, legal pages
   - SEO: meta, OG, sitemap
-- [ ] Filament super-admin at `/admin`: workspaces, usage, suspend, impersonate with reason and audit, plans editor, platform metrics.
+- [x] Filament super-admin at `/admin`: workspaces, usage, suspend, impersonate with reason and audit, plans editor, platform metrics. (D85, D86, D87; panel MFA [VERIFY])
 
 **Accept:**
 - A trial converts to paid in Stripe test mode.
