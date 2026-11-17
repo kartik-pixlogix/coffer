@@ -1,4 +1,5 @@
 import {
+    Download,
     Ellipsis,
     Inbox,
     ScrollText,
@@ -16,6 +17,7 @@ import {
     policies,
     requests,
 } from '@/routes/vault';
+import { exportMethod as exportPage } from '@/routes/vault';
 import type { VaultIndexProps } from '@/types/vault';
 
 /**
@@ -35,6 +37,9 @@ export function VaultToolsMenu({
             : []),
         ...(abilities.create
             ? [{ label: 'Import', icon: Upload, href: importMethod().url }]
+            : []),
+        ...(abilities.export
+            ? [{ label: 'Export', icon: Download, href: exportPage().url }]
             : []),
         ...(abilities.admin
             ? [

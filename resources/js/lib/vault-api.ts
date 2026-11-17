@@ -144,3 +144,65 @@ export function lockOnLeave(url: string): void {
         body: '{}',
     }).catch(() => undefined);
 }
+
+/**
+ * POST a form and save the file it answers with (the encrypted export). Validation errors
+ * come back as JSON like vaultRequest's.
+ */
+export async function downloadPost(
+    url: string,
+    body: Record<string, unknown>,
+    fallbackName: string,
+): Promise<VaultResult<null>> {
+    const xsrf = xsrfToken();
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as Record<
+            string,
+            unknown
+        >;
+        const errors =
+            typeof data.errors === 'object' && data.errors !== null
+                ? (data.errors as Record<string, string[]>)
+                : {};
+
+        return {
+            ok: false,
+            status: response.status,
+            locked: response.status === 423,
+            stepUp: response.status === 428,
+            message:
+                Object.values(errors)[0]?.[0] ??
+                (typeof data.message === 'string'
+                    ? data.message
+                    : 'The export couldn’t be made.'),
+            errors,
+        };
+    }
+
+    const disposition = response.headers.get('Content-Disposition') ?? '';
+    const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? fallbackName;
+    const blob = await response.blob();
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(href), 1000);
+
+    return { ok: true, status: response.status, data: null };
+}

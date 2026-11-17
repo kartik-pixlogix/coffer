@@ -2,17 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Jobs\CheckVaultBreaches;
+use App\Jobs\CommitVaultImport;
 use App\Jobs\ReencryptVaultData;
 use App\Models\Company;
 use App\Models\Member;
 use App\Models\User;
 use App\Models\VaultAuditEvent;
+use App\Models\VaultImport;
 use App\Models\VaultItem;
 use App\Models\VaultSecret;
 use Database\Seeders\DemoVaultSeeder;
 use Database\Seeders\DemoWorkspaceSeeder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -87,6 +92,40 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
     $this->actingAs($aarav)->withSession(vaultUnlocked());
     assertBodyClean($this->get(route('vault.requests')), 'the requests inbox with a request');
 
+    // Part B pages and files: policies, import, export (the file is encrypted end to end).
+    assertBodyClean($this->get(route('vault.import')), 'the import page');
+    assertBodyClean($this->get(route('vault.export')), 'the export page');
+    $export = $this->postJson(route('vault.export.store'), ['passphrase' => 'leak test passphrase', 'passphrase_confirmation' => 'leak test passphrase', 'reason' => 'Leak test']);
+    assertBodyClean($export, 'the encrypted export file');
+    $this->withSession(vaultUnlocked());
+
+    // Importing the export back: the sealed upload, the preview and the job payload stay clean.
+    Queue::fake();
+    $this->post(route('vault.import.store'), [
+        'file' => UploadedFile::fake()->createWithContent('export.coffer.json', (string) $export->getContent()),
+        'vault_id' => $items->first()->vault_id,
+        'passphrase' => 'leak test passphrase',
+    ])->assertRedirect();
+    $import = VaultImport::query()->withoutGlobalScopes()->latest('id')->firstOrFail();
+    assertNoSecretIn((string) Storage::disk(VaultImport::DISK)->get((string) $import->path), 'the sealed import upload');
+    assertBodyClean($this->get(route('vault.import', ['import' => $import->id])), 'the import preview');
+    $this->post(route('vault.import.commit', $import))->assertRedirect();
+    Queue::assertPushed(CommitVaultImport::class, function (CommitVaultImport $job) {
+        assertNoSecretIn(serialize($job), 'the import job payload');
+
+        return true;
+    });
+    $this->artisan('coffer:vault-breach-check')->assertSuccessful();
+    config(['vault.hibp_enabled' => true]);
+    $this->post(route('vault.health.check'))->assertRedirect();
+    Queue::assertPushed(CheckVaultBreaches::class, function (CheckVaultBreaches $job) {
+        assertNoSecretIn(serialize($job), 'the breach check job payload');
+
+        return true;
+    });
+    config(['vault.hibp_enabled' => false]);
+    $this->delete(route('vault.import.destroy', $import))->assertRedirect();
+
     // A ciphertext that no longer opens: the error is logged, without any secret.
     $row = VaultSecret::query()->withoutGlobalScopes()->where('vault_item_id', $items->firstWhere('name', 'MySQL — production database')->id)->where('field', 'password')->sole();
     DB::table('vault_secrets')->where('id', $row->id)->update(['ciphertext' => base64_encode(str_repeat("\0", 40))]);
@@ -108,6 +147,10 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
     assertNoSecretIn(json_encode(DB::table('vault_items')->get()) ?: '', 'vault item metadata');
     assertNoSecretIn(json_encode(DB::table('vault_secrets')->get()) ?: '', 'stored ciphertext');
     assertNoSecretIn(json_encode(DB::table('vault_item_versions')->get()) ?: '', 'version snapshots');
+
+    foreach (['vault_imports', 'vault_access_requests', 'vault_offboardings', 'vault_policies', 'vault_grants', 'jobs'] as $table) {
+        assertNoSecretIn(json_encode(DB::table($table)->get()) ?: '', "the {$table} table");
+    }
     expect(DB::table('notifications')->count())->toBeGreaterThan(0);
     assertNoSecretIn(DB::table('notifications')->pluck('data')->implode(PHP_EOL), 'stored notifications');
 

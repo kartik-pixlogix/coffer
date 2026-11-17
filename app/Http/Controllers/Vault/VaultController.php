@@ -16,6 +16,7 @@ use App\Services\Vault\ItemPresenter;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultAudit;
 use App\Services\Vault\VaultHealth;
+use App\Services\Vault\VaultPolicy;
 use App\Services\Vault\VaultSession;
 use App\Services\Vault\VaultSharing;
 use App\Support\CurrentCompany;
@@ -98,6 +99,7 @@ final class VaultController extends Controller
                 'newVault' => $twoFactor && $access->isAdmin($user),
                 'admin' => $twoFactor && $access->isAdmin($user),
                 'audit' => $twoFactor && $access->mayAudit($user),
+                'export' => $twoFactor && VaultPolicy::for($company)->allowsExport($current->role()),
             ],
         ]);
     }

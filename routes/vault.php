@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Vault\VaultAuditController;
 use App\Http\Controllers\Vault\VaultController;
+use App\Http\Controllers\Vault\VaultExportController;
 use App\Http\Controllers\Vault\VaultHealthController;
 use App\Http\Controllers\Vault\VaultImportController;
 use App\Http\Controllers\Vault\VaultItemController;
@@ -77,6 +78,10 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
         Route::post('vault/import/{import}/commit', [VaultImportController::class, 'commit'])->middleware('throttle:vault-files')->name('vault.import.commit');
         Route::delete('vault/import/{import}', [VaultImportController::class, 'destroy'])->name('vault.import.destroy');
     });
+
+    // Encrypted export (spec §14.4, D77): "Who can export" policy, step-up, audited.
+    Route::get('vault/export', [VaultExportController::class, 'index'])->name('vault.export');
+    Route::post('vault/export', [VaultExportController::class, 'store'])->middleware(['vault.unlocked', 'throttle:vault-files'])->name('vault.export.store');
 
     // Offboarding rotate lists (D73).
     Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');

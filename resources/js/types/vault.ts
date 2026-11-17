@@ -211,6 +211,7 @@ export type VaultIndexProps = {
         newVault: boolean;
         admin: boolean;
         audit: boolean;
+        export: boolean;
     };
 };
 
