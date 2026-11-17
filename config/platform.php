@@ -14,4 +14,10 @@ return [
         'name' => env('PLATFORM_ADMIN_NAME'),
         'password' => env('PLATFORM_ADMIN_PASSWORD'),
     ],
+
+    // D94: every platform admin sets up an authenticator app before the panel opens.
+    'mfa_required' => (bool) env('PLATFORM_MFA_REQUIRED', true),
+
+    // D97: the bearer token for GET /health (monitors); platform admins need none.
+    'health_token' => env('HEALTH_CHECK_TOKEN'),
 ];

@@ -30,6 +30,8 @@ use Illuminate\Database\Seeder;
  */
 class DemoWorkspaceSeeder extends Seeder
 {
+    use Concerns\DemoOnly;
+
     public function __construct(
         private readonly SeedCompanyPermissions $seedPermissions,
         private readonly SetCompanyRole $setRole,
@@ -38,6 +40,8 @@ class DemoWorkspaceSeeder extends Seeder
 
     public function run(): void
     {
+        $this->refuseInProduction();
+
         $aarav = $this->user('Aarav Mehta', 'aarav@vertexlabs.in');
         $ishita = $this->user('Ishita Rao', 'ishita@vertexlabs.in');
         $kabir = $this->user('Kabir Shah', 'kabir@bluefininfotech.in');
@@ -75,12 +79,13 @@ class DemoWorkspaceSeeder extends Seeder
             [$kabir, CompanyRole::Partner, 3, 5000],
         ]);
 
-        // A super-admin for /admin (D85), local only: never a tenant user.
+        // A super-admin for /admin (D85), local only: never a tenant user. Its authenticator
+        // app uses the demo 2FA key (D94), so `coffer:demo-2fa` prints its codes too.
         if (app()->environment('local')) {
             PlatformAdmin::query()->updateOrCreate(
                 ['email' => 'platform@coffer.test'],
                 ['name' => 'Coffer Platform', 'password' => 'platform-password'],
-            );
+            )->saveAppAuthenticationSecret(DemoVaultSeeder::DEMO_2FA_KEY);
         }
     }
 

@@ -10,6 +10,7 @@ use App\Http\Middleware\EnsureWorkspaceNotSuspended;
 use App\Http\Middleware\EnsureWorkspaceWritable;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetCurrentCompany;
 use App\Http\Responses\DeniedPage;
 use App\Http\Responses\ErrorPage;
@@ -30,6 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // CSP, HSTS and the other hardening headers on every response, /admin included (D93).
+        $middleware->append(SecurityHeaders::class);
+
         $middleware->encryptCookies(except: [Theme::COOKIE, 'sidebar_state']);
 
         // Stripe posts webhooks without a session; Cashier checks their signature instead (D80).

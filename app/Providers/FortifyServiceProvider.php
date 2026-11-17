@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use Laravel\Fortify\Actions\AttemptToAuthenticate;
@@ -135,6 +136,21 @@ class FortifyServiceProvider extends ServiceProvider
     {
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
+        });
+
+        // Phase 9 (D93): Fortify's sign-up, reset-link, reset and confirm-password posts have no
+        // limiter of their own. Ten a minute per IP, and five per email address for the reset link.
+        RateLimiter::for('auth-forms', fn (Request $request): array => [
+            Limit::perMinute(10)->by('auth-forms:'.$request->ip()),
+            Limit::perMinute(5)->by('auth-forms:'.strtolower((string) $request->input('email')).'|'.$request->path()),
+        ]);
+
+        $this->app->booted(function (): void {
+            Route::getRoutes()->refreshNameLookups();
+
+            foreach (['register.store', 'password.email', 'password.update', 'password.confirm.store'] as $name) {
+                Route::getRoutes()->getByName($name)?->middleware('throttle:auth-forms');
+            }
         });
     }
 }

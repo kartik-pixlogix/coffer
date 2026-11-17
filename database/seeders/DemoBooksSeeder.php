@@ -54,6 +54,8 @@ use RuntimeException;
  */
 class DemoBooksSeeder extends Seeder
 {
+    use Concerns\DemoOnly;
+
     /** Monthly income per side (Apr → Oct), in rupees. */
     private const array INCOME = [
         'Vertex Labs' => [520000, 560000, 610000, 545000, 600000, 575000, 585000],
@@ -103,6 +105,8 @@ class DemoBooksSeeder extends Seeder
 
     public function run(): void
     {
+        $this->refuseInProduction();
+
         $start = CarbonImmutable::create(2026, 4, 1);
         $aarav = User::query()->where('email', 'aarav@vertexlabs.in')->firstOrFail();
 

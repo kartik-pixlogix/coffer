@@ -9,7 +9,7 @@
             The server already set data-theme from the user's choice or the theme cookie;
             without either (data-theme-auto) use localStorage, then the OS preference.
         --}}
-        <script>
+        <script nonce="{{ Vite::cspNonce() }}">
             (function () {
                 var root = document.documentElement;
                 var theme = root.getAttribute('data-theme');

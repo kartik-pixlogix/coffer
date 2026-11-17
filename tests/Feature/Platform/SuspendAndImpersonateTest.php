@@ -25,6 +25,8 @@ beforeEach(function () {
     Filament::setCurrentPanel('admin');
     $this->withoutVite();
     $this->admin = PlatformAdmin::query()->create(['name' => 'Priya Platform', 'email' => 'priya@coffer.test', 'password' => 'platform-password']);
+    // D94: the panel needs a second factor set up.
+    $this->admin->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
 });
 
 /** The session marker Impersonator::start writes, for HTTP tests. */

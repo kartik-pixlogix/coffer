@@ -34,6 +34,8 @@ use Illuminate\Http\UploadedFile;
  */
 class DemoVaultSeeder extends Seeder
 {
+    use Concerns\DemoOnly;
+
     /** Base32 2FA key of the demo accounts. Demo only: anyone can compute its codes. */
     public const string DEMO_2FA_KEY = 'JBSWY3DPEHPK3PXP';
 
@@ -55,6 +57,8 @@ class DemoVaultSeeder extends Seeder
 
     public function run(): void
     {
+        $this->refuseInProduction();
+
         $company = Company::query()->where('name', 'Saarthi Portal JV')->firstOrFail();
         $users = User::query()->whereIn('email', ['aarav@vertexlabs.in', 'ishita@vertexlabs.in', 'kabir@bluefininfotech.in', 'meera@bluefininfotech.in', 'rohan@vertexlabs.in'])
             ->get()->keyBy('email');

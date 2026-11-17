@@ -18,6 +18,7 @@ use Filament\Auth\Pages\Login;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
+use PragmaRX\Google2FA\Google2FA;
 use Spatie\Activitylog\Models\Activity;
 
 /*
@@ -25,13 +26,20 @@ use Spatie\Activitylog\Models\Activity;
 | users never get in, a platform admin is never a tenant user, and the resources render.
 */
 
-function platformAdmin(): PlatformAdmin
+/** A platform admin with an authenticator app set up (D94), unless `$mfa` is false. */
+function platformAdmin(bool $mfa = true): PlatformAdmin
 {
-    return PlatformAdmin::query()->create([
+    $admin = PlatformAdmin::query()->create([
         'name' => 'Priya Platform',
         'email' => 'priya@coffer.test',
         'password' => 'platform-password',
     ]);
+
+    if ($mfa) {
+        $admin->saveAppAuthenticationSecret(app(Google2FA::class)->generateSecretKey());
+    }
+
+    return $admin;
 }
 
 beforeEach(function () {
@@ -64,7 +72,8 @@ it('refuses tenant credentials on the panel sign-in', function () {
 });
 
 it('signs a platform admin in on the platform guard only', function () {
-    platformAdmin();
+    platformAdmin(mfa: false);
+    config(['platform.mfa_required' => false]);
 
     Livewire::test(Login::class)
         ->fillForm(['email' => 'priya@coffer.test', 'password' => 'platform-password'])
@@ -73,6 +82,23 @@ it('signs a platform admin in on the platform guard only', function () {
 
     expect(Auth::guard('platform')->check())->toBeTrue()
         ->and(Auth::guard('web')->check())->toBeFalse();
+});
+
+it('asks a platform admin with an authenticator app for the code before signing in (D94)', function () {
+    platformAdmin();
+
+    Livewire::test(Login::class)
+        ->fillForm(['email' => 'priya@coffer.test', 'password' => 'platform-password'])
+        ->call('authenticate');
+
+    expect(Auth::guard('platform')->check())->toBeFalse();
+});
+
+it('sends a platform admin without a second factor to set one up first (D94)', function () {
+    $this->actingAs(platformAdmin(mfa: false), 'platform');
+
+    $this->get('/admin')->assertRedirectContains('/admin/multi-factor-authentication');
+    $this->get('/admin/workspaces')->assertRedirectContains('/admin/multi-factor-authentication');
 });
 
 it('does not make a platform admin a tenant user', function () {
