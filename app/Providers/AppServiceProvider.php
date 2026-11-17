@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Jobs\CheckVaultBreaches;
 use App\Jobs\CommitTimesheetImport;
 use App\Jobs\CommitVaultImport;
+use App\Jobs\GenerateDataExport;
 use App\Jobs\GenerateReportExport;
 use App\Jobs\ReencryptVaultData;
 use App\Mail\ContactRequestReceived;
@@ -110,6 +111,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Queue::route([
             GenerateReportExport::class => 'exports',
+            GenerateDataExport::class => 'exports',
             CommitTimesheetImport::class => 'imports',
             CommitVaultImport::class => 'imports',
             CheckVaultBreaches::class => 'vault',

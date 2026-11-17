@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { Laptop, Smartphone } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { MeterDots, StrengthLabel } from '@/components/auth/auth-parts';
+import { PrivacyCard } from '@/components/account/privacy-card';
 import { TwoFactorCard } from '@/components/account/two-factor-card';
 import type { TwoFactorProps } from '@/components/account/two-factor-card';
 import { PageHeader } from '@/components/shell/page-header';
@@ -25,6 +26,7 @@ import {
     destroyOthers as signOutOthers,
 } from '@/routes/profile/sessions';
 import type { NumberFormat } from '@/types';
+import type { PrivacyProps } from '@/types/privacy';
 
 type Profile = {
     name: string;
@@ -51,6 +53,7 @@ type Props = {
     password: { changedAt: string | null };
     twoFactor: TwoFactorProps;
     sessions: Session[];
+    privacy: PrivacyProps;
 };
 
 /** "Active now", "Last active 2 hours ago", "12 Nov 2026" */
@@ -417,6 +420,7 @@ export default function ProfilePage({
     password,
     twoFactor,
     sessions,
+    privacy,
 }: Props) {
     const saved = {
         name: profile.name,
@@ -504,6 +508,7 @@ export default function ProfilePage({
                     />
                     <PasswordCard changedAt={password.changedAt} />
                     <SessionsCard sessions={sessions} />
+                    <PrivacyCard privacy={privacy} />
                 </div>
                 <TwoFactorCard twoFactor={twoFactor} email={profile.email} />
             </div>

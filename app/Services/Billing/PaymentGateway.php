@@ -28,4 +28,7 @@ interface PaymentGateway
     public function invoices(Workspace $workspace): array;
 
     public function downloadInvoice(Workspace $workspace, string $invoiceId): Response;
+
+    /** Ends the subscription now, with no further charge (workspace deletion, D98). No subscription: nothing to do. */
+    public function cancelNow(Workspace $workspace): void;
 }

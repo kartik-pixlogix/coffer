@@ -85,18 +85,20 @@ const PILLARS: {
 ];
 
 const PLATFORM = [
-    'Every connection uses HTTPS',
+    'Every connection uses HTTPS, with HSTS and a strict Content Security Policy',
     'CSRF protection on every form',
     'Rate limits on sign-in, reveals, exports and invites',
     'Self-hosted fonts and assets: no third-party trackers on the app',
     'A nightly check that every company’s books still balance',
+    'Nightly encrypted backups',
 ];
 
 const PRIVACY = [
     'Built for India’s Digital Personal Data Protection Act (DPDPA)',
     'Each company’s data is kept separate from every other company’s',
     'A Data Processing Agreement for workspaces that need one',
-    'Per-company data export and account deletion are being added before general availability',
+    'Download your personal data, or a whole workspace as CSV, from your account',
+    'Delete your account or workspace: erased after 30 days, books kept under “Deleted user”',
 ];
 
 /**

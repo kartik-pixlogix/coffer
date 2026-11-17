@@ -37,6 +37,9 @@ use Laravel\Cashier\Billable;
  * @property CarbonImmutable|null $suspended_at set by a platform admin (D86): tenant access is blocked
  * @property string|null $suspended_reason
  * @property int|null $suspended_by platform_admins.id
+ * @property CarbonImmutable|null $deletion_requested_at the owner asked to delete it (D98)
+ * @property CarbonImmutable|null $deletion_scheduled_for erased by coffer:privacy-purge from this day
+ * @property int|null $deletion_requested_by
  * @property-read User $owner
  * @property-read Plan|null $plan
  * @property-read Collection<int, Company> $companies
@@ -60,6 +63,8 @@ class Workspace extends Model
             'past_due_since' => 'datetime',
             'renews_at' => 'datetime',
             'suspended_at' => 'datetime',
+            'deletion_requested_at' => 'datetime',
+            'deletion_scheduled_for' => 'datetime',
         ];
     }
 

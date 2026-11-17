@@ -104,13 +104,13 @@ export const LEGAL: Record<LegalPageKey, LegalDoc> = {
             {
                 heading: 'How long we keep it',
                 paragraphs: [
-                    'Workspace data is kept while the workspace exists. After a company or account is deleted it is kept for 30 days in case of mistakes, then purged. Accounting records may need to be kept longer by law; your organisation decides this.',
+                    'Workspace data is kept while the workspace exists. When a workspace owner deletes it, or you delete your account, it is kept for 30 days in case of mistakes, then erased. Accounting records may need to be kept longer by law: entries you posted stay in the books under “Deleted user”, without your name or email.',
                 ],
             },
             {
                 heading: 'Your rights',
                 paragraphs: [
-                    'Under the DPDPA you can ask to access, correct or erase your personal data, withdraw consent, nominate someone to act for you, and raise a grievance. Contact your workspace Admin, or us through the contact page.',
+                    'Under the DPDPA you can ask to access, correct or erase your personal data, withdraw consent, nominate someone to act for you, and raise a grievance. You can download a copy of your data and delete your account yourself from Account › Profile (Your data); for anything else, contact your workspace Admin, or us through the contact page.',
                 ],
             },
             {

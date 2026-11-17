@@ -36,6 +36,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @property NumberFormat $number_format
  * @property string|null $avatar_path
  * @property array<string, array{mail?: bool, database?: bool}>|null $notification_preferences per event key (spec §16)
+ * @property CarbonImmutable|null $deletion_requested_at asked to delete the account (D98)
+ * @property CarbonImmutable|null $deletion_scheduled_for erased by coffer:privacy-purge from this day
+ * @property CarbonImmutable|null $anonymised_at erased: the row stays for the books as "Deleted user"
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Collection<int, Company> $companies
@@ -73,6 +76,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'theme' => Theme::class,
             'number_format' => NumberFormat::class,
             'notification_preferences' => 'array',
+            'deletion_requested_at' => 'datetime',
+            'deletion_scheduled_for' => 'datetime',
+            'anonymised_at' => 'datetime',
         ];
     }
 

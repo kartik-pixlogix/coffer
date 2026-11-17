@@ -46,6 +46,7 @@ Route::inertia('dev/ui', 'dev/ui')
 
 require __DIR__.'/marketing.php';
 require __DIR__.'/account.php';
+require __DIR__.'/privacy.php';
 require __DIR__.'/auth.php';
 require __DIR__.'/companies.php';
 require __DIR__.'/settings.php';

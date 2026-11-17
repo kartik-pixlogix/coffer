@@ -28,6 +28,9 @@ Schedule::command('coffer:vault-imports-clean')->hourly()->withoutOverlapping()-
 Schedule::command('coffer:reminders')->dailyAt('08:30')->withoutOverlapping()->onOneServer();
 Schedule::command('coffer:notifications-prune')->dailyAt('03:45')->withoutOverlapping()->onOneServer();
 
+// D98: DPDPA erasure after the grace period, and expired data export files.
+Schedule::command('coffer:privacy-purge')->dailyAt('04:30')->withoutOverlapping()->onOneServer();
+
 // D96: the nightly encrypted backup (database + private and public storage), then retention.
 Schedule::command('coffer:backup')->dailyAt('01:30')->withoutOverlapping(120)->onOneServer();
 

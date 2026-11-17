@@ -196,6 +196,8 @@ test('a subscribed workspace swaps plan and cycle instead of a new checkout', fu
             return [];
         }
 
+        public function cancelNow(Workspace $workspace): void {}
+
         public function downloadInvoice(Workspace $workspace, string $invoiceId): Response
         {
             return response('pdf');
@@ -291,6 +293,8 @@ test('a cancelled plan still in its paid period is resumed in place, never bough
         {
             return [];
         }
+
+        public function cancelNow(Workspace $workspace): void {}
 
         public function downloadInvoice(Workspace $workspace, string $invoiceId): Response
         {

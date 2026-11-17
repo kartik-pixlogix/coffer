@@ -66,6 +66,7 @@ const OWN_ACCOUNT_ROUTES = [
     'password.confirmation' => 'confirm-password status (Fortify)',
     'two-factor.*' => 'the user’s own 2FA setup (Fortify, password-confirmed)',
     'filament.admin.auth.logout' => 'platform admin sign out',
+    'privacy.*' => 'the user’s own data export and account deletion; workspace export / deletion check ownership in the controller; downloads are signed and owner-checked (D98)',
 ];
 
 function routeKeyMatches(Route $route, array $list): ?string

@@ -61,6 +61,15 @@ final class StripeGateway implements PaymentGateway
         }
     }
 
+    public function cancelNow(Workspace $workspace): void
+    {
+        $subscription = $workspace->subscription('default');
+
+        if ($subscription !== null && ! $subscription->ended()) {
+            $subscription->cancelNow();
+        }
+    }
+
     public function portal(Workspace $workspace, string $returnUrl): string
     {
         $workspace->createOrGetStripeCustomer();

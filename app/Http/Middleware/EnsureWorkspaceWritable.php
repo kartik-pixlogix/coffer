@@ -22,7 +22,7 @@ final class EnsureWorkspaceWritable
 {
     /** Route names that stay open when read-only (reads done by POST, and the way out). */
     private const array ALLOWED = [
-        'billing.*', 'notifications.*', 'settings.notifications*', 'companies.switch', 'access-requests.*',
+        'billing.*', 'privacy.*', 'notifications.*', 'settings.notifications*', 'companies.switch', 'access-requests.*',
         'vault.unlock', 'vault.lock', 'vault.touch', 'vault.reuse', 'vault.items.reveal', 'vault.items.copy',
         'vault.items.totp', 'vault.items.favourite', 'vault.export.store', 'vault.health.check',
     ];

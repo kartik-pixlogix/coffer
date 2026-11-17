@@ -10,6 +10,7 @@ use App\Enums\NumberFormat;
 use App\Http\Controllers\Controller;
 use App\Models\Partner;
 use App\Models\User;
+use App\Services\Privacy\PrivacyPanel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ final class ProfileController extends Controller
         'UTC' => 'UTC',
     ];
 
-    public function edit(Request $request): Response
+    public function edit(Request $request, PrivacyPanel $privacy): Response
     {
         /** @var User $user */
         $user = $request->user();
@@ -72,6 +73,8 @@ final class ProfileController extends Controller
                 'required' => DisableTwoFactorAuthentication::isRequiredFor($user),
             ],
             'sessions' => $this->sessions($request, $user),
+            // Your data: exports and deletion (D98).
+            'privacy' => $privacy->for($user),
         ]);
     }
 
