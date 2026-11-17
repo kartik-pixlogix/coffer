@@ -50,6 +50,7 @@ export default function ResetPassword({ token, email }: Props) {
                         <PasswordField
                             name="password"
                             label="New password"
+                            placeholder="At least 12 characters"
                             autoComplete="new-password"
                             required
                             autoFocus
@@ -64,6 +65,7 @@ export default function ResetPassword({ token, email }: Props) {
                         <PasswordField
                             name="password_confirmation"
                             label="Repeat new password"
+                            placeholder="Type it again"
                             autoComplete="new-password"
                             required
                             value={repeat}

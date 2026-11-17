@@ -73,6 +73,7 @@ export default function Register({ plan = null }: Props) {
                                 id="su-name"
                                 name="name"
                                 label="Your name"
+                                placeholder="Aarav Mehta"
                                 autoComplete="name"
                                 required
                                 autoFocus
@@ -82,6 +83,7 @@ export default function Register({ plan = null }: Props) {
                                 id="su-co"
                                 name="company_name"
                                 label="Company name"
+                                placeholder="Vertex Labs"
                                 autoComplete="organization"
                                 required
                                 error={errors.company_name}
@@ -93,6 +95,7 @@ export default function Register({ plan = null }: Props) {
                             name="email"
                             type="email"
                             label="Work email"
+                            placeholder="you@company.com"
                             autoComplete="email"
                             required
                             value={email}
@@ -109,6 +112,7 @@ export default function Register({ plan = null }: Props) {
                             id="su-pass"
                             name="password"
                             label="Password"
+                            placeholder="At least 12 characters"
                             autoComplete="new-password"
                             required
                             revealable={false}

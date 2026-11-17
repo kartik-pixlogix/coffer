@@ -248,6 +248,7 @@ function JoinForm(props: Props) {
                             id="ai-name"
                             name="name"
                             label="Your name"
+                            placeholder="Aarav Mehta"
                             autoComplete="name"
                             required
                             error={errors.name}
@@ -257,6 +258,7 @@ function JoinForm(props: Props) {
                         id="ai-email"
                         name={invite.isLink ? 'email' : undefined}
                         label="Email"
+                        placeholder="you@company.com"
                         type="email"
                         autoComplete="email"
                         defaultValue={invite.email ?? ''}

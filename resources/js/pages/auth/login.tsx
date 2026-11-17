@@ -66,6 +66,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             name="email"
                             type="email"
                             label="Work email"
+                            placeholder="you@company.com"
                             autoComplete="email"
                             required
                             autoFocus
@@ -75,6 +76,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             id="si-pass"
                             name="password"
                             label="Password"
+                            placeholder="Your password"
                             required
                             autoComplete="current-password"
                             error={errors.password}

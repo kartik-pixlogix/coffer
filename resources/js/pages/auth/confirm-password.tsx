@@ -37,6 +37,7 @@ export default function ConfirmPassword() {
                         <PasswordField
                             name="password"
                             label="Password"
+                            placeholder="Your password"
                             autoComplete="current-password"
                             required
                             autoFocus
