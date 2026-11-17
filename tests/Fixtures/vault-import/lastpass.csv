@@ -1,0 +1,3 @@
+url,username,password,totp,extra,name,grouping,fav
+https://hpanel.hostinger.com,admin@example.test, fake-LP-Pass-1! ,,fake-lp-extra,Hostinger hPanel,Clients\Asha,0
+http://sn,,,,fake-lp-secure-note,Router admin,,0

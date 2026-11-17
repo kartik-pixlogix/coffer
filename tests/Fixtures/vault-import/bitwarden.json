@@ -1,0 +1,51 @@
+{
+    "encrypted": false,
+    "folders": [{ "id": "f-1", "name": "Saarthi" }],
+    "items": [
+        {
+            "id": "1",
+            "folderId": "f-1",
+            "type": 1,
+            "name": "GitHub",
+            "notes": "fake-note-github",
+            "fields": [
+                {
+                    "name": "Recovery email",
+                    "value": "ops@example.test",
+                    "type": 0
+                },
+                { "name": "PAT", "value": "fake-pat-123", "type": 1 }
+            ],
+            "login": {
+                "uris": [{ "uri": "https://github.com/login" }],
+                "username": "vertex-admin",
+                "password": "fake-Bw-Pass-1!",
+                "totp": "otpauth://totp/GitHub?secret=JBSWY3DPEHPK3PXP&issuer=GitHub"
+            }
+        },
+        {
+            "id": "2",
+            "folderId": null,
+            "type": 2,
+            "name": "Wi-Fi",
+            "notes": "fake-wifi-note",
+            "secureNote": { "type": 0 }
+        },
+        {
+            "id": "3",
+            "type": 3,
+            "name": "Corporate card",
+            "card": { "number": "4111111111111111" }
+        },
+        {
+            "id": "4",
+            "type": 1,
+            "name": "Bad 2FA",
+            "login": {
+                "username": "x",
+                "password": "fake-Bw-Pass-2!",
+                "totp": "not a key!"
+            }
+        }
+    ]
+}

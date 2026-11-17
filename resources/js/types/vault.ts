@@ -599,3 +599,75 @@ export type VaultPoliciesProps = {
     /** VAULT_HIBP_ENABLED is on for this server. */
     breachAvailable: boolean;
 };
+
+/* ---- Import and export (D77) ---- */
+
+export type VaultImportStep = 'upload' | 'map' | 'preview' | 'done';
+
+export type VaultImportSummary = {
+    created?: number;
+    duplicates?: { line: number; name: string }[];
+    skipped?: { line: number; reason: string }[];
+    error?: string;
+};
+
+export type VaultImportData = {
+    id: number;
+    name: string;
+    format: string;
+    formatLabel: string;
+    vault: string;
+    rows: number;
+    header: string[] | null;
+    mapping: (string | null)[] | null;
+    status: 'uploaded' | 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    summary: VaultImportSummary | null;
+};
+
+export type VaultImportPreviewRow = {
+    line: number;
+    type: VaultItemType;
+    typeLabel: string;
+    name: string;
+    subtitle: string | null;
+    url: string | null;
+    /** Labels of the secrets that came in (never values). */
+    secrets: string[];
+    customFields: number;
+    tags: string[];
+    status: 'new' | 'duplicate' | 'invalid';
+    reason: string | null;
+    notes: string[];
+};
+
+export type VaultImportPreview = {
+    counts: {
+        new: number;
+        duplicate: number;
+        invalid: number;
+        skipped: number;
+    };
+    rows: VaultImportPreviewRow[];
+    skipped: { line: number; reason: string }[];
+};
+
+export type VaultImportProps = {
+    vaultState: VaultState;
+    vaults: { id: number; name: string }[];
+    step: VaultImportStep;
+    import: VaultImportData | null;
+    preview: VaultImportPreview | null;
+    error: string | null;
+    fields: string[];
+    maxKb: number;
+};
+
+export type VaultExportProps = {
+    vaultState: VaultState;
+    vaults: { id: number; name: string; items: number }[];
+    /** A 2FA code is needed with the request (no step-up in the window). */
+    needsCode: boolean;
+    requireReason: boolean;
+    minPassphrase: number;
+    kdf: 'argon2id' | 'pbkdf2-sha256';
+};

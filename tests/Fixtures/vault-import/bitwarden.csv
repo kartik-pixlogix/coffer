@@ -1,0 +1,5 @@
+folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp
+Saarthi,1,login,Netlify,"fake multi
+line note","Site ID: abc123",0,https://app.netlify.com,web@example.test,fake-Bw-Csv-1!,
+,,note,Server notes,fake-server-note,,0,,,,
+,,card,Visa,,,0,,,,

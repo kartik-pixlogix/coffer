@@ -4,11 +4,18 @@ import {
     ScrollText,
     ShieldCheck,
     SlidersHorizontal,
+    Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import type { MenuEntry } from '@/components/ui/dropdown-menu';
-import { audit, health, policies, requests } from '@/routes/vault';
+import {
+    audit,
+    health,
+    importMethod,
+    policies,
+    requests,
+} from '@/routes/vault';
 import type { VaultIndexProps } from '@/types/vault';
 
 /**
@@ -25,6 +32,9 @@ export function VaultToolsMenu({
         { label: 'Access requests', icon: Inbox, href: requests().url },
         ...(abilities.audit
             ? [{ label: 'Audit log', icon: ScrollText, href: audit().url }]
+            : []),
+        ...(abilities.create
+            ? [{ label: 'Import', icon: Upload, href: importMethod().url }]
             : []),
         ...(abilities.admin
             ? [

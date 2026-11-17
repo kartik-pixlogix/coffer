@@ -4263,3 +4263,86 @@ span.denied-can:not(#\#) {
     }
 }
 /* vault-policies: end */
+
+/* vault-import-export: BulkImport steps for the vault, and the encrypted export (D77) */
+.vi-page:not(#\#) {
+    gap: 20px;
+}
+
+.vi-upload:not(#\#),
+.vi-card:not(#\#) {
+    gap: 14px;
+}
+
+.vi-head:not(#\#) {
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.vi-counts:not(#\#) {
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vi-map:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.vi-map-row:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.vi-col:not(#\#) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vi-table:not(#\#) {
+    min-width: 760px;
+}
+
+.vi-cols:not(#\#) {
+    grid-template-columns: 56px minmax(200px, 1.4fr) 120px minmax(
+            180px,
+            1fr
+        ) 150px;
+}
+
+.vi-done:not(#\#) {
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.vx-layout:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.vx-main:not(#\#) {
+    flex: 999 1 560px;
+    min-width: 0;
+    gap: 14px;
+}
+
+.vx-aside:not(#\#) {
+    flex: 1 1 300px;
+    gap: 10px;
+}
+
+.vx-vaults:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+/* vault-import-export: end */

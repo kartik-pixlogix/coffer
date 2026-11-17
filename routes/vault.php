@@ -3,6 +3,7 @@
 use App\Http\Controllers\Vault\VaultAuditController;
 use App\Http\Controllers\Vault\VaultController;
 use App\Http\Controllers\Vault\VaultHealthController;
+use App\Http\Controllers\Vault\VaultImportController;
 use App\Http\Controllers\Vault\VaultItemController;
 use App\Http\Controllers\Vault\VaultOffboardingController;
 use App\Http\Controllers\Vault\VaultPoliciesController;
@@ -67,6 +68,15 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
     // Policies (spec §14.4, D76): Admins only; saving needs the vault unlocked.
     Route::get('vault/policies', [VaultPoliciesController::class, 'index'])->name('vault.policies');
     Route::put('vault/policies', [VaultPoliciesController::class, 'update'])->middleware(['vault.unlocked', 'throttle:vault-requests'])->name('vault.policies.update');
+
+    // Import (spec §14.4, D77): upload → map → preview → commit (queued); behind the lock.
+    Route::get('vault/import', [VaultImportController::class, 'index'])->name('vault.import');
+    Route::middleware('vault.unlocked')->group(function () {
+        Route::post('vault/import', [VaultImportController::class, 'store'])->middleware('throttle:vault-files')->name('vault.import.store');
+        Route::put('vault/import/{import}/mapping', [VaultImportController::class, 'mapping'])->name('vault.import.mapping');
+        Route::post('vault/import/{import}/commit', [VaultImportController::class, 'commit'])->middleware('throttle:vault-files')->name('vault.import.commit');
+        Route::delete('vault/import/{import}', [VaultImportController::class, 'destroy'])->name('vault.import.destroy');
+    });
 
     // Offboarding rotate lists (D73).
     Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');
