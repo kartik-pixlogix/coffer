@@ -5371,7 +5371,12 @@ a.lp-pillar:not(#\#):hover {
 
 .lp-faq:not(#\#) button svg {
     flex: none;
-    transition: transform 160ms ease-out;
+    transition: transform var(--duration-panel) var(--ease-out);
+}
+
+/* The answer panel animates height and opacity (motion); it clips while it moves. */
+.lp-faq-a:not(#\#) {
+    overflow: hidden;
 }
 
 .lp-faq:not(#\#) button[aria-expanded='true'] svg {

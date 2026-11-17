@@ -1,6 +1,8 @@
 import { Check, Plus } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import { EASE_OUT } from '@/components/marketing/motion';
 import { Icon } from '@/components/ui/icon';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { cn } from '@/lib/utils';
@@ -9,7 +11,9 @@ export type Faq = readonly [question: string, answer: string];
 
 /**
  * The FAQ accordion of Landing / Pricing: one open at a time (the first to start), the
- * plus turns into a cross, `aria-expanded` / `aria-controls` on each question.
+ * plus turns into a cross, `aria-expanded` / `aria-controls` on each question. The
+ * answer opens and closes on height and opacity (duration-panel, ease-out); under
+ * reduced motion it appears and goes at once.
  */
 export function FaqList({
     faqs,
@@ -20,6 +24,10 @@ export function FaqList({
 }) {
     const [open, setOpen] = useState(0);
     const base = useId();
+    const reduced = useReducedMotion();
+    const transition = reduced
+        ? { duration: 0 }
+        : { duration: 0.32, ease: EASE_OUT };
 
     return (
         <div>
@@ -43,7 +51,21 @@ export function FaqList({
                                 <Icon icon={Plus} size={20} />
                             </button>
                         </h3>
-                        {isOpen && <p id={id}>{answer}</p>}
+                        <AnimatePresence initial={false}>
+                            {isOpen && (
+                                <motion.div
+                                    key="answer"
+                                    id={id}
+                                    className="lp-faq-a"
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={transition}
+                                >
+                                    <p>{answer}</p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 );
             })}
