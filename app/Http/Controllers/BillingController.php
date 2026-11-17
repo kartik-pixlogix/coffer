@@ -115,16 +115,21 @@ final class BillingController extends Controller
 
         $currency = $state->hasSubscription() ? $state->currency : ($data['currency'] ?? $state->currency);
 
-        if ($state->hasSubscription() && $state->status !== 'canceled') {
-            if ($state->plan?->is($plan) && $state->cycle === $data['cycle']) {
+        // A live subscription (also a cancelled one still paid up) is changed in place, never doubled.
+        if ($state->hasSubscription()) {
+            $resuming = $state->status === 'canceled';
+
+            if (! $resuming && $state->plan?->is($plan) && $state->cycle === $data['cycle']) {
                 throw ValidationException::withMessages(['plan' => 'This is already your plan.']);
             }
 
             $this->stripe(fn () => $this->gateway->swap($workspace, $plan, $data['cycle'], $currency));
             $workspace->forceFill(['plan_id' => $plan->id, 'billing_cycle' => $data['cycle']])->save();
             activity('billing')->performedOn($workspace)->causedBy($request->user())
-                ->withProperties(['plan' => $plan->key, 'cycle' => $data['cycle']])->log('changed the plan');
-            Inertia::flash('toast', ['type' => 'success', 'message' => "You’re on {$plan->name} now. The new limits are on."]);
+                ->withProperties(['plan' => $plan->key, 'cycle' => $data['cycle']])->log($resuming ? 'resumed the plan' : 'changed the plan');
+            Inertia::flash('toast', ['type' => 'success', 'message' => $resuming
+                ? "{$plan->name} is back on. It renews as usual; nothing was cancelled."
+                : "You’re on {$plan->name} now. The new limits are on."]);
 
             return back();
         }

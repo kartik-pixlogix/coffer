@@ -60,6 +60,15 @@ test('Billing is for the workspace owner and Admins only', function (CompanyRole
     'viewer' => [CompanyRole::Viewer, 403],
 ]);
 
+test('the workspace owner opens Billing from a company where they aren’t an Admin', function () {
+    $w = trialWorkspace();
+    app(SetCompanyRole::class)->handle($w->company, $w->owner, CompanyRole::Partner);
+
+    $this->actingAs($w->owner->refresh())->get(route('billing.index'))->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->where('can.pages.billing', true));
+    $this->actingAs(userWithRole(CompanyRole::Partner, $w->company))->get(route('billing.index'))->assertForbidden();
+});
+
 test('the page shows the trial, the price, live usage and no invoices before Stripe knows the workspace', function () {
     $w = trialWorkspace();
     userWithRole(CompanyRole::Partner, $w->company);
@@ -253,4 +262,46 @@ test('another workspace’s billing is never reachable', function () {
     $other = trialWorkspace('kabir@example.test');
 
     $this->actingAs($w->owner)->post(route('companies.switch', $other->company))->assertNotFound();
+});
+
+test('a cancelled plan still in its paid period is resumed in place, never bought twice', function () {
+    $w = trialWorkspace();
+    FakeStripe::install();
+    $w->workspace->subscriptions()->create(['type' => 'default', 'stripe_id' => 'sub_1', 'stripe_status' => 'active', 'stripe_price' => 'price_growth_m_inr', 'quantity' => 1, 'ends_at' => now()->addDays(10)]);
+    $gateway = new class implements PaymentGateway
+    {
+        public array $swaps = [];
+
+        public function checkout(Workspace $workspace, Plan $plan, string $cycle, string $currency, string $successUrl, string $cancelUrl): string
+        {
+            throw new RuntimeException('A cancelled-but-paid subscription must not start a second one.');
+        }
+
+        public function swap(Workspace $workspace, Plan $plan, string $cycle, string $currency): void
+        {
+            $this->swaps[] = [$plan->key, $cycle, $currency];
+        }
+
+        public function portal(Workspace $workspace, string $returnUrl): string
+        {
+            return '';
+        }
+
+        public function invoices(Workspace $workspace): array
+        {
+            return [];
+        }
+
+        public function downloadInvoice(Workspace $workspace, string $invoiceId): Response
+        {
+            return response('pdf');
+        }
+    };
+    $this->app->instance(PaymentGateway::class, $gateway);
+
+    $this->actingAs($w->owner)->post(route('billing.checkout'), ['plan' => 'growth', 'cycle' => 'monthly'])
+        ->assertRedirect()
+        ->assertInertiaFlash('toast.message', 'Growth is back on. It renews as usual; nothing was cancelled.');
+
+    expect($gateway->swaps)->toBe([['growth', 'monthly', 'inr']]);
 });

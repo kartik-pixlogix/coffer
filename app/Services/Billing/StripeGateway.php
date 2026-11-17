@@ -49,7 +49,16 @@ final class StripeGateway implements PaymentGateway
             throw ValidationException::withMessages(['plan' => 'There’s no subscription to change yet. Choose a plan to start one.']);
         }
 
-        $subscription->swapAndInvoice($this->price($plan, $cycle, $currency));
+        $price = $this->price($plan, $cycle, $currency);
+
+        // A cancelled plan still inside its paid period is switched back on, never doubled up.
+        if ($subscription->onGracePeriod()) {
+            $subscription->resume();
+        }
+
+        if ($subscription->stripe_price !== $price) {
+            $subscription->swapAndInvoice($price);
+        }
     }
 
     public function portal(Workspace $workspace, string $returnUrl): string

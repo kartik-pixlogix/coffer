@@ -30,9 +30,25 @@ final class FakeStripe implements ClientInterface
         return $fake;
     }
 
+    /**
+     * Every test starts here (tests/Pest.php): no keys, no price ids, and an HTTP client
+     * that answers nothing, whatever the developer's .env holds, so a test can never
+     * reach Stripe or create anything in a real account.
+     */
+    public static function block(): void
+    {
+        ApiRequestor::setHttpClient(new self);
+        $prices = (array) config('billing.stripe.prices', []);
+        array_walk_recursive($prices, function (mixed &$id): void {
+            $id = null;
+        });
+        config(['cashier.key' => null, 'cashier.secret' => null, 'cashier.webhook.secret' => null, 'billing.stripe.prices' => $prices]);
+    }
+
+    /** Back to the blocking client (never the real one). */
     public static function uninstall(): void
     {
-        ApiRequestor::setHttpClient(null);
+        ApiRequestor::setHttpClient(new self);
     }
 
     /** @param array<string, mixed> $body */

@@ -100,8 +100,11 @@ export function UpgradeModal({
     const chosen = options.find((p) => p.key === pick) ?? null;
     const lower = (p: PlanOption) =>
         subscribed && current !== undefined && p.position < current.position;
+    // A cancelled plan still in its paid period can be chosen again: it resumes (D80).
+    const resuming = context?.current.status === 'canceled';
     const same =
         subscribed &&
+        !resuming &&
         chosen !== null &&
         chosen.key === context?.current.plan &&
         cycle === context.current.cycle;
@@ -119,11 +122,13 @@ export function UpgradeModal({
         ? 'Talk to us first'
         : same
           ? 'This is your plan'
-          : !subscribed
-            ? `Continue with ${chosen?.name ?? 'a plan'}`
-            : upgrading
-              ? `Upgrade to ${chosen?.name ?? ''}`
-              : `Switch to ${cycle}`;
+          : resuming && chosen?.key === context?.current.plan
+            ? `Resume ${chosen.name}`
+            : !subscribed
+              ? `Continue with ${chosen?.name ?? 'a plan'}`
+              : upgrading
+                ? `Upgrade to ${chosen?.name ?? ''}`
+                : `Switch to ${cycle}`;
 
     const confirm = () => {
         if (chosen === null || same || isEnterprise) {

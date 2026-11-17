@@ -18,12 +18,19 @@ final class Access
 
     public function allows(User $user, string $permission): bool
     {
-        if ($this->current->get() === null || $this->current->role() === null) {
+        $company = $this->current->get();
+
+        if ($company === null || $this->current->role() === null) {
             return false;
         }
 
         // The Admin column is locked to full access (spec §2).
         if ($this->current->isAdmin()) {
+            return true;
+        }
+
+        // Billing is the workspace owner's in every company, whatever their role there (spec §20, D80).
+        if ($permission === Catalog::pagePermission('billing') && $company->workspace->isOwnedBy($user)) {
             return true;
         }
 

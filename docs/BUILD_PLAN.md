@@ -207,9 +207,9 @@ Tick boxes here as you go (`- [x]`).
 - spec §19–§22
 - screens: `Billing`, `Pricing`, `Landing`, `Notifications`, `StateToasts`
 
-- [ ] Notifications: events, database + mail channels, top-bar panel with filters and inline actions, `/notifications` page, preferences, brand email template.
-- [ ] Plans table (placeholder prices and limits), 14-day trial, Cashier (Stripe) Checkout + Billing Portal.
-- [ ] Billing page: plan, usage meters, invoices, upgrade modal. Soft limit enforcement.
+- [x] Notifications: events, database + mail channels, top-bar panel with filters and inline actions, `/notifications` page, preferences, brand email template. (D78, D79)
+- [x] Plans table (placeholder prices and limits), 14-day trial, Cashier (Stripe) Checkout + Billing Portal. (D80; owner checklist in `docs/BILLING_TESTING.md`; Razorpay deferred [VERIFY])
+- [x] Billing page: plan, usage meters, invoices, upgrade modal. Soft limit enforcement. (D80, D81, D82)
 - [ ] Marketing site with Inertia SSR:
   - landing (spotlight and parallax with reduced-motion fallback), pricing toggles
   - feature template, security, contact/demo form, legal pages

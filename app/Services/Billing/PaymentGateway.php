@@ -18,7 +18,7 @@ interface PaymentGateway
     /** A hosted checkout for a new subscription; returns the URL to send the browser to. */
     public function checkout(Workspace $workspace, Plan $plan, string $cycle, string $currency, string $successUrl, string $cancelUrl): string;
 
-    /** Moves an existing subscription to another plan or cycle (prorated, invoiced now). */
+    /** Moves an existing subscription to another plan or cycle (prorated, invoiced now); resumes a cancelled one still in its paid period. */
     public function swap(Workspace $workspace, Plan $plan, string $cycle, string $currency): void;
 
     /** The hosted portal for cards, invoices and cancelling; returns its URL. */

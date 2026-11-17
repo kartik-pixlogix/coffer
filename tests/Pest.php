@@ -22,6 +22,7 @@ use App\Services\Vault\VaultAccess;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\FakeStripe;
 use Tests\TestCase;
 
 /*
@@ -29,6 +30,8 @@ use Tests\TestCase;
 */
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    // Stripe is never reached from a test (D80): see FakeStripe::block().
+    ->beforeEach(fn () => FakeStripe::block())
     ->in('Feature', 'Unit');
 
 /**
