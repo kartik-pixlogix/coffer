@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import {
     Download,
     Ellipsis,
@@ -78,6 +78,7 @@ const PILL: Record<string, string> = {
 export default function Income(props: Props) {
     const { fy, filters, kpis, trend, chips, incomes, options, abilities } =
         props;
+    const { currentCompany } = usePage().props;
     const [modal, setModal] = useState(false);
     const [editing, setEditing] = useState<IncomeRow | null>(null);
     const [removing, setRemoving] = useState<IncomeRow | null>(null);
@@ -298,144 +299,154 @@ export default function Income(props: Props) {
                 </article>
             </section>
 
-            <section
-                className="cf-card flex min-w-0 flex-col gap-3"
-                aria-labelledby="in-h"
-            >
-                <div className="cf-kv flex-wrap gap-2">
-                    <h2 id="in-h" className="cf-dot-title t-title">
-                        Latest entries
-                    </h2>
-                    <FilterChipGroup aria-label="Category">
-                        <FilterChip
-                            pressed={filters.category === undefined}
-                            count={total}
-                            onClick={() =>
-                                visit({ category: null, page: null })
-                            }
-                        >
-                            All
-                        </FilterChip>
-                        {chips.map((c) => (
+            {kpis.entries === 0 && filters.category === undefined ? (
+                <IncomeEmpty
+                    company={currentCompany?.name ?? null}
+                    canAdd={abilities.manage}
+                    onAdd={() => open(null)}
+                />
+            ) : (
+                <section
+                    className="cf-card flex min-w-0 flex-col gap-3"
+                    aria-labelledby="in-h"
+                >
+                    <div className="cf-kv flex-wrap gap-2">
+                        <h2 id="in-h" className="cf-dot-title t-title">
+                            Latest entries
+                        </h2>
+                        <FilterChipGroup aria-label="Category">
                             <FilterChip
-                                key={c.id}
-                                pressed={filters.category === c.id}
-                                count={c.count}
+                                pressed={filters.category === undefined}
+                                count={total}
                                 onClick={() =>
-                                    visit({ category: c.id, page: null })
+                                    visit({ category: null, page: null })
                                 }
                             >
-                                {c.name}
+                                All
                             </FilterChip>
-                        ))}
-                    </FilterChipGroup>
-                </div>
-                <DataTable
-                    aria-label="Latest income entries"
-                    rows={incomes.data}
-                    columns={columns}
-                    getRowId={(r) => String(r.id)}
-                    minWidth={920}
-                    sort={sort}
-                    manualSort
-                    onSortChange={(s) =>
-                        visit({
-                            sort: s.key === 'date' ? null : s.key,
-                            dir: s.direction === 'ascending' ? 'asc' : null,
-                            page: null,
-                        })
-                    }
-                    actionsWidth="80px"
-                    rowActions={(r) => (
-                        <span className="cf-rowacts">
-                            <DropdownMenu
-                                aria-label={`Actions for ${r.source}`}
-                                align="end"
-                                trigger={
-                                    <IconButton
-                                        icon={Ellipsis}
+                            {chips.map((c) => (
+                                <FilterChip
+                                    key={c.id}
+                                    pressed={filters.category === c.id}
+                                    count={c.count}
+                                    onClick={() =>
+                                        visit({ category: c.id, page: null })
+                                    }
+                                >
+                                    {c.name}
+                                </FilterChip>
+                            ))}
+                        </FilterChipGroup>
+                    </div>
+                    <DataTable
+                        aria-label="Latest income entries"
+                        rows={incomes.data}
+                        columns={columns}
+                        getRowId={(r) => String(r.id)}
+                        minWidth={920}
+                        sort={sort}
+                        manualSort
+                        onSortChange={(s) =>
+                            visit({
+                                sort: s.key === 'date' ? null : s.key,
+                                dir: s.direction === 'ascending' ? 'asc' : null,
+                                page: null,
+                            })
+                        }
+                        actionsWidth="80px"
+                        rowActions={(r) => (
+                            <span className="cf-rowacts">
+                                <DropdownMenu
+                                    aria-label={`Actions for ${r.source}`}
+                                    align="end"
+                                    trigger={
+                                        <IconButton
+                                            icon={Ellipsis}
+                                            size="sm"
+                                            aria-label={`More actions for ${r.source}`}
+                                        />
+                                    }
+                                    entries={[
+                                        ...(abilities.manage
+                                            ? [
+                                                  {
+                                                      label: 'Edit',
+                                                      icon: Pencil,
+                                                      onSelect: () => open(r),
+                                                  },
+                                              ]
+                                            : []),
+                                        ...(r.attachment
+                                            ? [
+                                                  {
+                                                      label: 'Open invoice',
+                                                      icon: FileText,
+                                                      onSelect: () =>
+                                                          window.open(
+                                                              r.attachment?.url,
+                                                              '_blank',
+                                                              'noopener',
+                                                          ),
+                                                  },
+                                              ]
+                                            : []),
+                                        ...(abilities.manage
+                                            ? [
+                                                  {
+                                                      label: 'Delete',
+                                                      icon: Trash2,
+                                                      danger: true,
+                                                      onSelect: () =>
+                                                          setRemoving(r),
+                                                  },
+                                              ]
+                                            : []),
+                                    ]}
+                                />
+                            </span>
+                        )}
+                        empty={{
+                            title:
+                                filters.category !== undefined
+                                    ? 'No income in this category'
+                                    : `No income in ${fy.label} yet`,
+                            icon: TrendingUp,
+                            action:
+                                filters.category !== undefined ? (
+                                    <Button
+                                        variant="secondary"
                                         size="sm"
-                                        aria-label={`More actions for ${r.source}`}
-                                    />
-                                }
-                                entries={[
-                                    ...(abilities.manage
-                                        ? [
-                                              {
-                                                  label: 'Edit',
-                                                  icon: Pencil,
-                                                  onSelect: () => open(r),
-                                              },
-                                          ]
-                                        : []),
-                                    ...(r.attachment
-                                        ? [
-                                              {
-                                                  label: 'Open invoice',
-                                                  icon: FileText,
-                                                  onSelect: () =>
-                                                      window.open(
-                                                          r.attachment?.url,
-                                                          '_blank',
-                                                          'noopener',
-                                                      ),
-                                              },
-                                          ]
-                                        : []),
-                                    ...(abilities.manage
-                                        ? [
-                                              {
-                                                  label: 'Delete',
-                                                  icon: Trash2,
-                                                  danger: true,
-                                                  onSelect: () =>
-                                                      setRemoving(r),
-                                              },
-                                          ]
-                                        : []),
-                                ]}
+                                        onClick={() =>
+                                            visit({ category: null })
+                                        }
+                                    >
+                                        Show all
+                                    </Button>
+                                ) : abilities.manage ? (
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        icon={Plus}
+                                        onClick={() => open(null)}
+                                    >
+                                        Add income
+                                    </Button>
+                                ) : undefined,
+                        }}
+                    />
+                    <PaginationBar
+                        summary={`Showing ${incomes.data.length} of ${incomes.total} ${incomes.total === 1 ? 'entry' : 'entries'} in ${fy.label}`}
+                    >
+                        {incomes.last_page > 1 && (
+                            <Pager
+                                page={incomes.current_page}
+                                pageCount={incomes.last_page}
+                                onPageChange={(page) => visit({ page })}
                             />
-                        </span>
-                    )}
-                    empty={{
-                        title:
-                            filters.category !== undefined
-                                ? 'No income in this category'
-                                : `No income in ${fy.label} yet`,
-                        icon: TrendingUp,
-                        action:
-                            filters.category !== undefined ? (
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() => visit({ category: null })}
-                                >
-                                    Show all
-                                </Button>
-                            ) : abilities.manage ? (
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    icon={Plus}
-                                    onClick={() => open(null)}
-                                >
-                                    Add income
-                                </Button>
-                            ) : undefined,
-                    }}
-                />
-                <PaginationBar
-                    summary={`Showing ${incomes.data.length} of ${incomes.total} ${incomes.total === 1 ? 'entry' : 'entries'} in ${fy.label}`}
-                >
-                    {incomes.last_page > 1 && (
-                        <Pager
-                            page={incomes.current_page}
-                            pageCount={incomes.last_page}
-                            onPageChange={(page) => visit({ page })}
-                        />
-                    )}
-                </PaginationBar>
-            </section>
+                        )}
+                    </PaginationBar>
+                </section>
+            )}
 
             {abilities.manage && (
                 <IncomeModal
@@ -486,5 +497,86 @@ export default function Income(props: Props) {
                 }}
             />
         </>
+    );
+}
+
+const INCOME_TIPS = [
+    {
+        cat: 'Project',
+        pill: 'cf-pill--info',
+        title: 'Client payments',
+        body: 'Milestones and fixed-fee projects, logged on the day the money arrives.',
+    },
+    {
+        cat: 'Product',
+        pill: 'cf-pill--pos',
+        title: 'Product or licence sales',
+        body: 'Subscriptions, licence fees and one-off sales of your own products.',
+    },
+    {
+        cat: 'Consulting',
+        pill: 'cf-pill--warn',
+        title: 'Retainers and audits',
+        body: 'Monthly retainers, audits and other advice billed by time.',
+    },
+] as const;
+
+/**
+ * No income in the year yet (design/screens/StateEmpty.dc.html): the first-run
+ * prompt in place of the entries table, with "What counts as income?".
+ */
+function IncomeEmpty({
+    company,
+    canAdd,
+    onAdd,
+}: {
+    company: string | null;
+    canAdd: boolean;
+    onAdd: () => void;
+}) {
+    const [help, setHelp] = useState(false);
+
+    return (
+        <section className="cf-empty in-empty" aria-labelledby="in-em-h">
+            <span className="cf-disc in-empty-disc">
+                <Icon icon={TrendingUp} size={30} />
+            </span>
+            <h2 id="in-em-h" className="t-heading in-empty-title">
+                No income yet
+            </h2>
+            <p className="t-body t-muted in-empty-body">
+                {canAdd
+                    ? `Add the first payment ${company ?? 'the company'} received. Revenue, the monthly trend and each partner’s share fill in from there.`
+                    : 'Nothing has been recorded for this year. Revenue, the monthly trend and each partner’s share appear once a payment is added.'}
+            </p>
+            {canAdd && (
+                <Button variant="primary" size="lg" onClick={onAdd}>
+                    Add income
+                </Button>
+            )}
+            <button
+                type="button"
+                className="cf-link t-caption"
+                aria-expanded={help}
+                onClick={() => setHelp(!help)}
+            >
+                What counts as income?
+            </button>
+            {help && (
+                <div className="in-empty-tips">
+                    {INCOME_TIPS.map((tip) => (
+                        <div key={tip.cat} className="cf-inset in-empty-tip">
+                            <span className={`cf-pill cf-pill--sm ${tip.pill}`}>
+                                {tip.cat}
+                            </span>
+                            <span className="t-label-strong">{tip.title}</span>
+                            <span className="t-caption t-muted">
+                                {tip.body}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </section>
     );
 }
