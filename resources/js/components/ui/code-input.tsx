@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type {
     ChangeEvent,
     ClipboardEvent,
@@ -100,7 +101,10 @@ export function CodeInput({
     const locked = disabled || verifying;
 
     const commit = (next: string[], focus: number | null) => {
-        setDigits(next);
+        // Render now, so the hidden input already holds this code when onComplete
+        // submits the form: forms read the DOM, and a deferred render would post the
+        // previous value (five digits, or an earlier code).
+        flushSync(() => setDigits(next));
 
         if (focus !== null) {
             setFocusRequest({ index: focus });
