@@ -26,6 +26,8 @@ enum VaultAuditAction: string
     case Unlocked = 'unlocked';
     case FailedUnlock = 'failed_unlock';
     case Locked = 'locked';
+    case PoliciesChanged = 'policies_changed';
+    case Imported = 'imported';
 
     /** Past tense for timelines: "Rohan Desai copied the password". */
     public function verb(): string
@@ -47,6 +49,8 @@ enum VaultAuditAction: string
             self::Unlocked => 'unlocked the vault',
             self::FailedUnlock => 'failed to unlock the vault',
             self::Locked => 'locked the vault',
+            self::PoliciesChanged => 'changed the vault policies',
+            self::Imported => 'imported',
         };
     }
 
@@ -56,6 +60,7 @@ enum VaultAuditAction: string
         return match ($this) {
             self::UsedCode => 'Used code',
             self::FailedUnlock => 'Failed unlock',
+            self::PoliciesChanged => 'Policies changed',
             default => ucfirst($this->value),
         };
     }

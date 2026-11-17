@@ -399,6 +399,8 @@ export type VaultCreateProps = {
     vaults: { id: number; name: string }[];
     canRestrict: boolean;
     attachmentMaxKb: number;
+    /** The Policies page's shortest generated password (D76). */
+    generatorMinLength: number;
     step: 'catalog' | 'details';
     provider: VaultProvider | null;
     type: VaultItemType | null;

@@ -25,6 +25,9 @@ final readonly class VaultSession
 
     private const string VERIFIED = 'vault.verified_at';
 
+    /** With "a fresh code before every reveal" (D76): the code already spent on one. */
+    private const string SPENT = 'vault.verified_spent';
+
     public function __construct(private Session $session, private CurrentCompany $current) {}
 
     public function policy(): VaultPolicy
@@ -55,10 +58,32 @@ final readonly class VaultSession
         return $until !== null && $until->isFuture() && $this->isUnlocked();
     }
 
-    /** Until when reveals go through without asking for a code again. */
+    /**
+     * Until when reveals go through without asking for a code again. With "a fresh code
+     * before every reveal" a code is good for one reveal or copy within two minutes.
+     */
     public function verifiedUntil(): ?CarbonImmutable
     {
-        return $this->time(self::VERIFIED)?->addMinutes($this->policy()->reauthMinutes);
+        $verified = $this->time(self::VERIFIED);
+        $policy = $this->policy();
+
+        if (! $policy->freshCodeEachReveal) {
+            return $verified?->addMinutes($policy->reauthMinutes);
+        }
+
+        return $verified === null || $this->session->get(self::SPENT) === $verified->getTimestamp()
+            ? null
+            : $verified->addSeconds(VaultPolicy::FRESH_CODE_SECONDS);
+    }
+
+    /** A reveal, copy or download went through: under "a fresh code before every reveal", that code is spent. */
+    public function spendStepUp(): void
+    {
+        $verified = $this->time(self::VERIFIED);
+
+        if ($verified !== null && $this->policy()->freshCodeEachReveal) {
+            $this->session->put(self::SPENT, $verified->getTimestamp());
+        }
     }
 
     /** Unlock: a 2FA code also counts as a fresh step-up; a password doesn't. */
@@ -83,7 +108,7 @@ final readonly class VaultSession
 
     public function lock(): void
     {
-        $this->session->forget([self::UNLOCKED, self::ACTIVE, self::VERIFIED]);
+        $this->session->forget([self::UNLOCKED, self::ACTIVE, self::VERIFIED, self::SPENT]);
     }
 
     /** @return array{unlocked: bool, verifiedUntil: string|null, lockAt: string|null} */
@@ -93,7 +118,8 @@ final readonly class VaultSession
 
         return [
             'unlocked' => $unlocked,
-            'verifiedUntil' => $unlocked && $this->isVerified() ? $this->verifiedUntil()?->toIso8601String() : null,
+            // Under "a fresh code before every reveal" the page always asks first.
+            'verifiedUntil' => $unlocked && $this->isVerified() && ! $this->policy()->freshCodeEachReveal ? $this->verifiedUntil()?->toIso8601String() : null,
             'lockAt' => $unlocked ? $this->lockAt()?->toIso8601String() : null,
         ];
     }

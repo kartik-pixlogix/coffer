@@ -64,6 +64,7 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
         assertBodyClean($this->get(route('vault.health')), 'the health page');
         assertBodyClean($this->get(route('vault.health.export')), 'the health report CSV');
         assertBodyClean($this->get(route('vault.audit', ['range' => '30d'])), 'the audit log');
+        assertBodyClean($this->get(route('vault.policies')), 'the policies page');
         assertBodyClean($this->get(route('vault.audit.export', ['range' => '30d'])), 'the audit CSV');
 
         foreach ($items as $item) {

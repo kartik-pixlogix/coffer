@@ -126,3 +126,21 @@ export async function downloadVaultAttachment(
 
     return { ok: true, status: response.status, data: null };
 }
+
+/** Lock the vault as the page goes away (keepalive outlives the page). */
+export function lockOnLeave(url: string): void {
+    const xsrf = xsrfToken();
+
+    void fetch(url, {
+        method: 'POST',
+        keepalive: true,
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+        },
+        body: '{}',
+    }).catch(() => undefined);
+}

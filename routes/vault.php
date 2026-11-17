@@ -5,6 +5,7 @@ use App\Http\Controllers\Vault\VaultController;
 use App\Http\Controllers\Vault\VaultHealthController;
 use App\Http\Controllers\Vault\VaultItemController;
 use App\Http\Controllers\Vault\VaultOffboardingController;
+use App\Http\Controllers\Vault\VaultPoliciesController;
 use App\Http\Controllers\Vault\VaultRequestsController;
 use App\Http\Controllers\Vault\VaultSecretController;
 use App\Http\Controllers\Vault\VaultShareController;
@@ -62,6 +63,10 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
     // Audit log (spec §14.4, D75): Admins or "Export and view audit log"; the CSV is itself audited.
     Route::get('vault/audit', [VaultAuditController::class, 'index'])->name('vault.audit');
     Route::get('vault/audit/export', [VaultAuditController::class, 'export'])->middleware(['vault.unlocked', 'throttle:vault-files'])->name('vault.audit.export');
+
+    // Policies (spec §14.4, D76): Admins only; saving needs the vault unlocked.
+    Route::get('vault/policies', [VaultPoliciesController::class, 'index'])->name('vault.policies');
+    Route::put('vault/policies', [VaultPoliciesController::class, 'update'])->middleware(['vault.unlocked', 'throttle:vault-requests'])->name('vault.policies.update');
 
     // Offboarding rotate lists (D73).
     Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');

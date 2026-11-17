@@ -4174,3 +4174,92 @@ span.denied-can:not(#\#) {
     }
 }
 /* vault-audit: end */
+
+/* vault-policies: VaultLockPolicies.dc.html "Policies" (D76) */
+.vp-layout:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.vp-main:not(#\#) {
+    flex: 999 1 640px;
+    min-width: 0;
+    gap: 16px;
+}
+
+.vp-card:not(#\#) {
+    gap: 12px;
+}
+
+.vp-row:not(#\#) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+}
+
+.vp-radios:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.vp-rcard:not(#\#) {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.vp-rcard.on:not(#\#) {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
+}
+
+.vp-dot:not(#\#) {
+    margin-top: 2px;
+}
+
+.vp-rtext:not(#\#) {
+    gap: 4px;
+}
+
+.vp-summary:not(#\#) {
+    flex: 1 1 320px;
+    gap: 12px;
+}
+
+.vp-sum-row:not(#\#) {
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.vp-tick:not(#\#) {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-lime);
+    color: var(--on-lime);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vp-on:not(#\#) {
+    color: var(--on-graphite);
+}
+
+@media (max-width: 640px) {
+    .vp-radios:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+/* vault-policies: end */

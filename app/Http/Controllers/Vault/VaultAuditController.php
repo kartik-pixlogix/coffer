@@ -45,6 +45,8 @@ final class VaultAuditController extends Controller
         'edited' => ['Edited', ['created', 'edited', 'rotated', 'restored', 'deleted']],
         'shared' => ['Shared', ['shared', 'unshared']],
         'exported' => ['Exported', ['exported']],
+        'imported' => ['Imported', ['imported']],
+        'policies' => ['Policies', ['policies_changed']],
         'unlocked' => ['Unlocked', ['unlocked', 'locked']],
         'failed_unlock' => ['Failed unlock', ['failed_unlock']],
     ];

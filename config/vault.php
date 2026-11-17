@@ -20,10 +20,20 @@ return [
     'hibp_enabled' => (bool) env('VAULT_HIBP_ENABLED', false),
 
     /*
-    | Default vault policies (spec §14.4 "Policies", VaultLockPolicies.dc.html). Part B's
-    | Policies page stores per-company overrides; until then every company uses these.
+    | Default vault policies (spec §14.4 "Policies", VaultLockPolicies.dc.html, D76). The
+    | Policies page saves per-company values; a company without them uses these.
     */
     'policy' => [
+        // "Ask again before revealing a password": every reveal or copy needs a new code.
+        'fresh_code_each_reveal' => false,
+        // Lock the vault when the tab closes or reloads.
+        'lock_on_close' => false,
+        // "Who can export": admins | admins_partners | none (spec "Admin only").
+        'export_who' => 'admins',
+        // Ask for a reason on every export (it goes in the audit log).
+        'export_reason' => true,
+        // The password generator's shortest length (spec: 12–64).
+        'generator_min_length' => 12,
         // "Ask for a 2FA code again after": a reveal needs a 2FA check newer than this.
         'reauth_minutes' => 15,
         // The vault locks after this long without activity.

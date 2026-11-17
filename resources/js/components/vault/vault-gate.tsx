@@ -7,7 +7,10 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from '@/components/ui/toast';
 import { LockCard } from '@/components/vault/home/lock-card';
 import type { LockReason } from '@/components/vault/home/lock-card';
-import { useIdleLock } from '@/components/vault/home/use-idle-lock';
+import {
+    useIdleLock,
+    useLockOnClose,
+} from '@/components/vault/home/use-idle-lock';
 import { firstName } from '@/lib/team';
 import { vaultRequest } from '@/lib/vault-api';
 import { edit as editProfile } from '@/routes/profile';
@@ -42,6 +45,8 @@ export function VaultGate({ vaultState, children }: Props) {
             reload();
         }
     }, []);
+
+    useLockOnClose(unlocked, vaultState.policy.lockOnClose);
 
     useIdleLock({
         active: unlocked,

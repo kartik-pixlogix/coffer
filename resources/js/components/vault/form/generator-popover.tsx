@@ -31,6 +31,8 @@ type GeneratorPopoverProps = {
     onOpenChange: (open: boolean) => void;
     /** "Use this password": fills the field. */
     onUse: (value: string) => void;
+    /** The company's shortest generated length (Policies, D76); 12 by default. */
+    minLength?: number;
 };
 
 const MODES: { value: GeneratorMode; label: string }[] = [
@@ -92,9 +94,13 @@ export function GeneratorPopover({
     open,
     onOpenChange,
     onUse,
+    minLength = LENGTH_MIN,
 }: GeneratorPopoverProps) {
-    const [settings, setSettings] =
-        useState<GeneratorSettings>(DEFAULT_SETTINGS);
+    const floor = Math.min(LENGTH_MAX, Math.max(LENGTH_MIN, minLength));
+    const [settings, setSettings] = useState<GeneratorSettings>(() => ({
+        ...DEFAULT_SETTINGS,
+        length: Math.max(DEFAULT_SETTINGS.length, floor),
+    }));
     // Bumped by "Make another".
     const [nonce, setNonce] = useState(0);
     // A fresh value whenever the popover opens, a setting changes or another is asked
@@ -183,7 +189,7 @@ export function GeneratorPopover({
                         label="Length"
                         unit="characters"
                         value={settings.length}
-                        min={LENGTH_MIN}
+                        min={floor}
                         max={LENGTH_MAX}
                         onChange={(length) => change({ length })}
                     />

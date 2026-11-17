@@ -1,8 +1,14 @@
-import { Ellipsis, Inbox, ScrollText, ShieldCheck } from 'lucide-react';
+import {
+    Ellipsis,
+    Inbox,
+    ScrollText,
+    ShieldCheck,
+    SlidersHorizontal,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import type { MenuEntry } from '@/components/ui/dropdown-menu';
-import { audit, health, requests } from '@/routes/vault';
+import { audit, health, policies, requests } from '@/routes/vault';
 import type { VaultIndexProps } from '@/types/vault';
 
 /**
@@ -19,6 +25,15 @@ export function VaultToolsMenu({
         { label: 'Access requests', icon: Inbox, href: requests().url },
         ...(abilities.audit
             ? [{ label: 'Audit log', icon: ScrollText, href: audit().url }]
+            : []),
+        ...(abilities.admin
+            ? [
+                  {
+                      label: 'Policies',
+                      icon: SlidersHorizontal,
+                      href: policies().url,
+                  },
+              ]
             : []),
     ];
 

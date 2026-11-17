@@ -120,6 +120,7 @@ export function ItemForm({
     vaults,
     canRestrict,
     attachmentMaxKb,
+    generatorMinLength,
     provider,
     type: typeProp,
     item,
@@ -323,6 +324,7 @@ export function ItemForm({
                 addon={
                     <GeneratorPopover
                         open={genOpen}
+                        minLength={generatorMinLength}
                         onOpenChange={(open) => {
                             setGenOpen(open);
 

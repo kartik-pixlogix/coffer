@@ -24,7 +24,9 @@ use App\Services\Vault\ItemTemplates;
 use App\Services\Vault\ProviderCatalog;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultAudit;
+use App\Services\Vault\VaultPolicy;
 use App\Services\Vault\VaultSession;
+use App\Support\CurrentCompany;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -233,6 +235,8 @@ final class VaultItemController extends Controller
             'vaults' => $vaults->map(fn (Vault $v) => ['id' => $v->id, 'name' => $v->name])->values(),
             'canRestrict' => $this->access->isAdmin($user),
             'attachmentMaxKb' => (int) config('vault.attachment_max_kb'),
+            // The Policies page's shortest generated length (D76).
+            'generatorMinLength' => VaultPolicy::for(app(CurrentCompany::class)->get())->generatorMinLength,
         ];
     }
 

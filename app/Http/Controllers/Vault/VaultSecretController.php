@@ -80,6 +80,7 @@ final class VaultSecretController extends Controller
         $bytes = $attachments->read($attachment);
         $this->audit->record(VaultAuditAction::Downloaded, $this->user($request), $item, null, ['file' => $attachment->name]);
         $this->session->touch();
+        $this->session->spendStepUp();
 
         $fallback = preg_replace('/[^A-Za-z0-9._-]+/', '-', $attachment->name) ?: 'attachment';
 
@@ -147,6 +148,7 @@ final class VaultSecretController extends Controller
 
         $this->audit->record($action, $this->user($request), $item, $field, ['label' => $label]);
         $this->session->touch();
+        $this->session->spendStepUp();
         $policy = $this->session->policy();
 
         return response()->json([

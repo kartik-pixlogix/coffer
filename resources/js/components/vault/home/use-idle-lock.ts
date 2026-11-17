@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { idleAction } from '@/components/vault/home/vault-home.utils';
-import { vaultRequest } from '@/lib/vault-api';
-import { touch } from '@/routes/vault';
+import { lockOnLeave, vaultRequest } from '@/lib/vault-api';
+import { lock, touch } from '@/routes/vault';
 import type { VaultState } from '@/types/vault';
 
 const CHECK_EVERY_MS = 10_000;
@@ -117,4 +117,21 @@ export function useIdleLock({
             window.clearInterval(timer);
         };
     }, [active, idleMinutes]);
+}
+
+/**
+ * "Lock when the tab closes" (VaultLockPolicies.dc.html, D76): closing or reloading the
+ * page tells the server to lock, with a keepalive request that outlives the page.
+ */
+export function useLockOnClose(active: boolean, enabled: boolean) {
+    useEffect(() => {
+        if (!active || !enabled) {
+            return;
+        }
+
+        const onHide = () => lockOnLeave(lock().url);
+        window.addEventListener('pagehide', onHide);
+
+        return () => window.removeEventListener('pagehide', onHide);
+    }, [active, enabled]);
 }

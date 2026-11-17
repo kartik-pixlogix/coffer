@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { Lock } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -28,6 +29,8 @@ type Props = {
         state: VaultUnlockResponse['state'],
         withCode: boolean,
     ) => void;
+    /** Admins: "See vault policies" (VaultLockPolicies.dc.html). */
+    policiesHref?: string;
 };
 
 const SKELETON_ROWS = ['46%', '38%', '52%', '30%', '44%', '36%', '50%', '28%'];
@@ -36,7 +39,13 @@ const SKELETON_ROWS = ['46%', '38%', '52%', '30%', '44%', '36%', '50%', '28%'];
  * The locked vault (VaultLockPolicies.dc.html "Vault locked"): the list blurred behind
  * a card asking for the 6-digit code, a recovery code or the account password.
  */
-export function LockCard({ firstName, policy, reason, onUnlocked }: Props) {
+export function LockCard({
+    firstName,
+    policy,
+    reason,
+    onUnlocked,
+    policiesHref,
+}: Props) {
     const [mode, setMode] = useState<Mode>('code');
     const [code, setCode] = useState('');
     const [text, setText] = useState('');
@@ -248,6 +257,17 @@ export function LockCard({ firstName, policy, reason, onUnlocked }: Props) {
                 <span className="t-caption t-muted">
                     Set by your Admin: re-ask every{' '}
                     {reaskText(policy.reauthMinutes)}.
+                    {policiesHref && (
+                        <>
+                            {' '}
+                            <Link
+                                href={policiesHref}
+                                className="cf-link t-caption"
+                            >
+                                See vault policies
+                            </Link>
+                        </>
+                    )}
                 </span>
             </form>
         </section>

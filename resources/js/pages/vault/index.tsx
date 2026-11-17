@@ -9,7 +9,10 @@ import { toast } from '@/components/ui/toast';
 import { ItemDetail, ItemLoading } from '@/components/vault/home/item-detail';
 import { LockCard } from '@/components/vault/home/lock-card';
 import type { LockReason } from '@/components/vault/home/lock-card';
-import { useIdleLock } from '@/components/vault/home/use-idle-lock';
+import {
+    useIdleLock,
+    useLockOnClose,
+} from '@/components/vault/home/use-idle-lock';
 import { VaultToolsMenu } from '@/components/vault/home/tools-menu';
 import { visibleItems } from '@/components/vault/home/vault-home.utils';
 import type {
@@ -26,7 +29,7 @@ import { PHONE_QUERY, useMediaQuery } from '@/hooks/use-media-query';
 import { firstName } from '@/lib/team';
 import { vaultRequest } from '@/lib/vault-api';
 import { edit as editProfile } from '@/routes/profile';
-import { index, lock } from '@/routes/vault';
+import { index, lock, policies } from '@/routes/vault';
 import { create, favourite } from '@/routes/vault/items';
 import type { VaultIndexProps, VaultShareTarget } from '@/types/vault';
 
@@ -132,6 +135,8 @@ export default function VaultIndex(props: VaultIndexProps) {
         toast.info('The vault locked. Unlock it to continue.');
         lockVault('idle', false);
     }, [lockVault]);
+
+    useLockOnClose(unlocked, vaultState.policy.lockOnClose);
 
     useIdleLock({
         active: unlocked,
@@ -373,6 +378,9 @@ export default function VaultIndex(props: VaultIndexProps) {
                             policy={vaultState.policy}
                             reason={lockReason}
                             onUnlocked={onUnlocked}
+                            policiesHref={
+                                abilities.admin ? policies().url : undefined
+                            }
                         />
                     )}
                 </section>
