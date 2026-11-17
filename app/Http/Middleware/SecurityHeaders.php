@@ -107,8 +107,15 @@ final class SecurityHeaders
             return ['http' => [], 'ws' => []];
         }
 
-        $host = $parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '');
         $ws = $parts['scheme'] === 'https' ? 'wss' : 'ws';
+
+        // CSP host-sources can't express an IPv6 literal (Vite binds to [::1] by default), so
+        // browsers drop "http://[::1]:5173" and block the dev stylesheet. Fall back to the scheme.
+        if (str_starts_with($parts['host'], '[')) {
+            return ['http' => ["{$parts['scheme']}:"], 'ws' => ["{$ws}:"]];
+        }
+
+        $host = $parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '');
 
         return ['http' => ["{$parts['scheme']}://{$host}"], 'ws' => ["{$ws}://{$host}"]];
     }

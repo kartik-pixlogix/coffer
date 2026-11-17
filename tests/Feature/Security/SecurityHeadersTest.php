@@ -57,7 +57,7 @@ test('HSTS is sent in production only', function () {
 
 test('the Vite dev server is allowed only in local while it runs', function () {
     $hot = storage_path('framework/testing-hot-'.getmypid());
-    file_put_contents($hot, 'http://[::1]:5174');
+    file_put_contents($hot, 'http://127.0.0.1:5174');
     Vite::useHotFile($hot);
 
     try {
@@ -68,7 +68,15 @@ test('the Vite dev server is allowed only in local while it runs', function () {
 
         app()->detectEnvironment(fn () => 'local');
 
-        expect($middleware->policy($request, 'n'))->toContain('http://[::1]:5174')->toContain('ws://[::1]:5174');
+        expect($middleware->policy($request, 'n'))->toContain('http://127.0.0.1:5174')->toContain('ws://127.0.0.1:5174');
+
+        // An IPv6 literal can't be written as a CSP host-source, so the scheme stands in for it.
+        file_put_contents($hot, 'http://[::1]:5174');
+
+        expect($middleware->policy($request, 'n'))
+            ->not->toContain('[::1]')
+            ->toContain("style-src 'self' 'unsafe-inline' http:;")
+            ->toContain('ws:');
     } finally {
         @unlink($hot);
     }
