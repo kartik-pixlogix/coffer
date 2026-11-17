@@ -5289,6 +5289,32 @@ a.lp-pillar:not(#\#):hover {
     position: relative;
 }
 
+/*
+ * Secondary action on a lime surface (D102): on-lime text and outline, which is dark
+ * in both themes. The bundle's glass button is white-on-translucent for graphite
+ * surfaces and was unreadable here; a plain link would take `--ink` (light in dark).
+ */
+.cf .cf-btn.lp-btn-onlime:not(#\#),
+.cf a.cf-btn.lp-btn-onlime:not(#\#):hover {
+    color: var(--on-lime);
+}
+
+.cf-btn.lp-btn-onlime:not(#\#) {
+    border-color: color-mix(in srgb, var(--on-lime) 55%, transparent);
+    background: transparent;
+}
+
+.cf-btn.lp-btn-onlime:not(#\#):hover {
+    background: color-mix(in srgb, var(--on-lime) 8%, transparent);
+    border-color: var(--on-lime);
+    transform: translateY(-2px);
+}
+
+.cf-btn.lp-btn-onlime:not(#\#):focus-visible {
+    outline: 2px solid var(--on-lime);
+    outline-offset: 2px;
+}
+
 .lp-on-dark:not(#\#) {
     color: var(--on-graphite);
 }

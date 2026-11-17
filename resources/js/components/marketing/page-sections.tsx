@@ -93,8 +93,9 @@ export function CtaBand({
                         </ButtonLink>
                         <ButtonLink
                             href="/contact?topic=demo"
-                            variant="glass"
+                            variant="ghost"
                             size="lg"
+                            className="lp-btn-onlime"
                         >
                             Book a demo
                         </ButtonLink>
