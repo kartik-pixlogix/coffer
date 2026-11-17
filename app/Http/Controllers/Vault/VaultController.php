@@ -234,7 +234,7 @@ final class VaultController extends Controller
             'shareVaults' => $shareVaults,
             'requestable' => $requestable,
             'ceiling' => $ceiling?->value,
-            'pending' => $manages ? VaultAccessRequest::query()->where('status', VaultRequestStatus::Pending->value)->get()
+            'pending' => $manages ? VaultAccessRequest::query()->with(['vault', 'item'])->where('status', VaultRequestStatus::Pending->value)->get()
                 ->filter(fn (VaultAccessRequest $r) => $sharing->canDecide($user, $r))->count() : null,
         ];
     }

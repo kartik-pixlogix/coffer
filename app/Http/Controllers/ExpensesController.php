@@ -240,7 +240,7 @@ final class ExpensesController extends Controller
         $done = 0;
         $skipped = 0;
 
-        foreach (Expense::query()->with('payers')->whereIn('id', $data['ids'])->orderBy('spent_on')->get() as $expense) {
+        foreach (Expense::query()->with(['payers', 'submitter'])->whereIn('id', $data['ids'])->orderBy('spent_on')->get() as $expense) {
             if (! $user->can('decide', $expense)) {
                 $skipped++;
 

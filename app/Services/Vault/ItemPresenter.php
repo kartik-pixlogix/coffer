@@ -133,7 +133,7 @@ final class ItemPresenter
             ])->values()->all(),
             'activity' => $events->map(fn (VaultAuditEvent $e) => $this->event($e, $user))->values()->all(),
             'version' => $item->version,
-            'createdBy' => $item->creator?->name,
+            'createdBy' => $item->loadMissing('creator')->creator?->name,
             'abilities' => [
                 'reveal' => $level->atLeast(VaultAccessLevel::Use),
                 'edit' => $level->atLeast(VaultAccessLevel::Edit),

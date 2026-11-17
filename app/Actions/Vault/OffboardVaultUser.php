@@ -72,7 +72,7 @@ final readonly class OffboardVaultUser
     /** Removed from the company: their grants go (audited) and their open requests close. */
     public function removeAccess(User $user, ?User $by): void
     {
-        foreach (VaultGrant::query()->with('user')->where('user_id', $user->id)->get() as $grant) {
+        foreach (VaultGrant::query()->with(['user', 'vault'])->where('user_id', $user->id)->get() as $grant) {
             $this->revoke->handle($by, $grant, 'left');
         }
 
