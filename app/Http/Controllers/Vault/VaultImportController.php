@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Vault;
 
+use App\Enums\PlanLimit;
 use App\Http\Controllers\Controller;
 use App\Jobs\CommitVaultImport;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultImport;
+use App\Services\Billing\PlanUsage;
 use App\Services\Vault\Transfer\ImportParser;
 use App\Services\Vault\Transfer\VaultImporter;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultSession;
+use App\Support\CurrentCompany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -146,10 +149,12 @@ final class VaultImportController extends Controller
         return to_route('vault.import', ['import' => $import->id, 'preview' => 1]);
     }
 
-    public function commit(Request $request, VaultImport $import): RedirectResponse
+    public function commit(Request $request, VaultImport $import, PlanUsage $usage, CurrentCompany $current): RedirectResponse
     {
         $this->own($request, $import);
         abort_unless($import->isOpen(), 409);
+        // Spec §20 soft limit (D82): every row could become an item, so the whole file must fit.
+        $usage->ensureCanAdd($current->require()->workspace, PlanLimit::VaultItems, max(1, $import->rows));
 
         $import->update(['status' => 'queued']);
         CommitVaultImport::dispatch($import->id);

@@ -20,3 +20,7 @@ Schedule::command('coffer:vault-audit-prune')->monthlyOn(2, '03:30')->withoutOve
 
 // D77: unfinished vault import uploads are deleted after a day.
 Schedule::command('coffer:vault-imports-clean')->hourly()->withoutOverlapping()->onOneServer();
+
+// Spec §19 / D78, D80: settlement-due, fiscal-year-close and trial-ending reminders; 30-day retention.
+Schedule::command('coffer:reminders')->dailyAt('08:30')->withoutOverlapping()->onOneServer();
+Schedule::command('coffer:notifications-prune')->dailyAt('03:45')->withoutOverlapping()->onOneServer();

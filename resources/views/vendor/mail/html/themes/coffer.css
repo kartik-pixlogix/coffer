@@ -1,0 +1,324 @@
+/*
+ * Coffer brand email theme (D79). Email clients can't read CSS variables or web fonts reliably,
+ * so the light-theme design tokens (design/design-system/tokens.json) are written out as values:
+ * canvas #e6e7eb, surface #ffffff, surface-card #fafafa, line #e4e5e9, ink #1c1c1e,
+ * ink-secondary #5f5f66, graphite #2d2e32 / on-graphite #ffffff, lime #d6fe68, negative #b42318,
+ * radius-lg 20px, radius-full. Fonts fall back from the brand faces to system ones.
+ */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family:
+        'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+        Roboto, Helvetica, Arial, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #e6e7eb;
+    color: #1c1c1e;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.5;
+    text-align: left;
+}
+
+a {
+    color: #1c1c1e;
+}
+
+a img {
+    border: none;
+}
+
+h1 {
+    color: #1c1c1e;
+    font-family:
+        'Bricolage Grotesque', 'Plus Jakarta Sans', -apple-system, 'Segoe UI',
+        Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 30px;
+    margin-top: 0;
+    text-align: left;
+}
+
+h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: 0;
+    text-align: left;
+}
+
+h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    color: #5f5f66;
+    font-size: 15px;
+    line-height: 23px;
+    margin-top: 0;
+    text-align: left;
+}
+
+p.sub {
+    font-size: 12px;
+}
+
+img {
+    max-width: 100%;
+}
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #e6e7eb;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.header {
+    padding: 32px 0 20px;
+    text-align: center;
+}
+
+.header a {
+    color: #1c1c1e;
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.brand-disc {
+    background-color: #2d2e32;
+    border-radius: 9999px;
+    color: #d6fe68;
+    display: inline-block;
+    font-family:
+        'Bricolage Grotesque', -apple-system, 'Segoe UI', Helvetica, Arial,
+        sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    height: 36px;
+    line-height: 36px;
+    margin-right: 8px;
+    text-align: center;
+    vertical-align: middle;
+    width: 36px;
+}
+
+.brand-word {
+    font-family:
+        'Bricolage Grotesque', -apple-system, 'Segoe UI', Helvetica, Arial,
+        sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    vertical-align: middle;
+}
+
+.logo {
+    height: 36px;
+    max-height: 36px;
+    width: 36px;
+}
+
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #e6e7eb;
+    border-bottom: 1px solid #e6e7eb;
+    border-top: 1px solid #e6e7eb;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #ffffff;
+    border: 1px solid #e4e5e9;
+    border-radius: 20px;
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+.inner-body a {
+    word-break: break-all;
+}
+
+.subcopy {
+    border-top: 1px solid #e4e5e9;
+    margin-top: 25px;
+    padding-top: 25px;
+}
+
+.subcopy p {
+    color: #5f5f66;
+    font-size: 13px;
+}
+
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 570px;
+}
+
+.footer p {
+    color: #5f5f66;
+    font-size: 12px;
+    line-height: 19px;
+    text-align: center;
+}
+
+.footer a {
+    color: #1c1c1e;
+    text-decoration: underline;
+}
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 30px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #e4e5e9;
+    margin: 0;
+    padding-bottom: 8px;
+}
+
+.table td {
+    color: #5f5f66;
+    font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 14px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 36px;
+}
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    float: none;
+    margin: 28px auto;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+}
+
+.action td {
+    text-align: left;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 9999px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 500;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.button-blue,
+.button-primary {
+    background-color: #2d2e32;
+    border-bottom: 12px solid #2d2e32;
+    border-left: 22px solid #2d2e32;
+    border-right: 22px solid #2d2e32;
+    border-top: 12px solid #2d2e32;
+    color: #ffffff;
+}
+
+.button-green,
+.button-success {
+    background-color: #d6fe68;
+    border-bottom: 12px solid #d6fe68;
+    border-left: 22px solid #d6fe68;
+    border-right: 22px solid #d6fe68;
+    border-top: 12px solid #d6fe68;
+    color: #1c1c1e;
+}
+
+.button-red,
+.button-error {
+    background-color: #b42318;
+    border-bottom: 12px solid #b42318;
+    border-left: 22px solid #b42318;
+    border-right: 22px solid #b42318;
+    border-top: 12px solid #b42318;
+    color: #ffffff;
+}
+
+.panel {
+    border-left: #d6fe68 solid 4px;
+    margin: 21px 0;
+}
+
+.panel-content {
+    background-color: #fafafa;
+    color: #5f5f66;
+    padding: 16px;
+}
+
+.panel-content p {
+    color: #5f5f66;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.break-all {
+    word-break: break-all;
+}

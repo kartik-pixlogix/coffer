@@ -2,11 +2,17 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\PlanLimit;
 use App\Models\Company;
 use App\Models\Membership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Services\Billing\PlanUsage;
+use App\Services\Billing\WorkspaceBilling;
+use App\Services\Notifications\Inbox;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
+use App\Support\Permissions\Catalog;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,11 +54,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user instanceof User ? $this->user($user) : null,
             ],
-            ...($user instanceof User ? $this->tenancy($user) : [
+            ...($user instanceof User ? $this->tenancy($user, $request) : [
                 'workspace' => null,
                 'companies' => [],
                 'currentCompany' => null,
                 'can' => ['pages' => (object) [], 'actions' => (object) []],
+                'notifications' => null,
+                'billingStatus' => null,
+                'planLimit' => null,
             ]),
         ];
     }
@@ -79,7 +88,7 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
-    private function tenancy(User $user): array
+    private function tenancy(User $user, Request $request): array
     {
         $current = app(CurrentCompany::class);
         $company = $current->get();
@@ -99,7 +108,66 @@ class HandleInertiaRequests extends Middleware
                 'pages' => $company === null ? (object) [] : $access->pages($user),
                 'actions' => $company === null ? (object) [] : $access->actions($user),
             ],
+            // The bell's badge only; the panel loads its rows when it opens (D78).
+            'notifications' => $company === null ? null : fn () => ['unread' => app(Inbox::class)->unread($user)],
+            'billingStatus' => $company === null ? null : fn () => $this->billingStatus($company->workspace, $access->allows($user, Catalog::pagePermission('billing'))),
+            'planLimit' => $company === null ? null : fn () => $this->planLimit($request, $company->workspace),
         ];
+    }
+
+    /**
+     * The shell's billing banner (D80, D81): trial days left, a failed payment, read-only.
+     *
+     * @return array<string, mixed>
+     */
+    private function billingStatus(Workspace $workspace, bool $canManage): array
+    {
+        $state = app(WorkspaceBilling::class)->for($workspace);
+
+        return [
+            'status' => $state->status,
+            'plan' => $state->plan?->name,
+            'trialDaysLeft' => $state->trialDaysLeft(),
+            'readOnly' => $state->isReadOnly(),
+            'graceEndsAt' => $state->graceEndsAt?->timezone('Asia/Kolkata')->format('j M Y'),
+            'canManage' => $canManage,
+            'owner' => $workspace->owner->name,
+        ];
+    }
+
+    /**
+     * "Near the limit" for the page that adds the thing (D82): users on Settings › Members,
+     * vault items in the vault, companies in the create-company wizard.
+     *
+     * @return array{key: string, label: string, noun: string, used: int, limit: int, full: bool}|null
+     */
+    private function planLimit(Request $request, Workspace $workspace): ?array
+    {
+        $limit = match ($request->route()?->getName()) {
+            'settings.members' => PlanLimit::Users,
+            'vault.index', 'vault.items.create', 'vault.import' => PlanLimit::VaultItems,
+            'companies.create' => PlanLimit::Companies,
+            default => null,
+        };
+
+        if ($limit === null) {
+            return null;
+        }
+
+        $state = app(WorkspaceBilling::class)->for($workspace);
+        $max = $state->plan?->limit($limit);
+
+        if ($max === null || ! $state->isManaged()) {
+            return null;
+        }
+
+        $used = app(PlanUsage::class)->used($workspace, $limit);
+
+        if ($used < (float) config('billing.near_limit') * $max) {
+            return null;
+        }
+
+        return ['key' => $limit->value, 'label' => $limit->label(), 'noun' => $limit->noun($max), 'used' => $used, 'limit' => $max, 'full' => $used >= $max];
     }
 
     /** @return array<string, mixed> */

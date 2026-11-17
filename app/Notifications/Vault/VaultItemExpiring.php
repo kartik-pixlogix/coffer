@@ -33,4 +33,14 @@ final class VaultItemExpiring extends VaultNotification
     {
         return 'clock';
     }
+
+    public function tone(): string
+    {
+        return 'warn';
+    }
+
+    public function linkLabel(): string
+    {
+        return 'Open in vault';
+    }
 }

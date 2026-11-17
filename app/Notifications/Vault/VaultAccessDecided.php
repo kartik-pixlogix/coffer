@@ -33,4 +33,14 @@ final class VaultAccessDecided extends VaultNotification
     {
         return 'key-round';
     }
+
+    public function tone(): string
+    {
+        return 'plain';
+    }
+
+    public function linkLabel(): string
+    {
+        return 'Open in vault';
+    }
 }

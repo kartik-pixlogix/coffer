@@ -29,7 +29,7 @@ final class AccessRequestController extends Controller
 
         if ($accessRequest->wasRecentlyCreated) {
             $admins = $company->admins()->reject(fn (User $admin) => $admin->id === $user->id);
-            Notification::send($admins, new AccessRequested($accessRequest, $user, $company));
+            Notification::send($admins, AccessRequested::for($accessRequest, $user, $company));
         }
 
         return back();

@@ -43,3 +43,4 @@ require __DIR__.'/timesheets.php';
 require __DIR__.'/finance.php';
 require __DIR__.'/reports.php';
 require __DIR__.'/vault.php';
+require __DIR__.'/billing.php';

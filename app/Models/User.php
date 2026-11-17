@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\NumberFormat;
 use App\Enums\Theme;
+use App\Notifications\NotificationEvents;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -110,11 +111,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Whether this user wants `$event` (e.g. "vault.expiring") by `$channel` ("mail" or
-     * "database"). Both are on until the user turns one off (spec §19; Phase 8 adds the
-     * preferences screen).
+     * "database"). Both are on until the user turns one off in Settings › Notifications
+     * (spec §19, D78); some channels can't be turned off (a failed payment is always emailed).
      */
     public function wantsNotification(string $event, string $channel): bool
     {
+        if (NotificationEvents::required($event, $channel)) {
+            return true;
+        }
+
         $choice = ($this->notification_preferences ?? [])[$event][$channel] ?? null;
 
         return $choice !== false;

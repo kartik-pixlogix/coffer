@@ -17,10 +17,15 @@ use App\Models\Expense;
 use App\Models\ExpensePayer;
 use App\Models\JournalEntry;
 use App\Models\User;
+use App\Notifications\Events\ExpenseDecided;
+use App\Notifications\Events\ExpenseSubmitted;
 use App\Services\Finance\Attachments;
 use App\Services\Finance\PeriodGuard;
+use App\Services\Notifications\Audience;
+use App\Support\Permissions\Catalog;
 use Closure;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -40,6 +45,7 @@ final class RecordExpense
         private readonly PeriodGuard $periods,
         private readonly Attachments $attachments,
         private readonly SaveCategory $categories,
+        private readonly Audience $audience,
     ) {}
 
     public function submit(Company $company, ExpenseData $data, User $by): Expense
@@ -47,7 +53,7 @@ final class RecordExpense
         $this->periods->assertOpen($company, [$data->spentOn], 'spent_on');
         $file = $data->receipt !== null ? $this->attachments->store($company, 'expenses', $data->receipt) : null;
 
-        return $this->cleaningUp($file, fn () => DB::transaction(function () use ($company, $data, $by, $file): Expense {
+        $expense = $this->cleaningUp($file, fn () => DB::transaction(function () use ($company, $data, $by, $file): Expense {
             /** @var Expense $expense */
             $expense = Expense::query()->create($this->attributes($data) + [
                 'company_id' => $company->id,
@@ -61,6 +67,10 @@ final class RecordExpense
 
             return $expense;
         }));
+
+        $this->askApprovers($company, $expense, $by);
+
+        return $expense;
     }
 
     /** @return bool whether an approved expense went back to Pending */
@@ -95,6 +105,8 @@ final class RecordExpense
         if (($file !== null || $data->removeReceipt) && $oldPath !== null) {
             $this->attachments->delete($oldPath);
         }
+
+        $this->askApprovers($company, $expense, $by);
 
         return $wasApproved;
     }
@@ -133,6 +145,8 @@ final class RecordExpense
 
             $expense->setRawAttributes($locked->getAttributes(), true);
         }), 'expense');
+
+        $this->tellSubmitter($expense, $by);
     }
 
     public function reject(Expense $expense, string $reason, User $by): void
@@ -154,6 +168,8 @@ final class RecordExpense
 
             $expense->setRawAttributes($locked->getAttributes(), true);
         });
+
+        $this->tellSubmitter($expense, $by);
     }
 
     public function delete(Company $company, Expense $expense, User $by): void
@@ -247,5 +263,25 @@ final class RecordExpense
             'receipt_mime' => $file['mime'] ?? null,
             'receipt_size' => $file['size'] ?? null,
         ];
+    }
+
+    /** Spec §19: whoever can approve it hears about a pending expense (never the submitter). */
+    private function askApprovers(Company $company, Expense $expense, User $by): void
+    {
+        $approvers = $this->audience->withPermission($company, Catalog::actionPermission('expenses.approve'), $by);
+
+        if ($approvers->isNotEmpty()) {
+            Notification::send($approvers, ExpenseSubmitted::for($expense->loadMissing('category'), $by->name));
+        }
+    }
+
+    /** Spec §19: the submitter hears the decision, unless they made it. */
+    private function tellSubmitter(Expense $expense, User $by): void
+    {
+        $submitter = $expense->submitter;
+
+        if ($submitter !== null && $submitter->id !== $by->id) {
+            $submitter->notify(ExpenseDecided::for($expense, $by->name));
+        }
     }
 }

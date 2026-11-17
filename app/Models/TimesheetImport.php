@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * import finishes or is removed; `mapping` is column index → Coffer field (or null).
  *
  * @property int $id
+ * @property int $company_id
  * @property int $user_id
  * @property string $name
  * @property string $path

@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { BillingStatus, PlanLimitBanner } from '@/types/billing';
 import type { CompanySummary, WorkspaceSummary } from '@/types/company';
 import type { Can } from '@/types/permissions';
 
@@ -18,6 +19,10 @@ declare module '@inertiajs/core' {
             companies: CompanySummary[];
             currentCompany: CompanySummary | null;
             can: Can;
+            /** The bell's badge (D78); null outside a company. */
+            notifications: { unread: number } | null;
+            billingStatus: BillingStatus | null;
+            planLimit: PlanLimitBanner | null;
             [key: string]: unknown;
         };
     }

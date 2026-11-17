@@ -20,12 +20,16 @@ use App\Models\FiscalYear;
 use App\Models\JournalEntry;
 use App\Models\Partner;
 use App\Models\User;
+use App\Notifications\Events\FiscalYearClosed;
+use App\Services\Notifications\Audience;
 use App\Support\CurrentCompany;
 use App\Support\Money;
+use App\Support\Permissions\Catalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -160,7 +164,7 @@ final class CompanyController extends Controller
         ]);
     }
 
-    public function close(Request $request, FiscalYear $fiscalYear, CurrentCompany $current, YearEnd $yearEnd): RedirectResponse
+    public function close(Request $request, FiscalYear $fiscalYear, CurrentCompany $current, YearEnd $yearEnd, Audience $audience): RedirectResponse
     {
         Gate::authorize('action.fy.close');
         $phrase = self::phrase($fiscalYear);
@@ -184,6 +188,10 @@ final class CompanyController extends Controller
         activity('fiscal-years')->performedOn($fiscalYear)->causedBy($user)
             ->withProperties(['label' => $fiscalYear->label, 'closing_entry_id' => $entry?->id])
             ->log('closed the fiscal year');
+        Notification::send(
+            $audience->withPermission($company, Catalog::pagePermission('partners'), $user),
+            FiscalYearClosed::for($company, $fiscalYear->label, $user->name),
+        );
         Inertia::flash('toast', ['type' => 'success', 'message' => "{$fiscalYear->label} closed. Balances moved to {$next}."]);
 
         return redirect()->route('settings.company');

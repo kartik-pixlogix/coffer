@@ -28,4 +28,14 @@ final class VaultBreachFound extends VaultNotification
     {
         return 'shield-alert';
     }
+
+    public function tone(): string
+    {
+        return 'neg';
+    }
+
+    public function linkLabel(): string
+    {
+        return 'Open in vault';
+    }
 }

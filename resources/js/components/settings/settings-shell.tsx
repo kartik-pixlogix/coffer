@@ -2,15 +2,18 @@ import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { useShell } from '@/components/shell/shell-context';
 import { PageHeader } from '@/components/shell/page-header';
+import { index as billingRoute } from '@/routes/billing';
 import {
     categories as categoriesRoute,
     company as companyRoute,
     members as membersRoute,
+    notifications as notificationsRoute,
     partners as partnersRoute,
     projects as projectsRoute,
     roles as rolesRoute,
     sides as sidesRoute,
 } from '@/routes/settings';
+import type { PageKey } from '@/types/permissions';
 
 export type SettingsTab =
     | 'company'
@@ -29,6 +32,10 @@ type NavItem = {
     /** Null until the tab's phase ships (D28). */
     href: string | null;
     jvOnly?: boolean;
+    /** Open to every role (the user's own notification settings, D78). */
+    everyone?: boolean;
+    /** Needs this page instead of Settings (Billing: owner and Admins). */
+    page?: PageKey;
 };
 
 const ITEMS: NavItem[] = [
@@ -48,8 +55,18 @@ const ITEMS: NavItem[] = [
         href: categoriesRoute().url,
     },
     { tab: 'projects', label: 'Projects', href: projectsRoute().url },
-    { tab: 'notifications', label: 'Notifications', href: null },
-    { tab: 'billing', label: 'Billing', href: null },
+    {
+        tab: 'notifications',
+        label: 'Notifications',
+        href: notificationsRoute().url,
+        everyone: true,
+    },
+    {
+        tab: 'billing',
+        label: 'Billing',
+        href: billingRoute().url,
+        page: 'billing',
+    },
 ];
 
 type Props = {
@@ -67,9 +84,12 @@ type Props = {
  * Tabs whose phase hasn't shipped render disabled with "coming soon" (D28).
  */
 export function SettingsShell({ tab, title, crumb, actions, children }: Props) {
-    const { currentCompany } = useShell();
+    const { currentCompany, can } = useShell();
     const items = ITEMS.filter(
-        (item) => !item.jvOnly || currentCompany.type === 'jv',
+        (item) =>
+            (!item.jvOnly || currentCompany.type === 'jv') &&
+            (item.everyone === true ||
+                can.pages[item.page ?? 'settings'] === true),
     );
 
     return (

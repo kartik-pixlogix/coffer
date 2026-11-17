@@ -1,6 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
+import { PlanLimitBanner } from '@/components/billing/billing-banners';
+import { UpgradeHost } from '@/components/billing/upgrade-host';
 import { StepCompany } from '@/components/companies/step-company';
 import { StepReview } from '@/components/companies/step-review';
 import { StepTeam } from '@/components/companies/step-team';
@@ -136,6 +138,8 @@ export default function CreateCompany({
     return (
         <div className="cf-page">
             <Head title={`New company · ${title}`} />
+            {/* Outside the app shell, so the wizard mounts the Upgrade modal itself (D82). */}
+            <UpgradeHost />
             <div className="wiz-frame">
                 <header className="cf-topbar">
                     <Link href={home()} className="cf-wordmark auth-wordmark">
@@ -196,6 +200,8 @@ export default function CreateCompany({
                         </Button>
                     )}
                 </section>
+
+                <PlanLimitBanner />
 
                 {step === 1 && (
                     <StepCompany

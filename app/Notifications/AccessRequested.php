@@ -8,42 +8,40 @@ use App\Models\AccessRequest;
 use App\Models\Company;
 use App\Models\User;
 use App\Support\Permissions\Catalog;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-/** Emails a company's Admins when someone asks for a page they can't open. */
-final class AccessRequested extends Notification implements ShouldQueue
+/** Tells a company's Admins someone asked for a page they can't open (bell and email). */
+final class AccessRequested extends CofferNotification
 {
-    use Queueable;
-
-    public function __construct(
-        public readonly AccessRequest $accessRequest,
-        public readonly User $requester,
-        public readonly Company $company,
-    ) {}
-
-    /** @return list<string> */
-    public function via(object $notifiable): array
+    public static function for(AccessRequest $accessRequest, User $requester, Company $company): self
     {
-        return ['mail'];
+        $page = Catalog::PAGES[$accessRequest->page]['label'];
+        $reason = $accessRequest->reason !== null ? " · “{$accessRequest->reason}”" : '';
+
+        return new self(
+            $company->id,
+            "{$requester->name} asked to open {$page}",
+            "In {$company->name}{$reason}. Nothing changes until you update their role or the permission matrix.",
+            route('settings.roles'),
+        );
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function event(): string
     {
-        $page = Catalog::PAGES[$this->accessRequest->page]['label'];
+        return 'access.requested';
+    }
 
-        $mail = (new MailMessage)
-            ->subject("{$this->requester->name} asked to open {$page}")
-            ->line("{$this->requester->name} asked for access to {$page} in {$this->company->name}.");
+    public function icon(): string
+    {
+        return 'user-plus';
+    }
 
-        if ($this->accessRequest->reason !== null) {
-            $mail->line('Their reason: “'.$this->accessRequest->reason.'”');
-        }
+    public function linkLabel(): string
+    {
+        return 'Open roles and permissions';
+    }
 
-        return $mail
-            ->action('Open roles and permissions', route('settings.roles'))
-            ->line('Nothing changes until you update their role or the permission matrix.');
+    public function mailAction(): string
+    {
+        return 'Open roles and permissions';
     }
 }

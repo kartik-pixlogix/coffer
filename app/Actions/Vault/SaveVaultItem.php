@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Actions\Vault;
 
+use App\Enums\PlanLimit;
 use App\Enums\VaultAuditAction;
 use App\Enums\VaultEnvironment;
 use App\Enums\VaultItemType;
 use App\Models\User;
 use App\Models\VaultAttachment;
 use App\Models\VaultItem;
+use App\Services\Billing\PlanUsage;
 use App\Services\Vault\ItemAttachments;
 use App\Services\Vault\ItemSecrets;
 use App\Services\Vault\ItemTemplates;
@@ -17,6 +19,7 @@ use App\Services\Vault\ItemVersions;
 use App\Services\Vault\PasswordStrength;
 use App\Services\Vault\Totp;
 use App\Services\Vault\VaultAudit;
+use App\Support\CurrentCompany;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -37,6 +40,8 @@ final readonly class SaveVaultItem
         private ItemAttachments $attachments,
         private ItemVersions $versions,
         private VaultAudit $audit,
+        private PlanUsage $usage,
+        private CurrentCompany $current,
     ) {}
 
     /**
@@ -45,6 +50,11 @@ final readonly class SaveVaultItem
      */
     public function handle(User $user, #[SensitiveParameter] array $data, ?VaultItem $item = null, array $files = [], bool $mayRestrict = false): VaultItem
     {
+        // Spec §20 soft limit (D82): items across the workspace; editing is never limited.
+        if ($item === null) {
+            $this->usage->ensureCanAdd($this->current->require()->workspace, PlanLimit::VaultItems);
+        }
+
         return DB::transaction(function () use ($user, $data, $item, $files, $mayRestrict): VaultItem {
             $creating = $item === null;
             $item ??= new VaultItem(['created_by' => $user->id, 'version' => 1]);

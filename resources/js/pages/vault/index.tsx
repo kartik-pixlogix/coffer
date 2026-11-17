@@ -1,6 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { Lock, LockOpen, Plus, ShieldCheck, ShieldOff } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { PlanLimitBanner } from '@/components/billing/billing-banners';
 import { PageHeader } from '@/components/shell/page-header';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -288,6 +289,7 @@ export default function VaultIndex(props: VaultIndexProps) {
                 crumbs={[{ title: 'Credentials Vault' }]}
                 actions={actions}
             />
+            <PlanLimitBanner />
 
             {!twoFactor ? (
                 <EmptyState

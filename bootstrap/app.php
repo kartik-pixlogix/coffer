@@ -5,6 +5,7 @@ use App\Exceptions\PageDeniedException;
 use App\Http\Middleware\EnsureHasCompany;
 use App\Http\Middleware\EnsurePageAllowed;
 use App\Http\Middleware\EnsureVaultUnlocked;
+use App\Http\Middleware\EnsureWorkspaceWritable;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetCurrentCompany;
@@ -28,10 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: [Theme::COOKIE, 'sidebar_state']);
 
+        // Stripe posts webhooks without a session; Cashier checks their signature instead (D80).
+        $middleware->validateCsrfTokens(except: ['stripe/*']);
+
         $middleware->web(append: [
             HandleAppearance::class,
             SetCurrentCompany::class,
             HandleInertiaRequests::class,
+            EnsureWorkspaceWritable::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 

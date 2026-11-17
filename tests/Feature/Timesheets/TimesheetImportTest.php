@@ -10,8 +10,10 @@ use App\Models\Member;
 use App\Models\Project;
 use App\Models\TimeEntry;
 use App\Models\TimesheetImport;
+use App\Notifications\Events\ImportFinished;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -177,7 +179,12 @@ test('importing is queued, commits the valid rows and keeps an error CSV', funct
     $this->actingAs($t->admin)->get(route('timesheets.import', ['import' => $import->id]))
         ->assertInertia(fn (Assert $page) => $page->where('step', 'preview')->where('import.status', 'queued'));
 
+    Notification::fake();
     app()->call([new CommitTimesheetImport($import->id), 'handle']);
+    // Spec §19 "import finished": whoever started it hears how it went.
+    Notification::assertSentTo($t->admin, ImportFinished::class, fn (ImportFinished $n, array $c, object $u) => $n->toArray($u)['title'] === 'Your timesheet import finished'
+        && str_contains($n->toArray($u)['body'], '25 entries · 60.0 h')
+        && str_contains($n->toArray($u)['body'], '4 rows skipped'));
 
     $import->refresh();
     $entries = TimeEntry::query()->withoutGlobalScope('company')->where('import_id', $import->id)->get();

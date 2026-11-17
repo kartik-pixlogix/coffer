@@ -6,10 +6,12 @@ namespace App\Actions\Invites;
 
 use App\Enums\CompanyRole;
 use App\Enums\InviteKind;
+use App\Enums\PlanLimit;
 use App\Models\Company;
 use App\Models\Invite;
 use App\Models\User;
 use App\Notifications\CompanyInvitation;
+use App\Services\Billing\PlanUsage;
 use App\Support\CurrentCompany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -21,7 +23,10 @@ use Illuminate\Support\Str;
  */
 final class IssueInvite
 {
-    public function __construct(private readonly CurrentCompany $current) {}
+    public function __construct(
+        private readonly CurrentCompany $current,
+        private readonly PlanUsage $usage,
+    ) {}
 
     public function email(
         Company $company,
@@ -32,6 +37,8 @@ final class IssueInvite
         ?int $partnerId = null,
         ?int $memberId = null,
     ): Invite {
+        // Spec §20 soft limit (D82): people across the workspace, waiting email invites included.
+        $this->usage->ensureCanAdd($company->workspace, PlanLimit::Users);
         $token = Invite::newToken();
 
         /** @var Invite $invite */
@@ -56,6 +63,8 @@ final class IssueInvite
 
     public function link(Company $company, User $inviter, CompanyRole $role, int $days = Invite::DEFAULT_EXPIRY_DAYS): Invite
     {
+        $this->usage->ensureCanAdd($company->workspace, PlanLimit::Users);
+
         return DB::transaction(function () use ($company, $inviter, $role, $days): Invite {
             // One live share link per company: "New link" stops the old one working.
             Invite::query()->withoutGlobalScope('company')

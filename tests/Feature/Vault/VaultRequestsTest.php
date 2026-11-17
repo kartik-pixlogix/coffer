@@ -45,7 +45,7 @@ test('a View user asks for Use on an item; Managers are notified; approving writ
 
         return $payload['title'] === 'Rohan Desai asked for Use access'
             && str_contains($payload['body'], 'AWS — root account · for 24 hours')
-            && $payload['kind'] === 'vault.access_requested' && $payload['category'] === 'vault'
+            && $payload['kind'] === 'vault.access_requested' && $payload['category'] === 'security'
             && $channels === ['database', 'mail'];
     });
     Notification::assertNotSentTo($rohan, VaultAccessRequested::class);

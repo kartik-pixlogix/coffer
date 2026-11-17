@@ -7,11 +7,13 @@ use App\Jobs\CommitVaultImport;
 use App\Jobs\ReencryptVaultData;
 use App\Models\Company;
 use App\Models\Member;
+use App\Models\Plan;
 use App\Models\User;
 use App\Models\VaultAuditEvent;
 use App\Models\VaultImport;
 use App\Models\VaultItem;
 use App\Models\VaultSecret;
+use App\Models\Workspace;
 use Database\Seeders\DemoVaultSeeder;
 use Database\Seeders\DemoWorkspaceSeeder;
 use Illuminate\Http\UploadedFile;
@@ -100,6 +102,8 @@ test('no seeded secret appears in pages, props, logs, activity diffs, audit rows
     $this->withSession(vaultUnlocked());
 
     // Importing the export back: the sealed upload, the preview and the job payload stay clean.
+    // (13 more items would pass the demo's Growth trial limit of 25, so this runs on Business, D82.)
+    Workspace::query()->update(['plan_id' => Plan::query()->where('key', 'business')->value('id')]);
     Queue::fake();
     $this->post(route('vault.import.store'), [
         'file' => UploadedFile::fake()->createWithContent('export.coffer.json', (string) $export->getContent()),

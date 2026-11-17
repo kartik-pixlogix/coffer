@@ -28,4 +28,14 @@ final class VaultAccessRequested extends VaultNotification
     {
         return 'user-plus';
     }
+
+    public function tone(): string
+    {
+        return 'plain';
+    }
+
+    public function linkLabel(): string
+    {
+        return 'Review requests';
+    }
 }

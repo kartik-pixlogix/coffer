@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Actions\Invites;
 
 use App\Actions\Companies\SetCompanyRole;
+use App\Enums\PlanLimit;
 use App\Models\Invite;
 use App\Models\Member;
 use App\Models\Partner;
 use App\Models\User;
+use App\Notifications\Events\InviteAccepted;
+use App\Services\Billing\PlanUsage;
 use App\Support\CurrentCompany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +26,7 @@ final class AcceptInvite
     public function __construct(
         private readonly SetCompanyRole $setRole,
         private readonly CurrentCompany $current,
+        private readonly PlanUsage $usage,
     ) {}
 
     public function handle(Invite $invite, User $user): void
@@ -38,6 +42,11 @@ final class AcceptInvite
 
             if ($user->belongsToCompany($company)) {
                 throw ValidationException::withMessages(['invite' => "You’re already in {$company->name}."]);
+            }
+
+            // A share link can be used many times, so it meets the plan's user limit here (D82).
+            if ($locked->isLink() && ! $this->usage->hasRoomFor($company->workspace, PlanLimit::Users, $user->id)) {
+                throw ValidationException::withMessages(['invite' => "{$company->name} has no room for more people on its plan. Ask {$locked->inviter->name} to upgrade, then use the link again."]);
             }
 
             $this->setRole->handle($company, $user, $locked->role);
@@ -62,6 +71,14 @@ final class AcceptInvite
                 ->causedBy($user)
                 ->withProperties(['company_id' => $company->id, 'role' => $locked->role->value])
                 ->log('accepted an invite');
+
+            // Spec §19 "invite accepted": the person who sent it hears (queued after the commit).
+            /** @var User|null $inviter */
+            $inviter = $locked->inviter()->first();
+
+            if ($inviter !== null && $inviter->id !== $user->id) {
+                $inviter->notify(InviteAccepted::for($locked, $user));
+            }
         });
     }
 }

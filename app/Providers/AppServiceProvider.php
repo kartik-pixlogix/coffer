@@ -3,6 +3,11 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\Workspace;
+use App\Notifications\CompanyDatabaseChannel;
+use App\Services\Billing\PaymentGateway;
+use App\Services\Billing\StripeGateway;
+use App\Services\Billing\WorkspaceBilling;
 use App\Services\Dashboard\DashboardVaultPanel;
 use App\Services\Dashboard\VaultExpiringPanel;
 use App\Services\Team\SalaryRecalc;
@@ -14,12 +19,14 @@ use App\Support\Permissions\Access;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +46,14 @@ class AppServiceProvider extends ServiceProvider
 
         // The dashboard's "Credentials expiring soon" (D64).
         $this->app->bind(DashboardVaultPanel::class, VaultExpiringPanel::class);
+
+        // Notifications carry their company in a column (D78).
+        $this->app->bind(DatabaseChannel::class, CompanyDatabaseChannel::class);
+
+        // Billing (D80): the workspace is Cashier's customer; Stripe is the only gateway so far.
+        Cashier::useCustomerModel(Workspace::class);
+        $this->app->singleton(WorkspaceBilling::class);
+        $this->app->bind(PaymentGateway::class, StripeGateway::class);
     }
 
     /**

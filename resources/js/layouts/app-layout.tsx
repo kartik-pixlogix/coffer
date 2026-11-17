@@ -1,5 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
+import { BillingBanner } from '@/components/billing/billing-banners';
+import { UpgradeHost } from '@/components/billing/upgrade-host';
 import { SessionExpiredDialog } from '@/components/shell/session-expired-dialog';
 import { ShellProvider } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
@@ -67,9 +69,11 @@ export default function AppLayout({
                     />
                     <main className="cf-main">
                         <TopBar />
+                        <BillingBanner />
                         {children}
                     </main>
                 </div>
+                <UpgradeHost />
                 <SessionExpiredDialog
                     email={auth.user.email}
                     name={auth.user.name}

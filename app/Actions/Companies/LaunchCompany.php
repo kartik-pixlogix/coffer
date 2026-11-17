@@ -9,6 +9,7 @@ use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
 use App\Enums\CostType;
 use App\Enums\MemberStatus;
+use App\Enums\PlanLimit;
 use App\Enums\VaultType;
 use App\Ledger\ChartOfAccounts;
 use App\Ledger\OpeningBalance;
@@ -20,6 +21,7 @@ use App\Models\Side;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\Workspace;
+use App\Services\Billing\PlanUsage;
 use App\Support\CurrentCompany;
 use App\Support\Equity;
 use App\Support\Money;
@@ -43,6 +45,7 @@ final class LaunchCompany
         private readonly CurrentCompany $current,
         private readonly ChartOfAccounts $chart,
         private readonly OpeningBalance $openingBalance,
+        private readonly PlanUsage $usage,
     ) {}
 
     /**
@@ -50,6 +53,9 @@ final class LaunchCompany
      */
     public function handle(Workspace $workspace, User $creator, array $data): Company
     {
+        // Spec §20 soft limit (D82): past the plan's companies, the Upgrade modal opens instead.
+        $this->usage->ensureCanAdd($workspace, PlanLimit::Companies);
+
         return DB::transaction(function () use ($workspace, $creator, $data): Company {
             $type = CompanyType::from((string) $data['company']['type']);
 

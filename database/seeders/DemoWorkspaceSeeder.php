@@ -14,6 +14,7 @@ use App\Models\Company;
 use App\Models\Invite;
 use App\Models\Member;
 use App\Models\Partner;
+use App\Models\Plan;
 use App\Models\Side;
 use App\Models\User;
 use App\Models\Workspace;
@@ -47,6 +48,13 @@ class DemoWorkspaceSeeder extends Seeder
             'name' => 'Vertex Group',
             'owner_id' => $aarav->id,
             'trial_ends_at' => now()->addDays(Workspace::TRIAL_DAYS),
+            // D80: on the Growth trial, which the demo data fits (4 of 5 companies: "Near the limit").
+            'plan_id' => Plan::query()->where('key', 'growth')->value('id'),
+            'billing_cycle' => 'monthly',
+            'billing_currency' => 'inr',
+            'billing_email' => 'accounts@vertexlabs.in',
+            'billing_name' => 'Vertex Labs Pvt Ltd, Pune',
+            'billing_gstin' => '27ABCDE1234F1Z5',
         ]);
 
         $this->saarthi($workspace, $aarav, $ishita, $kabir, $meera, $rohan, $accounts);

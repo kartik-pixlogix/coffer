@@ -9,10 +9,12 @@ use App\Models\Company;
 use App\Models\VaultAuditEvent;
 use App\Models\VaultImport;
 use App\Models\VaultItem;
+use App\Notifications\Events\ImportFinished;
 use App\Services\Vault\ItemSecrets;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -60,7 +62,9 @@ test('a Chrome CSV goes upload → preview → import; the file is sealed, then 
         ->where('preview.rows.1.secrets', ['Password', 'Notes']));
     expect((string) $preview->getContent())->not->toContain('fake-Chrome-Pass');
 
+    Notification::fake();
     $this->actingAs($admin)->withSession(vaultUnlocked())->post(route('vault.import.commit', $import))->assertRedirect();
+    Notification::assertSentTo($admin, ImportFinished::class, fn (ImportFinished $n, array $c, object $u) => $n->toArray($u)['body'] === '1 item added to Internal from chrome.csv, 1 skipped.');
 
     $import->refresh();
     expect($import->status)->toBe('done')

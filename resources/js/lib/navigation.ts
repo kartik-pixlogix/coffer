@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { index as billingIndex } from '@/routes/billing';
 import { index as capitalIndex } from '@/routes/capital-accounts';
 import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomeIndex } from '@/routes/income';
@@ -143,7 +144,13 @@ const RAIL: RailItem[][] = [
             href: settingsCompany().url,
             match: ['/settings'],
         },
-        { page: 'billing', label: 'Billing', icon: CreditCard, href: null },
+        {
+            page: 'billing',
+            label: 'Billing',
+            icon: CreditCard,
+            href: billingIndex().url,
+            match: ['/billing'],
+        },
     ],
 ];
 

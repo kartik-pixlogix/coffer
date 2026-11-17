@@ -4346,3 +4346,234 @@ span.denied-can:not(#\#) {
     gap: 8px;
 }
 /* vault-import-export: end */
+
+/* notifications-billing: start (Phase 8 part A, D78–D82) */
+
+/* The bell's panel (Notifications.dc.html .np): 440 px, the list scrolls. */
+.notif-panel:not(#\#) {
+    width: 440px;
+    max-width: calc(100vw - 32px);
+    max-height: min(720px, calc(100vh - 120px));
+    display: flex;
+    flex-direction: column;
+}
+
+.notif-list:not(#\#) {
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+.notif-tabs:not(#\#) {
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.notif-tabs .cf-tab:not(#\#) {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 13px;
+    flex: none;
+}
+
+.notif-row:not(#\#) {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 16px;
+    gap: 12px;
+}
+
+.notif-empty:not(#\#) {
+    margin: 12px;
+    padding: 24px;
+}
+
+.notif-dot:not(#\#) {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.notif-dot:focus-visible:not(#\#) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+.notif-reject:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    max-width: 320px;
+}
+
+.notif-page-list:not(#\#) {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.notif-page-list > .cf-notif-item:first-child:not(#\#) {
+    border-top: 0;
+}
+
+/* Settings › Notifications: event rows with In app and Email switches. */
+.np-group:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.np-row:not(#\#) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 96px 96px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+}
+
+.np-head:not(#\#) {
+    border-top: 0;
+}
+
+.np-cell:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.np-chan:not(#\#) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Billing (Billing.dc.html): plan card + usage, invoices + payment method. */
+.bill-top:not(#\#),
+.bill-bottom:not(#\#) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.bill-top:not(#\#) {
+    align-items: stretch;
+}
+
+.bill-bottom:not(#\#) {
+    align-items: flex-start;
+}
+
+.bill-plan:not(#\#) {
+    flex: 1 1 380px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bill-glow:not(#\#) {
+    position: absolute;
+    right: -60px;
+    top: -90px;
+    width: 260px;
+    height: 260px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.85);
+    filter: blur(56px);
+    pointer-events: none;
+}
+
+.bill-chip:not(#\#) {
+    position: relative;
+    align-self: flex-start;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.6);
+    display: inline-flex;
+    align-items: center;
+}
+
+.bill-strip:not(#\#) {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.bill-usage:not(#\#) {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bill-invoices:not(#\#) {
+    flex: 999 1 720px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bill-aside:not(#\#) {
+    flex: 1 1 340px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Upgrade modal plan cards (Billing.dc.html .rcard). */
+.upg-grid:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.upg-card:not(#\#) {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+.upg-card.on:not(#\#) {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
+}
+
+.upg-card.off:not(#\#) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .np-row:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) 64px 64px;
+    }
+
+    .notif-panel:not(#\#) {
+        width: calc(100vw - 32px);
+    }
+}
+/* notifications-billing: end */

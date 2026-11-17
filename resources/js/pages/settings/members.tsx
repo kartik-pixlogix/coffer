@@ -14,6 +14,7 @@ import type {
     PendingInvite,
     ShareLink,
 } from '@/components/settings/invite-modal';
+import { PlanLimitBanner } from '@/components/billing/billing-banners';
 import { SettingsShell } from '@/components/settings/settings-shell';
 import { initialsFrom } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -146,6 +147,7 @@ export default function Members({
             }
         >
             <Head title="Members & invites" />
+            <PlanLimitBanner />
 
             <section
                 className="cf-card flex flex-col gap-3.5"
