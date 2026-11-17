@@ -224,9 +224,10 @@ Tick boxes here as you go (`- [x]`).
 
 ## Phase 9: Hardening and launch
 
-- [ ] Responsive pass at 1024 px, and against every mobile board: `MobileDashboard`, `MobileExpenses`, `MobileVault`, `MobileLogHours`, `MobileNav`.
-- [ ] All states: `StateEmpty`, `StateLoading`, `State404` (+ a 500 page derived from it), `StateDenied`, `StateSession`, `StateToasts`.
-- [ ] Accessibility audit (axe plus keyboard pass). Performance pass (indexes, N+1, caching).
+- [x] Responsive pass at 1024 px, and against every mobile board: `MobileDashboard`, `MobileExpenses`, `MobileVault`, `MobileLogHours`, `MobileNav`. (D88)
+- [x] All states: `StateEmpty`, `StateLoading`, `State404` (+ a 500 page derived from it), `StateDenied`, `StateSession`, `StateToasts`. (D89, D90)
+- [x] Accessibility audit (axe plus keyboard pass). (D91)
+- [ ] Performance pass (indexes, N+1, caching).
 - [ ] Security review: headers/CSP, rate limits, authorisation tests, secret-leak test, dependency audit.
 - [ ] Backups, queue workers (Horizon), scheduler, error tracking, health check.
 - [ ] Deployment runbook for a VPS (Forge/Ploi or Docker). `.env.example` complete. Data export and delete for DPDPA.
