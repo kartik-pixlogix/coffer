@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Reports\Exports;
 
+use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use Spatie\SimpleExcel\SimpleExcelWriter;
@@ -44,7 +45,6 @@ final class Xlsx
         $path = $base.'.xlsx';
 
         $writer = SimpleExcelWriter::create($path)->noHeaderRow();
-        $bold = (new Style)->withFontBold(true);
 
         foreach ($sheets as $i => $sheet) {
             if ($i === 0) {
@@ -53,41 +53,47 @@ final class Xlsx
                 $writer->addNewSheetAndMakeItCurrent($sheet['name']);
             }
 
-            $writer->addRow(Row::fromValuesWithStyle($sheet['header'], $bold));
+            $writer->addRow(Row::fromValues($sheet['header'], self::style(bold: true)));
             $last = count($sheet['rows']) - 1;
 
             foreach ($sheet['rows'] as $r => $values) {
-                $plain = ($sheet['totalLast'] ?? false) && $r === $last ? $bold : new Style;
+                $bold = ($sheet['totalLast'] ?? false) && $r === $last;
                 $cells = [];
-                $styles = [];
 
-                foreach ($values as $c => $value) {
-                    $style = $plain;
-
+                foreach ($values as $value) {
                     if (! is_array($value)) {
-                        $cell = $value;
+                        $cells[] = Cell::fromValue($value, self::style($bold));
+                    } elseif (isset($value['paise'])) {
+                        $cells[] = Cell::fromValue(self::rupees($value['paise']), self::style($bold, self::MONEY_FORMAT));
                     } else {
-                        if (isset($value['paise'])) {
-                            $cell = self::rupees($value['paise']);
-                            $style = $plain->withFormat(self::MONEY_FORMAT);
-                        } else {
-                            $bps = $value['bps'] ?? null;
-                            $cell = $bps === null ? null : $bps / 10000;
-                            $style = $plain->withFormat(self::PERCENT_FORMAT);
-                        }
+                        $bps = $value['bps'] ?? null;
+                        $cells[] = Cell::fromValue($bps === null ? null : $bps / 10000, self::style($bold, self::PERCENT_FORMAT));
                     }
-
-                    $cells[$c] = $cell;
-                    $styles[$c] = $style;
                 }
 
-                $writer->addRow(Row::fromValuesWithStyles($cells, $styles));
+                $writer->addRow(new Row($cells));
             }
         }
 
         $writer->close();
 
         return $path;
+    }
+
+    /** A cell style (openspout 4's styles are mutable, so each cell gets its own). */
+    private static function style(bool $bold = false, ?string $format = null): Style
+    {
+        $style = new Style;
+
+        if ($bold) {
+            $style->setFontBold();
+        }
+
+        if ($format !== null) {
+            $style->setFormat($format);
+        }
+
+        return $style;
     }
 
     /** Paise as rupees: a whole number when there are no paise, else to two places. */

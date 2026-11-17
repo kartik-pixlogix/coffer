@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { BillingBanner } from '@/components/billing/billing-banners';
 import { UpgradeHost } from '@/components/billing/upgrade-host';
+import { ImpersonationBanner } from '@/components/shell/impersonation-banner';
 import { SessionExpiredDialog } from '@/components/shell/session-expired-dialog';
 import { ShellProvider } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
@@ -69,6 +70,7 @@ export default function AppLayout({
                     />
                     <main className="cf-main">
                         <TopBar />
+                        <ImpersonationBanner />
                         <BillingBanner />
                         {children}
                     </main>

@@ -15,7 +15,7 @@ final class SwitchCompanyController extends Controller
 {
     public function __invoke(Request $request, Company $company): RedirectResponse
     {
-        abort_unless($request->user()?->belongsToCompany($company), 404);
+        abort_unless($request->user('web')?->belongsToCompany($company), 404);
 
         $request->session()->put(CurrentCompany::SESSION_KEY, $company->id);
 

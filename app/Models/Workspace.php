@@ -34,6 +34,9 @@ use Laravel\Cashier\Billable;
  * @property CarbonImmutable|null $trial_ends_at
  * @property CarbonImmutable|null $past_due_since
  * @property CarbonImmutable|null $renews_at
+ * @property CarbonImmutable|null $suspended_at set by a platform admin (D86): tenant access is blocked
+ * @property string|null $suspended_reason
+ * @property int|null $suspended_by platform_admins.id
  * @property-read User $owner
  * @property-read Plan|null $plan
  * @property-read Collection<int, Company> $companies
@@ -56,6 +59,7 @@ class Workspace extends Model
             'trial_ends_at' => 'datetime',
             'past_due_since' => 'datetime',
             'renews_at' => 'datetime',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -75,6 +79,12 @@ class Workspace extends Model
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);
+    }
+
+    /** Suspended by a platform admin (spec §22, D86): its companies can't be opened. */
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 
     public function isOwnedBy(User $user): bool

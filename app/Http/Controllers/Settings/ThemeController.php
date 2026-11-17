@@ -19,7 +19,9 @@ final class ThemeController extends Controller
     {
         $theme = $request->theme();
 
-        $user = $request->user();
+        // The tenant guard: platform admins (D85) have no theme setting here.
+        $user = $request->user('web');
+        abort_if($user === null, 403);
         $user->theme = $theme;
         $user->save();
 

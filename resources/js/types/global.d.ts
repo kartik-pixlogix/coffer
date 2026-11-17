@@ -23,6 +23,12 @@ declare module '@inertiajs/core' {
             notifications: { unread: number } | null;
             billingStatus: BillingStatus | null;
             planLimit: PlanLimitBanner | null;
+            /** Set while a platform admin impersonates this user (D86): the banner. */
+            impersonation: {
+                admin: string;
+                user: string;
+                reason: string;
+            } | null;
             [key: string]: unknown;
         };
     }

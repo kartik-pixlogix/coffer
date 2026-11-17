@@ -7,6 +7,7 @@ namespace App\Http\Middleware;
 use App\Models\Company;
 use App\Models\Membership;
 use App\Models\User;
+use App\Services\Platform\Impersonator;
 use App\Support\CurrentCompany;
 use Closure;
 use Illuminate\Http\Request;
@@ -60,7 +61,8 @@ final class SetCurrentCompany
         $request->session()->put(CurrentCompany::SESSION_KEY, $company->id);
         $this->current->set($company, $membership->role);
 
-        if ($membership->last_active_at === null || $membership->last_active_at->lt(now()->subMinutes(self::ACTIVITY_MINUTES))) {
+        // An impersonating platform admin (D86) leaves no trace on the member's activity.
+        if (! $request->session()->has(Impersonator::SESSION) && ($membership->last_active_at === null || $membership->last_active_at->lt(now()->subMinutes(self::ACTIVITY_MINUTES)))) {
             $membership->forceFill(['last_active_at' => now()])->saveQuietly();
         }
     }

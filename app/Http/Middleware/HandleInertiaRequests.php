@@ -10,6 +10,7 @@ use App\Models\Workspace;
 use App\Services\Billing\PlanUsage;
 use App\Services\Billing\WorkspaceBilling;
 use App\Services\Notifications\Inbox;
+use App\Services\Platform\Impersonator;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
 use App\Support\Permissions\Catalog;
@@ -54,6 +55,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user instanceof User ? $this->user($user) : null,
             ],
+            // The banner while a platform admin impersonates this user (spec §22, D86).
+            'impersonation' => fn () => $this->impersonation($request, $user),
             ...($user instanceof User ? $this->tenancy($user, $request) : [
                 'workspace' => null,
                 'companies' => [],
@@ -63,6 +66,22 @@ class HandleInertiaRequests extends Middleware
                 'billingStatus' => null,
                 'planLimit' => null,
             ]),
+        ];
+    }
+
+    /** @return array{admin: string, user: string, reason: string}|null */
+    private function impersonation(Request $request, mixed $user): ?array
+    {
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        $marker = app(Impersonator::class)->current($request);
+
+        return $marker === null ? null : [
+            'admin' => $marker['admin_name'],
+            'user' => $user->name,
+            'reason' => $marker['reason'],
         ];
     }
 

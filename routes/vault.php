@@ -19,22 +19,23 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
     Route::get('vault', [VaultController::class, 'index'])->name('vault.index');
     Route::post('vaults', [VaultController::class, 'storeVault'])->middleware('throttle:10,1')->name('vault.vaults.store');
 
-    Route::post('vault/unlock', [VaultController::class, 'unlock'])->middleware('throttle:20,1')->name('vault.unlock');
+    Route::post('vault/unlock', [VaultController::class, 'unlock'])->middleware(['not.impersonating', 'throttle:20,1'])->name('vault.unlock');
     Route::post('vault/lock', [VaultController::class, 'lock'])->name('vault.lock');
     Route::post('vault/touch', [VaultController::class, 'touch'])->middleware('throttle:60,1')->name('vault.touch');
     Route::post('vault/reuse', [VaultSecretController::class, 'reuse'])->middleware('throttle:30,1')->name('vault.reuse');
 
     Route::get('vault/items/create', [VaultItemController::class, 'create'])->name('vault.items.create');
-    Route::post('vault/items', [VaultItemController::class, 'store'])->middleware('throttle:30,1')->name('vault.items.store');
+    Route::post('vault/items', [VaultItemController::class, 'store'])->middleware(['not.impersonating', 'throttle:30,1'])->name('vault.items.store');
     Route::get('vault/items/{item}/edit', [VaultItemController::class, 'edit'])->name('vault.items.edit');
-    Route::put('vault/items/{item}', [VaultItemController::class, 'update'])->middleware('throttle:30,1')->name('vault.items.update');
+    Route::put('vault/items/{item}', [VaultItemController::class, 'update'])->middleware(['not.impersonating', 'throttle:30,1'])->name('vault.items.update');
     Route::delete('vault/items/{item}', [VaultItemController::class, 'destroy'])->name('vault.items.destroy');
     Route::post('vault/items/{item}/favourite', [VaultItemController::class, 'favourite'])->middleware('throttle:60,1')->name('vault.items.favourite');
     Route::get('vault/items/{item}/history', [VaultItemController::class, 'history'])->name('vault.items.history');
     Route::post('vault/items/{item}/versions/{version}/restore', [VaultItemController::class, 'restore'])
-        ->whereNumber('version')->name('vault.items.restore');
+        ->middleware('not.impersonating')->whereNumber('version')->name('vault.items.restore');
 
-    Route::middleware('throttle:vault-reveal')->group(function () {
+    // Never while a platform admin impersonates (D86).
+    Route::middleware(['not.impersonating', 'throttle:vault-reveal'])->group(function () {
         Route::post('vault/items/{item}/reveal', [VaultSecretController::class, 'reveal'])->name('vault.items.reveal');
         Route::post('vault/items/{item}/copy', [VaultSecretController::class, 'copy'])->name('vault.items.copy');
         Route::post('vault/items/{item}/totp', [VaultSecretController::class, 'totp'])->name('vault.items.totp');
@@ -73,15 +74,15 @@ Route::middleware(['auth', 'verified', 'company', 'page:vault'])->group(function
     // Import (spec §14.4, D77): upload → map → preview → commit (queued); behind the lock.
     Route::get('vault/import', [VaultImportController::class, 'index'])->name('vault.import');
     Route::middleware('vault.unlocked')->group(function () {
-        Route::post('vault/import', [VaultImportController::class, 'store'])->middleware('throttle:vault-files')->name('vault.import.store');
+        Route::post('vault/import', [VaultImportController::class, 'store'])->middleware(['not.impersonating', 'throttle:vault-files'])->name('vault.import.store');
         Route::put('vault/import/{import}/mapping', [VaultImportController::class, 'mapping'])->name('vault.import.mapping');
-        Route::post('vault/import/{import}/commit', [VaultImportController::class, 'commit'])->middleware('throttle:vault-files')->name('vault.import.commit');
+        Route::post('vault/import/{import}/commit', [VaultImportController::class, 'commit'])->middleware(['not.impersonating', 'throttle:vault-files'])->name('vault.import.commit');
         Route::delete('vault/import/{import}', [VaultImportController::class, 'destroy'])->name('vault.import.destroy');
     });
 
     // Encrypted export (spec §14.4, D77): "Who can export" policy, step-up, audited.
     Route::get('vault/export', [VaultExportController::class, 'index'])->name('vault.export');
-    Route::post('vault/export', [VaultExportController::class, 'store'])->middleware(['vault.unlocked', 'throttle:vault-files'])->name('vault.export.store');
+    Route::post('vault/export', [VaultExportController::class, 'store'])->middleware(['not.impersonating', 'vault.unlocked', 'throttle:vault-files'])->name('vault.export.store');
 
     // Offboarding rotate lists (D73).
     Route::post('vault/offboardings/{offboarding}/dismiss', [VaultOffboardingController::class, 'dismiss'])->name('vault.offboardings.dismiss');

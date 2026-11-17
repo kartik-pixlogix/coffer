@@ -2,9 +2,11 @@
 
 use App\Enums\Theme;
 use App\Exceptions\PageDeniedException;
+use App\Http\Middleware\BlockVaultWhileImpersonating;
 use App\Http\Middleware\EnsureHasCompany;
 use App\Http\Middleware\EnsurePageAllowed;
 use App\Http\Middleware\EnsureVaultUnlocked;
+use App\Http\Middleware\EnsureWorkspaceNotSuspended;
 use App\Http\Middleware\EnsureWorkspaceWritable;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -36,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             SetCurrentCompany::class,
             HandleInertiaRequests::class,
+            EnsureWorkspaceNotSuspended::class,
             EnsureWorkspaceWritable::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
@@ -48,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'company' => EnsureHasCompany::class,
             'page' => EnsurePageAllowed::class,
             'vault.unlocked' => EnsureVaultUnlocked::class,
+            'not.impersonating' => BlockVaultWhileImpersonating::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

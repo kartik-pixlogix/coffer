@@ -42,3 +42,8 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+
+# Filament panel assets (D85), published by `php artisan filament:upgrade` on composer install.
+/public/css/filament
+/public/js/filament
+/public/fonts/filament

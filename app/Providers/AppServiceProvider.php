@@ -10,6 +10,7 @@ use App\Services\Billing\StripeGateway;
 use App\Services\Billing\WorkspaceBilling;
 use App\Services\Dashboard\DashboardVaultPanel;
 use App\Services\Dashboard\VaultExpiringPanel;
+use App\Services\Platform\Impersonator;
 use App\Services\Team\SalaryRecalc;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultKeys;
@@ -17,11 +18,13 @@ use App\Services\Vault\VaultSharing;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -68,6 +71,13 @@ class AppServiceProvider extends ServiceProvider
 
         // Server-side rendering is for the public site only (D83): search engines and link
         // previews need it there; app pages behind sign-in render in the browser as before.
+        // Signing out of the app mid-impersonation still closes the impersonation record (D86).
+        Event::listen(Logout::class, function (Logout $event): void {
+            if ($event->guard === 'web' && session()->has(Impersonator::SESSION)) {
+                app(Impersonator::class)->stop(signOut: false);
+            }
+        });
+
         Inertia::disableSsr(fn (Request $request): bool => ! $request->routeIs('welcome', 'marketing.*'));
     }
 
@@ -114,7 +124,12 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureAuthorization(): void
     {
-        Gate::before(function (User $user, string $ability): ?bool {
+        // Platform admins (the /admin guard, D85) are never tenant users: no matrix applies.
+        Gate::before(function (mixed $user, string $ability): ?bool {
+            if (! $user instanceof User) {
+                return null;
+            }
+
             if (str_starts_with($ability, 'page.') || str_starts_with($ability, 'action.')) {
                 return app(Access::class)->allows($user, $ability);
             }

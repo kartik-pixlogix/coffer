@@ -15,6 +15,7 @@ use App\Models\Invite;
 use App\Models\Member;
 use App\Models\Partner;
 use App\Models\Plan;
+use App\Models\PlatformAdmin;
 use App\Models\Side;
 use App\Models\User;
 use App\Models\Workspace;
@@ -73,6 +74,14 @@ class DemoWorkspaceSeeder extends Seeder
             [$aarav, CompanyRole::Admin, 1, 5000],
             [$kabir, CompanyRole::Partner, 3, 5000],
         ]);
+
+        // A super-admin for /admin (D85), local only: never a tenant user.
+        if (app()->environment('local')) {
+            PlatformAdmin::query()->updateOrCreate(
+                ['email' => 'platform@coffer.test'],
+                ['name' => 'Coffer Platform', 'password' => 'platform-password'],
+            );
+        }
     }
 
     private function saarthi(Workspace $workspace, User $aarav, User $ishita, User $kabir, User $meera, User $rohan, User $accounts): void

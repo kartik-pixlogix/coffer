@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PlatformAdmin;
 use App\Models\User;
 
 return [
@@ -42,6 +43,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // The super-admin panel at /admin (spec §22, D85): its own guard and table, so a
+        // tenant session never opens it and a platform admin is never a tenant user.
+        'platform' => [
+            'driver' => 'session',
+            'provider' => 'platform_admins',
+        ],
     ],
 
     /*
@@ -65,6 +73,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'platform_admins' => [
+            'driver' => 'eloquent',
+            'model' => PlatformAdmin::class,
         ],
 
         // 'users' => [

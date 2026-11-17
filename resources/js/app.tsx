@@ -18,6 +18,7 @@ void createInertiaApp({
         switch (true) {
             case name === 'auth/accept-invite':
             case name === 'companies/create':
+            case name === 'errors/suspended':
             case name.startsWith('dev/'):
                 return null;
             case name.startsWith('marketing/'):

@@ -4,8 +4,14 @@ use App\Http\Controllers\AccessRequestController;
 use App\Http\Controllers\Companies\SwitchCompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Platform\StopImpersonationController;
 use App\Http\Middleware\EnsureLocalEnvironment;
 use Illuminate\Support\Facades\Route;
+
+// A platform admin ends an impersonation from the app's banner (spec §22, D86).
+Route::post('impersonation/stop', StopImpersonationController::class)
+    ->middleware('auth')
+    ->name('impersonation.stop');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Where sign-in and the company switcher land (spec §2.1).
