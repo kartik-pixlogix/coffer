@@ -17,3 +17,6 @@ Schedule::command('coffer:vault-breach-check')->weeklyOn(1, '04:00')->withoutOve
 
 // VaultAudit.dc.html: vault audit events are kept for 12 months (D75).
 Schedule::command('coffer:vault-audit-prune')->monthlyOn(2, '03:30')->withoutOverlapping()->onOneServer();
+
+// D77: unfinished vault import uploads are deleted after a day.
+Schedule::command('coffer:vault-imports-clean')->hourly()->withoutOverlapping()->onOneServer();

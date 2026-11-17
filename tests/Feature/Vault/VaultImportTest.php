@@ -154,3 +154,17 @@ test('imports need Create items with Edit on the vault, the lock open, and your 
     $this->actingAs($admin)->post(route('vault.import.commit', $import))->assertRedirect();
     expect($import->refresh()->status)->toBe('uploaded');
 });
+
+test('uploads left unfinished for a day are deleted', function () {
+    $company = Company::factory()->create();
+    $admin = vaultUser(CompanyRole::Admin, $company);
+    $vault = vaultIn($company);
+    $this->actingAs($admin)->withSession(vaultUnlocked())->post(route('vault.import.store'), ['file' => importUpload('chrome.csv'), 'vault_id' => $vault->id]);
+
+    $this->artisan('coffer:vault-imports-clean')->expectsOutput('Deleted 0 unfinished vault uploads.');
+
+    CarbonImmutable::setTestNow('2026-11-16 10:30:00');
+    $this->artisan('coffer:vault-imports-clean')->expectsOutput('Deleted 1 unfinished vault upload.');
+    expect(Storage::disk('local')->allFiles('vault-imports'))->toBe([])
+        ->and(VaultImport::query()->withoutGlobalScopes()->sole()->status)->toBe('cancelled');
+});

@@ -191,10 +191,10 @@ Tick boxes here as you go (`- [x]`).
   - step-up 2FA window, rate limits, audit events
   - auto-hide after 30 s and clipboard clear on the client
   - idle lock after 15 min with the unlock screen
-- [ ] Sharing (View/Use/Edit/Manage, access ends), access requests inbox, offboarding rotate list.
-- [ ] Security health score, fix-it lists with Rotate. Expiry notifications. Optional HIBP k-anonymity check (queued).
-- [ ] Audit log page with filters and export. Policies page.
-- [ ] Import (CSV / Bitwarden / 1Password / LastPass / Chrome) and encrypted export (Admin, step-up, audited).
+- [x] Sharing (View/Use/Edit/Manage, access ends), access requests inbox, offboarding rotate list (D72, D73).
+- [x] Security health score, fix-it lists with Rotate. Expiry notifications. Optional HIBP k-anonymity check (queued) (D74).
+- [x] Audit log page with filters and export. Policies page (D75, D76).
+- [x] Import (CSV / Bitwarden / 1Password / LastPass / Chrome) and encrypted export (Admin, step-up, audited) (D77).
 
 **Accept:**
 - A test proves no secret appears in any index response, log, activity diff or Inertia shared prop.
