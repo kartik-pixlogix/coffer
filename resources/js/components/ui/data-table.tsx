@@ -15,6 +15,7 @@ import type {
     SortState,
     SortValue,
 } from '@/components/ui/table-sort';
+import { TableWrap } from '@/components/ui/table-wrap';
 import { cn } from '@/lib/utils';
 
 export type { SortDirection, SortState, SortValue };
@@ -476,11 +477,11 @@ export function DataTable<Row>({
     }
 
     return (
-        <div
-            className="cf-table-wrap"
+        <TableWrap
+            label={ariaLabel}
             style={maxHeight !== undefined ? { maxHeight } : undefined}
         >
             {table}
-        </div>
+        </TableWrap>
     );
 }

@@ -176,6 +176,7 @@ export default function Categories({ categories }: { categories: Category[] }) {
                                             <span
                                                 className="cf-iconbtn cf-iconbtn--sm"
                                                 tabIndex={0}
+                                                role="img"
                                                 aria-label={`${c.name} is a system category`}
                                             >
                                                 <Lock

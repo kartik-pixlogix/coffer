@@ -11,7 +11,7 @@ import {
     Sun,
     X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShell } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
 import { Icon } from '@/components/ui/icon';
@@ -211,6 +211,8 @@ export function PhoneMenu({
     const { theme, toggleTheme } = useTheme();
     const unread = useUnread();
     const [query, setQuery] = useState('');
+    // The Menu tab or company chip that opened the menu gets focus back on close.
+    const opener = useRef<HTMLElement | null>(null);
 
     const groups = phoneMenuGroups(can.pages, {
         jv: currentCompany.type === 'jv',
@@ -245,6 +247,18 @@ export function PhoneMenu({
                 <DialogPrimitive.Content
                     className="app-menu"
                     aria-describedby={undefined}
+                    onOpenAutoFocus={() => {
+                        opener.current =
+                            document.activeElement instanceof HTMLElement
+                                ? document.activeElement
+                                : null;
+                    }}
+                    onCloseAutoFocus={(event) => {
+                        if (opener.current?.isConnected) {
+                            event.preventDefault();
+                            opener.current.focus();
+                        }
+                    }}
                 >
                     <header className="cf-mtop">
                         <span className="cf-row gap-2.5">

@@ -40,6 +40,7 @@ import type {
     ImportField,
     PreviewRow,
 } from '@/types/timesheet-import';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 const FIELD_LABELS: Record<ImportField, string> = {
     member: 'Member',
@@ -283,7 +284,7 @@ export function MapStep({ data }: { data: ImportData }) {
                         automatically
                     </StatusPill>
                 </div>
-                <div className="cf-table-wrap">
+                <TableWrap label="Column mapping">
                     <div
                         className="cf-table min-w-[820px]"
                         role="table"
@@ -369,7 +370,7 @@ export function MapStep({ data }: { data: ImportData }) {
                             );
                         })}
                     </div>
-                </div>
+                </TableWrap>
                 {(data.notes ?? []).map((note) => (
                     <p key={note} className="t-caption t-muted m-0">
                         {note}

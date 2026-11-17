@@ -1,19 +1,15 @@
 import { LogOut, Moon, Search, Sun } from 'lucide-react';
-import { useSyncExternalStore } from 'react';
 import { signOut } from '@/components/shell/sign-out';
 import {
     CommandPalette,
-    isApplePlatform,
     useCommandPalette,
 } from '@/components/ui/command-palette';
 import type { CommandGroup } from '@/components/ui/command-palette';
 import { Icon } from '@/components/ui/icon';
+import { useShortcutLabel } from '@/components/ui/search-field';
 import { useTheme } from '@/hooks/use-theme';
 import { usePage } from '@inertiajs/react';
 import { railGroups } from '@/lib/navigation';
-
-/** The platform never changes while the page is open. */
-const subscribeNever = () => () => undefined;
 
 /**
  * The top-bar ⌘K search pill and the command palette it opens (also on ⌘K /
@@ -24,11 +20,7 @@ export function CommandMenu() {
     const { can, currentCompany } = usePage().props;
     const { open, setOpen } = useCommandPalette();
     const { theme, toggleTheme } = useTheme();
-    const shortcut = useSyncExternalStore(
-        subscribeNever,
-        () => (isApplePlatform() ? '⌘K' : 'Ctrl K'),
-        () => '⌘K',
-    );
+    const shortcut = useShortcutLabel();
 
     const groups: CommandGroup[] = [
         {
@@ -82,7 +74,7 @@ export function CommandMenu() {
                 onClick={() => setOpen(true)}
             >
                 <Icon icon={Search} size={18} />
-                <span className="t-label min-w-0 flex-1 truncate text-ink-faint">
+                <span className="t-label min-w-0 flex-1 truncate text-ink-secondary">
                     Search or jump to…
                 </span>
                 <span className="cf-kbd" aria-hidden="true">

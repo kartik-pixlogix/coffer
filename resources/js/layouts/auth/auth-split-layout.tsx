@@ -155,8 +155,11 @@ export default function AuthSplitLayout({
 }: Props) {
     return (
         <div className="cf-page">
+            <a href="#auth-main" className="app-skip">
+                Skip to content
+            </a>
             <div className="auth-frame">
-                <main className="auth-main">
+                <main id="auth-main" className="auth-main" tabIndex={-1}>
                     <div className="auth-head">
                         <AuthWordmark />
                         <div className="flex items-center gap-3">
@@ -179,13 +182,13 @@ export default function AuthSplitLayout({
                         {children}
                     </div>
 
-                    <p className="t-caption t-faint m-0">
+                    <p className="t-caption t-muted m-0">
                         © 2026 Coffer ·{' '}
-                        <a href="/terms" className="t-faint">
+                        <a href="/terms" className="t-muted">
                             Terms
                         </a>{' '}
                         ·{' '}
-                        <a href="/privacy" className="t-faint">
+                        <a href="/privacy" className="t-muted">
                             Privacy
                         </a>
                     </p>

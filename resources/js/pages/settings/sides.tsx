@@ -15,6 +15,7 @@ import {
 } from '@/lib/equity';
 import { cn } from '@/lib/utils';
 import { update as saveSides } from '@/routes/settings/sides';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 type Side = {
     id: number;
@@ -162,7 +163,7 @@ export default function Sides({ sides }: { sides: Side[] }) {
                         {ok ? 'Adds up to 100%' : `Adds up to ${shownTotal}%`}
                     </span>
                 </div>
-                <div className="cf-table-wrap">
+                <TableWrap label="Partner sides">
                     <div
                         className="cf-table min-w-[760px]"
                         role="table"
@@ -274,7 +275,7 @@ export default function Sides({ sides }: { sides: Side[] }) {
                             <span role="cell" />
                         </div>
                     </div>
-                </div>
+                </TableWrap>
                 {!ok && (
                     <FieldError>
                         Side equity must add up to 100%. It’s {shownTotal}% now.

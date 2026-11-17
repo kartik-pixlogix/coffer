@@ -18,6 +18,7 @@ import type {
     NotificationFilter,
     NotificationRow,
 } from '@/types';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 type Props = {
     filter: NotificationFilter;
@@ -130,7 +131,7 @@ export default function NotificationsPage({
                         for 30 days
                     </span>
                 </div>
-                <div className="cf-table-wrap">
+                <TableWrap label="Filter notifications">
                     <LinkTabs aria-label="Filter notifications">
                         {filters.map((f) => (
                             <LinkTab
@@ -151,7 +152,7 @@ export default function NotificationsPage({
                             </LinkTab>
                         ))}
                     </LinkTabs>
-                </div>
+                </TableWrap>
 
                 <div className="notif-page-list">
                     {items.map((item) => (

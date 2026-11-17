@@ -43,7 +43,7 @@ export function ErrorState({
             {description !== undefined && <p>{description}</p>}
             {actions !== undefined && <StateActions>{actions}</StateActions>}
             {reference !== undefined && (
-                <span className="t-money-sm t-faint">
+                <span className="t-money-sm t-muted">
                     Error ref {reference}
                 </span>
             )}

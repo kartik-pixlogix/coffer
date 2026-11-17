@@ -4734,7 +4734,8 @@ span.denied-can:not(#\#) {
 }
 
 .lp-faint:not(#\#) {
-    color: var(--ink-faint);
+    /* Display-size faint words, nudged toward ink-secondary to clear 3:1 on the canvas (D91). */
+    color: color-mix(in srgb, var(--ink-faint) 70%, var(--ink-secondary));
 }
 
 .lp-eyebrow:not(#\#) {
@@ -5455,7 +5456,7 @@ a.lp-pillar:not(#\#):hover {
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--ink-secondary);
 }
 
 .cmp:not(#\#) .col-pop {
@@ -6243,4 +6244,62 @@ a.lp-pillar:not(#\#):hover {
         font-size: 26px;
         line-height: 30px;
     }
+}
+
+/* Income with nothing recorded yet (StateEmpty.dc.html, D90). */
+.in-empty:not(#\#) {
+    padding: 56px 24px;
+    gap: 14px;
+}
+
+.in-empty-disc:not(#\#) {
+    width: 72px;
+    height: 72px;
+}
+
+.in-empty-title:not(#\#) {
+    margin: 4px 0 0;
+    font-size: 28px;
+    line-height: 32px;
+}
+
+.in-empty-body:not(#\#) {
+    margin: 0;
+    max-width: 460px;
+    font-size: 15px;
+    line-height: 22px;
+}
+
+.in-empty-tips:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 820px;
+    margin-top: 8px;
+    text-align: left;
+}
+
+.in-empty-tip:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.in-empty-tip:not(#\#) .cf-pill {
+    align-self: flex-start;
+}
+
+/* At phone width the page head sits on the canvas, where the faint "Hi Aarav,"
+   line (20 px) falls below 4.5:1; it takes ink-secondary there (D91). */
+@media (max-width: 640px) {
+    .app-page:not(#\#) .cf-pagehead .cf-h1 .t-display-light {
+        color: var(--ink-secondary);
+    }
+}
+
+/* Skip-link targets take focus without a ring (D91). */
+.auth-main:not(#\#):focus,
+.lp:not(#\#) > main:focus {
+    outline: 0;
 }

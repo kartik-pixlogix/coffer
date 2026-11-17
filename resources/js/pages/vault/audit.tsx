@@ -22,6 +22,7 @@ import type {
     VaultAuditLog,
     VaultAuditProps,
 } from '@/types/vault';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 const RANGES: { value: VaultAuditFilters['range']; label: string }[] = [
     { value: 'today', label: 'Today' },
@@ -358,7 +359,7 @@ function AuditBody({
                     ))}
                 </div>
 
-                <div className="cf-table-wrap">
+                <TableWrap label="Vault audit log">
                     <div
                         className="cf-table va-table"
                         role="table"
@@ -450,7 +451,7 @@ function AuditBody({
                             </div>
                         )}
                     </div>
-                </div>
+                </TableWrap>
                 <Pagination
                     page={log.page}
                     pageCount={log.pages}

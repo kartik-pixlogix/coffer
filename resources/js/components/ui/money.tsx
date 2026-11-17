@@ -60,7 +60,6 @@ export function Money({
                     toneClass,
                     className,
                 )}
-                aria-label={countUp ? label : undefined}
             >
                 <span
                     className="t-money-unit"
@@ -71,16 +70,24 @@ export function Money({
                 <span className="t-money-lg" aria-hidden={countUp || undefined}>
                     {formatPaiseDigits(shown, decimals)}
                 </span>
+                {/* A span can't carry aria-label: screen readers get the final figure here. */}
+                {countUp && <span className="cf-sr">{label}</span>}
             </span>
         );
     }
 
     return (
-        <span
-            className={cn(SIZE_CLASS[size], toneClass, className)}
-            aria-label={countUp ? label : undefined}
-        >
-            {formatInr(shown, { decimals, signed })}
+        <span className={cn(SIZE_CLASS[size], toneClass, className)}>
+            {countUp ? (
+                <>
+                    <span aria-hidden="true">
+                        {formatInr(shown, { decimals, signed })}
+                    </span>
+                    <span className="cf-sr">{label}</span>
+                </>
+            ) : (
+                label
+            )}
         </span>
     );
 }
@@ -104,15 +111,16 @@ export function Hours({
 
     if (size === 'lg') {
         return (
-            <span
-                className={cn('inline-flex items-baseline', className)}
-                aria-label={countUp ? `${formatHours(hours)} hours` : undefined}
-            >
+            <span className={cn('inline-flex items-baseline', className)}>
                 <span className="t-money-lg" aria-hidden={countUp || undefined}>
                     {text}
                 </span>
                 <span className="t-money-unit" aria-hidden="true">
                     h
+                </span>
+                {/* A span can't carry aria-label: screen readers get the final figure here. */}
+                <span className="cf-sr">
+                    {countUp ? `${formatHours(hours)} hours` : ' hours'}
                 </span>
             </span>
         );

@@ -36,6 +36,7 @@ import {
 } from '@/routes/settings/members';
 import type { CompanyRole } from '@/types';
 import type { VaultOffboardingRow } from '@/types/vault';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 type UserRow = {
     id: number;
@@ -166,7 +167,7 @@ export default function Members({
                         wrapClassName="w-[280px] max-w-full"
                     />
                 </div>
-                <div className="cf-table-wrap">
+                <TableWrap label="Members">
                     <div
                         className="cf-table min-w-[940px]"
                         role="table"
@@ -330,7 +331,7 @@ export default function Members({
                             </div>
                         )}
                     </div>
-                </div>
+                </TableWrap>
             </section>
 
             {team.length > 0 && (
@@ -341,7 +342,7 @@ export default function Members({
                     <h2 id="tm-h" className="cf-dot-title t-title">
                         Team members by partner
                     </h2>
-                    <div className="cf-table-wrap">
+                    <TableWrap label="Team members by partner">
                         <div
                             className="cf-table min-w-[640px]"
                             role="table"
@@ -430,7 +431,7 @@ export default function Members({
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </TableWrap>
                 </section>
             )}
 

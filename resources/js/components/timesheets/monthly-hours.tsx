@@ -15,6 +15,7 @@ import {
     monthly as saveMonthly,
 } from '@/routes/timesheets';
 import type { TimesheetOptions } from '@/types/timesheets';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 type Row = {
     key: number;
@@ -125,7 +126,7 @@ export function MonthlyHours({ options, today, workingDays: mask }: Props) {
                         </Toggle>
                     </div>
                 </div>
-                <div className="cf-table-wrap">
+                <TableWrap label="Monthly hours">
                     <div
                         className="cf-table min-w-[840px]"
                         role="table"
@@ -299,7 +300,7 @@ export function MonthlyHours({ options, today, workingDays: mask }: Props) {
                             <span role="cell" />
                         </div>
                     </div>
-                </div>
+                </TableWrap>
                 <Button
                     variant="secondary"
                     size="sm"

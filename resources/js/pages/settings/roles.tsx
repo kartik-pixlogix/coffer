@@ -9,6 +9,7 @@ import {
     reset as resetRoles,
     update as saveRoles,
 } from '@/routes/settings/roles';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 type Editable = 'partner' | 'member' | 'viewer';
 
@@ -256,7 +257,7 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                     <h2 id="pg-h" className="cf-dot-title t-title mb-1.5">
                         Pages
                     </h2>
-                    <div className="cf-table-wrap">
+                    <TableWrap label="Page access by role">
                         <div
                             className="cf-table min-w-[400px] gap-0.5"
                             role="table"
@@ -274,7 +275,7 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                                 />
                             ))}
                         </div>
-                    </div>
+                    </TableWrap>
                 </section>
                 <section
                     className="cf-card flex min-w-0 flex-col gap-1.5"
@@ -283,7 +284,7 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                     <h2 id="ac-h" className="cf-dot-title t-title mb-1.5">
                         Actions
                     </h2>
-                    <div className="cf-table-wrap">
+                    <TableWrap label="Actions by role">
                         <div
                             className="cf-table min-w-[400px] gap-0.5"
                             role="table"
@@ -310,7 +311,7 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                                 </Fragment>
                             ))}
                         </div>
-                    </div>
+                    </TableWrap>
                     <p className="t-caption t-muted mt-1.5 mb-0">
                         Members only see their own hours and expenses, and vault
                         items shared with them, even with a page ticked.

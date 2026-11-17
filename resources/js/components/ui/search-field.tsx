@@ -1,12 +1,10 @@
 import { Search, X } from 'lucide-react';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, InputHTMLAttributes, Ref } from 'react';
 import { mergeRefs } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { cn } from '@/lib/utils';
-
-const noopSubscribe = () => () => {};
 
 function detectMac(): boolean {
     const nav = navigator as Navigator & {
@@ -17,9 +15,15 @@ function detectMac(): boolean {
     return /mac|iphone|ipad|ipod/i.test(platform);
 }
 
-/** "⌘K" on Apple devices, "Ctrl K" elsewhere (⌘K while rendering on the server). */
+/**
+ * "⌘K" on Apple devices, "Ctrl K" elsewhere. The server and the first client
+ * render both say "⌘K"; the platform's label swaps in after mount, so SSR
+ * hydration never sees a mismatch (D91).
+ */
 export function useShortcutLabel(): string {
-    const mac = useSyncExternalStore(noopSubscribe, detectMac, () => true);
+    const [mac, setMac] = useState(true);
+
+    useEffect(() => setMac(detectMac()), []);
 
     return mac ? '⌘K' : 'Ctrl K';
 }

@@ -323,8 +323,13 @@ function Footer() {
 export default function MarketingLayout({ children }: { children: ReactNode }) {
     return (
         <div className="lp">
+            <a href="#main" className="app-skip">
+                Skip to content
+            </a>
             <Header />
-            <main id="main">{children}</main>
+            <main id="main" tabIndex={-1}>
+                {children}
+            </main>
             <Footer />
         </div>
     );

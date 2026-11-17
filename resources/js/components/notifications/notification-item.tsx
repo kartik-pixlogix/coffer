@@ -248,7 +248,7 @@ export function NotificationItem({
                         {item.done.label}
                     </StatusPill>
                 )}
-                <span className="t-caption t-faint">{item.when}</span>
+                <span className="t-caption t-muted">{item.when}</span>
             </div>
             {item.unread ? (
                 <button

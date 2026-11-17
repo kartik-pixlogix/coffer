@@ -27,6 +27,7 @@ import type {
     VaultImportPreview,
     VaultImportProps,
 } from '@/types/vault';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 const STEPS = ['upload', 'map', 'preview'] as const;
 
@@ -390,7 +391,7 @@ function PreviewStep({
                 </div>
                 {error && <FieldError>{error}</FieldError>}
                 {preview && (
-                    <div className="cf-table-wrap">
+                    <TableWrap label="Items to import">
                         <div
                             className="cf-table vi-table"
                             role="table"
@@ -463,7 +464,7 @@ function PreviewStep({
                                 );
                             })}
                         </div>
-                    </div>
+                    </TableWrap>
                 )}
                 {preview && preview.skipped.length > 0 && (
                     <p className="t-caption t-muted m-0">

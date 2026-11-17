@@ -12,6 +12,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Toggle } from '@/components/ui/toggle';
 import { fixedMonthlyPaise, newKey } from '@/lib/company-wizard';
 import type { CostType, MemberRow, WizardState } from '@/lib/company-wizard';
+import { TableWrap } from '@/components/ui/table-wrap';
 
 type Props = {
     state: WizardState;
@@ -58,7 +59,7 @@ export function StepTeam({ state, setState, errors }: Props) {
                     People who log hours or are paid a salary. Each one bills to
                     a partner, so their cost lands on that partner’s P&amp;L.
                 </p>
-                <div className="cf-table-wrap">
+                <TableWrap>
                     <div className="wiz-team">
                         <div
                             className="t-caption t-muted wiz-row wiz-row--team"
@@ -182,7 +183,7 @@ export function StepTeam({ state, setState, errors }: Props) {
                             );
                         })}
                     </div>
-                </div>
+                </TableWrap>
                 {memberErrors.map((message) => (
                     <GroupError key={message}>{message}</GroupError>
                 ))}
