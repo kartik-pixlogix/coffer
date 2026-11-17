@@ -210,7 +210,7 @@ Tick boxes here as you go (`- [x]`).
 - [x] Notifications: events, database + mail channels, top-bar panel with filters and inline actions, `/notifications` page, preferences, brand email template. (D78, D79)
 - [x] Plans table (placeholder prices and limits), 14-day trial, Cashier (Stripe) Checkout + Billing Portal. (D80; owner checklist in `docs/BILLING_TESTING.md`; Razorpay deferred [VERIFY])
 - [x] Billing page: plan, usage meters, invoices, upgrade modal. Soft limit enforcement. (D80, D81, D82)
-- [x] Marketing site with Inertia SSR (D83, D84; SSR proof in `docs/DEPLOY_NOTES_SSR.md`):
+- [x] Marketing site with Inertia SSR (D83, D84; SSR proof in `docs/DEPLOY.md` §3):
   - landing (spotlight and parallax with reduced-motion fallback), pricing toggles
   - feature template, security, contact/demo form, legal pages
   - SEO: meta, OG, sitemap
@@ -227,9 +227,9 @@ Tick boxes here as you go (`- [x]`).
 - [x] Responsive pass at 1024 px, and against every mobile board: `MobileDashboard`, `MobileExpenses`, `MobileVault`, `MobileLogHours`, `MobileNav`. (D88)
 - [x] All states: `StateEmpty`, `StateLoading`, `State404` (+ a 500 page derived from it), `StateDenied`, `StateSession`, `StateToasts`. (D89, D90)
 - [x] Accessibility audit (axe plus keyboard pass). (D91)
-- [ ] Performance pass (indexes, N+1, caching).
-- [ ] Security review: headers/CSP, rate limits, authorisation tests, secret-leak test, dependency audit.
-- [ ] Backups, queue workers (Horizon), scheduler, error tracking, health check.
-- [ ] Deployment runbook for a VPS (Forge/Ploi or Docker). `.env.example` complete. Data export and delete for DPDPA.
+- [x] Performance pass (indexes, N+1, caching). (D92)
+- [x] Security review: headers/CSP, rate limits, authorisation tests, secret-leak test, dependency audit. (D93, D94)
+- [x] Backups, queue workers (Horizon), scheduler, error tracking, health check. (D95, D96, D97)
+- [x] Deployment runbook for a VPS (Forge/Ploi or Docker). `.env.example` complete. Data export and delete for DPDPA. (D98, D99)
 
-**Accept:** a production checklist in `docs/DEPLOY.md`, all green.
+**Accept:** a production checklist in `docs/DEPLOY.md`, all green. (The checklist is written; its boxes are ticked on the production server at launch, D99.)
