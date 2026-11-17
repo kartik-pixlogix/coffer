@@ -4,6 +4,42 @@
  * with the component rules it adjusts and, coming later, wins over them. Tokens only.
  */
 
+/* ── Kit adjustments ─────────────────────────────────────── */
+/*
+ * Segmented control: always one row (D100). The bundle's `flex-wrap: wrap` plus
+ * `flex: 1 1 90px` let a shrink-to-fit control (a flex item, like Pricing's
+ * Monthly / Yearly) size itself to one option and stack the rest, and let a long
+ * label wrap inside its option. Options keep their label on one line and never
+ * shrink below it; a control wider than its column scrolls sideways instead.
+ */
+.cf-seg:not(#\#) {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.cf-seg:not(#\#)::-webkit-scrollbar {
+    display: none;
+}
+
+.cf-seg-btn:not(#\#) {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+/* Phones: options take their label's width so four still fit one row in a sheet. */
+@media (max-width: 640px) {
+    .cf-seg-btn:not(#\#) {
+        flex-basis: auto;
+        padding: 0 10px;
+    }
+}
+
 /* ── StateDenied ─────────────────────────────────────────── */
 .denied-ic:not(#\#) {
     width: 56px;

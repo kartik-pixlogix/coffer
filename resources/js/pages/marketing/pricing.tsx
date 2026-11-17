@@ -234,10 +234,7 @@ export default function Pricing({
                                     <>
                                         Yearly
                                         {saving !== null && (
-                                            <span
-                                                className="cf-pill cf-pill--sm cf-pill--graphite"
-                                                style={{ marginLeft: 6 }}
-                                            >
+                                            <span className="cf-pill cf-pill--sm cf-pill--graphite">
                                                 Save {saving}%
                                             </span>
                                         )}
