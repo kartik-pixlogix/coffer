@@ -1,5 +1,6 @@
 import {
     ArrowLeftRight,
+    Bell,
     ChartColumn,
     ChartPie,
     Clock,
@@ -8,12 +9,15 @@ import {
     FileText,
     Landmark,
     LayoutGrid,
+    List,
     Lock,
     Receipt,
     Scale,
+    ShieldCheck,
     SlidersHorizontal,
     TrendingUp,
     Users,
+    UserRound,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
@@ -21,8 +25,10 @@ import { index as billingIndex } from '@/routes/billing';
 import { index as capitalIndex } from '@/routes/capital-accounts';
 import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomeIndex } from '@/routes/income';
+import { index as notificationsIndex } from '@/routes/notifications';
 import { index as loansIndex } from '@/routes/partner-loans';
 import { index as partnersIndex } from '@/routes/partners';
+import { edit as editProfile } from '@/routes/profile';
 import {
     balanceSheet as balanceSheetRoute,
     index as reportsIndex,
@@ -32,7 +38,11 @@ import { company as settingsCompany } from '@/routes/settings';
 import { index as settlementsIndex } from '@/routes/settlements';
 import { index as teamIndex } from '@/routes/team';
 import { index as timesheetsIndex } from '@/routes/timesheets';
-import { index as vaultIndex } from '@/routes/vault';
+import {
+    audit as vaultAudit,
+    health as vaultHealth,
+    index as vaultIndex,
+} from '@/routes/vault';
 import type { Can, PageKey } from '@/types/permissions';
 
 export type RailItem = {
@@ -181,6 +191,242 @@ export function isCurrent(item: RailItem, currentPath: string): boolean {
         return false;
     }
 
+    const path = new URL(item.href, 'http://x').pathname;
+
+    return [path, ...(item.match ?? [])].some(
+        (p) => currentPath === p || currentPath.startsWith(`${p}/`),
+    );
+}
+
+/** One row of the phone menu (MobileNav.dc.html). */
+export type PhoneMenuItem = {
+    key: string;
+    label: string;
+    icon: LucideIcon;
+    href: string;
+    match?: string[];
+    /** The pill at the end of the row, e.g. "3" unread (cf-pill--info). */
+    badge?: { label: string; tone: 'info' | 'warn' | 'pos' | 'outline' };
+};
+
+export type PhoneMenuGroup = { title: string; items: PhoneMenuItem[] };
+
+type PhoneMenuOptions = {
+    jv?: boolean;
+    /** Unread notifications, for the Notifications pill. */
+    unread?: number;
+    /** The role can view the vault audit log (matrix "Export and view audit log", D75). */
+    vaultAudit?: boolean;
+};
+
+/** MobileNav's labels where they differ from the rail's ("Capital accounts", "Vault items"). */
+const PHONE_LABELS: Partial<Record<PageKey, string>> = {
+    capital_accounts: 'Capital accounts',
+    partner_loans: 'Partner loans',
+    reports: 'Profit and loss',
+    trial_balance: 'Trial balance',
+    balance_sheet: 'Balance sheet',
+    vault: 'Vault items',
+};
+
+/**
+ * The phone menu (design/screens/MobileNav.dc.html): every module the role may open,
+ * in the board's groups, plus Notifications, the vault's Security health and Audit log,
+ * and Profile and security. Empty groups drop out.
+ */
+export function phoneMenuGroups(
+    pages: Can['pages'],
+    options: PhoneMenuOptions = {},
+): PhoneMenuGroup[] {
+    const allowed = new Map(
+        railGroups(pages, { jv: options.jv })
+            .flat()
+            .map((item) => [item.page, item]),
+    );
+    const page = (key: PageKey): PhoneMenuItem[] => {
+        const item = allowed.get(key);
+
+        return item === undefined || item.href === null
+            ? []
+            : [
+                  {
+                      key,
+                      label: PHONE_LABELS[key] ?? item.label,
+                      icon: item.icon,
+                      href: item.href,
+                      match: key === 'vault' ? undefined : item.match,
+                  },
+              ];
+    };
+    const unread = options.unread ?? 0;
+    const vault = allowed.has('vault');
+
+    const groups: PhoneMenuGroup[] = [
+        {
+            title: 'Overview',
+            items: [
+                ...page('dashboard'),
+                {
+                    key: 'notifications',
+                    label: 'Notifications',
+                    icon: Bell,
+                    href: notificationsIndex().url,
+                    badge:
+                        unread > 0
+                            ? {
+                                  label: unread > 99 ? '99+' : String(unread),
+                                  tone: 'info',
+                              }
+                            : undefined,
+                },
+            ],
+        },
+        {
+            title: 'People and time',
+            items: [
+                ...page('partners'),
+                ...page('team'),
+                ...page('timesheets'),
+            ],
+        },
+        {
+            title: 'Money',
+            items: [
+                ...page('income'),
+                ...page('expenses'),
+                ...page('capital_accounts'),
+                ...page('partner_loans'),
+                ...page('settlements'),
+            ],
+        },
+        {
+            title: 'Reports',
+            items: [
+                ...page('reports'),
+                ...page('trial_balance'),
+                ...page('balance_sheet'),
+            ],
+        },
+        {
+            title: 'Credentials vault',
+            items: vault
+                ? [
+                      ...page('vault'),
+                      {
+                          key: 'vault_health',
+                          label: 'Security health',
+                          icon: ShieldCheck,
+                          href: vaultHealth().url,
+                      },
+                      ...(options.vaultAudit
+                          ? [
+                                {
+                                    key: 'vault_audit',
+                                    label: 'Audit log',
+                                    icon: List,
+                                    href: vaultAudit().url,
+                                },
+                            ]
+                          : []),
+                  ]
+                : [],
+        },
+        {
+            title: 'Account',
+            items: [
+                ...page('settings'),
+                ...page('billing'),
+                {
+                    key: 'profile',
+                    label: 'Profile and security',
+                    icon: UserRound,
+                    href: editProfile().url,
+                },
+            ],
+        },
+    ];
+
+    return groups.filter((group) => group.items.length > 0);
+}
+
+/** Rows whose label or group title contains the query (the menu's "Search or jump to"). */
+export function filterPhoneMenu(
+    groups: PhoneMenuGroup[],
+    query: string,
+): PhoneMenuGroup[] {
+    const q = query.trim().toLowerCase();
+
+    if (q === '') {
+        return groups;
+    }
+
+    return groups
+        .map((group) => ({
+            ...group,
+            items: group.title.toLowerCase().includes(q)
+                ? group.items
+                : group.items.filter((item) =>
+                      item.label.toLowerCase().includes(q),
+                  ),
+        }))
+        .filter((group) => group.items.length > 0);
+}
+
+export type PhoneTab = {
+    key: 'home' | 'expenses' | 'hours' | 'vault';
+    label: string;
+    icon: LucideIcon;
+    href: string;
+    match?: string[];
+};
+
+/**
+ * The phone tab bar (Mobile*.dc.html): Home, Expenses, Hours and Vault where the
+ * role may open them; the shell adds Menu at the end.
+ */
+export function phoneTabs(pages: Can['pages']): PhoneTab[] {
+    const tabs: Array<PhoneTab & { page: PageKey }> = [
+        {
+            key: 'home',
+            page: 'dashboard',
+            label: 'Home',
+            icon: LayoutGrid,
+            href: dashboard().url,
+        },
+        {
+            key: 'expenses',
+            page: 'expenses',
+            label: 'Expenses',
+            icon: Receipt,
+            href: expensesIndex().url,
+        },
+        {
+            key: 'hours',
+            page: 'timesheets',
+            label: 'Hours',
+            icon: Clock,
+            href: timesheetsIndex().url,
+        },
+        {
+            key: 'vault',
+            page: 'vault',
+            label: 'Vault',
+            icon: Lock,
+            href: vaultIndex().url,
+            match: ['/vault'],
+        },
+    ];
+
+    return tabs
+        .filter((tab) => pages[tab.page] === true)
+        .map(({ page: _page, ...tab }) => tab);
+}
+
+/** Whether the current path is this phone menu row or tab (sub-pages included). */
+export function isPhoneCurrent(
+    item: { href: string; match?: string[] },
+    currentPath: string,
+): boolean {
     const path = new URL(item.href, 'http://x').pathname;
 
     return [path, ...(item.match ?? [])].some(

@@ -1,8 +1,14 @@
 import { usePage } from '@inertiajs/react';
+import { useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import { BillingBanner } from '@/components/billing/billing-banners';
 import { UpgradeHost } from '@/components/billing/upgrade-host';
 import { ImpersonationBanner } from '@/components/shell/impersonation-banner';
+import {
+    PhoneMenu,
+    PhoneTabBar,
+    PhoneTopBar,
+} from '@/components/shell/phone-shell';
 import { SessionExpiredDialog } from '@/components/shell/session-expired-dialog';
 import { ShellProvider } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
@@ -41,6 +47,10 @@ function useRailGroups(): NavRailItemData[][] {
  * Authenticated app shell (design/screens/Main.dc.html): the white shell floats
  * on the canvas, nav rail on the left, top bar above the page content.
  * Pages render their own breadcrumb + title with <PageHeader>.
+ *
+ * At phone width (≤ 640 px, MobileNav.dc.html) CSS swaps the rail and top bar for
+ * the compact `cf-mtop` bar and the bottom `cf-mtabbar`, whose Menu opens the
+ * full-screen phone menu (D88). Both sets render, so the server and client agree.
  */
 export default function AppLayout({
     children,
@@ -55,26 +65,52 @@ export default function AppLayout({
     // Money and figures in the pages below follow the viewer's number format (spec §17).
     setNumberFormat(auth.user.number_format);
     const expired = useSessionExpired();
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [companiesOpen, setCompaniesOpen] = useState(false);
+    const openMenu = useCallback((companies: boolean) => {
+        setCompaniesOpen(companies);
+        setMenuOpen(true);
+    }, []);
 
     return (
         <ShellProvider>
-            <div className="cf-page">
+            <div className="cf-page app-page">
+                <a href="#main-content" className="app-skip">
+                    Skip to content
+                </a>
                 <div
                     className={cn('cf-shell', expired && 'session-dim')}
                     aria-hidden={expired || undefined}
                 >
                     <NavRail
+                        className="app-rail"
                         groups={groups}
                         homeHref={home().url}
                         onSignOut={signOut}
                     />
                     <main className="cf-main">
+                        <PhoneTopBar onOpenMenu={() => openMenu(true)} />
                         <TopBar />
                         <ImpersonationBanner />
                         <BillingBanner />
+                        <span
+                            id="main-content"
+                            className="app-skip-target"
+                            tabIndex={-1}
+                        />
                         {children}
                     </main>
+                    <PhoneTabBar
+                        menuOpen={false}
+                        onMenu={() => openMenu(false)}
+                    />
                 </div>
+                <PhoneMenu
+                    open={menuOpen}
+                    onOpenChange={setMenuOpen}
+                    companiesOpen={companiesOpen}
+                    onCompaniesOpenChange={setCompaniesOpen}
+                />
                 <UpgradeHost />
                 <SessionExpiredDialog
                     email={auth.user.email}

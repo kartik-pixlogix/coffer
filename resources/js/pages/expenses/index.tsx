@@ -989,7 +989,7 @@ function PhoneExpenses({
                         label: abilities.approve
                             ? `To approve · ${statusCounts.pending}`
                             : 'Pending',
-                        className: 'flex-1',
+                        className: 'flex-auto whitespace-nowrap',
                     },
                 ]}
             />

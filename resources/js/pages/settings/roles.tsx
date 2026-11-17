@@ -256,22 +256,24 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                     <h2 id="pg-h" className="cf-dot-title t-title mb-1.5">
                         Pages
                     </h2>
-                    <div
-                        className="cf-table gap-0.5"
-                        role="table"
-                        aria-label="Page access by role"
-                    >
-                        {header('Page')}
-                        {pages.map((row) => (
-                            <MatrixRow
-                                key={row.key}
-                                row={row}
-                                current={current}
-                                saved={saved}
-                                canEdit={canEdit}
-                                onToggle={toggle}
-                            />
-                        ))}
+                    <div className="cf-table-wrap">
+                        <div
+                            className="cf-table min-w-[400px] gap-0.5"
+                            role="table"
+                            aria-label="Page access by role"
+                        >
+                            {header('Page')}
+                            {pages.map((row) => (
+                                <MatrixRow
+                                    key={row.key}
+                                    row={row}
+                                    current={current}
+                                    saved={saved}
+                                    canEdit={canEdit}
+                                    onToggle={toggle}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </section>
                 <section
@@ -281,31 +283,33 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                     <h2 id="ac-h" className="cf-dot-title t-title mb-1.5">
                         Actions
                     </h2>
-                    <div
-                        className="cf-table gap-0.5"
-                        role="table"
-                        aria-label="Actions by role"
-                    >
-                        {header('Action')}
-                        {groups.map((group) => (
-                            <Fragment key={group}>
-                                <div className="pmg" role="row">
-                                    <span role="rowheader">{group}</span>
-                                </div>
-                                {actions
-                                    .filter((a) => a.group === group)
-                                    .map((row) => (
-                                        <MatrixRow
-                                            key={row.key}
-                                            row={row}
-                                            current={current}
-                                            saved={saved}
-                                            canEdit={canEdit}
-                                            onToggle={toggle}
-                                        />
-                                    ))}
-                            </Fragment>
-                        ))}
+                    <div className="cf-table-wrap">
+                        <div
+                            className="cf-table min-w-[400px] gap-0.5"
+                            role="table"
+                            aria-label="Actions by role"
+                        >
+                            {header('Action')}
+                            {groups.map((group) => (
+                                <Fragment key={group}>
+                                    <div className="pmg" role="row">
+                                        <span role="rowheader">{group}</span>
+                                    </div>
+                                    {actions
+                                        .filter((a) => a.group === group)
+                                        .map((row) => (
+                                            <MatrixRow
+                                                key={row.key}
+                                                row={row}
+                                                current={current}
+                                                saved={saved}
+                                                canEdit={canEdit}
+                                                onToggle={toggle}
+                                            />
+                                        ))}
+                                </Fragment>
+                            ))}
+                        </div>
                     </div>
                     <p className="t-caption t-muted mt-1.5 mb-0">
                         Members only see their own hours and expenses, and vault

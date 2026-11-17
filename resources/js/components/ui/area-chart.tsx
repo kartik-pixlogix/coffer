@@ -387,27 +387,32 @@ export function AreaChart({
                 </div>
             </div>
 
-            <table className="cf-sr">
-                <caption>{ariaLabel}</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Month</th>
-                        <th scope="col">{seriesName}</th>
-                        {hasComparison && <th scope="col">{comparisonName}</th>}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((d, i) => (
-                        <tr key={i}>
-                            <th scope="row">{labels[i].period}</th>
-                            <td>{formatInr(d.value)}</td>
+            {/* A positioned 1px box: a table ignores width, so the wrapper is what's clipped. */}
+            <div className="cf-sr">
+                <table>
+                    <caption>{ariaLabel}</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Month</th>
+                            <th scope="col">{seriesName}</th>
                             {hasComparison && (
-                                <td>{formatInr(d.comparison ?? 0)}</td>
+                                <th scope="col">{comparisonName}</th>
                             )}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {data.map((d, i) => (
+                            <tr key={i}>
+                                <th scope="row">{labels[i].period}</th>
+                                <td>{formatInr(d.value)}</td>
+                                {hasComparison && (
+                                    <td>{formatInr(d.comparison ?? 0)}</td>
+                                )}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

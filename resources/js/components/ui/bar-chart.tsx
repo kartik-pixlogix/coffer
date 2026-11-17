@@ -288,25 +288,32 @@ export function BarChart({
                 ))}
             </div>
 
-            <table className="cf-sr">
-                <caption>
-                    {typeof title === 'string' ? title : `${metric} by month`}
-                </caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Month</th>
-                        <th scope="col">{metric}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((d, i) => (
-                        <tr key={i}>
-                            <th scope="row">{labels[i].period}</th>
-                            <td>{d.value === null ? '—' : format(d.value)}</td>
+            {/* A positioned 1px box: a table ignores width, so the wrapper is what's clipped. */}
+            <div className="cf-sr">
+                <table>
+                    <caption>
+                        {typeof title === 'string'
+                            ? title
+                            : `${metric} by month`}
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Month</th>
+                            <th scope="col">{metric}</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {data.map((d, i) => (
+                            <tr key={i}>
+                                <th scope="row">{labels[i].period}</th>
+                                <td>
+                                    {d.value === null ? '—' : format(d.value)}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
