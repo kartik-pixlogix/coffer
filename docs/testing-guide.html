@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coffer: module-by-module test guide</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  :root { --ink:#16181d; --muted:#5b616e; --line:#e3e5ea; --lime:#d4f25c; --soft:#f5f6f8; --warn:#8a5a00; --warnbg:#fff6e0; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 22pt; margin: 0 0 4pt; letter-spacing: -0.3pt; }
+  h2 { font-size: 14pt; margin: 0 0 6pt; padding: 6pt 9pt; background: var(--ink); color: #fff; border-radius: 6pt; break-after: avoid; }
+  h2 .n { display: inline-block; background: var(--lime); color: var(--ink); border-radius: 4pt; padding: 0 6pt; margin-right: 6pt; font-size: 11pt; }
+  h3 { font-size: 10.5pt; margin: 9pt 0 3pt; break-after: avoid; }
+  p { margin: 3pt 0 6pt; }
+  .sub { color: var(--muted); font-size: 10.5pt; margin-bottom: 12pt; }
+  .module { break-inside: auto; margin: 0 0 14pt; }
+  .where { color: var(--muted); font-size: 9pt; margin: 0 0 6pt; }
+  code, .url { font-family: Consolas, "Courier New", monospace; font-size: 9pt; background: var(--soft); padding: 0 3pt; border-radius: 3pt; }
+  ol, ul { margin: 2pt 0 6pt; padding-left: 16pt; }
+  li { margin: 1.5pt 0; }
+  ol.steps > li::marker { font-weight: 600; }
+  .expect { border-left: 3pt solid var(--lime); background: #fbfdf0; padding: 4pt 8pt; margin: 4pt 0 6pt; break-inside: avoid; }
+  .expect b { display: block; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .5pt; color: var(--muted); margin-bottom: 1pt; }
+  .note { border-left: 3pt solid #e0a800; background: var(--warnbg); color: var(--warn); padding: 4pt 8pt; margin: 4pt 0 6pt; break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 4pt 0 8pt; font-size: 9pt; break-inside: avoid; }
+  th, td { border: 1px solid var(--line); padding: 3pt 6pt; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  .cover { border: 1px solid var(--line); border-radius: 8pt; padding: 12pt 14pt; margin-bottom: 14pt; }
+  .toc { columns: 2; column-gap: 18pt; font-size: 9.5pt; margin: 4pt 0 0; padding-left: 14pt; }
+  .pb { break-before: page; }
+  .check li { list-style: none; margin-left: -14pt; }
+  .check li::before { content: "☐  "; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Coffer: module-by-module test guide</h1>
+  <div class="sub">Steps to perform and what you should see, for every module in Phases 1–9. Uses the demo data from <code>php artisan migrate:fresh --seed</code>. Dates assume today is 17 Nov 2026 and the fiscal year is 2026-27 (April–March).</div>
+  <b>Contents</b>
+  <ol class="toc">
+    <li>Before you start</li>
+    <li>Sign-in, 2FA and company switching</li>
+    <li>Roles and permissions</li>
+    <li>Dashboard</li>
+    <li>Partners</li>
+    <li>Team and salaries</li>
+    <li>Timesheets and import</li>
+    <li>Income</li>
+    <li>Expenses and approvals</li>
+    <li>Personal-card payouts</li>
+    <li>Capital accounts</li>
+    <li>Partner loans</li>
+    <li>Settlements (JV)</li>
+    <li>Reports and exports</li>
+    <li>Trial balance and balance sheet</li>
+    <li>Settings (company, FY close, members, roles, partners, sides, categories, projects)</li>
+    <li>Credentials Vault</li>
+    <li>Notifications</li>
+    <li>Billing and plan limits</li>
+    <li>Profile and your data (DPDPA)</li>
+    <li>Marketing site</li>
+    <li>Super-admin (/admin)</li>
+    <li>Phone layout, dark mode, errors, accessibility</li>
+    <li>Sign-off checklist</li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="module">
+  <h2><span class="n">1</span>Before you start</h2>
+  <ol class="steps">
+    <li>Reset the demo data: <code>php artisan migrate:fresh --seed</code>. This puts every figure in this guide back to its starting value. Run it again whenever a test changes the data and you want to start over.</li>
+    <li>Start the app with <code>composer run dev</code> (web server, queue worker and Vite). <b>Stop and restart it if it was already running</b>, because the queue worker has to listen on the new queues (exports, imports, mail, vault).</li>
+    <li>Open <span class="url">http://localhost:8000</span>. Use a normal or incognito Chrome window.</li>
+    <li>Keep a terminal open for <code>php artisan coffer:demo-2fa</code>, which prints the current 2FA code for the demo accounts. Codes change every 30 seconds.</li>
+    <li>Check the books balance at any point: <code>php artisan coffer:ledger-integrity</code> should print “All 4 companies balance”.</li>
+  </ol>
+
+  <h3>Demo accounts (all passwords: <code>password</code>)</h3>
+  <table>
+    <tr><th>Email</th><th>Role in Saarthi Portal JV</th><th>2FA</th><th>Use it to test</th></tr>
+    <tr><td>aarav@vertexlabs.in</td><td>Admin (Vertex Labs side), workspace owner</td><td>Yes</td><td>Everything, billing, settings, FY close</td></tr>
+    <tr><td>ishita@vertexlabs.in</td><td>Partner (Vertex Labs)</td><td>Yes</td><td>Approving others' expenses, partner limits</td></tr>
+    <tr><td>kabir@bluefininfotech.in</td><td>Partner (Bluefin Infotech)</td><td>Yes</td><td>The other JV side</td></tr>
+    <tr><td>meera@bluefininfotech.in</td><td>Partner (Bluefin Infotech)</td><td>No</td><td>The vault's “turn on 2FA” screen</td></tr>
+    <tr><td>rohan@vertexlabs.in</td><td>Member</td><td>Yes</td><td>“Own data only” rules</td></tr>
+    <tr><td>accounts@ledgerworks.in</td><td>Viewer</td><td>—</td><td>Read-only access</td></tr>
+    <tr><td>platform@coffer.test / <code>platform-password</code></td><td>Super-admin at /admin only</td><td>Yes</td><td>The platform panel</td></tr>
+  </table>
+  <p>Companies in the Vertex Group workspace: <b>Saarthi Portal JV</b> (the joint venture, where most demo data lives), <b>Vertex Labs Pvt Ltd</b>, <b>Northstar Studio</b> and <b>Kriya Commerce</b> (single companies).</p>
+</div>
+
+<!-- 2 -->
+<div class="module">
+  <h2><span class="n">2</span>Sign-in, 2FA and company switching</h2>
+  <div class="where">Pages: <span class="url">/login</span>, <span class="url">/register</span>, <span class="url">/forgot-password</span>, company chip in the top bar</div>
+  <ol class="steps">
+    <li>Sign in as Aarav. Enter the code from <code>coffer:demo-2fa</code> when asked.</li>
+    <li>Use the company chip in the top bar to switch between the four companies.</li>
+    <li>Sign out, then try a wrong password five times in a row.</li>
+    <li>Register a brand-new account from <span class="url">/register?plan=starter</span> (use any email). Walk through the company wizard (single company, then try a JV).</li>
+    <li>Leave a tab idle long enough for the session to expire (or clear cookies), then click something.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Aarav lands on the Dashboard. Each company switch reloads the page with that company's data only. Repeated wrong passwords are throttled. A new account gets a 14-day trial on the chosen plan and its own empty workspace. An expired session shows the “session expired” dialog instead of a raw error.</div>
+</div>
+
+<!-- 3 -->
+<div class="module">
+  <h2><span class="n">3</span>Roles and permissions</h2>
+  <ol class="steps">
+    <li>Sign in as <b>Rohan (Member)</b>. Look at which menu items appear.</li>
+    <li>As Rohan, type <span class="url">/reports</span> or <span class="url">/settings/members</span> directly into the address bar.</li>
+    <li>As Rohan, open Timesheets and Expenses.</li>
+    <li>Sign in as <b>accounts@ledgerworks.in (Viewer)</b> and try to add an expense or income.</li>
+    <li>As Aarav, open <span class="url">/settings/roles</span>, take a page away from the Partner role, then sign in as Ishita.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Rohan lands on Timesheets, sees only the pages his role allows, and gets the “You don't have access” page (with a “request access” option) for anything else. He sees only his own timesheet entries and his own expense submissions. The Viewer sees figures but no add/edit buttons, and the server refuses the action even if forced. Changing the matrix changes Ishita's menu and access immediately.</div>
+</div>
+
+<!-- 4 -->
+<div class="module pb">
+  <h2><span class="n">4</span>Dashboard</h2>
+  <div class="where">Page: <span class="url">/dashboard</span> as Aarav, company Saarthi Portal JV</div>
+  <ol class="steps">
+    <li>Check the KPI tiles and the “Current balance” card with its formula strip.</li>
+    <li>Open the period menu and pick October 2026, then a quarter, then a custom range.</li>
+    <li>Look at the four charts: revenue vs expenses, profit by month, revenue by partner, expenses by category.</li>
+    <li>In “Pending approvals”, approve one expense inline.</li>
+    <li>Click the settlement alert's “Resolve”.</li>
+    <li>Switch to Northstar Studio (no activity).</li>
+  </ol>
+  <div class="expect"><b>Expect</b>FY-to-date figures: income <b>₹62,10,000</b>, expenses <b>₹43,67,650</b>, net profit <b>₹18,42,350</b>. Current balance <b>₹23,78,930</b>; the strip explains it as ₹0 opening + income − expenses + ₹5,20,000 capital &amp; loans + ₹16,580 owed for personal cards. Picking a month shows trend chips against the previous month. The alert reads “Vertex Labs owes Bluefin Infotech ₹3,24,600” and opens Settlements. Northstar shows the empty “get started” state. Figures count up when the page loads.</div>
+  <div class="note">Decision D58 [VERIFY]: the design shows ₹18,42,350 as the balance; the app shows ₹23,78,930 because capital and loans are included.</div>
+</div>
+
+<!-- 5 -->
+<div class="module">
+  <h2><span class="n">5</span>Partners</h2>
+  <div class="where">Page: <span class="url">/partners</span></div>
+  <ol class="steps">
+    <li>In Saarthi Portal JV, check the two side bands (Vertex Labs, Bluefin Infotech) and the partner cards.</li>
+    <li>Change the FY period picker.</li>
+    <li>Switch to Vertex Labs Pvt Ltd (single company).</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Each side shows its share, an OWES (Vertex Labs) or OWED (Bluefin) pill, revenue, expenses and net. Each card shows revenue, expenses (direct, shared and salary), net contribution and hours. The detail table's revenue total equals the P&amp;L income. A single company shows a plain grid with “x% of company”.</div>
+</div>
+
+<!-- 6 -->
+<div class="module">
+  <h2><span class="n">6</span>Team and salaries</h2>
+  <div class="where">Pages: <span class="url">/team</span>, <span class="url">/team/{member}</span>, “Run salaries” button</div>
+  <ol class="steps">
+    <li>Switch between the partner tabs and check member cards (rate or monthly cost, billable hours, earnings).</li>
+    <li>Add a member: try both Hourly and Fixed and link a user.</li>
+    <li>Edit a member's rate. An “Effective from” date appears; pick 1 Nov 2026.</li>
+    <li>Open a member's profile: rate history, monthly hours, salary history and vault access.</li>
+    <li>Click <b>Run salaries</b>, pick October 2026 and look at the preview, then run it.</li>
+    <li>Deactivate a member, then reactivate. Try deleting a member who has hours logged.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Rate changes only affect hours from the effective date. Running salaries for an unchanged month does nothing (“unchanged”). If hours changed, the old salary entry is reversed and a new one posted. Each run also shows as a read-only <b>Auto</b> row in Expenses. Members with history can't be deleted, only deactivated. Rohan (Member) only sees his own profile.</div>
+</div>
+
+<!-- 7 -->
+<div class="module pb">
+  <h2><span class="n">7</span>Timesheets and import</h2>
+  <div class="where">Pages: <span class="url">/timesheets</span>, <span class="url">/timesheets/import</span></div>
+  <h3>Logging hours</h3>
+  <ol class="steps">
+    <li>Click <b>Log hours</b> → Day mode: pick a member, project and date, enter <code>2:30</code>, add a note, save.</li>
+    <li>Log hours again in <b>Month</b> mode for November with 160 h, with and without “Include Saturdays”.</li>
+    <li>Log 13 h for one person on one day.</li>
+    <li>Filter the entries by member, partner, project, billable and search. Page through (25 per page).</li>
+    <li>Delete one entry from a month batch. The confirm offers “Delete all N entries in this batch”.</li>
+  </ol>
+  <div class="expect"><b>Expect</b><code>2:30</code> saves as 2.5 h. Month mode shows “N working days → x.xx hrs/day” and the split adds up exactly to the total. 13 h gives a warning, not an error. Toast: “2.5 h logged for {Name}”.</div>
+  <h3>Bulk import</h3>
+  <ol class="steps">
+    <li>On <span class="url">/timesheets/import</span>, download the template, fill a few rows (mix <code>2026-11-03</code>, <code>03/11/2026</code>, <code>3-Nov-26</code>, a monthly row <code>2026-10</code>, a misspelled member name, a 30 h row), upload it.</li>
+    <li>Map the columns, preview, use the All / OK / Errors chips, download the error CSV, then import.</li>
+    <li>Try the Monthly tab: add rows per member with a monthly total, save.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Every date format is understood. The misspelled name says “Did you mean …?”. The 30 h row is rejected. The import runs in the background and finishes with a toast like “N entries imported · x h added”. Unknown projects are created.</div>
+</div>
+
+<!-- 8 -->
+<div class="module">
+  <h2><span class="n">8</span>Income</h2>
+  <div class="where">Page: <span class="url">/income</span></div>
+  <ol class="steps">
+    <li>Check the KPIs and monthly trend; sort by date, amount, source, partner and category.</li>
+    <li>Add income: source, amount ₹1,00,000, received into an account, project, invoice file attached.</li>
+    <li>Add another, received by a partner personally.</li>
+    <li>Edit the amount of one, then delete one. Export CSV.</li>
+    <li>Switch to Northstar Studio to see the first-run empty state.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Totals on Income, Dashboard and Reports move together after each change. Editing reverses the old journal entry and posts a new one; deleting reverses it. The invoice opens only for signed-in users with access. The empty company shows “What counts as income?”.</div>
+</div>
+
+<!-- 9 -->
+<div class="module pb">
+  <h2><span class="n">9</span>Expenses and approvals</h2>
+  <div class="where">Page: <span class="url">/expenses</span> (try <span class="url">/expenses?month=2026-10</span> for salary Auto rows)</div>
+  <ol class="steps">
+    <li>Check the status chips: there are <b>3 pending</b> and <b>1 rejected</b> expense in the demo data.</li>
+    <li>Add an expense with <b>Custom</b> split between two partners; type amounts that don't add up, then fix them. Attach a receipt image. Use “+ Add category” inline.</li>
+    <li>Add one paid by Rohan's personal card, one with <b>Half</b>, one paid by the company directly.</li>
+    <li>As <b>Aarav</b>, open a pending expense submitted by Ishita and approve it. Reject another with a reason.</li>
+    <li>As <b>Ishita</b>, try to approve an expense you submitted yourself.</li>
+    <li>Select several pending rows and use bulk approve / reject. Export the filtered list to CSV.</li>
+    <li>Open the receipt drawer: details, payer lines, receipt preview, approval history.</li>
+    <li>As an Admin, edit an approved expense.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Save is blocked until a custom split adds up exactly. Nothing hits the books until approval; rejecting needs a reason and posts nothing. Partners can't approve their own expenses (Admins can). Bulk actions skip rows you can't decide and say how many. Editing an approved expense reverses it and sends it back to Pending. Auto salary rows can't be edited.</div>
+  <div class="note">Decision D47 [VERIFY]: every expense needs approval (the phone design hinted that expenses under ₹10,000 count straight away).</div>
+</div>
+
+<!-- 10 -->
+<div class="module">
+  <h2><span class="n">10</span>Personal-card payouts</h2>
+  <div class="where">Card “Owed for personal cards” on <span class="url">/expenses</span> (desktop width)</div>
+  <ol class="steps">
+    <li>Check the two unpaid balances: <b>₹12,980</b> and <b>₹3,600</b>.</li>
+    <li>Pay out part of one balance from an account; try to pay more than is owed.</li>
+    <li>For a partner's balance, choose <b>Convert to loan</b>.</li>
+    <li>Undo a payout from “Recent payouts”.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>You can't pay more than is owed. The balance drops after a payout and comes back after Undo (a reversal). A conversion creates a new loan on Partner Loans.</div>
+</div>
+
+<!-- 11 -->
+<div class="module">
+  <h2><span class="n">11</span>Capital accounts</h2>
+  <div class="where">Page: <span class="url">/capital</span></div>
+  <ol class="steps">
+    <li>Check the KPIs and the statement per partner (opening, contributions, drawings, share of profit, closing).</li>
+    <li>Record a contribution of ₹50,000 for Kabir into an account; record a drawing for Meera.</li>
+    <li>Delete one entry; export statements; switch FY.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Demo totals: contributions <b>₹7,00,000</b>, drawings <b>₹4,10,000</b>, total closing capital <b>₹21,32,350</b>, net profit YTD <b>₹18,42,350</b> shared 25/25/25/25. New entries update the closing balance and the Balance sheet.</div>
+  <div class="note">Decision D53 [VERIFY]: the spec seeds 50/50 equity within each side (so 25% each); the design board shows 30/20/25/25.</div>
+</div>
+
+<!-- 12 -->
+<div class="module">
+  <h2><span class="n">12</span>Partner loans</h2>
+  <div class="where">Page: <span class="url">/loans</span></div>
+  <ol class="steps">
+    <li>Check the hero and KPIs, and the chip filters (Open / Repaying / Repaid).</li>
+    <li>Record a new loan (new money). Record a repayment; try one larger than what's outstanding; use “Pay in full”.</li>
+    <li>Delete a repayment from history.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Demo: borrowed <b>₹4,50,000</b>, repaid <b>₹2,20,000</b>; L-03 closed on 30 Sep; next payment <b>₹40,000</b> on 30 Nov. Over-repaying is refused. A loan closes by itself at ₹0, and deleting a repayment reopens it. Loan numbers (L-01, L-02…) are never reused.</div>
+</div>
+
+<!-- 13 -->
+<div class="module pb">
+  <h2><span class="n">13</span>Settlements (joint ventures only)</h2>
+  <div class="where">Page: <span class="url">/settlements</span></div>
+  <ol class="steps">
+    <li>Check the banner and the per-side table.</li>
+    <li>Record a transfer of ₹1,00,000 from Vertex Labs to Bluefin; edit it; delete it.</li>
+    <li>Switch to Vertex Labs Pvt Ltd.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Banner: “Vertex Labs owes Bluefin Infotech ₹3,24,600”. Each side is entitled to ₹9,21,175 (50% of ₹18,42,350). Vertex collected ₹39,95,000 / paid ₹25,64,225; Bluefin collected ₹22,15,000 / paid ₹18,03,425. Recording a transfer lowers the amount owed by exactly that much; the remainders always sum to zero. A single company shows the design's empty state explaining that settlements apply to joint ventures.</div>
+</div>
+
+<!-- 14 -->
+<div class="module">
+  <h2><span class="n">14</span>Reports and exports</h2>
+  <div class="where">Page: <span class="url">/reports</span></div>
+  <ol class="steps">
+    <li>Try the period presets, a single month and a custom range.</li>
+    <li>Check KPIs, ratios, the monthly table and the partner P&amp;L.</li>
+    <li>Export PDF and Excel for a month (direct download) and for the full year (may run in the background, then a Download banner appears).</li>
+  </ol>
+  <div class="expect"><b>Expect</b>The same period shows the same figures here, on the Dashboard, Trial balance, Balance sheet and Capital. The PDF opens with Indian money formatting; the Excel file has Summary, Monthly and Partners sheets.</div>
+</div>
+
+<!-- 15 -->
+<div class="module">
+  <h2><span class="n">15</span>Trial balance and balance sheet</h2>
+  <div class="where">Pages: <span class="url">/trial-balance</span>, <span class="url">/balance-sheet</span></div>
+  <ol class="steps">
+    <li>Change the “as of” date and the FY. Click Recheck. Click “Find the drift”.</li>
+    <li>Export each as PDF and Excel.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Both show the green “balanced” banner. Find the drift reports no problems on healthy books.</div>
+</div>
+
+<!-- 16 -->
+<div class="module pb">
+  <h2><span class="n">16</span>Settings</h2>
+  <h3>Company and fiscal-year close — <span class="url">/settings/company</span></h3>
+  <ol class="steps">
+    <li>Edit legal name, GSTIN (try an invalid one), address, FY start month, working days, hours per day; upload a logo; save.</li>
+    <li>Open <b>Close FY</b>, read the preview, then <b>cancel</b> (or close it on a fresh seed only: type <code>CLOSE FY 2026-27</code>).</li>
+    <li>If you closed it: try to add an expense dated in that year, then <b>Reopen</b> the year as Aarav.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Invalid GSTIN is refused. The preview shows net profit, each partner's share and closing capital. After closing, any create/edit/delete dated in the year is refused in every module. Reopen reverses the closing entry and is logged.</div>
+  <h3>Members, roles, partners, sides, categories, projects</h3>
+  <ol class="steps">
+    <li><span class="url">/settings/members</span>: invite someone, change a role, remove a member (the dialog shows how many vault items to rotate).</li>
+    <li><span class="url">/settings/roles</span>: toggle page and action permissions per role.</li>
+    <li><span class="url">/settings/partners</span> and <span class="url">/settings/sides</span>: edit equity; totals must reach 100%.</li>
+    <li><span class="url">/settings/categories</span>: add, rename, archive a category; Salary is locked.</li>
+    <li><span class="url">/settings/projects</span>: add a project; archive one in use; delete an unused one.</li>
+  </ol>
+</div>
+
+<!-- 17 -->
+<div class="module pb">
+  <h2><span class="n">17</span>Credentials Vault</h2>
+  <div class="where">Pages: <span class="url">/vault</span>, <span class="url">/vault/items/create</span>, <span class="url">/vault/requests</span>, <span class="url">/vault/health</span>, <span class="url">/vault/audit</span>, <span class="url">/vault/policies</span>, <span class="url">/vault/import</span>, <span class="url">/vault/export</span></div>
+  <h3>Lock, reveal and copy</h3>
+  <ol class="steps">
+    <li>As Aarav (Saarthi Portal JV) open <span class="url">/vault</span>. It starts locked: unlock with a 2FA code.</li>
+    <li>Open the GitHub item. Click <b>Reveal</b> and <b>Copy</b> on the password; click <b>Show code</b> for the one-time code.</li>
+    <li>Wait 30 seconds after revealing. Leave the vault idle for 15 minutes.</li>
+    <li>Sign in as Meera (no 2FA) and open the vault.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>4 vaults and 13 demo items. Revealing asks for a fresh code if the last one is older than 15 minutes. The value hides itself after 30 s and the clipboard is cleared. After 15 idle minutes the vault locks again. Meera is asked to turn on 2FA first. Every reveal, copy and code use appears in the audit log.</div>
+  <h3>Add, edit, history</h3>
+  <ol class="steps">
+    <li>Add item → pick a provider tile (e.g. GitLab) → fill the form; use the password generator and watch the strength meter. Also try <span class="url">/vault/items/create?type=server</span>.</li>
+    <li>Edit the item, change the password, open History and restore an older version.</li>
+    <li>Open the AWS item marked “Admins only” as Ishita.</li>
+  </ol>
+  <h3>Sharing, requests, health, audit, policies</h3>
+  <ol class="steps">
+    <li>Share an item with Ishita at <b>Use</b> for 7 days; change it to View; remove it.</li>
+    <li>As Kabir, “Ask for access” on an item; as Aarav, approve it on <span class="url">/vault/requests</span> (2 pending and 1 denied are seeded).</li>
+    <li><span class="url">/vault/health</span>: check the score and the weak / reused / old / expiring / breached lists; click Rotate on one.</li>
+    <li><span class="url">/vault/audit</span>: filter by person and action; export CSV.</li>
+    <li><span class="url">/vault/policies</span>: change idle lock to 5 minutes, save, and see it take effect.</li>
+  </ol>
+  <h3>Import and export</h3>
+  <ol class="steps">
+    <li><span class="url">/vault/import</span>: upload <code>tests/Fixtures/vault-import/bitwarden.json</code> or one of the CSVs there; preview; import.</li>
+    <li><span class="url">/vault/export</span>: enter a passphrase and a fresh code; download the file; import it back.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Duplicates are skipped and reported. The export file is encrypted and imports back intact (attachments are not included). No page ever shows a secret until you reveal it.</div>
+  <div class="note">Decisions to confirm: D68 (Admins can't open personal vaults), D70 (health score weights), D72 (“Use” can reveal), D76 (default lock settings), D77 (exports exclude attachments).</div>
+</div>
+
+<!-- 18 -->
+<div class="module pb">
+  <h2><span class="n">18</span>Notifications</h2>
+  <div class="where">Bell in the top bar, <span class="url">/notifications</span>, <span class="url">/settings/notifications</span></div>
+  <ol class="steps">
+    <li>As Ishita, submit an expense. As Aarav, open the bell.</li>
+    <li>Approve the expense from inside the bell panel.</li>
+    <li>Filter the panel; mark one read; mark all read. Open the full page.</li>
+    <li>In Settings › Notifications, turn off email for one event and trigger it again.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>The bell shows an unread count; the submitter gets an “approved” notification. Emails (check the log or mail catcher in local) use the branded template and respect your switches.</div>
+</div>
+
+<!-- 19 -->
+<div class="module">
+  <h2><span class="n">19</span>Billing and plan limits</h2>
+  <div class="where">Page: <span class="url">/billing</span> as Aarav (workspace owner)</div>
+  <ol class="steps">
+    <li>Check the plan card (Growth trial, 14 days left) and usage meters.</li>
+    <li>Open Upgrade, flip monthly/yearly.</li>
+    <li>Try to create a <b>fifth</b> company from <span class="url">/companies/create</span>, then a sixth.</li>
+    <li>Follow <code>docs/BILLING_TESTING.md</code> with your own Stripe <b>test</b> keys to convert the trial to paid (card 4242 4242 4242 4242).</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Usage: companies 4/5 with a “Near the limit” banner, users 6/15, vault items 13/25. Going past a limit opens the Upgrade window instead of saving. With Stripe test keys, checkout returns to <code>/billing?checkout=done</code> and the page switches to the paid plan.</div>
+  <div class="note">D80/D81 [VERIFY]: placeholder prices and limits; a workspace goes read-only 7 days after a failed payment. Razorpay and GST handling are not built yet.</div>
+</div>
+
+<!-- 20 -->
+<div class="module">
+  <h2><span class="n">20</span>Profile and your data (DPDPA)</h2>
+  <div class="where">Page: <span class="url">/profile</span> → “Your data” card</div>
+  <ol class="steps">
+    <li>Request a personal data export; download the ZIP when ready.</li>
+    <li>As Aarav (owner), request a workspace export.</li>
+    <li>As Ishita, request account deletion, then cancel it (“keep my account”).</li>
+    <li>As Aarav, try deleting your account (you own a workspace).</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Exports contain your own data and never vault secrets. Deletion has a 30-day grace period and can be cancelled. An owner can't delete their account while they own a workspace (D98 [VERIFY]). Workspace deletion needs the exact workspace name.</div>
+</div>
+
+<!-- 21 -->
+<div class="module pb">
+  <h2><span class="n">21</span>Marketing site</h2>
+  <div class="where">Signed out: <span class="url">/</span>, <span class="url">/pricing</span>, <span class="url">/features/finance</span> (also timesheets, vault, reports), <span class="url">/security</span>, <span class="url">/contact?topic=demo</span>, <span class="url">/terms</span>, <span class="url">/privacy</span>, <span class="url">/cookies</span>, <span class="url">/dpa</span>, <span class="url">/sitemap.xml</span>, <span class="url">/robots.txt</span></div>
+  <ol class="steps">
+    <li>Move the mouse over the landing hero; scroll to the preview figures; toggle the theme.</li>
+    <li>On Pricing, flip monthly/yearly and INR/USD; click a plan's CTA.</li>
+    <li>Send the contact form; send it six times in an hour.</li>
+    <li>Visit <span class="url">/</span> while signed in.</li>
+    <li>Right-click → View page source on <span class="url">/</span>.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Spotlight and parallax follow the mouse (off if your OS has reduced motion on). Prices match the plans table. The contact form shows a success state and the sixth try is refused. Signed-in users are sent to their home page. The page source already contains the headline and meta tags (server-rendered). Legal pages carry the “Draft — to be reviewed by counsel” banner.</div>
+</div>
+
+<!-- 22 -->
+<div class="module">
+  <h2><span class="n">22</span>Super-admin (/admin)</h2>
+  <div class="where">Page: <span class="url">/admin</span> as platform@coffer.test / platform-password + 2FA code</div>
+  <ol class="steps">
+    <li>Try signing in to <span class="url">/admin</span> as Aarav.</li>
+    <li>As the platform admin: dashboard metrics, Workspaces list, Vertex Group detail.</li>
+    <li>Suspend Vertex Group (with a reason); sign in as Aarav in another window; then unsuspend.</li>
+    <li>Impersonate Aarav (with a reason of 10+ characters); try to reveal a vault secret; click “Stop impersonating”.</li>
+    <li>Edit a plan's price in <span class="url">/admin/plans</span> and reload <span class="url">/pricing</span>. Check leads at <span class="url">/admin/contact-requests</span>. Open <span class="url">/horizon</span>.</li>
+  </ol>
+  <div class="expect"><b>Expect</b>Customer accounts can't sign in to /admin. Suspended workspaces see a “suspended” page. While impersonating, a banner shows on every page and the vault is blocked. Every suspend and impersonation is logged with the reason.</div>
+</div>
+
+<!-- 23 -->
+<div class="module pb">
+  <h2><span class="n">23</span>Phone layout, dark mode, errors, accessibility</h2>
+  <ol class="steps">
+    <li>Open Chrome DevTools → device toolbar → iPhone 12 (390 px). Visit Dashboard, Expenses, Timesheets, Vault and Settings.</li>
+    <li>Use the bottom tabs and the Menu (switch company, search, sign out; Esc closes it).</li>
+    <li>On Expenses (phone), tap + to add an expense through the bottom sheet; on Timesheets, log hours with the sheet.</li>
+    <li>Toggle dark mode from the top bar on every page you test; reload to check it's remembered.</li>
+    <li>Set <code>APP_DEBUG=false</code> in <code>.env</code>, restart the server, visit <span class="url">/x/y</span> signed in and signed out. Set it back to <code>true</code> afterwards.</li>
+    <li>Navigate a page with only the keyboard (Tab, Shift+Tab, Enter, Esc).</li>
+  </ol>
+  <div class="expect"><b>Expect</b>No page scrolls sideways on a phone; wide tables scroll inside their card; modals become full-height sheets. Dark mode matches the design boards. The 404 page shows inside the app when signed in (with links your role can open) and on its own when signed out. Focus rings are always visible and Esc closes dialogs.</div>
+</div>
+
+<!-- 24 -->
+<div class="module">
+  <h2><span class="n">24</span>Sign-off checklist</h2>
+  <ul class="check">
+    <li>Demo figures match: income ₹62,10,000 · expenses ₹43,67,650 · Vertex Labs owes Bluefin ₹3,24,600</li>
+    <li><code>php artisan coffer:ledger-integrity</code> prints “All 4 companies balance” after your tests</li>
+    <li>Role checks: Member sees only own data; Viewer can't change anything</li>
+    <li>Every vault reveal / copy / code use appears in <span class="url">/vault/audit</span></li>
+    <li>Closing the FY blocks changes in that year everywhere; reopen works</li>
+    <li>Reports, Dashboard, Trial balance, Balance sheet and Capital agree for the same period</li>
+    <li>PDF and Excel exports open correctly</li>
+    <li>Plan limit opens the Upgrade window; Stripe test-mode trial converts to paid (<code>docs/BILLING_TESTING.md</code>)</li>
+    <li>Marketing pages render with styling, light and dark, desktop and phone</li>
+    <li>/admin rejects customer accounts; impersonation shows the banner and blocks the vault</li>
+    <li>Phone layout at 390 px on the main pages; no sideways scrolling</li>
+    <li>Decisions marked [VERIFY] in <code>docs/DECISIONS.md</code> reviewed and answered</li>
+  </ul>
+  <p style="color:var(--muted);font-size:9pt">Before launch, also work through the production checklist at the end of <code>docs/DEPLOY.md</code> on the real server.</p>
+</div>
+
+</body>
+</html>
