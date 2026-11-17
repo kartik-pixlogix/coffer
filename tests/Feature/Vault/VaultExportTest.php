@@ -64,7 +64,7 @@ test('the export is an encrypted envelope, audited, that imports back into the v
         ->and($plain['items'][1]['custom_fields'][0])->toBe(['label' => 'PAT', 'secret' => true, 'value' => 'demo-pat-xyz']);
 
     $event = VaultAuditEvent::query()->withoutGlobalScopes()->where('action', 'exported')->sole();
-    expect($event->meta)->toBe(['what' => 'vault export', 'items' => 2, 'vaults' => 'all', 'reason' => 'Moving to a new laptop', 'file' => 'coffer-vault-saarthi-portal-jv-2026-11-15.coffer.json']);
+    expect($event->meta)->toEqual(['what' => 'vault export', 'items' => 2, 'vaults' => 'all', 'reason' => 'Moving to a new laptop', 'file' => 'coffer-vault-saarthi-portal-jv-2026-11-15.coffer.json']);
 
     // Round trip: into another company's vault, with the passphrase.
     $other = Company::factory()->create();

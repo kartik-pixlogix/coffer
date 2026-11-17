@@ -78,7 +78,7 @@ test('a Chrome CSV goes upload → preview → import; the file is sealed, then 
         ->and($item->strength)->not->toBeNull();
 
     $audit = VaultAuditEvent::query()->withoutGlobalScopes()->where('action', 'imported')->sole();
-    expect($audit->meta)->toBe(['format' => 'chrome_csv', 'created' => 1, 'duplicates' => 1, 'skipped' => 0]);
+    expect($audit->meta)->toEqual(['format' => 'chrome_csv', 'created' => 1, 'duplicates' => 1, 'skipped' => 0]);
 });
 
 test('a plain CSV is mapped first; the commit is queued with the id only', function () {

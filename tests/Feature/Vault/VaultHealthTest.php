@@ -97,7 +97,7 @@ test('the report exports as CSV with names only, audited, behind the lock', func
     expect($body)->toContain('"Weak passwords","MySQL — production database"')
         ->not->toContain('saarthi2024')
         ->not->toContain('demo-Kiran@2025-x');
-    expect(VaultAuditEvent::query()->withoutGlobalScopes()->where('action', 'exported')->sole()->meta)->toBe(['what' => 'health report', 'rows' => 8]);
+    expect(VaultAuditEvent::query()->withoutGlobalScopes()->where('action', 'exported')->sole()->meta)->toEqual(['what' => 'health report', 'rows' => 8]);
 
     $this->flushSession();
     $this->actingAs($b->admin)->get(route('vault.health.export'))->assertRedirect();

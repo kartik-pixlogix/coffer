@@ -99,6 +99,10 @@ final readonly class SaveVaultItem
                 $item->restricted = (bool) $data['restricted'];
             }
 
+            if (! $creating) {
+                $this->keepEquivalentJson($item, ['fields', 'custom_fields']);
+            }
+
             $metaChanged = $creating ? [] : array_keys($item->getDirty());
             $item->save();
 
@@ -237,6 +241,38 @@ final readonly class SaveVaultItem
         }
 
         return $out === [] ? null : $out;
+    }
+
+    /**
+     * MySQL's JSON type stores object keys in its own order, so a re-saved but unchanged
+     * value would look dirty to Eloquent's strict comparison. Put the original back when
+     * only the key order differs.
+     *
+     * @param  list<string>  $attributes
+     */
+    private function keepEquivalentJson(VaultItem $item, array $attributes): void
+    {
+        foreach ($attributes as $attribute) {
+            if ($item->isDirty($attribute) && self::canonical($item->getAttribute($attribute)) === self::canonical($item->getOriginal($attribute))) {
+                $item->setAttribute($attribute, $item->getOriginal($attribute));
+            }
+        }
+    }
+
+    /** Sort object keys at every level; lists keep their order. */
+    private static function canonical(mixed $value): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        $value = array_map(self::canonical(...), $value);
+
+        if (! array_is_list($value)) {
+            ksort($value);
+        }
+
+        return $value;
     }
 
     /**

@@ -103,7 +103,8 @@ test('the CSV export follows the filters, is audited, and needs the lock open', 
         ->not->toContain('demo-Audit-2!');
 
     $export = VaultAuditEvent::query()->withoutGlobalScopes()->where('action', 'exported')->sole();
-    expect($export->meta)->toBe(['what' => 'audit log', 'rows' => 1, 'from' => '2026-11-09', 'to' => '2026-11-15']);
+    // JSON columns: MySQL reorders object keys, so compare without key order.
+    expect($export->meta)->toEqual(['what' => 'audit log', 'rows' => 1, 'from' => '2026-11-09', 'to' => '2026-11-15']);
 
     $this->flushSession();
     $this->actingAs($admin)->get(route('vault.audit.export'))->assertRedirect();

@@ -174,6 +174,15 @@ test('edit keeps secrets left empty, replaces typed ones, clears on request, and
     // Saving unchanged changes nothing.
     $this->actingAs($admin)->put(route('vault.items.update', $item), itemPayload($vault, ['name' => 'GitLab — deploy', 'secrets' => [], 'custom_fields' => $custom, 'strength' => null]));
     expect($item->fresh()->version)->toBe(3);
+
+    // Not even when the database hands JSON back with its keys reordered (MySQL's JSON type does).
+    $reorder = fn (mixed $value): mixed => is_array($value) && ! array_is_list($value) ? array_reverse($value, true) : $value;
+    DB::table('vault_items')->where('id', $item->id)->update([
+        'fields' => json_encode($reorder($fresh->fields)),
+        'custom_fields' => json_encode(array_map($reorder, $fresh->custom_fields ?? [])),
+    ]);
+    $this->actingAs($admin)->put(route('vault.items.update', $item), itemPayload($vault, ['name' => 'GitLab — deploy', 'secrets' => [], 'custom_fields' => $custom, 'strength' => null]));
+    expect($item->fresh()->version)->toBe(3);
 });
 
 test('restore brings an old version back as a new one, audited', function () {

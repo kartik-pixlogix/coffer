@@ -48,7 +48,8 @@ test('Admins see and save the policies; each change is audited with old and new 
         ->and(VaultPolicySetting::query()->withoutGlobalScopes()->sole()->updated_by)->toBe($admin->id);
 
     $event = VaultAuditEvent::query()->withoutGlobalScopes()->where('action', 'policies_changed')->sole();
-    expect($event->meta)->toBe([
+    // JSON columns: MySQL reorders object keys, so compare without key order.
+    expect($event->meta)->toEqual([
         'reauth_minutes' => '15 → 5',
         'lock_on_close' => 'off → on',
         'clipboard_clear_seconds' => '30 → 60',
