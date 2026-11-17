@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccessRequestController;
+use App\Http\Controllers\BrokenLinkController;
 use App\Http\Controllers\Companies\SwitchCompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
@@ -49,3 +50,12 @@ require __DIR__.'/finance.php';
 require __DIR__.'/reports.php';
 require __DIR__.'/vault.php';
 require __DIR__.'/billing.php';
+
+// "Tell us this link is broken" on the 404 page (D89).
+Route::post('broken-links', BrokenLinkController::class)
+    ->middleware('throttle:5,1')
+    ->name('broken-links.store');
+
+// Unknown URLs run through the web middleware, so the 404 page knows who is signed
+// in and renders inside the app shell (D89).
+Route::fallback(fn () => abort(404));

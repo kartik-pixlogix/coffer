@@ -92,7 +92,7 @@ final class DeniedPage
      * @param  array<string, bool>  $allowed
      * @return array{url: string, label: string}
      */
-    private static function landing(CompanyRole $role, array $allowed): array
+    public static function landing(CompanyRole $role, array $allowed): array
     {
         $page = Catalog::landingPageFor($role);
 

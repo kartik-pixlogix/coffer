@@ -12,6 +12,7 @@ use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetCurrentCompany;
 use App\Http\Responses\DeniedPage;
+use App\Http\Responses\ErrorPage;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -73,12 +74,13 @@ return Application::configure(basePath: dirname(__DIR__))
             return null;
         });
 
-        // A page or action the role can't use renders "Permission denied" inside the shell.
         $exceptions->respond(function (Response $response, Throwable $e, Request $request): Response {
-            if ($response->getStatusCode() !== 403 || $request->expectsJson() || $request->user() === null) {
-                return $response;
+            // A page or action the role can't use renders "Permission denied" inside the shell.
+            if ($response->getStatusCode() === 403 && ! $request->expectsJson() && $request->hasSession() && $request->user() !== null) {
+                return DeniedPage::render($request, $e instanceof PageDeniedException ? $e->page : null);
             }
 
-            return DeniedPage::render($request, $e instanceof PageDeniedException ? $e->page : null);
+            // Outside debug mode, 403 / 404 / 419 / 500 / 503 render the designed error page (D89).
+            return ErrorPage::applies($request, $response) ? ErrorPage::render($request, $response) : $response;
         });
     })->create();
