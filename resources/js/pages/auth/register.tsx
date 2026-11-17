@@ -24,7 +24,12 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
  * the strength meter, and the terms. Then email verification and the create-company
  * wizard, on a 14-day trial with no card (spec §18).
  */
-export default function Register() {
+type Props = {
+    /** The plan a Pricing CTA picked (`?plan=`), trialled instead of the default (D83). */
+    plan?: string | null;
+};
+
+export default function Register({ plan = null }: Props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const meter = signUpStrength(password);
@@ -58,6 +63,10 @@ export default function Register() {
                         </GoogleButton>
 
                         <OrDivider />
+
+                        {plan && (
+                            <input type="hidden" name="plan" value={plan} />
+                        )}
 
                         <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
                             <TextInput
@@ -119,8 +128,19 @@ export default function Register() {
                             error={errors.terms}
                         >
                             <span className="t-body">
-                                I agree to the <a href="#terms">Terms</a> and{' '}
-                                <a href="#privacy">Privacy Policy</a>.
+                                I agree to the{' '}
+                                <a href="/terms" target="_blank" rel="noopener">
+                                    Terms
+                                </a>{' '}
+                                and{' '}
+                                <a
+                                    href="/privacy"
+                                    target="_blank"
+                                    rel="noopener"
+                                >
+                                    Privacy Policy
+                                </a>
+                                .
                             </span>
                         </Checkbox>
 

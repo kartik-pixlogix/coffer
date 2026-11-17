@@ -5,3 +5,4 @@ export type * from './ui';
 export type * from './permissions';
 export type * from './notifications';
 export type * from './billing';
+export type * from './marketing';

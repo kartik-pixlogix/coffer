@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatInr } from '@/lib/format';
+import { planPrice } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 import { checkout as checkoutRoute } from '@/routes/billing';
 import type {
@@ -16,19 +16,7 @@ import type {
     UpgradeContext,
 } from '@/types';
 
-/** ₹2,499 or $35 — whole units, the way plans are priced. */
-export function planPrice(
-    amount: number | null,
-    currency: BillingCurrency,
-): string {
-    if (amount === null) {
-        return 'Custom price';
-    }
-
-    return currency === 'inr'
-        ? formatInr(amount, { decimals: 'never' })
-        : `$${(amount / 100).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
-}
+export { planPrice };
 
 const unit = (cycle: BillingCycle) => (cycle === 'yearly' ? 'year' : 'month');
 

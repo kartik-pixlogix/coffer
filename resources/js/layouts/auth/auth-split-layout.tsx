@@ -181,11 +181,11 @@ export default function AuthSplitLayout({
 
                     <p className="t-caption t-faint m-0">
                         © 2026 Coffer ·{' '}
-                        <a href="#terms" className="t-faint">
+                        <a href="/terms" className="t-faint">
                             Terms
                         </a>{' '}
                         ·{' '}
-                        <a href="#privacy" className="t-faint">
+                        <a href="/privacy" className="t-faint">
                             Privacy
                         </a>
                     </p>

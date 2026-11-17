@@ -7,8 +7,6 @@ use App\Http\Controllers\LandingController;
 use App\Http\Middleware\EnsureLocalEnvironment;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('welcome');
-
 Route::middleware(['auth', 'verified'])->group(function () {
     // Where sign-in and the company switcher land (spec §2.1).
     Route::get('home', LandingController::class)->name('home');
@@ -33,6 +31,7 @@ Route::inertia('dev/ui', 'dev/ui')
     ->middleware(EnsureLocalEnvironment::class)
     ->name('dev.ui');
 
+require __DIR__.'/marketing.php';
 require __DIR__.'/account.php';
 require __DIR__.'/auth.php';
 require __DIR__.'/companies.php';

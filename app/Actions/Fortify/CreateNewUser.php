@@ -32,6 +32,7 @@ class CreateNewUser implements CreatesNewUsers
             'company_name' => ['required', 'string', 'max:120'],
             'password' => $this->passwordRules(confirmed: false),
             'terms' => ['accepted'],
+            'plan' => ['nullable', 'string', 'max:30'],
         ], [
             'name.required' => 'Add your name.',
             'company_name.required' => 'Add your company’s name.',
@@ -48,7 +49,10 @@ class CreateNewUser implements CreatesNewUsers
                 'password' => $input['password'],
             ]);
 
-            $this->createWorkspace->handle($user, $input['company_name']);
+            // The plan a Pricing CTA picked (D83), else the default trial plan.
+            $this->createWorkspace->handle($user, $input['company_name'], CreateWorkspace::trialPlanKey(
+                $input['plan'] ?? session()->pull(CreateWorkspace::SIGNUP_PLAN),
+            ));
 
             return $user;
         });

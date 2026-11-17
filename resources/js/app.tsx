@@ -5,6 +5,7 @@ import { FlashToasts } from '@/hooks/use-flash-toast';
 import AppLayout from '@/layouts/app-layout';
 import { installSessionExpiryHandler } from '@/lib/session-expiry';
 import AuthSplitLayout from '@/layouts/auth/auth-split-layout';
+import MarketingLayout from '@/layouts/marketing-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Coffer';
 
@@ -15,11 +16,12 @@ void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
-            case name === 'welcome':
             case name === 'auth/accept-invite':
             case name === 'companies/create':
             case name.startsWith('dev/'):
                 return null;
+            case name.startsWith('marketing/'):
+                return MarketingLayout;
             case name.startsWith('auth/'):
                 return AuthSplitLayout;
             default:

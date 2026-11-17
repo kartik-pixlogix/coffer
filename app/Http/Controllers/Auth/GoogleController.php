@@ -93,9 +93,11 @@ final class GoogleController extends Controller
                 return $this->fail($intent, null, "No Coffer account uses {$email}. Start a free trial, or ask your Admin for an invite.");
             }
 
-            $user = DB::transaction(function () use ($google, $email, $createWorkspace): User {
+            $plan = CreateWorkspace::trialPlanKey($request->session()->pull(CreateWorkspace::SIGNUP_PLAN));
+
+            $user = DB::transaction(function () use ($google, $email, $createWorkspace, $plan): User {
                 $user = $this->createUser($google, $email);
-                $createWorkspace->handle($user, Str::before($user->name, ' ').'’s workspace');
+                $createWorkspace->handle($user, Str::before($user->name, ' ').'’s workspace', $plan);
 
                 return $user;
             });

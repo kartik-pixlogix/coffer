@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
@@ -64,6 +65,10 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureAuthorization();
         $this->configureRateLimits();
+
+        // Server-side rendering is for the public site only (D83): search engines and link
+        // previews need it there; app pages behind sign-in render in the browser as before.
+        Inertia::disableSsr(fn (Request $request): bool => ! $request->routeIs('welcome', 'marketing.*'));
     }
 
     /** Spec §14.3: reveals, copies, one-time codes and downloads, 30 a minute per user. */
@@ -77,6 +82,12 @@ class AppServiceProvider extends ServiceProvider
             RateLimiter::for($name, fn (Request $request): Limit => Limit::perMinute($perMinute)
                 ->by($name.':'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
         }
+
+        // The marketing Contact / Book a demo form (D84): a few an hour per IP, answered
+        // with a form error rather than a bare 429 page.
+        RateLimiter::for('contact', fn (Request $request): Limit => Limit::perHour((int) config('marketing.contact_per_hour'))
+            ->by('contact:'.$request->ip())
+            ->response(fn () => back()->withErrors(['form' => 'That’s a lot of messages from here. Try again in an hour, or email us.'])->withInput()));
     }
 
     /**

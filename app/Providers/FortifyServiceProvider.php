@@ -8,6 +8,7 @@ use App\Actions\Fortify\EnableTwoFactorAuthentication;
 use App\Actions\Fortify\GenerateNewRecoveryCodes;
 use App\Actions\Fortify\RedirectIfTwoFactorAuthenticatable;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Actions\Workspaces\CreateWorkspace;
 use App\Auth\LoginLockout;
 use App\Auth\RecoveryCodes;
 use App\Http\Controllers\Auth\GoogleController;
@@ -102,9 +103,19 @@ class FortifyServiceProvider extends ServiceProvider
             'email' => $request->user()?->email,
         ]));
 
-        Fortify::registerView(fn () => Inertia::render('auth/register', [
-            'googleEnabled' => GoogleController::enabled(),
-        ]));
+        // A Pricing CTA links here with ?plan= (D83): remembered for the Google path too.
+        Fortify::registerView(function (Request $request) {
+            $plan = CreateWorkspace::trialPlanKey($request->query('plan'));
+
+            if ($plan !== null) {
+                $request->session()->put(CreateWorkspace::SIGNUP_PLAN, $plan);
+            }
+
+            return Inertia::render('auth/register', [
+                'googleEnabled' => GoogleController::enabled(),
+                'plan' => $plan ?? $request->session()->get(CreateWorkspace::SIGNUP_PLAN),
+            ]);
+        });
 
         Fortify::twoFactorChallengeView(function (Request $request) {
             $user = User::query()->whereKey($request->session()->get('login.id'))->first();
