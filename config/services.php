@@ -42,4 +42,15 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    // D95: Horizon's long-wait alerts; D97: failed jobs and backups are logged at critical.
+    'horizon' => [
+        'notify_email' => env('HORIZON_NOTIFY_EMAIL'),
+    ],
+
+    // D97: error tracking. Sentry is not installed; with `composer require sentry/sentry-laravel`
+    // and this DSN set, bootstrap/app.php hands exceptions to it (docs/DEPLOY.md).
+    'sentry' => [
+        'dsn' => env('SENTRY_LARAVEL_DSN'),
+    ],
+
 ];

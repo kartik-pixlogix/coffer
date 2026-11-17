@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as Router;
 use Illuminate\Support\Str;
+use Laravel\Horizon\Http\Middleware\Authenticate as HorizonAuthenticate;
 
 /*
 | Authorisation sweep (spec §23, D93). Every registered route is either public on purpose
@@ -35,6 +37,7 @@ const PUBLIC_ROUTES = [
     'cashier.payment' => 'Cashier payment confirmation page, signed redirect URL',
     'storage.local' => 'local disk temporary URLs, signature-checked by the framework',
     'storage.local.upload' => 'local disk temporary upload URLs, signature-checked by the framework',
+    'health' => 'deep health check: bearer token or platform admin, checked in the controller (404 otherwise, D97)',
     'dev.ui' => 'UI gallery, EnsureLocalEnvironment (404 outside local)',
     'filament.admin.auth.login' => 'platform admin sign-in (Filament)',
     'livewire-*' => 'Livewire assets and endpoints; components authorise themselves (only the /admin panel uses Livewire)',
@@ -93,7 +96,7 @@ test('every route is public on purpose, or signed in and authorised', function (
         }
 
         $signedIn = $middleware->contains(fn (string $m): bool => $m === 'auth' || str_starts_with($m, 'auth:')
-            || str_ends_with($m, 'Filament\Http\Middleware\Authenticate'));
+            || $m === FilamentAuthenticate::class || $m === HorizonAuthenticate::class);
 
         if (! $signedIn) {
             $problems[] = "{$label}: not signed in and not on the public list";
@@ -102,7 +105,7 @@ test('every route is public on purpose, or signed in and authorised', function (
         }
 
         $authorised = $middleware->contains(fn (string $m): bool => str_starts_with($m, 'page:') || str_starts_with($m, 'can:')
-            || str_ends_with($m, 'Filament\Http\Middleware\Authenticate'));
+            || $m === FilamentAuthenticate::class || $m === HorizonAuthenticate::class);
 
         if (! $authorised && routeKeyMatches($route, OWN_ACCOUNT_ROUTES) === null) {
             $problems[] = "{$label}: signed in but no page:/can: middleware and not on the own-account list";

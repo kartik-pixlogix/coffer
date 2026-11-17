@@ -17,7 +17,7 @@ final class SitemapController extends Controller
 {
     /** Paths crawlers must stay out of: everything behind sign-in, auth, and /admin. */
     public const array DISALLOW = [
-        '/admin', '/home', '/dashboard', '/companies', '/partners', '/team', '/timesheets',
+        '/admin', '/horizon', '/health', '/home', '/dashboard', '/companies', '/partners', '/team', '/timesheets',
         '/income', '/expenses', '/reimbursements', '/capital', '/loans', '/settlements',
         '/salary', '/statements', '/reports', '/vault', '/settings', '/account', '/profile',
         '/billing', '/notifications', '/invites', '/access-requests', '/login', '/logout',

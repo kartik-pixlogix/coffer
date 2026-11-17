@@ -2,9 +2,19 @@
 
 namespace App\Providers;
 
+use App\Jobs\CheckVaultBreaches;
+use App\Jobs\CommitTimesheetImport;
+use App\Jobs\CommitVaultImport;
+use App\Jobs\GenerateReportExport;
+use App\Jobs\ReencryptVaultData;
+use App\Mail\ContactRequestReceived;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Notifications\CofferNotification;
 use App\Notifications\CompanyDatabaseChannel;
+use App\Notifications\CompanyInvitation;
+use App\Notifications\InviteRenewalRequested;
+use App\Notifications\LedgerIntegrityFailed;
 use App\Services\Billing\PaymentGateway;
 use App\Services\Billing\StripeGateway;
 use App\Services\Billing\WorkspaceBilling;
@@ -21,12 +31,16 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Channels\DatabaseChannel;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -35,6 +49,9 @@ use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /** Every queue the app uses (D95), most urgent first. */
+    public const array QUEUES = ['default', 'mail', 'exports', 'imports', 'vault'];
+
     /**
      * Register any application services.
      */
@@ -69,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureAuthorization();
         $this->configureRateLimits();
+        $this->configureQueues();
 
         // Server-side rendering is for the public site only (D83): search engines and link
         // previews need it there; app pages behind sign-in render in the browser as before.
@@ -80,6 +98,42 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Inertia::disableSsr(fn (Request $request): bool => ! $request->routeIs('welcome', 'marketing.*'));
+    }
+
+    /**
+     * Queues (D95): default and mail for quick work, exports / imports / vault for slow work
+     * on Horizon's "heavy" workers. Locally (database driver, no Horizon) `composer run dev`
+     * listens on all of them. A failed job is logged at critical (D97) with its class only:
+     * payloads can hold record ids and must not be copied into logs.
+     */
+    protected function configureQueues(): void
+    {
+        Queue::route([
+            GenerateReportExport::class => 'exports',
+            CommitTimesheetImport::class => 'imports',
+            CommitVaultImport::class => 'imports',
+            CheckVaultBreaches::class => 'vault',
+            ReencryptVaultData::class => 'vault',
+            CofferNotification::class => 'mail',
+            CompanyInvitation::class => 'mail',
+            InviteRenewalRequested::class => 'mail',
+            LedgerIntegrityFailed::class => 'mail',
+            ContactRequestReceived::class => 'mail',
+        ]);
+
+        Queue::failing(function (JobFailed $event): void {
+            Log::critical('Queue job failed', [
+                'job' => $event->job->resolveName(),
+                'queue' => $event->job->getQueue(),
+                'connection' => $event->connectionName,
+                'exception' => $event->exception::class,
+            ]);
+        });
+
+        if (app()->runningInConsole() && config('queue.default') !== 'redis') {
+            DevCommands::except('horizon');
+            DevCommands::artisan('queue:listen --queue='.implode(',', self::QUEUES).' --tries=1 --timeout=0', 'queue');
+        }
     }
 
     /** Spec §14.3: reveals, copies, one-time codes and downloads, 30 a minute per user. */

@@ -56,7 +56,7 @@ final class SecurityHeaders
     public function policy(Request $request, string $nonce): string
     {
         $dev = $this->devServer();
-        $admin = $request->is('admin', 'admin/*', 'livewire*', 'filament/*');
+        $admin = $request->is('admin', 'admin/*', 'livewire*', 'filament/*', 'horizon', 'horizon/*');
 
         $directives = [
             'default-src' => ["'self'"],

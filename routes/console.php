@@ -1,5 +1,8 @@
 <?php
 
+use App\Jobs\QueueHeartbeat;
+use App\Services\Ops\Health;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 
 // Spec §4.5: a nightly check that every company's books still balance; Admins hear about failures.
@@ -24,3 +27,14 @@ Schedule::command('coffer:vault-imports-clean')->hourly()->withoutOverlapping()-
 // Spec §19 / D78, D80: settlement-due, fiscal-year-close and trial-ending reminders; 30-day retention.
 Schedule::command('coffer:reminders')->dailyAt('08:30')->withoutOverlapping()->onOneServer();
 Schedule::command('coffer:notifications-prune')->dailyAt('03:45')->withoutOverlapping()->onOneServer();
+
+// D96: the nightly encrypted backup (database + private and public storage), then retention.
+Schedule::command('coffer:backup')->dailyAt('01:30')->withoutOverlapping(120)->onOneServer();
+
+// D97: heartbeats for /health. The scheduler writes its own every minute; a queued job proves a
+// worker is running. Horizon's metrics need a snapshot every five minutes.
+Schedule::call(fn () => Cache::forever(Health::SCHEDULER_HEARTBEAT, now()->toIso8601String()))
+    ->everyMinute()->name('scheduler-heartbeat')->onOneServer();
+Schedule::job(new QueueHeartbeat)->everyFiveMinutes()->name('queue-heartbeat')->onOneServer();
+Schedule::command('horizon:snapshot')->everyFiveMinutes()->onOneServer()
+    ->when(fn (): bool => config('queue.default') === 'redis');

@@ -60,6 +60,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Error tracking (D97): exceptions go to the log stack (LOG_STACK). Sentry isn't a
+        // dependency; once `sentry/sentry-laravel` is installed and SENTRY_LARAVEL_DSN set,
+        // its integration is wired here with no code change (docs/DEPLOY.md).
+        $sentry = ['Sentry\Laravel\Integration', 'handles'];
+
+        if (filled(config('services.sentry.dsn')) && is_callable($sentry)) {
+            $sentry($exceptions);
+        }
+
         // Vault secrets never go back into the session as "old input" (spec §14.3).
         $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'secrets', 'custom_fields', 'code', 'passphrase', 'passphrase_confirmation']);
 

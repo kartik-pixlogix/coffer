@@ -47,6 +47,15 @@ return [
             'report' => false,
         ],
 
+        // D96: coffer:backup's default target, outside the storage folders it archives.
+        // Production should point BACKUP_DISK at an off-site disk instead.
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('backups'),
+            'throw' => true,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -5,9 +5,15 @@ use App\Http\Controllers\BrokenLinkController;
 use App\Http\Controllers\Companies\SwitchCompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Ops\HealthController;
 use App\Http\Controllers\Platform\StopImpersonationController;
 use App\Http\Middleware\EnsureLocalEnvironment;
 use Illuminate\Support\Facades\Route;
+
+// The deep health check (D97): monitors with HEALTH_CHECK_TOKEN, or a platform admin.
+Route::get('health', HealthController::class)
+    ->middleware('throttle:30,1')
+    ->name('health');
 
 // A platform admin ends an impersonation from the app's banner (spec §22, D86).
 Route::post('impersonation/stop', StopImpersonationController::class)
