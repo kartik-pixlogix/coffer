@@ -40,7 +40,7 @@ import { Icon } from '@/components/ui/icon';
 import { Tab, TabPanel, Tabs, TabsList } from '@/components/ui/tabs';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { formatIndianNumber, formatInr } from '@/lib/format';
-import { planPrice } from '@/lib/plans';
+import { PLAN_CARD, planPrice } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 import type { PlanOption, SeoProps } from '@/types';
 
@@ -92,6 +92,8 @@ const CLIENTS: {
     { name: 'Marigold & Co', monogram: 'M', mark: 'lime' },
 ];
 
+/** Landing shows the first few points of each plan; Pricing shows them all. */
+const LANDING_POINTS = 4;
 const PILLARS: {
     icon: LucideIcon;
     title: string;
@@ -1227,6 +1229,8 @@ export default function Landing({ plans, seo }: Props) {
                 </Reveal>
                 <RevealGroup className="lp-grid-4">
                     {plans.map((plan) => {
+                        const card = PLAN_CARD[plan.key];
+
                         return (
                             <RevealItem
                                 as="article"
@@ -1255,7 +1259,7 @@ export default function Landing({ plans, seo }: Props) {
                                     )}
                                 </div>
                                 <p
-                                    className="t-body plan-dim"
+                                    className="t-body plan-dim lp-plan-body"
                                     style={{ margin: 0 }}
                                 >
                                     {PLAN_BODY[plan.key] ?? plan.tagline}
@@ -1278,6 +1282,20 @@ export default function Landing({ plans, seo }: Props) {
                                         </span>
                                     )}
                                 </div>
+                                {card && (
+                                    <div className="plan-points">
+                                        <span className="t-label-strong">
+                                            {card.lead}
+                                        </span>
+                                        <CheckList
+                                            items={card.points.slice(
+                                                0,
+                                                LANDING_POINTS,
+                                            )}
+                                            inherit
+                                        />
+                                    </div>
+                                )}
                                 <Link
                                     href={
                                         plan.customPricing
@@ -1299,6 +1317,13 @@ export default function Landing({ plans, seo }: Props) {
                         );
                     })}
                 </RevealGroup>
+                <Reveal as="p" className="lp-plans-foot t-caption t-muted">
+                    Rupee prices before GST, billed monthly. Every plan starts
+                    with a free trial.{' '}
+                    <Link href="/pricing" className="cf-link">
+                        Compare every plan
+                    </Link>
+                </Reveal>
             </section>
 
             <section

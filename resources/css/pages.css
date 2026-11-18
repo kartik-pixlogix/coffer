@@ -5302,6 +5302,20 @@ span.denied-can:not(#\#) {
     animation-delay: 360ms;
 }
 
+/* Landing plan cards: the lime card's divider, and two lines for every blurb. */
+.lp-pillar--pop:not(#\#) .plan-points {
+    border-top-color: color-mix(in srgb, var(--on-lime) 18%, transparent);
+}
+
+.lp-plan-body:not(#\#) {
+    min-height: 2lh;
+}
+
+.lp-plans-foot:not(#\#) {
+    margin: 18px 0 0;
+    text-align: center;
+}
+
 .lp-grid-6:not(#\#),
 .lp-grid-4:not(#\#),
 .lp-grid-3:not(#\#),

@@ -212,6 +212,7 @@ Tick boxes here as you go (`- [x]`).
 - [x] Billing page: plan, usage meters, invoices, upgrade modal. Soft limit enforcement. (D80, D81, D82)
 - [x] Marketing site with Inertia SSR (D83, D84; SSR proof in `docs/DEPLOY.md` §3):
   - landing (spotlight and parallax with reduced-motion fallback), pricing toggles
+  - owner feedback: 3D hero tilt, depth-layered parallax cards, scroll reveals and hover lift on every marketing page, placeholder client strip, plan features on the landing, animated FAQ, Log hours card fixed (D103, D104 [VERIFY], D105)
   - feature template, security, contact/demo form, legal pages
   - SEO: meta, OG, sitemap
 - [x] Filament super-admin at `/admin`: workspaces, usage, suspend, impersonate with reason and audit, plans editor, platform metrics. (D85, D86, D87; panel MFA [VERIFY])
