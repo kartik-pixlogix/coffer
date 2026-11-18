@@ -42,3 +42,47 @@ export function limitLabel(plan: PlanOption, key: LimitKey): string {
 
     return plan.customPricing && key !== 'vaultItems' ? 'Custom' : 'Unlimited';
 }
+
+/**
+ * What each plan includes (the Pricing.dc.html cards; Landing shows the first few).
+ * Prices and limits come from the plans table.
+ */
+export const PLAN_CARD: Record<string, { lead: string; points: string[] }> = {
+    starter: {
+        lead: 'What you get',
+        points: [
+            'A single company',
+            'Partners and equity',
+            'Timesheets, income and expenses',
+            'Reports with PDF and Excel export',
+            'Personal vault with 2FA codes',
+        ],
+    },
+    growth: {
+        lead: 'Everything in Starter, plus',
+        points: [
+            'Several companies and joint ventures',
+            'Settlements, capital accounts and loans',
+            'Bulk import from spreadsheets',
+            'Vault sharing and health score',
+        ],
+    },
+    business: {
+        lead: 'Everything in Growth, plus',
+        points: [
+            'Custom roles and permissions',
+            'Vault audit log and policies',
+            'Export controls',
+            'Priority support',
+        ],
+    },
+    enterprise: {
+        lead: 'Everything in Business, plus',
+        points: [
+            'Single sign-on with SAML',
+            'Custom limits and contract',
+            'Onboarding help',
+            'Invoicing by bank transfer',
+        ],
+    },
+};

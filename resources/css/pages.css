@@ -4825,23 +4825,47 @@ span.denied-can:not(#\#) {
     filter: blur(120px);
     opacity: 0.45;
     pointer-events: none;
+    animation: lp-drift 16s var(--ease-drift) infinite;
 }
 
-.lp-spot:not(#\#) {
+.lp-glow-wrap:not(#\#) {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0;
-    transition: opacity var(--duration-panel) var(--ease-out);
-    background: radial-gradient(
-        520px circle at var(--spot-x, 50%) var(--spot-y, 30%),
-        color-mix(in srgb, var(--lime) 38%, transparent),
-        transparent 65%
-    );
 }
 
-.lp-spot.is-on:not(#\#) {
-    opacity: 1;
+/* The glow drifts on a 16 s loop (README Motion), transforms only. */
+@keyframes lp-drift {
+    0%,
+    100% {
+        transform: translateX(-50%) translate3d(0, 0, 0) scale(1);
+    }
+
+    33% {
+        transform: translateX(-50%) translate3d(64px, -28px, 0) scale(1.06);
+    }
+
+    66% {
+        transform: translateX(-50%) translate3d(-56px, 18px, 0) scale(0.97);
+    }
+}
+
+/* Cursor spotlight: a soft lime disc moved by transform (motion values, D103). */
+.lp-spot:not(#\#) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 720px;
+    height: 720px;
+    margin: -360px 0 0 -360px;
+    border-radius: var(--radius-full);
+    background: radial-gradient(
+        closest-side,
+        color-mix(in srgb, var(--lime) 40%, transparent),
+        transparent
+    );
+    pointer-events: none;
+    will-change: transform, opacity;
 }
 
 .lp-hero-copy:not(#\#) {
@@ -4870,11 +4894,19 @@ span.denied-can:not(#\#) {
     position: relative;
     height: 600px;
     margin-top: 56px;
+    perspective: 1600px;
+}
+
+/* The tilting frame (rotateX / rotateY from motion values); layers keep their depth. */
+.lp-stage-3d:not(#\#) {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform-origin: 50% 40%;
 }
 
 .lp-layer:not(#\#) {
     position: absolute;
-    transition: transform 140ms ease-out;
     will-change: transform;
 }
 
@@ -5045,19 +5077,55 @@ span.denied-can:not(#\#) {
 .lp-float--totp:not(#\#) {
     right: 30px;
     top: 70px;
-    width: 270px;
+    width: 284px;
     padding: 16px;
     background: var(--surface);
     border: 1px solid var(--line);
 }
 
+.lp-totp-head:not(#\#) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/*
+ * Log hours card: wide enough for the figure and the per-day line side by side, each
+ * kept on one line (the figure and its unit never part).
+ */
 .lp-float--hours:not(#\#) {
     right: 120px;
     top: 430px;
-    width: 300px;
+    width: 344px;
     padding: 14px 16px;
     background: var(--gradient-lime);
     color: var(--on-lime);
+}
+
+.lp-hours-head:not(#\#) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    white-space: nowrap;
+}
+
+.lp-hours-body:not(#\#) {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.lp-hours-figure:not(#\#) {
+    flex: none;
+    font-size: 24px;
+    line-height: 30px;
+    white-space: nowrap;
+}
+
+.lp-nowrap:not(#\#) {
+    white-space: nowrap;
 }
 
 .lp-figure-lime:not(#\#) {
@@ -5086,6 +5154,72 @@ span.denied-can:not(#\#) {
     color: var(--ink-faint);
     font-size: 13px;
     font-weight: 500;
+}
+
+/* A grid cell that holds a linked card: the card fills it (the cell takes the lift). */
+.lp-cell:not(#\#) {
+    display: flex;
+    min-width: 0;
+}
+
+.lp-cell:not(#\#) > * {
+    flex: 1;
+    min-width: 0;
+}
+
+.lp-cell:not(#\#):hover > .lp-pillar,
+.lp-card-lift:not(#\#):hover {
+    box-shadow: var(--shadow-pop);
+}
+
+.lp-sec-tile:not(#\#) {
+    transition: border-color var(--duration-fast);
+}
+
+.lp-sec-tile:not(#\#):hover {
+    border-color: color-mix(in srgb, var(--on-graphite) 28%, transparent);
+}
+
+/* Buttons lift 2px on hover across the marketing pages (README Motion). */
+.lp:not(#\#) .cf-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+}
+
+/*
+ * Hero copy rises in on first paint, one part after another (duration-hero, ease-out).
+ * Plain CSS so it plays from the server-rendered HTML before the page hydrates.
+ */
+@keyframes lp-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.lp-rise-group:not(#\#) > .lp-rise,
+.lp-rise-all:not(#\#) > * {
+    animation: lp-rise var(--duration-hero) var(--ease-out) both;
+}
+
+.lp-rise-group:not(#\#) > :nth-child(2) {
+    animation-delay: 90ms;
+}
+
+.lp-rise-group:not(#\#) > :nth-child(3) {
+    animation-delay: 180ms;
+}
+
+.lp-rise-group:not(#\#) > :nth-child(4) {
+    animation-delay: 270ms;
+}
+
+.lp-rise-group:not(#\#) > :nth-child(5) {
+    animation-delay: 360ms;
 }
 
 .lp-grid-6:not(#\#),
@@ -5136,7 +5270,6 @@ a.lp-pillar:not(#\#) {
 }
 
 a.lp-pillar:not(#\#):hover {
-    transform: translateY(-2px);
     box-shadow: var(--shadow-pop);
 }
 
@@ -5691,7 +5824,23 @@ a.lp-pillar:not(#\#):hover {
         display: none;
     }
 
-    a.lp-pillar:not(#\#):hover {
+    .lp-glow:not(#\#),
+    .lp-rise-group:not(#\#) > .lp-rise,
+    .lp-rise-all:not(#\#) > * {
+        animation: none;
+    }
+
+    /* Scroll reveals (motion, D103) show their final look at once; the stage is flat. */
+    [data-reveal]:not(#\#),
+    .lp-stage-3d:not(#\#),
+    .lp-layer:not(#\#),
+    .lp-glow-wrap:not(#\#) {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .lp:not(#\#) .cf-btn:not(:disabled):hover,
+    .cf-btn.lp-btn-onlime:not(#\#):hover {
         transform: none;
     }
 }
@@ -5713,8 +5862,11 @@ a.lp-pillar:not(#\#):hover {
         height: 480px;
     }
 
+    /* The Log hours card stays: it moves to the window's lower right corner. */
     .lp-float--hours:not(#\#) {
-        display: none;
+        top: auto;
+        right: 24px;
+        bottom: 8px;
     }
 
     .lp-foot-grid:not(#\#) {
@@ -5841,8 +5993,30 @@ a.lp-pillar:not(#\#):hover {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    /*
+     * Phone: the Log hours card narrows to the stage and puts the per-day line under
+     * the figure; each still stays on one line.
+     */
+    .lp-float--hours:not(#\#) {
+        right: 12px;
+        bottom: 16px;
+        width: min(300px, calc(100% - 24px));
+        padding: 12px 14px;
+    }
+
+    .lp-hours-body:not(#\#) {
+        flex-wrap: wrap;
+        row-gap: 2px;
+        margin-top: 6px;
+    }
+
+    .lp-hours-figure:not(#\#) {
+        font-size: 22px;
+        line-height: 28px;
+    }
+
     .lp-stage:not(#\#) {
-        height: 340px;
+        height: 400px; /* room under the window for the Log hours card */
         margin-top: 40px;
     }
 

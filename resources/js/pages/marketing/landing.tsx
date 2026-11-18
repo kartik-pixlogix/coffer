@@ -10,8 +10,16 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, PointerEvent } from 'react';
+import {
+    motion,
+    useMotionValue,
+    useScroll,
+    useSpring,
+    useTransform,
+} from 'motion/react';
+import type { MotionValue } from 'motion/react';
+import { createContext, useContext, useState } from 'react';
+import type { PointerEvent, ReactNode } from 'react';
 import {
     CheckList,
     CountUp,
@@ -19,6 +27,12 @@ import {
     SectionHead,
 } from '@/components/marketing/marketing-parts';
 import type { Faq } from '@/components/marketing/marketing-parts';
+import {
+    Reveal,
+    RevealGroup,
+    RevealItem,
+    useFinePointer,
+} from '@/components/marketing/motion';
 import { CtaBand } from '@/components/marketing/page-sections';
 import { SeoHead } from '@/components/marketing/seo-head';
 import { buttonClass, ButtonLink } from '@/components/ui/button';
@@ -271,95 +285,213 @@ const FAQS: Faq[] = [
     ],
 ];
 
+type HeroMotion = {
+    /** Pointer position over the hero, -1…1 on each axis, spring-smoothed. */
+    px: MotionValue<number>;
+    py: MotionValue<number>;
+    scrollY: MotionValue<number>;
+    /** Parallax and tilt on (off under reduced motion, and in the server render). */
+    moving: boolean;
+    /** The pointer drives the tilt (a fine pointer, and motion allowed). */
+    pointerOn: boolean;
+};
+
+const HeroMotionContext = createContext<HeroMotion | null>(null);
+
+function useHero(): HeroMotion {
+    const hero = useContext(HeroMotionContext);
+
+    if (hero === null) {
+        throw new Error('HeroStage must sit inside the hero.');
+    }
+
+    return hero;
+}
+
+const SPRING = { stiffness: 140, damping: 22, mass: 0.6 };
+
 /**
- * Pointer and scroll parallax for the hero stage (Landing.dc.html `shift(depth)`) plus
- * the cursor spotlight. Both are off under reduced motion and on coarse pointers.
+ * Pointer and scroll motion for the hero (Landing.dc.html `shift(depth)`, D103): the
+ * preview tilts toward the cursor in 3D, the floating cards sit on their own depth
+ * layers and drift with the pointer and the scroll, and a lime spotlight follows the
+ * cursor. Pointer effects need a fine pointer; everything is off under reduced motion.
+ * Only transforms and opacity change, through motion values (no re-renders).
+ *
+ * The moving elements are motion elements in every state, and the motion values are
+ * bound once motion is allowed, so hydration never swaps the DOM under the preview.
  */
 function useHeroMotion() {
     const reduced = useReducedMotion();
-    const [pointer, setPointer] = useState({ x: 0, y: 0, on: false });
-    const [spot, setSpot] = useState({ x: 50, y: 30 });
-    const [scrollY, setScrollY] = useState(0);
-    const frame = useRef(0);
+    const fine = useFinePointer();
+    const pointerOn = !reduced && fine;
 
-    useEffect(() => {
-        if (reduced) {
-            return;
-        }
+    const rawX = useMotionValue(0);
+    const rawY = useMotionValue(0);
+    const px = useSpring(rawX, SPRING);
+    const py = useSpring(rawY, SPRING);
 
-        const onScroll = () => {
-            if (frame.current) {
-                return;
-            }
+    const spotX = useMotionValue(0);
+    const spotY = useMotionValue(0);
+    const spotOpacity = useMotionValue(0);
+    const spotXS = useSpring(spotX, { stiffness: 260, damping: 30 });
+    const spotYS = useSpring(spotY, { stiffness: 260, damping: 30 });
+    const spotOpacityS = useSpring(spotOpacity, {
+        stiffness: 120,
+        damping: 24,
+    });
 
-            frame.current = requestAnimationFrame(() => {
-                frame.current = 0;
-                setScrollY(window.scrollY || 0);
-            });
-        };
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener('scroll', onScroll);
-            cancelAnimationFrame(frame.current);
-            frame.current = 0;
-        };
-    }, [reduced]);
-
-    const shift = (depth: number): CSSProperties => {
-        if (reduced) {
-            return {};
-        }
-
-        const x = -pointer.x * depth * 14;
-        const y =
-            -pointer.y * depth * 10 - Math.min(scrollY, 900) * depth * 0.06;
-
-        return {
-            transform: `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`,
-        };
-    };
+    const { scrollY } = useScroll();
 
     const onPointerMove = (event: PointerEvent<HTMLElement>) => {
-        if (reduced || event.pointerType !== 'mouse') {
+        if (!pointerOn || event.pointerType !== 'mouse') {
             return;
         }
 
         const rect = event.currentTarget.getBoundingClientRect();
-        setPointer({
-            x: ((event.clientX - rect.left) / rect.width - 0.5) * 2,
-            y: ((event.clientY - rect.top) / rect.height - 0.5) * 2,
-            on: true,
-        });
-        setSpot({
-            x: ((event.clientX - rect.left) / rect.width) * 100,
-            y: ((event.clientY - rect.top) / rect.height) * 100,
-        });
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        rawX.set((x / rect.width - 0.5) * 2);
+        rawY.set((y / rect.height - 0.5) * 2);
+        spotX.set(x);
+        spotY.set(y);
+        spotOpacity.set(1);
     };
 
-    const onPointerLeave = () => setPointer({ x: 0, y: 0, on: false });
+    const onPointerLeave = () => {
+        rawX.set(0);
+        rawY.set(0);
+        spotOpacity.set(0);
+    };
+
+    const hero: HeroMotion = {
+        px,
+        py,
+        scrollY,
+        moving: !reduced,
+        pointerOn,
+    };
 
     return {
-        shift,
-        handlers: { onPointerMove, onPointerLeave },
-        spot: {
-            on: pointer.on && !reduced,
-            style: {
-                '--spot-x': `${spot.x}%`,
-                '--spot-y': `${spot.y}%`,
-            } as CSSProperties,
-        },
+        reduced,
+        pointerOn,
+        hero,
+        handlers: pointerOn ? { onPointerMove, onPointerLeave } : {},
+        spot: { x: spotXS, y: spotYS, opacity: spotOpacityS },
     };
 }
 
-function HeroStage({ shift }: { shift: (depth: number) => CSSProperties }) {
+/** The spotlight: a soft lime disc moved by transform only. */
+function HeroSpot({
+    x,
+    y,
+    opacity,
+}: {
+    x: MotionValue<number>;
+    y: MotionValue<number>;
+    opacity: MotionValue<number>;
+}) {
     return (
-        <div
-            className="lp-stage"
-            role="img"
-            aria-label="Product preview: the Saarthi Portal JV dashboard with revenue, expenses, profit and hours, a settlement due card, a GitHub one-time code and a month of logged hours."
+        <motion.div
+            className="lp-spot"
+            style={{ x, y, opacity }}
+            aria-hidden="true"
+        />
+    );
+}
+
+/** The glow behind the hero: drifts on a loop (CSS) and slides with the scroll. */
+function HeroGlow({ reduced }: { reduced: boolean }) {
+    const { scrollY } = useScroll();
+    const y = useTransform(scrollY, [0, 900], [0, 160], { clamp: true });
+
+    return (
+        <motion.div
+            className="lp-glow-wrap"
+            style={reduced ? undefined : { y }}
+            aria-hidden="true"
         >
-            <div className="lp-layer lp-win" style={shift(0.4)}>
+            <div className="lp-glow" />
+        </motion.div>
+    );
+}
+
+/**
+ * One layer of the stage. `depth` scales the pointer and scroll parallax (design:
+ * 14 px × depth sideways, 10 px × depth up and down, 6 % of the scroll × depth) and
+ * lifts the layer off the window in 3D so the tilt separates the layers.
+ */
+function DepthLayer({
+    depth,
+    className,
+    children,
+}: {
+    depth: number;
+    className: string;
+    children: ReactNode;
+}) {
+    const hero = useHero();
+    const x = useTransform(hero.px, (v) => -v * depth * 14);
+    const y = useTransform(
+        [hero.py, hero.scrollY],
+        ([v, s]: number[]) =>
+            -(v ?? 0) * depth * 10 - Math.min(s ?? 0, 900) * depth * 0.06,
+    );
+
+    return (
+        <motion.div
+            className={cn('lp-layer', className)}
+            style={hero.moving ? { x, y, z: depth * 36 } : undefined}
+        >
+            {children}
+        </motion.div>
+    );
+}
+
+/**
+ * The 3D frame around the stage: tilts toward the pointer (rotateX / rotateY on
+ * springs) and, as the page scrolls past the hero, lifts and leans back a little.
+ * Flat at the top of the page, so the preview first reads like the design.
+ */
+function StageTilt({ children }: { children: ReactNode }) {
+    const hero = useHero();
+    const lift = useTransform(hero.scrollY, [0, 700], [0, -36], {
+        clamp: true,
+    });
+    const lean = useTransform(hero.scrollY, [0, 700], [0, 7], { clamp: true });
+    const scale = useTransform(hero.scrollY, [0, 700], [1, 0.97], {
+        clamp: true,
+    });
+    const tiltX = useTransform(hero.py, (v) => -v * 5);
+    const rotateY = useTransform(hero.px, (v) => v * 7);
+    const rotateX = useTransform(
+        [lean, tiltX],
+        ([l, t]: number[]) => (l ?? 0) + (t ?? 0),
+    );
+
+    return (
+        <motion.div
+            className="lp-stage-3d"
+            style={
+                hero.moving
+                    ? {
+                          rotateX: hero.pointerOn ? rotateX : lean,
+                          rotateY: hero.pointerOn ? rotateY : 0,
+                          y: lift,
+                          scale,
+                      }
+                    : undefined
+            }
+        >
+            {children}
+        </motion.div>
+    );
+}
+
+function HeroStage() {
+    const layers = (
+        <>
+            <DepthLayer depth={0.4} className="lp-win">
                 <div className="lp-win-body">
                     <div className="lp-win-rail">
                         <span className="cf-rail-logo">C</span>
@@ -486,10 +618,10 @@ function HeroStage({ shift }: { shift: (depth: number) => CSSProperties }) {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div
-                className="lp-layer lp-float lp-float--settle cf-card cf-card--graphite"
-                style={shift(1.6)}
+            </DepthLayer>
+            <DepthLayer
+                depth={1.6}
+                className="lp-float lp-float--settle cf-card cf-card--graphite"
             >
                 <span
                     className="t-caption"
@@ -503,7 +635,7 @@ function HeroStage({ shift }: { shift: (depth: number) => CSSProperties }) {
                 <CountUp
                     value={3_24_600_00}
                     format={rupees}
-                    className="t-money lp-figure-lime"
+                    className="t-money lp-figure-lime lp-nowrap"
                     style={{ display: 'block' }}
                 />
                 <span
@@ -512,20 +644,17 @@ function HeroStage({ shift }: { shift: (depth: number) => CSSProperties }) {
                 >
                     Record transfer
                 </span>
-            </div>
-            <div
-                className="lp-layer lp-float lp-float--totp cf-card"
-                style={shift(2.2)}
-            >
-                <div className="cf-row" style={{ gap: 10 }}>
+            </DepthLayer>
+            <DepthLayer depth={2.2} className="lp-float lp-float--totp cf-card">
+                <div className="lp-totp-head">
                     <span
                         className="cf-avatar cf-avatar--tile"
                         style={{ fontFamily: 'var(--font-display)' }}
                     >
                         GH
                     </span>
-                    <span className="cf-stack">
-                        <span className="t-label-strong">
+                    <span className="cf-stack" style={{ minWidth: 0 }}>
+                        <span className="t-label-strong lp-nowrap">
                             GitHub — vertexlabs org
                         </span>
                         <span className="t-caption t-muted">
@@ -537,7 +666,7 @@ function HeroStage({ shift }: { shift: (depth: number) => CSSProperties }) {
                     className="cf-kv"
                     style={{ marginTop: 12, alignItems: 'center' }}
                 >
-                    <span className="t-money lp-totp">492 039</span>
+                    <span className="t-money lp-totp lp-nowrap">492 039</span>
                     <span className="cf-ring cf-ring--onlight">
                         <svg
                             width="32"
@@ -565,24 +694,29 @@ function HeroStage({ shift }: { shift: (depth: number) => CSSProperties }) {
                         </svg>
                     </span>
                 </div>
-            </div>
-            <div
-                className="lp-layer lp-float lp-float--hours"
-                style={shift(1.2)}
-            >
-                <div className="cf-kv">
+            </DepthLayer>
+            <DepthLayer depth={1.2} className="lp-float lp-float--hours">
+                <div className="lp-hours-head">
                     <span className="t-label-strong">Log hours · Nov 2026</span>
                     <span className="t-caption">Month mode</span>
                 </div>
-                <div className="cf-row" style={{ marginTop: 8, gap: 8 }}>
-                    <span className="t-money" style={{ fontSize: 24 }}>
-                        57.33 h
-                    </span>
-                    <span className="t-caption">
+                <div className="lp-hours-body">
+                    <span className="t-money lp-hours-figure">57.33 h</span>
+                    <span className="t-caption lp-nowrap">
                         21 working days → 2.73 hrs/day
                     </span>
                 </div>
-            </div>
+            </DepthLayer>
+        </>
+    );
+
+    return (
+        <div
+            className="lp-stage"
+            role="img"
+            aria-label="Product preview: the Saarthi Portal JV dashboard with revenue, expenses, profit and hours, a settlement due card, a GitHub one-time code and a month of logged hours."
+        >
+            <StageTilt>{layers}</StageTilt>
         </div>
     );
 }
@@ -740,13 +874,15 @@ function ModuleDemo({ module }: { module: ModuleKey }) {
 }
 
 /**
- * The public landing page (design/screens/Landing.dc.html, spec §21): hero with the
- * pointer/scroll parallax stage and cursor spotlight (both off under reduced motion),
- * the four pillars, module tabs, how it works, security, plans from the plans table,
- * FAQ and the closing call to action. Signed-in visitors go to /home instead (D83).
+ * The public landing page (design/screens/Landing.dc.html, spec §21): hero with the 3D
+ * tilting preview, depth-layered floating cards and cursor spotlight (D103), the client
+ * strip (placeholder names, D104), the four pillars, module tabs, how it works,
+ * security, plans with what each includes, FAQ and the closing call to action. Sections
+ * reveal on scroll; all motion is off under reduced motion. Signed-in visitors go to
+ * /home instead (D83).
  */
 export default function Landing({ plans, seo }: Props) {
-    const { shift, handlers, spot } = useHeroMotion();
+    const { reduced, pointerOn, hero, handlers, spot } = useHeroMotion();
     const [module, setModule] = useState<ModuleKey>('Dashboard');
 
     return (
@@ -757,55 +893,77 @@ export default function Landing({ plans, seo }: Props) {
                 description="Coffer keeps the books, timesheets, partner equity, JV settlements and shared logins for all your companies together. Indian number formatting and April–March fiscal years."
             />
 
-            <section className="lp-hero" aria-labelledby="hero-h" {...handlers}>
-                <div className="lp-glow" aria-hidden="true" />
-                <div
-                    className={cn('lp-spot', spot.on && 'is-on')}
-                    style={spot.style}
-                    aria-hidden="true"
-                />
-                <div className="lp-in lp-hero-copy">
-                    <span className="lp-eyebrow">
-                        <span className="cf-dot-title" />
-                        For agencies, studios and joint ventures
-                    </span>
-                    <h1 id="hero-h" className="lp-h1 lp-hero-title">
-                        Every company you run,{' '}
-                        <span className="lp-faint">in one quiet place.</span>
-                    </h1>
-                    <p className="lp-lead lp-hero-lead">
-                        Coffer keeps the books, timesheets, partner equity and
-                        shared logins for all your companies together. Month-end
-                        stops being a week of spreadsheets.
-                    </p>
-                    <div className="lp-cta-row">
-                        <ButtonLink
-                            href="/register"
-                            variant="primary"
-                            size="lg"
-                            disc={ArrowRight}
-                        >
-                            Start free trial
-                        </ButtonLink>
-                        <ButtonLink
-                            href="/contact?topic=demo"
-                            variant="secondary"
-                            size="lg"
-                        >
-                            Book a demo
-                        </ButtonLink>
-                    </div>
-                    <p
-                        className="t-caption t-muted"
-                        style={{ margin: '16px 0 0' }}
-                    >
-                        Indian number formatting · April to March fiscal years ·
-                        single companies and JVs
-                    </p>
+            <HeroMotionContext.Provider value={hero}>
+                <section
+                    className="lp-hero"
+                    aria-labelledby="hero-h"
+                    {...handlers}
+                >
+                    <HeroGlow reduced={reduced} />
+                    {pointerOn && <HeroSpot {...spot} />}
+                    <div className="lp-in lp-hero-copy">
+                        <div className="lp-rise-group">
+                            <div className="lp-rise">
+                                <span className="lp-eyebrow">
+                                    <span className="cf-dot-title" />
+                                    For agencies, studios and joint ventures
+                                </span>
+                            </div>
+                            <div className="lp-rise">
+                                <h1 id="hero-h" className="lp-h1 lp-hero-title">
+                                    Every company you run,{' '}
+                                    <span className="lp-faint">
+                                        in one quiet place.
+                                    </span>
+                                </h1>
+                            </div>
+                            <div className="lp-rise">
+                                <p className="lp-lead lp-hero-lead">
+                                    Coffer keeps the books, timesheets, partner
+                                    equity and shared logins for all your
+                                    companies together. Month-end stops being a
+                                    week of spreadsheets.
+                                </p>
+                            </div>
+                            <div className="lp-rise">
+                                <div className="lp-cta-row">
+                                    <ButtonLink
+                                        href="/register"
+                                        variant="primary"
+                                        size="lg"
+                                        disc={ArrowRight}
+                                    >
+                                        Start free trial
+                                    </ButtonLink>
+                                    <ButtonLink
+                                        href="/contact?topic=demo"
+                                        variant="secondary"
+                                        size="lg"
+                                    >
+                                        Book a demo
+                                    </ButtonLink>
+                                </div>
+                                <p
+                                    className="t-caption t-muted"
+                                    style={{ margin: '16px 0 0' }}
+                                >
+                                    Indian number formatting · April to March
+                                    fiscal years · single companies and JVs
+                                </p>
+                            </div>
+                        </div>
 
-                    <HeroStage shift={shift} />
-                </div>
-            </section>
+                        <Reveal
+                            distance={64}
+                            fromScale={0.96}
+                            delay={0.25}
+                            immediate
+                        >
+                            <HeroStage />
+                        </Reveal>
+                    </div>
+                </section>
+            </HeroMotionContext.Provider>
 
             <section
                 className="lp-in"
@@ -830,7 +988,7 @@ export default function Landing({ plans, seo }: Props) {
 
             <section id="product" className="lp-sec" aria-labelledby="pl-h">
                 <div className="lp-in">
-                    <div style={{ maxWidth: 720, marginBottom: 40 }}>
+                    <Reveal style={{ maxWidth: 720, marginBottom: 40 }}>
                         <span className="lp-eyebrow">What’s inside</span>
                         <h2
                             id="pl-h"
@@ -839,28 +997,30 @@ export default function Landing({ plans, seo }: Props) {
                         >
                             Four jobs that used to live in four tools.
                         </h2>
-                    </div>
-                    <div className="lp-grid-4">
+                    </Reveal>
+                    <RevealGroup className="lp-grid-4">
                         {PILLARS.map((pillar) => (
-                            <Link
+                            <RevealItem
                                 key={pillar.title}
-                                href={pillar.href}
-                                className="lp-pillar"
+                                className="lp-cell"
+                                lift
                             >
-                                <span className="lp-ic">
-                                    <Icon icon={pillar.icon} size={22} />
-                                </span>
-                                <h3 className="lp-h3">{pillar.title}</h3>
-                                <p
-                                    className="t-body t-muted"
-                                    style={{ margin: 0 }}
-                                >
-                                    {pillar.body}
-                                </p>
-                                <CheckList items={pillar.points} />
-                            </Link>
+                                <Link href={pillar.href} className="lp-pillar">
+                                    <span className="lp-ic">
+                                        <Icon icon={pillar.icon} size={22} />
+                                    </span>
+                                    <h3 className="lp-h3">{pillar.title}</h3>
+                                    <p
+                                        className="t-body t-muted"
+                                        style={{ margin: 0 }}
+                                    >
+                                        {pillar.body}
+                                    </p>
+                                    <CheckList items={pillar.points} />
+                                </Link>
+                            </RevealItem>
                         ))}
-                    </div>
+                    </RevealGroup>
                 </div>
             </section>
 
@@ -869,7 +1029,7 @@ export default function Landing({ plans, seo }: Props) {
                 className="lp-sec lp-sec--flush"
                 aria-labelledby="md-h"
             >
-                <div className="lp-in">
+                <Reveal className="lp-in">
                     <Tabs
                         value={module}
                         onValueChange={(value) => setModule(value as ModuleKey)}
@@ -912,33 +1072,43 @@ export default function Landing({ plans, seo }: Props) {
                                         More about {key}
                                     </Link>
                                 </div>
-                                <div className="lp-panel-demo">
+                                <Reveal
+                                    key={module}
+                                    className="lp-panel-demo"
+                                    distance={12}
+                                >
                                     <ModuleDemo module={key} />
-                                </div>
+                                </Reveal>
                             </TabPanel>
                         ))}
                     </Tabs>
-                </div>
+                </Reveal>
             </section>
 
             <section className="lp-sec lp-sec--flush" aria-labelledby="hw-h">
                 <div className="lp-in">
-                    <h2
-                        id="hw-h"
-                        className="lp-h2"
-                        style={{ maxWidth: 640, marginBottom: 36 }}
-                    >
-                        Up and running in an afternoon.
-                    </h2>
-                    <ol
+                    <Reveal>
+                        <h2
+                            id="hw-h"
+                            className="lp-h2"
+                            style={{ maxWidth: 640, marginBottom: 36 }}
+                        >
+                            Up and running in an afternoon.
+                        </h2>
+                    </Reveal>
+                    <RevealGroup
+                        as="ol"
                         className="lp-grid-3"
                         style={{ margin: 0, padding: 0, listStyle: 'none' }}
+                        stagger={0.12}
                     >
                         {STEPS.map(([title, body], index) => (
-                            <li
+                            <RevealItem
+                                as="li"
                                 key={title}
-                                className="lp-pillar"
+                                className="lp-pillar lp-card-lift"
                                 style={{ gap: 12 }}
+                                lift
                             >
                                 <span className="lp-step-n">{index + 1}</span>
                                 <h3 className="lp-h3">{title}</h3>
@@ -948,9 +1118,9 @@ export default function Landing({ plans, seo }: Props) {
                                 >
                                     {body}
                                 </p>
-                            </li>
+                            </RevealItem>
                         ))}
-                    </ol>
+                    </RevealGroup>
                 </div>
             </section>
 
@@ -959,7 +1129,11 @@ export default function Landing({ plans, seo }: Props) {
                 className="lp-in lp-pb"
                 aria-labelledby="sec-h"
             >
-                <div className="lp-band lp-band--sec cf-card--graphite">
+                <Reveal
+                    className="lp-band lp-band--sec cf-card--graphite"
+                    distance={40}
+                    fromScale={0.98}
+                >
                     <div>
                         <span className="lp-eyebrow lp-eyebrow--dark">
                             Security
@@ -986,9 +1160,13 @@ export default function Landing({ plans, seo }: Props) {
                             How Coffer protects your data
                         </ButtonLink>
                     </div>
-                    <div className="lp-grid-3 lp-grid-tight">
+                    <RevealGroup className="lp-grid-3 lp-grid-tight">
                         {SECURITY.map((item) => (
-                            <div key={item.title} className="lp-sec-tile">
+                            <RevealItem
+                                key={item.title}
+                                className="lp-sec-tile"
+                                lift
+                            >
                                 <span className="lp-ic lp-ic--sm">
                                     <Icon icon={item.icon} size={18} />
                                 </span>
@@ -998,91 +1176,103 @@ export default function Landing({ plans, seo }: Props) {
                                 <span className="t-caption lp-on-dark-muted">
                                     {item.body}
                                 </span>
-                            </div>
+                            </RevealItem>
                         ))}
-                    </div>
-                </div>
+                    </RevealGroup>
+                </Reveal>
             </section>
 
             <section className="lp-in lp-pb" aria-labelledby="pr-h">
-                <SectionHead
-                    id="pr-h"
-                    width={600}
-                    title="A plan for one company or a whole group."
-                    action={
-                        <ButtonLink
-                            href="/pricing"
-                            variant="secondary"
-                            size="lg"
-                        >
-                            Compare every plan
-                        </ButtonLink>
-                    }
-                />
-                <div className="lp-grid-4">
-                    {plans.map((plan) => (
-                        <article
-                            key={plan.key}
-                            className={cn(
-                                'lp-pillar',
-                                plan.popular && 'lp-pillar--pop',
-                            )}
-                        >
-                            <div
-                                className="cf-kv"
-                                style={{ alignItems: 'center' }}
+                <Reveal>
+                    <SectionHead
+                        id="pr-h"
+                        width={600}
+                        title="A plan for one company or a whole group."
+                        action={
+                            <ButtonLink
+                                href="/pricing"
+                                variant="secondary"
+                                size="lg"
                             >
-                                <h3 className="lp-h3">{plan.name}</h3>
-                                {plan.popular && (
-                                    <span className="cf-pill cf-pill--graphite">
-                                        Popular
-                                    </span>
+                                Compare every plan
+                            </ButtonLink>
+                        }
+                    />
+                </Reveal>
+                <RevealGroup className="lp-grid-4">
+                    {plans.map((plan) => {
+                        return (
+                            <RevealItem
+                                as="article"
+                                key={plan.key}
+                                className={cn(
+                                    'lp-pillar lp-card-lift',
+                                    plan.popular && 'lp-pillar--pop',
                                 )}
-                            </div>
-                            <p
-                                className="t-body plan-dim"
-                                style={{ margin: 0 }}
+                                aria-labelledby={`lp-plan-${plan.key}`}
+                                lift
                             >
-                                {PLAN_BODY[plan.key] ?? plan.tagline}
-                            </p>
-                            <div
-                                className="cf-row"
-                                style={{ gap: 6, alignItems: 'baseline' }}
-                            >
-                                <span className="t-money lp-price">
+                                <div
+                                    className="cf-kv"
+                                    style={{ alignItems: 'center' }}
+                                >
+                                    <h3
+                                        id={`lp-plan-${plan.key}`}
+                                        className="lp-h3"
+                                    >
+                                        {plan.name}
+                                    </h3>
+                                    {plan.popular && (
+                                        <span className="cf-pill cf-pill--graphite">
+                                            Popular
+                                        </span>
+                                    )}
+                                </div>
+                                <p
+                                    className="t-body plan-dim"
+                                    style={{ margin: 0 }}
+                                >
+                                    {PLAN_BODY[plan.key] ?? plan.tagline}
+                                </p>
+                                <div
+                                    className="cf-row"
+                                    style={{ gap: 6, alignItems: 'baseline' }}
+                                >
+                                    <span className="t-money lp-price">
+                                        {plan.customPricing
+                                            ? 'Custom'
+                                            : planPrice(
+                                                  plan.prices.monthly.inr,
+                                                  'inr',
+                                              )}
+                                    </span>
+                                    {!plan.customPricing && (
+                                        <span className="t-caption plan-dim">
+                                            / month
+                                        </span>
+                                    )}
+                                </div>
+                                <Link
+                                    href={
+                                        plan.customPricing
+                                            ? '/contact?topic=sales'
+                                            : `/register?plan=${plan.key}`
+                                    }
+                                    className={buttonClass({
+                                        variant: plan.popular
+                                            ? 'primary'
+                                            : 'secondary',
+                                        className: 'mt-auto',
+                                    })}
+                                >
                                     {plan.customPricing
-                                        ? 'Custom'
-                                        : planPrice(
-                                              plan.prices.monthly.inr,
-                                              'inr',
-                                          )}
-                                </span>
-                                {!plan.customPricing && (
-                                    <span className="t-caption plan-dim">
-                                        / month
-                                    </span>
-                                )}
-                            </div>
-                            <Link
-                                href={
-                                    plan.customPricing
-                                        ? '/contact?topic=sales'
-                                        : `/register?plan=${plan.key}`
-                                }
-                                className={buttonClass({
-                                    variant: plan.popular
-                                        ? 'primary'
-                                        : 'secondary',
-                                    className: 'mt-auto',
-                                })}
-                            >
-                                {plan.customPricing
-                                    ? 'Talk to us'
-                                    : 'Start free trial'}
-                            </Link>
-                        </article>
-                    ))}
-                </div>
+                                        ? 'Talk to us'
+                                        : 'Start free trial'}
+                                </Link>
+                            </RevealItem>
+                        );
+                    })}
+                </RevealGroup>
             </section>
 
             <section
@@ -1090,7 +1280,7 @@ export default function Landing({ plans, seo }: Props) {
                 className="lp-in lp-pb lp-faq-wrap"
                 aria-labelledby="fq-h"
             >
-                <div>
+                <Reveal>
                     <h2 id="fq-h" className="lp-h2">
                         Questions, answered.
                     </h2>
@@ -1104,8 +1294,10 @@ export default function Landing({ plans, seo }: Props) {
                         </Link>{' '}
                         and we’ll walk through your setup.
                     </p>
-                </div>
-                <FaqList faqs={FAQS} />
+                </Reveal>
+                <Reveal delay={0.1}>
+                    <FaqList faqs={FAQS} />
+                </Reveal>
             </section>
 
             <CtaBand id="demo" />

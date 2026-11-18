@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { CheckList } from '@/components/marketing/marketing-parts';
 import { CtaBand, PageHero } from '@/components/marketing/page-sections';
 import { SeoHead } from '@/components/marketing/seo-head';
+import { Reveal, RevealGroup, RevealItem } from '@/components/marketing/motion';
 import { ButtonLink } from '@/components/ui/button';
 import { FEATURE_ORDER, FEATURES } from '@/lib/marketing/features';
 import type { FeatureSection, PreviewRow } from '@/lib/marketing/features';
@@ -113,13 +114,15 @@ export default function Feature({ feature, seo }: Props) {
 
             <div className="lp-in lp-stack" style={{ gap: 24 }}>
                 {content.sections.map((section, index) => (
-                    <section
+                    <Reveal
+                        as="section"
                         key={section.title}
                         className={cn(
                             'lp-detail',
                             index % 2 === 1 && 'lp-detail--flip',
                         )}
                         aria-labelledby={`sec-${index}`}
+                        distance={40}
                     >
                         <div className="lp-panel-copy">
                             <h2
@@ -134,22 +137,28 @@ export default function Feature({ feature, seo }: Props) {
                             <CheckList items={section.points} />
                         </div>
                         <Preview preview={section.preview} />
-                    </section>
+                    </Reveal>
                 ))}
             </div>
 
             <section className="lp-sec" aria-labelledby="extras-h">
                 <div className="lp-in">
-                    <h2
-                        id="extras-h"
-                        className="lp-h2 lp-h2--sm"
-                        style={{ marginBottom: 28 }}
-                    >
-                        Also included
-                    </h2>
-                    <div className="lp-grid-4">
+                    <Reveal>
+                        <h2
+                            id="extras-h"
+                            className="lp-h2 lp-h2--sm"
+                            style={{ marginBottom: 28 }}
+                        >
+                            Also included
+                        </h2>
+                    </Reveal>
+                    <RevealGroup className="lp-grid-4">
                         {content.extras.map((extra) => (
-                            <div key={extra.title} className="lp-pillar">
+                            <RevealItem
+                                key={extra.title}
+                                className="lp-pillar lp-card-lift"
+                                lift
+                            >
                                 <h3 className="lp-h3" style={{ fontSize: 20 }}>
                                     {extra.title}
                                 </h3>
@@ -159,37 +168,43 @@ export default function Feature({ feature, seo }: Props) {
                                 >
                                     {extra.body}
                                 </p>
-                            </div>
+                            </RevealItem>
                         ))}
-                    </div>
+                    </RevealGroup>
                 </div>
             </section>
 
             <section className="lp-in lp-pb" aria-labelledby="more-h">
-                <h2
-                    id="more-h"
-                    className="lp-h2 lp-h2--sm"
-                    style={{ marginBottom: 28 }}
-                >
-                    More of Coffer
-                </h2>
-                <div className="lp-grid-3">
+                <Reveal>
+                    <h2
+                        id="more-h"
+                        className="lp-h2 lp-h2--sm"
+                        style={{ marginBottom: 28 }}
+                    >
+                        More of Coffer
+                    </h2>
+                </Reveal>
+                <RevealGroup className="lp-grid-3">
                     {others.map((key) => (
-                        <Link
-                            key={key}
-                            href={`/features/${key}`}
-                            className="lp-pillar"
-                        >
-                            <span className="t-caption t-muted">
-                                {FEATURES[key].eyebrow}
-                            </span>
-                            <h3 className="lp-h3">{FEATURES[key].name}</h3>
-                            <p className="t-body t-muted" style={{ margin: 0 }}>
-                                {FEATURES[key].lead}
-                            </p>
-                        </Link>
+                        <RevealItem key={key} className="lp-cell" lift>
+                            <Link
+                                href={`/features/${key}`}
+                                className="lp-pillar"
+                            >
+                                <span className="t-caption t-muted">
+                                    {FEATURES[key].eyebrow}
+                                </span>
+                                <h3 className="lp-h3">{FEATURES[key].name}</h3>
+                                <p
+                                    className="t-body t-muted"
+                                    style={{ margin: 0 }}
+                                >
+                                    {FEATURES[key].lead}
+                                </p>
+                            </Link>
+                        </RevealItem>
                     ))}
-                </div>
+                </RevealGroup>
             </section>
 
             <CtaBand />

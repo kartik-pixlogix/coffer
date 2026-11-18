@@ -35,6 +35,13 @@
             html[data-theme="dark"] { background-color: #0c0d0f; }
         </style>
 
+        {{-- Without JavaScript, marketing scroll reveals (data-reveal, D103) stay in place. --}}
+        <noscript>
+            <style>
+                [data-reveal] { opacity: 1 !important; transform: none !important; }
+            </style>
+        </noscript>
+
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">

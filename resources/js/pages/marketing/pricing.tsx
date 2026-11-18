@@ -1,11 +1,17 @@
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { CheckList, FaqList } from '@/components/marketing/marketing-parts';
+import { Reveal, RevealGroup, RevealItem } from '@/components/marketing/motion';
 import type { Faq } from '@/components/marketing/marketing-parts';
 import { SeoHead } from '@/components/marketing/seo-head';
 import { buttonClass, ButtonLink } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { bestYearlySaving, limitLabel, planPrice } from '@/lib/plans';
+import {
+    bestYearlySaving,
+    limitLabel,
+    PLAN_CARD,
+    planPrice,
+} from '@/lib/plans';
 import type { LimitKey } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 import type {
@@ -20,47 +26,6 @@ type Props = {
     defaultCurrency: BillingCurrency;
     trialDays: number;
     seo: SeoProps;
-};
-
-/** Card copy per plan (Pricing.dc.html); prices and limits come from the plans table. */
-const CARD: Record<string, { lead: string; points: string[] }> = {
-    starter: {
-        lead: 'What you get',
-        points: [
-            'A single company',
-            'Partners and equity',
-            'Timesheets, income and expenses',
-            'Reports with PDF and Excel export',
-            'Personal vault with 2FA codes',
-        ],
-    },
-    growth: {
-        lead: 'Everything in Starter, plus',
-        points: [
-            'Several companies and joint ventures',
-            'Settlements, capital accounts and loans',
-            'Bulk import from spreadsheets',
-            'Vault sharing and health score',
-        ],
-    },
-    business: {
-        lead: 'Everything in Growth, plus',
-        points: [
-            'Custom roles and permissions',
-            'Vault audit log and policies',
-            'Export controls',
-            'Priority support',
-        ],
-    },
-    enterprise: {
-        lead: 'Everything in Business, plus',
-        points: [
-            'Single sign-on with SAML',
-            'Custom limits and contract',
-            'Onboarding help',
-            'Invoicing by bank transfer',
-        ],
-    },
 };
 
 /**
@@ -193,7 +158,7 @@ export default function Pricing({
             />
 
             <section
-                className="lp-in"
+                className="lp-in lp-rise-group lp-rise-all"
                 style={{ paddingTop: 48, textAlign: 'center' }}
                 aria-labelledby="pr-h"
             >
@@ -260,14 +225,22 @@ export default function Pricing({
                 style={{ paddingTop: 40 }}
                 aria-label="Plans"
             >
-                <div className="lp-grid-4" style={{ alignItems: 'stretch' }}>
+                <RevealGroup
+                    className="lp-grid-4"
+                    style={{ alignItems: 'stretch' }}
+                >
                     {plans.map((plan) => {
-                        const card = CARD[plan.key];
+                        const card = PLAN_CARD[plan.key];
 
                         return (
-                            <article
+                            <RevealItem
+                                as="article"
+                                lift
                                 key={plan.key}
-                                className={cn('plan', plan.popular && 'pop')}
+                                className={cn(
+                                    'plan lp-card-lift',
+                                    plan.popular && 'pop',
+                                )}
                                 aria-labelledby={`plan-${plan.key}`}
                             >
                                 <div
@@ -336,10 +309,10 @@ export default function Pricing({
                                         />
                                     </div>
                                 )}
-                            </article>
+                            </RevealItem>
                         );
                     })}
-                </div>
+                </RevealGroup>
                 <p
                     className="t-caption t-muted"
                     style={{ textAlign: 'center', margin: '18px 0 0' }}
@@ -362,7 +335,7 @@ export default function Pricing({
                 >
                     Compare every plan
                 </h2>
-                <div className="cmp-scroll">
+                <Reveal className="cmp-scroll" distance={32}>
                     <div
                         className="cmp-table"
                         role="table"
@@ -437,7 +410,7 @@ export default function Pricing({
                             ),
                         )}
                     </div>
-                </div>
+                </Reveal>
             </section>
 
             <section
@@ -464,7 +437,9 @@ export default function Pricing({
                         .
                     </p>
                 </div>
-                <FaqList faqs={FAQS} size="sm" />
+                <Reveal delay={0.1}>
+                    <FaqList faqs={FAQS} size="sm" />
+                </Reveal>
             </section>
 
             <section
@@ -472,7 +447,11 @@ export default function Pricing({
                 style={{ paddingTop: 88, paddingBottom: 64 }}
                 aria-label="Get started"
             >
-                <div className="cf-card--graphite lp-dark-cta">
+                <Reveal
+                    className="cf-card--graphite lp-dark-cta"
+                    distance={32}
+                    fromScale={0.98}
+                >
                     <div>
                         <h2 className="lp-h2 lp-on-dark lp-dark-cta-title">
                             Not sure which plan?
@@ -504,7 +483,7 @@ export default function Pricing({
                             Book a demo
                         </ButtonLink>
                     </div>
-                </div>
+                </Reveal>
             </section>
         </>
     );

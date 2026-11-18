@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { CheckList } from '@/components/marketing/marketing-parts';
+import { Reveal, RevealGroup, RevealItem } from '@/components/marketing/motion';
 import { PageHero } from '@/components/marketing/page-sections';
 import { SeoHead } from '@/components/marketing/seo-head';
 import { AlertBanner } from '@/components/ui/alert-banner';
@@ -106,9 +107,9 @@ export default function Contact({
                 className="lp-in lp-pb lp-contact"
                 aria-label="Contact form"
             >
-                <div className="lp-stack">
+                <RevealGroup className="lp-stack">
                     {NEXT.map((item) => (
-                        <div
+                        <RevealItem
                             key={item.title}
                             className="cf-row"
                             style={{ gap: 14, alignItems: 'flex-start' }}
@@ -124,9 +125,9 @@ export default function Contact({
                                     {item.body}
                                 </span>
                             </span>
-                        </div>
+                        </RevealItem>
                     ))}
-                    <div className="lp-pillar" style={{ marginTop: 8 }}>
+                    <RevealItem className="lp-pillar" style={{ marginTop: 8 }}>
                         <span className="t-label-strong">
                             In a demo we cover
                         </span>
@@ -138,130 +139,132 @@ export default function Contact({
                                 'Moving shared logins into the vault',
                             ]}
                         />
-                    </div>
-                </div>
+                    </RevealItem>
+                </RevealGroup>
 
-                {sent ? (
-                    <Sent name={sent.name} topic={sent.topic} />
-                ) : (
-                    <Form
-                        {...store.form()}
-                        options={{ preserveScroll: true }}
-                        className="lp-form-card"
-                    >
-                        {({ processing, errors }) => (
-                            <>
-                                {errors.form && (
-                                    <AlertBanner variant="neg" role="alert">
-                                        {errors.form}
-                                    </AlertBanner>
-                                )}
-                                <Select
-                                    label="What can we help with?"
-                                    name="topic"
-                                    defaultValue={topic}
-                                    options={topics}
-                                    error={errors.topic}
-                                />
-                                <div className="lp-form-grid">
-                                    <TextInput
-                                        label="Your name"
-                                        name="name"
-                                        autoComplete="name"
-                                        required
-                                        maxLength={120}
-                                        error={errors.name}
+                <Reveal delay={0.1} distance={36}>
+                    {sent ? (
+                        <Sent name={sent.name} topic={sent.topic} />
+                    ) : (
+                        <Form
+                            {...store.form()}
+                            options={{ preserveScroll: true }}
+                            className="lp-form-card"
+                        >
+                            {({ processing, errors }) => (
+                                <>
+                                    {errors.form && (
+                                        <AlertBanner variant="neg" role="alert">
+                                            {errors.form}
+                                        </AlertBanner>
+                                    )}
+                                    <Select
+                                        label="What can we help with?"
+                                        name="topic"
+                                        defaultValue={topic}
+                                        options={topics}
+                                        error={errors.topic}
                                     />
-                                    <TextInput
-                                        label="Work email"
-                                        name="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        required
-                                        maxLength={190}
-                                        error={errors.email}
+                                    <div className="lp-form-grid">
+                                        <TextInput
+                                            label="Your name"
+                                            name="name"
+                                            autoComplete="name"
+                                            required
+                                            maxLength={120}
+                                            error={errors.name}
+                                        />
+                                        <TextInput
+                                            label="Work email"
+                                            name="email"
+                                            type="email"
+                                            autoComplete="email"
+                                            required
+                                            maxLength={190}
+                                            error={errors.email}
+                                        />
+                                        <TextInput
+                                            label="Company"
+                                            name="company"
+                                            autoComplete="organization"
+                                            maxLength={120}
+                                            error={errors.company}
+                                        />
+                                        <TextInput
+                                            label="Phone (optional)"
+                                            name="phone"
+                                            type="tel"
+                                            autoComplete="tel"
+                                            maxLength={40}
+                                            error={errors.phone}
+                                        />
+                                    </div>
+                                    <Select
+                                        label="Team size"
+                                        name="team_size"
+                                        placeholder="Choose one"
+                                        options={teamSizes.map((size) => ({
+                                            value: size,
+                                            label: `${size} people`,
+                                        }))}
+                                        error={errors.team_size}
                                     />
-                                    <TextInput
-                                        label="Company"
-                                        name="company"
-                                        autoComplete="organization"
-                                        maxLength={120}
-                                        error={errors.company}
+                                    <Textarea
+                                        label={
+                                            isDemo
+                                                ? 'Anything we should know? (optional)'
+                                                : 'Your message'
+                                        }
+                                        name="message"
+                                        rows={5}
+                                        limit={5000}
+                                        error={errors.message}
                                     />
-                                    <TextInput
-                                        label="Phone (optional)"
-                                        name="phone"
-                                        type="tel"
-                                        autoComplete="tel"
-                                        maxLength={40}
-                                        error={errors.phone}
-                                    />
-                                </div>
-                                <Select
-                                    label="Team size"
-                                    name="team_size"
-                                    placeholder="Choose one"
-                                    options={teamSizes.map((size) => ({
-                                        value: size,
-                                        label: `${size} people`,
-                                    }))}
-                                    error={errors.team_size}
-                                />
-                                <Textarea
-                                    label={
-                                        isDemo
-                                            ? 'Anything we should know? (optional)'
-                                            : 'Your message'
-                                    }
-                                    name="message"
-                                    rows={5}
-                                    limit={5000}
-                                    error={errors.message}
-                                />
-                                {/* Honeypot: hidden from people and assistive tech; bots fill it. */}
-                                <div className="lp-hp" aria-hidden="true">
-                                    <label htmlFor="contact-website">
-                                        Website
-                                    </label>
-                                    <input
-                                        id="contact-website"
-                                        type="text"
-                                        name="website"
-                                        tabIndex={-1}
-                                        autoComplete="off"
-                                    />
-                                </div>
-                                <div
-                                    className="cf-row"
-                                    style={{
-                                        gap: 12,
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'space-between',
-                                    }}
-                                >
-                                    <span className="t-caption t-muted">
-                                        By sending this you agree to our{' '}
-                                        <Link href="/privacy">
-                                            Privacy Policy
-                                        </Link>
-                                        .
-                                    </span>
-                                    <Button
-                                        type="submit"
-                                        variant="primary"
-                                        size="lg"
-                                        disc={ArrowRight}
-                                        loading={processing}
+                                    {/* Honeypot: hidden from people and assistive tech; bots fill it. */}
+                                    <div className="lp-hp" aria-hidden="true">
+                                        <label htmlFor="contact-website">
+                                            Website
+                                        </label>
+                                        <input
+                                            id="contact-website"
+                                            type="text"
+                                            name="website"
+                                            tabIndex={-1}
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                    <div
+                                        className="cf-row"
+                                        style={{
+                                            gap: 12,
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'space-between',
+                                        }}
                                     >
-                                        {isDemo
-                                            ? 'Request a demo'
-                                            : 'Send message'}
-                                    </Button>
-                                </div>
-                            </>
-                        )}
-                    </Form>
-                )}
+                                        <span className="t-caption t-muted">
+                                            By sending this you agree to our{' '}
+                                            <Link href="/privacy">
+                                                Privacy Policy
+                                            </Link>
+                                            .
+                                        </span>
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            size="lg"
+                                            disc={ArrowRight}
+                                            loading={processing}
+                                        >
+                                            {isDemo
+                                                ? 'Request a demo'
+                                                : 'Send message'}
+                                        </Button>
+                                    </div>
+                                </>
+                            )}
+                        </Form>
+                    )}
+                </Reveal>
             </section>
         </>
     );

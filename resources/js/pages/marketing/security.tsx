@@ -9,6 +9,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { CheckList } from '@/components/marketing/marketing-parts';
 import { CtaBand, PageHero } from '@/components/marketing/page-sections';
+import { Reveal, RevealGroup, RevealItem } from '@/components/marketing/motion';
 import { SeoHead } from '@/components/marketing/seo-head';
 import { Icon } from '@/components/ui/icon';
 import type { SeoProps } from '@/types';
@@ -123,9 +124,14 @@ export default function Security({ seo }: Props) {
             />
 
             <section className="lp-in" aria-label="How the vault is protected">
-                <div className="lp-grid-3">
+                <RevealGroup className="lp-grid-3" stagger={0.1}>
                     {PILLARS.map((pillar) => (
-                        <article key={pillar.title} className="lp-pillar">
+                        <RevealItem
+                            as="article"
+                            key={pillar.title}
+                            className="lp-pillar lp-card-lift"
+                            lift
+                        >
                             <span className="lp-ic">
                                 <Icon icon={pillar.icon} size={22} />
                             </span>
@@ -134,14 +140,18 @@ export default function Security({ seo }: Props) {
                                 {pillar.body}
                             </p>
                             <CheckList items={pillar.points} />
-                        </article>
+                        </RevealItem>
                     ))}
-                </div>
+                </RevealGroup>
             </section>
 
             <section className="lp-sec" aria-labelledby="platform-h">
                 <div className="lp-in">
-                    <div className="lp-band lp-band--sec cf-card--graphite">
+                    <Reveal
+                        className="lp-band lp-band--sec cf-card--graphite"
+                        distance={40}
+                        fromScale={0.98}
+                    >
                         <div>
                             <span className="lp-eyebrow lp-eyebrow--dark">
                                 Platform
@@ -166,12 +176,12 @@ export default function Security({ seo }: Props) {
                         <div className="lp-sec-tile">
                             <CheckList items={PLATFORM} inherit />
                         </div>
-                    </div>
+                    </Reveal>
                 </div>
             </section>
 
             <section className="lp-in lp-pb" aria-labelledby="privacy-h">
-                <div className="lp-detail">
+                <Reveal className="lp-detail" distance={40}>
                     <div className="lp-panel-copy">
                         <h2 id="privacy-h" className="lp-h3 lp-panel-title">
                             Privacy and your data
@@ -190,7 +200,7 @@ export default function Security({ seo }: Props) {
                         </p>
                     </div>
                     <CheckList items={PRIVACY} />
-                </div>
+                </Reveal>
                 <p className="t-caption t-muted" style={{ marginTop: 20 }}>
                     Found a vulnerability?{' '}
                     <a href="/contact?topic=support" className="cf-link">
