@@ -5144,16 +5144,96 @@ span.denied-can:not(#\#) {
     letter-spacing: 0.06em;
 }
 
-.lp-logo:not(#\#) {
+/*
+ * Client strip (Landing.dc.html `lp-logo`): placeholder names with monogram marks
+ * (D104). Muted at rest like a logo wall; on hover the name inks in and the mark turns
+ * lime.
+ */
+.lp-clients:not(#\#) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lp-client:not(#\#) {
     height: 56px;
+    padding: 0 12px;
     border-radius: 14px;
-    border: 1px dashed var(--line-strong);
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--ink-faint);
-    font-size: 13px;
+    gap: 10px;
+    min-width: 0;
+    color: var(--ink-secondary);
+    transition:
+        color var(--duration-fast),
+        border-color var(--duration-fast),
+        background var(--duration-fast);
+}
+
+.lp-client:not(#\#):hover {
+    color: var(--ink);
+    border-color: var(--line-strong);
+    background: var(--surface);
+}
+
+.lp-client-mark:not(#\#) {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--graphite);
+    color: var(--on-graphite);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    transition:
+        background var(--duration-fast),
+        color var(--duration-fast),
+        transform var(--duration-ui) var(--ease-out);
+}
+
+.lp-client--tile:not(#\#) .lp-client-mark {
+    border-radius: 9px;
+    background: var(--surface-muted);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    font-size: 12px;
+}
+
+.lp-client--lime:not(#\#) .lp-client-mark {
+    background: var(--gradient-lime);
+    color: var(--on-lime);
+}
+
+.lp-client--ring:not(#\#) .lp-client-mark {
+    background: transparent;
+    color: var(--ink);
+    border: 2px solid currentColor;
+}
+
+.lp-client:not(#\#):hover .lp-client-mark {
+    background: var(--gradient-lime);
+    color: var(--on-lime);
+    border-color: transparent;
+    transform: rotate(-8deg) scale(1.06);
+}
+
+.lp-client-name:not(#\#) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: 16px;
     font-weight: 500;
+    letter-spacing: -0.02em;
 }
 
 /* A grid cell that holds a linked card: the card fills it (the cell takes the lift). */
@@ -5816,6 +5896,8 @@ a.lp-pillar:not(#\#):hover {
 @media (prefers-reduced-motion: reduce) {
     .lp-layer:not(#\#),
     .lp-pillar:not(#\#),
+    .lp-client:not(#\#),
+    .lp-client-mark:not(#\#),
     .lp-faq:not(#\#) button svg {
         transition: none;
     }
@@ -5840,6 +5922,7 @@ a.lp-pillar:not(#\#):hover {
     }
 
     .lp:not(#\#) .cf-btn:not(:disabled):hover,
+    .lp-client:not(#\#):hover .lp-client-mark,
     .cf-btn.lp-btn-onlime:not(#\#):hover {
         transform: none;
     }
@@ -5991,6 +6074,22 @@ a.lp-pillar:not(#\#):hover {
 
     .lp-grid-6:not(#\#) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Two placeholder logos a row: a smaller mark and name so each fits its cell. */
+    .lp-client:not(#\#) {
+        gap: 8px;
+        padding: 0 10px;
+    }
+
+    .lp-client-mark:not(#\#) {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+
+    .lp-client-name:not(#\#) {
+        font-size: 14px;
     }
 
     /*

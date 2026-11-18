@@ -74,13 +74,22 @@ const PARTNERS = [
     ['MI', 'Meera', 'var(--partner-4)', '₹4,60,587'],
 ] as const;
 
-const SEGMENTS = [
-    'Agencies',
-    'Studios',
-    'Joint ventures',
-    'Consultancies',
-    'Holding groups',
-    'Product teams',
+/**
+ * "Teams using Coffer" (Landing.dc.html logo strip). PLACEHOLDERS (D104): fictional
+ * names with monogram marks drawn from the design system, to be replaced with real
+ * customers (and their permission) before launch.
+ */
+const CLIENTS: {
+    name: string;
+    monogram: string;
+    mark: 'disc' | 'tile' | 'lime' | 'ring';
+}[] = [
+    { name: 'Kestrel Labs', monogram: 'K', mark: 'disc' },
+    { name: 'Saffronloop', monogram: 'S', mark: 'lime' },
+    { name: 'Tidewell', monogram: 'Tw', mark: 'tile' },
+    { name: 'Northgrove', monogram: 'N', mark: 'ring' },
+    { name: 'Quillstone', monogram: 'Q', mark: 'disc' },
+    { name: 'Marigold & Co', monogram: 'M', mark: 'lime' },
 ];
 
 const PILLARS: {
@@ -968,22 +977,39 @@ export default function Landing({ plans, seo }: Props) {
             <section
                 className="lp-in"
                 style={{ paddingTop: 40, paddingBottom: 24 }}
-                aria-labelledby="built-h"
+                aria-labelledby="clients-h"
             >
                 <p
-                    id="built-h"
+                    id="clients-h"
                     className="t-caption t-muted"
                     style={{ textAlign: 'center', margin: '0 0 18px' }}
                 >
-                    Built for teams that run more than one set of books
+                    Teams using Coffer
                 </p>
-                <ul className="lp-grid-6" style={{ margin: 0, padding: 0 }}>
-                    {SEGMENTS.map((segment) => (
-                        <li key={segment} className="lp-logo">
-                            {segment}
-                        </li>
+                <RevealGroup
+                    as="ul"
+                    className="lp-grid-6 lp-clients"
+                    stagger={0.06}
+                >
+                    {CLIENTS.map((client) => (
+                        <RevealItem
+                            as="li"
+                            key={client.name}
+                            className={cn(
+                                'lp-client',
+                                `lp-client--${client.mark}`,
+                            )}
+                            distance={14}
+                        >
+                            <span className="lp-client-mark" aria-hidden="true">
+                                {client.monogram}
+                            </span>
+                            <span className="lp-client-name">
+                                {client.name}
+                            </span>
+                        </RevealItem>
                     ))}
-                </ul>
+                </RevealGroup>
             </section>
 
             <section id="product" className="lp-sec" aria-labelledby="pl-h">
