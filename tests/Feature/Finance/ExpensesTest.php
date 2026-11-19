@@ -565,3 +565,11 @@ test('users are linked to their partner colour for “Submitted by”', function
 
     expect(User::query()->count())->toBeGreaterThan(0);
 });
+
+test('a description that looks like a formula is exported as text (G3)', function () {
+    $books = expenseBooks();
+    $this->actingAs($books->kabirUser)->post(route('expenses.store'), expensePayload($books, ['description' => '=HYPERLINK("http://evil","x")']));
+
+    $csv = $this->actingAs($books->admin)->get(route('expenses.export'))->assertOk()->streamedContent();
+    expect($csv)->toContain('"\'=HYPERLINK(""http://evil"",""x"")"');
+});

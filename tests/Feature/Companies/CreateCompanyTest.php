@@ -232,12 +232,47 @@ test('save and exit keeps a draft that the wizard reopens', function () {
     expect(CompanyDraft::query()->count())->toBe(0);
 });
 
-test('someone who only joined other companies gets their own workspace for a new company', function () {
-    $user = userWithRole(CompanyRole::Partner);
+test('an Admin of someone else’s workspace gets their own workspace for a new company', function () {
+    $user = userWithRole(CompanyRole::Admin);
 
     $this->actingAs($user)->post(route('companies.store'), singlePayload())->assertRedirect(route('dashboard'));
 
     $company = Company::query()->latest('id')->first();
     expect($company->workspace->owner_id)->toBe($user->id)
         ->and($company->roleOf($user))->toBe(CompanyRole::Admin);
+});
+
+/** G1 (D106): only a new sign-up, or the current company's Admin or workspace owner, may create a company. */
+test('members, partners and viewers cannot open or post the wizard', function (CompanyRole $role) {
+    $user = userWithRole($role);
+
+    $this->actingAs($user)->get(route('companies.create'))->assertForbidden();
+    $this->actingAs($user)->post(route('companies.store'), singlePayload())->assertForbidden();
+    $this->actingAs($user)->post(route('companies.check'), ['step' => 1])->assertForbidden();
+    $this->actingAs($user)->put(route('companies.draft'), ['step' => 1, 'data' => ['a' => 1]])->assertForbidden();
+
+    // Opening the page leaves no personal workspace behind.
+    expect(Workspace::query()->where('owner_id', $user->id)->exists())->toBeFalse()
+        ->and(Company::query()->count())->toBe(1);
+})->with([CompanyRole::Member, CompanyRole::Partner, CompanyRole::Viewer]);
+
+test('an Admin can open the wizard and the dashboard says so', function () {
+    $user = userWithRole(CompanyRole::Admin);
+
+    $this->actingAs($user)->get(route('companies.create'))->assertOk();
+    $this->actingAs($user)->get(route('dashboard'))->assertInertia(fn ($page) => $page->where('abilities.createCompany', true));
+});
+
+test('the dashboard flag is off for roles that cannot create', function () {
+    $user = userWithRole(CompanyRole::Partner);
+
+    $this->actingAs($user)->get(route('dashboard'))->assertInertia(fn ($page) => $page->where('abilities.createCompany', false));
+});
+
+test('a new sign-up with no company can launch one', function () {
+    $user = User::factory()->create();
+    Workspace::factory()->create(['owner_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('companies.create'))->assertOk();
+    $this->actingAs($user)->post(route('companies.store'), singlePayload())->assertRedirect(route('dashboard'));
 });

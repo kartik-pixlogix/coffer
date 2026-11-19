@@ -26,6 +26,7 @@ use App\Services\Finance\Attachments;
 use App\Services\Finance\FiscalYearFilter;
 use App\Services\Finance\LedgerCounts;
 use App\Services\Finance\PersonalCardBalances;
+use App\Support\Csv;
 use App\Support\CurrentCompany;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
@@ -310,10 +311,10 @@ final class ExpensesController extends Controller
                 return;
             }
 
-            fputcsv($out, ['Date', 'Description', 'Category', 'Amount (INR)', 'Status', 'Paid by', 'Submitted by', 'Project', 'Bill to client', 'Reject reason', 'Notes'], escape: '');
+            Csv::put($out, ['Date', 'Description', 'Category', 'Amount (INR)', 'Status', 'Paid by', 'Submitted by', 'Project', 'Bill to client', 'Reject reason', 'Notes']);
 
             foreach ($rows as $e) {
-                fputcsv($out, [
+                Csv::put($out, [
                     $e->spent_on->toDateString(),
                     $e->description,
                     $e->category->name,
@@ -325,7 +326,7 @@ final class ExpensesController extends Controller
                     $e->billable ? ($e->project->client ?? $e->project?->name) : '',
                     $e->reject_reason,
                     $e->notes,
-                ], escape: '');
+                ]);
             }
 
             fclose($out);

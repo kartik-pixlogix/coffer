@@ -15,6 +15,7 @@ use App\Models\VaultAuditEvent;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultAudit;
 use App\Services\Vault\VaultSession;
+use App\Support\Csv;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,21 +90,21 @@ final class VaultAuditController extends Controller
                 return;
             }
 
-            fputcsv($out, ['Time', 'User', 'Action', 'Field', 'Item', 'IP address', 'Device', 'New device'], escape: '');
+            Csv::put($out, ['Time', 'User', 'Action', 'Field', 'Item', 'IP address', 'Device', 'New device']);
 
             $query->limit(self::EXPORT_MAX)->chunk(1000, function ($events) use ($out, $timezone): void {
                 foreach ($events as $event) {
                     /** @var VaultAuditEvent $event */
-                    fputcsv($out, [
+                    Csv::put($out, [
                         $event->created_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
-                        VaultHealthController::cell($event->user->name ?? 'System'),
+                        $event->user->name ?? 'System',
                         $event->action->label(),
                         $event->field ?? '',
-                        VaultHealthController::cell($event->item_name ?? ''),
+                        $event->item_name ?? '',
                         $event->ip ?? '',
-                        VaultHealthController::cell($this->device($event) ?? ''),
+                        $this->device($event) ?? '',
                         $event->new_device ? 'yes' : '',
-                    ], escape: '');
+                    ]);
                 }
             });
 

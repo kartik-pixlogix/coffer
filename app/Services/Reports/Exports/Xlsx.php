@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Reports\Exports;
 
 use OpenSpout\Common\Entity\Cell;
+use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use Spatie\SimpleExcel\SimpleExcelWriter;
@@ -61,7 +62,10 @@ final class Xlsx
                 $cells = [];
 
                 foreach ($values as $value) {
-                    if (! is_array($value)) {
+                    if (is_string($value)) {
+                        // G3 (D107): text is always a text cell, never a formula ("=…" from a description).
+                        $cells[] = new StringCell($value, self::style($bold));
+                    } elseif (! is_array($value)) {
                         $cells[] = Cell::fromValue($value, self::style($bold));
                     } elseif (isset($value['paise'])) {
                         $cells[] = Cell::fromValue(self::rupees($value['paise']), self::style($bold, self::MONEY_FORMAT));

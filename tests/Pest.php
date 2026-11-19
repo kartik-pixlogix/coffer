@@ -22,6 +22,8 @@ use App\Services\Vault\VaultAccess;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\Support\FakeStripe;
 use Tests\TestCase;
 
@@ -202,4 +204,13 @@ function vaultGrant(User $user, Vault|VaultItem $target, VaultAccessLevel $level
     app(VaultAccess::class)->flush();
 
     return $grant;
+}
+
+/** Take a page or action permission (`page.expenses`, `action.settlements.record`) away from a role in a company's matrix. */
+function revokeFromRole(Company $company, CompanyRole $role, string $permission): void
+{
+    setPermissionsTeamId($company->id);
+    Role::query()->where('company_id', $company->id)->where('name', $role->value)->sole()
+        ->revokePermissionTo($permission);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
 }

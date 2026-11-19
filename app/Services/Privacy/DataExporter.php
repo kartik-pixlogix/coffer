@@ -6,6 +6,7 @@ namespace App\Services\Privacy;
 
 use App\Models\User;
 use App\Models\Workspace;
+use App\Support\Csv;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -169,10 +170,10 @@ final class DataExporter
         $first = reset($rows);
 
         if ($first !== false) {
-            fputcsv($out, array_keys($first), escape: '');
+            Csv::put($out, array_keys($first));
 
             foreach ($rows as $row) {
-                fputcsv($out, array_map(fn (mixed $v): string => is_scalar($v) ? (string) $v : (string) json_encode($v), array_values($row)), escape: '');
+                Csv::put($out, array_values($row));
             }
         }
 

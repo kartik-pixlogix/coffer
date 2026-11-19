@@ -18,6 +18,7 @@ use App\Models\MoneyAccount;
 use App\Models\Partner;
 use App\Models\User;
 use App\Services\Finance\FiscalYearFilter;
+use App\Support\Csv;
 use App\Support\CurrentCompany;
 use App\Support\Money;
 use Illuminate\Http\RedirectResponse;
@@ -144,14 +145,14 @@ final class CapitalAccountsController extends Controller
                 return;
             }
 
-            fputcsv($out, ['Partner', 'Side', 'Equity (%)', 'Opening (INR)', 'Contributions (INR)', 'Drawings (INR)', 'Share of profit (INR)', 'Closing (INR)'], escape: '');
+            Csv::put($out, ['Partner', 'Side', 'Equity (%)', 'Opening (INR)', 'Contributions (INR)', 'Drawings (INR)', 'Share of profit (INR)', 'Closing (INR)']);
 
             foreach ($statement as $row) {
-                fputcsv($out, [
+                Csv::put($out, [
                     $row['name'], $row['sideName'], number_format($row['equityBps'] / 100, 2),
                     Money::plain($row['openingPaise']), Money::plain($row['contributionsPaise']), Money::plain($row['drawingsPaise']),
                     Money::plain($row['profitPaise']), Money::plain($row['closingPaise']),
-                ], escape: '');
+                ]);
             }
 
             fclose($out);

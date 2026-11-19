@@ -16,6 +16,7 @@ use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultAudit;
 use App\Services\Vault\VaultPolicy;
 use App\Services\Vault\VaultSession;
+use App\Support\Csv;
 use App\Support\CurrentCompany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -83,22 +84,16 @@ final class VaultHealthController extends Controller
                 return;
             }
 
-            fputcsv($out, ['Issue', 'Item', 'Vault', 'Detail'], escape: '');
+            Csv::put($out, ['Issue', 'Item', 'Vault', 'Detail']);
 
             foreach ($data['lists'] as $list) {
                 foreach ($list['rows'] as $row) {
-                    fputcsv($out, [$list['title'], self::cell($row['name']), self::cell($row['vault']), self::cell($row['detail'])], escape: '');
+                    Csv::put($out, [$list['title'], $row['name'], $row['vault'], $row['detail']]);
                 }
             }
 
             fclose($out);
         }, $name, ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'no-store']);
-    }
-
-    /** Spreadsheet formula injection: a leading = + - @ is made text. */
-    public static function cell(string $value): string
-    {
-        return preg_match('/^[=+\-@\t\r]/', $value) === 1 ? "'".$value : $value;
     }
 
     private function user(Request $request): User

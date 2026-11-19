@@ -12,6 +12,7 @@ use App\Models\Member;
 use App\Models\Project;
 use App\Models\TimesheetImport;
 use App\Services\Timesheets\Hours;
+use App\Support\Csv;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -101,10 +102,10 @@ final class TimesheetImporter
             return '';
         }
 
-        fputcsv($out, [...$import->header, 'Error'], escape: '');
+        Csv::put($out, [...$import->header, 'Error']);
 
         foreach ($rows as $row) {
-            fputcsv($out, [...$row->cells, (string) $row->error], escape: '');
+            Csv::put($out, [...$row->cells, (string) $row->error]);
         }
 
         rewind($out);

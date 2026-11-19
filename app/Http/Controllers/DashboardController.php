@@ -50,7 +50,7 @@ final class DashboardController extends Controller
             'approvals' => $this->approvals($user),
             'vault' => $vault->for($company, $user),
             'abilities' => [
-                'createCompany' => $current->isAdmin(),
+                'createCompany' => $user->can('company.create'),
                 'approve' => $user->can('action.expenses.approve') && $user->can('page.expenses'),
                 'addIncome' => $user->can('action.income.manage') && $user->can('page.income'),
                 'addExpense' => $user->can('action.expenses.create') && $user->can('page.expenses'),
@@ -64,11 +64,18 @@ final class DashboardController extends Controller
      * The oldest pending expenses (they have waited longest), with whether this user can
      * decide each one (never their own unless Admin, D44).
      *
-     * @return array{count: int, rows: list<array{id: int, description: string, amountPaise: int, date: string, submitter: string|null, colour: int|null, canDecide: bool}>}
+     * @return array{count: int, totalPaise: int, rows: list<array{id: int, description: string, amountPaise: int, date: string, submitter: string|null, colour: int|null, canDecide: bool}>}
      */
     private function approvals(User $user): array
     {
         $query = Expense::query()->where('status', ExpenseStatus::Pending->value)->where('auto', false);
+        $count = (clone $query)->count();
+        $total = (int) (clone $query)->sum('amount_paise');
+
+        // G2 (D106): a role that can't open Expenses sees only how many wait and their total.
+        if (! $user->can('page.expenses')) {
+            return ['count' => $count, 'totalPaise' => $total, 'rows' => []];
+        }
 
         $rows = (clone $query)
             ->with(['submitter:id,name', 'payers.partner:id,colour', 'payers.member.partner:id,colour'])
@@ -86,11 +93,11 @@ final class DashboardController extends Controller
                     'date' => $e->spent_on->toDateString(),
                     'submitter' => $e->submitter?->name,
                     'colour' => $colour,
-                    'canDecide' => $user->can('page.expenses') && $user->can('decide', $e),
+                    'canDecide' => $user->can('decide', $e),
                 ];
             })
             ->all();
 
-        return ['count' => $query->count(), 'rows' => array_values($rows)];
+        return ['count' => $count, 'totalPaise' => $total, 'rows' => array_values($rows)];
     }
 }

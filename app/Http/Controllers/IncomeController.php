@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Services\Finance\Attachments;
 use App\Services\Finance\FiscalYearFilter;
 use App\Services\Finance\LedgerCounts;
+use App\Support\Csv;
 use App\Support\CurrentCompany;
 use App\Support\Money;
 use Illuminate\Database\Eloquent\Builder;
@@ -193,10 +194,10 @@ final class IncomeController extends Controller
                 return;
             }
 
-            fputcsv($out, ['Date', 'Source', 'Amount (INR)', 'Category', 'Brought in by', 'Received into', 'Project', 'Notes'], escape: '');
+            Csv::put($out, ['Date', 'Source', 'Amount (INR)', 'Category', 'Brought in by', 'Received into', 'Project', 'Notes']);
 
             foreach ($rows as $i) {
-                fputcsv($out, [
+                Csv::put($out, [
                     $i->received_on->toDateString(),
                     $i->source,
                     Money::plain($i->amount_paise),
@@ -205,7 +206,7 @@ final class IncomeController extends Controller
                     $i->moneyAccount->name ?? ($i->receivedBy !== null ? $i->receivedBy->name.' (personally)' : ''),
                     $i->project?->name,
                     $i->notes,
-                ], escape: '');
+                ]);
             }
 
             fclose($out);

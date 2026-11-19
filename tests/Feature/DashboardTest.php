@@ -181,11 +181,11 @@ test('pending approvals list the oldest five with approve and reject for those w
             ->where('dashboard.kpis.pending.paise', 21_000_00)
             ->where('abilities.approve', true));
 
-    // Kabir's own expenses can't be his to decide (D44); a Viewer can't approve at all.
+    // Kabir's own expenses can't be his to decide (D44); a Viewer can't approve or open Expenses (G2: count only).
     $this->actingAs($kabirUser)->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page->where('approvals.rows.0.canDecide', false));
     $this->actingAs($viewer)->get(route('dashboard'))
-        ->assertInertia(fn (Assert $page) => $page->where('abilities.approve', false)->where('approvals.rows.0.canDecide', false));
+        ->assertInertia(fn (Assert $page) => $page->where('abilities.approve', false)->has('approvals.rows', 0)->where('approvals.count', 6));
 
     // Approving inline goes through the Expenses action and the figures follow.
     $first = Expense::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->orderBy('id')->firstOrFail();
@@ -217,4 +217,30 @@ test('another company’s books never show', function () {
 
     $this->actingAs(userWithRole(CompanyRole::Admin))->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page->where('dashboard.empty', true)->where('dashboard.kpis.income.paise', 0)->where('approvals.count', 0));
+});
+
+test('a role that can’t open Expenses gets only the count and total of pending approvals (G2)', function () {
+    $books = jvBooks();
+    $kabirUser = userWithRole(CompanyRole::Partner, $books->company);
+    $books->kabir->update(['user_id' => $kabirUser->id]);
+    $viewer = userWithRole(CompanyRole::Viewer, $books->company);
+
+    foreach ([1, 2] as $i) {
+        $this->actingAs($kabirUser)->post(route('expenses.store'), [
+            'description' => "Meta ads {$i}",
+            'amount_paise' => $i * 1_000_00,
+            'spent_on' => fyDay(100 + $i)->toDateString(),
+            'category_id' => category($books->company, 'expense', 'Marketing')->id,
+            'payer_mode' => 'full',
+            'payers' => [['type' => 'partner', 'partner_id' => $books->kabir->id, 'account_id' => null, 'amount_paise' => $i * 1_000_00]],
+        ])->assertSessionHasNoErrors();
+    }
+
+    revokeFromRole($books->company, CompanyRole::Viewer, 'page.expenses');
+
+    $this->actingAs($viewer->fresh())->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('approvals.count', 2)
+            ->where('approvals.totalPaise', 3_000_00)
+            ->has('approvals.rows', 0));
 });

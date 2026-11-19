@@ -204,5 +204,18 @@ class AppServiceProvider extends ServiceProvider
 
             return null;
         });
+
+        // The create-company wizard (D106): a new sign-up with no company yet, or the Admin
+        // (or workspace owner) of the current company. Members, Partners and Viewers can't.
+        Gate::define('company.create', function (User $user): bool {
+            $current = app(CurrentCompany::class);
+            $company = $current->get();
+
+            if ($company === null) {
+                return ! $user->companies()->exists();
+            }
+
+            return $current->isAdmin() || $company->workspace->isOwnedBy($user);
+        });
     }
 }

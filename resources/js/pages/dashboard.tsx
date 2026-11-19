@@ -64,7 +64,7 @@ type Props = {
     query: PeriodQuery;
     /** Null when the figures couldn't be read: the error state, never zeros. */
     dashboard: DashboardData | null;
-    approvals: { count: number; rows: PendingApproval[] };
+    approvals: { count: number; totalPaise: number; rows: PendingApproval[] };
     vault: DashboardVaultPanel;
     abilities: {
         createCompany: boolean;
@@ -507,7 +507,14 @@ function Approvals({
                 <h2 className="cf-dot-title t-title">Pending approvals</h2>
                 <span className="cf-badge db-count">{approvals.count}</span>
             </div>
-            {approvals.rows.length === 0 ? (
+            {approvals.rows.length === 0 && approvals.count > 0 ? (
+                <p className="t-body t-muted">
+                    {approvals.count === 1
+                        ? '1 expense is'
+                        : `${approvals.count} expenses are`}{' '}
+                    waiting for approval ({formatInr(approvals.totalPaise)}).
+                </p>
+            ) : approvals.rows.length === 0 ? (
                 <div className="db-caught-up">
                     <span className="db-caught-ic">
                         <Icon icon={Check} size={18} strokeWidth={2} />
