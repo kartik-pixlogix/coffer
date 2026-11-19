@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import type { DataTableColumn } from '@/components/ui/data-table';
 import { StatusPill } from '@/components/ui/status-pill';
+import { UnitText } from '@/components/ui/money';
 import { LevelPill } from '@/components/vault/home/vault-bits';
 import { formatDate, formatInr, formatMonth } from '@/lib/format';
 import { formatCenti } from '@/lib/hours';
@@ -306,7 +307,11 @@ export default function TeamShow({
                                     : 'this month'}
                             </dt>
                             <dd className="t-money">
-                                {hoursText(thisMonth?.billableCenti ?? 0)}
+                                <UnitText
+                                    text={hoursText(
+                                        thisMonth?.billableCenti ?? 0,
+                                    )}
+                                />
                             </dd>
                         </div>
                         <div className="cf-inset cf-stack">

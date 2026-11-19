@@ -105,11 +105,14 @@ const ease = (x: number) => 1 - Math.pow(1 - x, 4);
 export function CountUp({
     value,
     format,
+    unit,
     className,
     style,
 }: {
     value: number;
     format: (value: number) => string;
+    /** A unit after the figure ("h"), set tight in its own span (cf-unit). */
+    unit?: string;
     className?: string;
     style?: CSSProperties;
 }) {
@@ -158,15 +161,24 @@ export function CountUp({
     }, [value, reduced]);
 
     const text = format(value);
+    const unitNode = unit && <span className="cf-unit">{unit}</span>;
 
     return (
         <span ref={ref} className={className} style={style}>
             {shown === null ? (
-                text
+                <>
+                    {text}
+                    {unitNode}
+                </>
             ) : (
                 <>
-                    <span className="sr-only">{text}</span>
-                    <span aria-hidden="true">{format(shown)}</span>
+                    <span className="sr-only">
+                        {unit ? `${text} ${unit}` : text}
+                    </span>
+                    <span aria-hidden="true">
+                        {format(shown)}
+                        {unitNode}
+                    </span>
                 </>
             )}
         </span>

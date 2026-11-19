@@ -5,6 +5,7 @@ import { CtaBand, PageHero } from '@/components/marketing/page-sections';
 import { SeoHead } from '@/components/marketing/seo-head';
 import { Reveal, RevealGroup, RevealItem } from '@/components/marketing/motion';
 import { ButtonLink } from '@/components/ui/button';
+import { UnitText } from '@/components/ui/money';
 import { FEATURE_ORDER, FEATURES } from '@/lib/marketing/features';
 import type { FeatureSection, PreviewRow } from '@/lib/marketing/features';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,23 @@ const PILL: Record<NonNullable<PreviewRow['pill']>['tone'], string> = {
     graphite: 'cf-pill--graphite',
 };
 
+/**
+ * A preview figure: "57.33 h" with a tight unit, and a masked secret whose last dots
+ * drop at phone width so the row keeps label, dots and pill on one line.
+ */
+function PreviewValue({ value }: { value: string }) {
+    if (/^•{6,}$/.test(value)) {
+        return (
+            <>
+                {value.slice(0, 4)}
+                <span className="lp-dots-more">{value.slice(4)}</span>
+            </>
+        );
+    }
+
+    return <UnitText text={value} />;
+}
+
 function Preview({ preview }: { preview: FeatureSection['preview'] }) {
     return (
         <div className="lp-panel-demo" aria-hidden="true">
@@ -30,7 +48,7 @@ function Preview({ preview }: { preview: FeatureSection['preview'] }) {
                         {preview.headline.label}
                     </span>
                     <div className="t-money lp-figure-lime lp-figure-lime--lg">
-                        {preview.headline.value}
+                        <UnitText text={preview.headline.value} />
                     </div>
                     {preview.headline.sub && (
                         <span className="t-caption lp-on-dark-muted">
@@ -52,7 +70,9 @@ function Preview({ preview }: { preview: FeatureSection['preview'] }) {
                         )}
                     </span>
                     <span className="cf-row lp-prev-val" style={{ gap: 8 }}>
-                        <span className="t-money-sm">{row.value}</span>
+                        <span className="t-money-sm">
+                            <PreviewValue value={row.value} />
+                        </span>
                         {row.pill && (
                             <span
                                 className={cn(

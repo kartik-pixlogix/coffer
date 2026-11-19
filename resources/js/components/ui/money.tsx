@@ -1,6 +1,12 @@
 import type { CSSProperties } from 'react';
 import { COUNT_UP_MS, useCountUp } from '@/hooks/use-count-up';
-import { formatHours, formatInr, formatPaiseDigits, MINUS } from '@/lib/format';
+import {
+    formatHours,
+    formatIndianNumber,
+    formatInr,
+    formatPaiseDigits,
+    MINUS,
+} from '@/lib/format';
 import type { MoneyFormatOptions } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -142,6 +148,56 @@ export function Hours({
         <span className={cn(SIZE_CLASS[size], className)}>
             {text}
             <span className="cf-sr"> hours</span>
+        </span>
+    );
+}
+
+/**
+ * A figure with its unit ("57.33 h") as the figure plus a tight unit span: a full
+ * space in the mono face reads as a gap between the number and its "h".
+ */
+export function UnitText({ text }: { text: string }) {
+    const match = /^(.*\d) (h)$/.exec(text);
+
+    if (match === null) {
+        return <>{text}</>;
+    }
+
+    return (
+        <>
+            {match[1]}
+            <span className="cf-unit">{match[2]}</span>
+        </>
+    );
+}
+
+export type CountProps = {
+    value: number;
+    countUp?: boolean;
+    className?: string;
+};
+
+/**
+ * A count shown as a KPI figure ("Entries 28", "Open loans 2"): the same large mono
+ * figure as money (`t-money-lg`), Indian grouping, sized to its tile like money.
+ */
+export function Count({ value, countUp = false, className }: CountProps) {
+    const shown = useCountUp(value, countUp);
+    const label = formatIndianNumber(value);
+
+    return (
+        <span
+            className={cn('t-money-lg', className)}
+            style={{ '--cf-money-len': label.length } as CSSProperties}
+        >
+            {countUp ? (
+                <>
+                    <span aria-hidden="true">{formatIndianNumber(shown)}</span>
+                    <span className="cf-sr">{label}</span>
+                </>
+            ) : (
+                label
+            )}
         </span>
     );
 }

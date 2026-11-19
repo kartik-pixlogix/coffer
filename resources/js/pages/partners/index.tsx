@@ -12,6 +12,7 @@ import { GroupedBars } from '@/components/ui/grouped-bars';
 import { Icon } from '@/components/ui/icon';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { StatusPill } from '@/components/ui/status-pill';
+import { UnitText } from '@/components/ui/money';
 import { formatEquity, formatEquityShort } from '@/lib/equity';
 import { formatInr, formatInrCompact, formatPercent } from '@/lib/format';
 import { formatCenti } from '@/lib/hours';
@@ -224,7 +225,7 @@ export default function Partners({
                     <div key={label as string} className="cf-inset cf-stack">
                         <span className="t-caption t-muted">{label}</span>
                         <span className={cn('t-money', negative && 't-neg')}>
-                            {value}
+                            <UnitText text={value as string} />
                         </span>
                     </div>
                 ))}

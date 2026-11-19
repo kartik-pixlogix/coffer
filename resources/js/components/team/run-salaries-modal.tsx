@@ -8,6 +8,7 @@ import { FieldError } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { MonthPicker } from '@/components/ui/month-picker';
 import { StatusPill } from '@/components/ui/status-pill';
+import { UnitText } from '@/components/ui/money';
 import { formatInr, toDate, toIsoDate } from '@/lib/format';
 import { formatCenti } from '@/lib/hours';
 import { monthLong } from '@/lib/team';
@@ -109,9 +110,11 @@ export function RunSalariesModal({
             width: '100px',
             numeric: true,
             cell: (r) =>
-                r.costType === 'hourly'
-                    ? `${formatCenti(r.billableCenti)} h`
-                    : 'Fixed',
+                r.costType === 'hourly' ? (
+                    <UnitText text={`${formatCenti(r.billableCenti)} h`} />
+                ) : (
+                    'Fixed'
+                ),
         },
         {
             key: 'amount',

@@ -38,6 +38,7 @@ import { SeoHead } from '@/components/marketing/seo-head';
 import { buttonClass, ButtonLink } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Tab, TabPanel, Tabs, TabsList } from '@/components/ui/tabs';
+import { UnitText } from '@/components/ui/money';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { formatIndianNumber, formatInr } from '@/lib/format';
 import { PLAN_CARD, planPrice } from '@/lib/plans';
@@ -47,8 +48,8 @@ import type { PlanOption, SeoProps } from '@/types';
 type Props = { plans: PlanOption[]; seo: SeoProps };
 
 const rupees = (paise: number) => formatInr(paise, { decimals: 'never' });
-const tenthsOfHours = (tenths: number) =>
-    `${formatIndianNumber(tenths / 10, 1)} h`;
+/** The figure only: the "h" follows in its own tight span (cf-unit). */
+const tenthsOfHours = (tenths: number) => formatIndianNumber(tenths / 10, 1);
 
 /** The preview's KPIs (Saarthi Portal JV, Apr–Oct, as in the demo data). */
 const KPIS = [
@@ -544,6 +545,11 @@ function HeroStage() {
                                                 ? tenthsOfHours
                                                 : rupees
                                         }
+                                        unit={
+                                            kpi.label === 'Hours logged'
+                                                ? 'h'
+                                                : undefined
+                                        }
                                         className="t-money lp-kpi-value"
                                     />
                                 </div>
@@ -712,7 +718,9 @@ function HeroStage() {
                     <span className="t-caption">Month mode</span>
                 </div>
                 <div className="lp-hours-body">
-                    <span className="t-money lp-hours-figure">57.33 h</span>
+                    <span className="t-money lp-hours-figure">
+                        <UnitText text="57.33 h" />
+                    </span>
                     <span className="t-caption lp-nowrap">
                         21 working days → 2.73 hrs/day
                     </span>
@@ -746,9 +754,13 @@ function ModuleDemo({ module }: { module: ModuleKey }) {
                                 {kpi.label}
                             </span>
                             <span className="t-money lp-kpi-value lp-kpi-value--lg">
-                                {kpi.label === 'Hours logged'
-                                    ? tenthsOfHours(kpi.value)
-                                    : rupees(kpi.value)}
+                                {kpi.label === 'Hours logged' ? (
+                                    <UnitText
+                                        text={`${tenthsOfHours(kpi.value)} h`}
+                                    />
+                                ) : (
+                                    rupees(kpi.value)
+                                )}
                             </span>
                         </div>
                     ))}
@@ -784,7 +796,7 @@ function ModuleDemo({ module }: { module: ModuleKey }) {
                     <div className="cf-kv">
                         <span className="t-caption t-muted">Total hours</span>
                         <span className="t-money" style={{ fontSize: 22 }}>
-                            57.33 h
+                            <UnitText text="57.33 h" />
                         </span>
                     </div>
                     <div className="cf-progress cf-progress--lime">
@@ -806,7 +818,9 @@ function ModuleDemo({ module }: { module: ModuleKey }) {
                             </span>
                             <span className="t-body">{name}</span>
                         </span>
-                        <span className="t-money-sm">{hours}</span>
+                        <span className="t-money-sm">
+                            <UnitText text={hours} />
+                        </span>
                     </div>
                 ))}
             </>
