@@ -324,7 +324,13 @@ Hosting (`hostinger_starter_v3`), LiteSpeed, PHP 8.4 (account-wide; sodium on), 
 - every minute: `/opt/alt/php84/usr/bin/php -d disable_functions= /home/u728361439/coffer-app/artisan schedule:run`
 - every minute: `/opt/alt/php84/usr/bin/php -d disable_functions= /home/u728361439/coffer-app/artisan queue:work --queue=default,mail,exports,imports,vault --stop-when-empty --max-time=50 --tries=3`
 
+The plan allows **two** cron jobs and both are taken, so a deploy deletes the queue-worker job,
+uses its slot for the run-once deploy job, then puts the worker back.
+
 **Gotchas met on the first deploy:**
+- The account's CLI `php` is 8.3; use the 8.4 path above. The scheduler starts each command as a
+  child `php` without the `-d` override, so a command that shells out (`coffer:backup` runs
+  `mysqldump`) fails there; run it from its own cron job if backups are needed on this host.
 - `storage:link` fails (no `exec`/`symlink` in PHP): the link is made with `ln -s` in a shell script.
 - LiteSpeed answers 500 when a response header passes ~8 KB, before Laravel can log anything. The
   preload `Link` header had reached 11 KB, so it is capped at 20 assets (`bootstrap/app.php`).
