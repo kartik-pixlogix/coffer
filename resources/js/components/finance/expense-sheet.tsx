@@ -60,7 +60,11 @@ export function ExpenseSheet({
     const { draft, set, errors } = form;
     const toast = useToast();
     const payer = draft.payers[0];
-    const people = whoOptions(options, me, ownOnly);
+    // The phone sheet's half-width select shows plain names like MobileExpenses.dc.html;
+    // "(you)" cut "Rohan Desai (you)" short at 375 px (X8).
+    const people = whoOptions(options, me, ownOnly).map((o) =>
+        o.value === `member:${me.memberId}` ? { ...o, label: me.name } : o,
+    );
     const categories = options.categories.filter((c) => c.active && !c.system);
     const projects = options.projects.filter((p) => p.active);
     const amount = draft.amount ?? 0;

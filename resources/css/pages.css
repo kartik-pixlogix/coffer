@@ -7520,3 +7520,12 @@ a.lp-pillar:not(#\#):hover {
         display: none;
     }
 }
+
+/* The hero window's two KPI columns on a 320 px phone: the figures step down so
+   "₹62,10,000" stays inside its tile. */
+@media (max-width: 360px) {
+    .lp-win:not(#\#) .lp-kpi-value {
+        font-size: 16px;
+        line-height: 20px;
+    }
+}
