@@ -87,6 +87,7 @@ export const QUICK_WIDTHS = [375, 1150];
  *   { wait: 'css selector' }                               wait for it to appear
  *   { code: true }                                         type the demo 2FA code into the focused code boxes
  *   { pause: ms }
+ *   { scroll: { selector, nth?, left? } }                   scroll a sideways scroller (default: to its end)
  * `root` is what gets measured (default: open dialogs, menus and popovers).
  * `minWidth` / `maxWidth` limit the sizes; `optional: true` skips the scenario quietly when its opener isn't on the page (role-dependent).
  */
@@ -262,6 +263,42 @@ export const DIALOGS = [
         route: '/timesheets',
         roles: ['admin', 'member'],
         steps: [{ click: { text: 'Log hours' } }, { wait: DIALOG }],
+    },
+    {
+        // The phone bottom sheet (MobileLogHours): month mode is the longer form, where
+        // a shrinking body once squashed the One day / Whole month switch.
+        name: 'Log hours › phone sheet, whole month',
+        route: '/timesheets',
+        roles: ['admin', 'member'],
+        maxWidth: 640,
+        steps: [
+            { click: { text: 'Log hours' } },
+            { wait: DIALOG },
+            { click: { text: 'Whole month', within: '[role="dialog"]' } },
+            { pause: 400 },
+        ],
+    },
+    {
+        name: 'Edit partner',
+        route: '/settings/partners',
+        roles: ['admin'],
+        steps: [
+            { click: { selector: 'button[aria-label^="Edit "]' } },
+            { wait: DIALOG },
+        ],
+    },
+    {
+        // Scrolled sideways, the role matrix keeps its labels pinned on the left.
+        name: 'Roles matrix › scrolled sideways',
+        route: '/settings/roles',
+        roles: ['admin'],
+        maxWidth: 1100,
+        steps: [
+            { pause: 300 },
+            { scroll: { selector: '.cf-table-wrap', nth: 0 } },
+            { scroll: { selector: '.cf-table-wrap', nth: 1 } },
+        ],
+        root: 'main',
     },
     {
         name: 'Change plan',

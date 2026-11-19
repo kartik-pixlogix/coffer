@@ -406,6 +406,12 @@ async function sweepDialogs(page, role) {
                     await sleep(800);
                 } else if (step.pause) {
                     await sleep(step.pause);
+                } else if (step.scroll) {
+                    // Scroll a sideways scroller (a wide table) to check what stays pinned.
+                    await page.evaluate(
+                        `(() => { const el = document.querySelectorAll(${JSON.stringify(step.scroll.selector)})[${step.scroll.nth || 0}]; if (el) { el.scrollLeft = ${step.scroll.left ?? 9999}; } return !!el; })()`,
+                    );
+                    await sleep(300);
                 }
             }
 

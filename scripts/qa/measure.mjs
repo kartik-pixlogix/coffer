@@ -326,6 +326,21 @@ export function measurePage(options) {
         return false;
     }
 
+    /** Inside a fixed box (the top bar, the phone tab bar, toasts, dialogs). */
+    function fixedOf(el) {
+        for (
+            let node = el;
+            node && node.nodeType === 1;
+            node = node.parentElement
+        ) {
+            if (cs(node).position === 'fixed') {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
     const roots = opts.rootSelector
         ? Array.from(document.querySelectorAll(opts.rootSelector))
         : [document.body];
@@ -631,9 +646,11 @@ export function measurePage(options) {
             }
 
             // Page content passes under fixed and sticky bars; only pinned-over-pinned
-            // (a toast over the top bar) is a fault.
+            // (a toast over the top bar) is a fault. A pinned table column is still
+            // page content: it passes under the fixed bars too.
             if (
                 (pinned(hit) && !pinned(el)) ||
+                (fixedOf(hit) && !fixedOf(el)) ||
                 (floating(hit) && !floating(el))
             ) {
                 continue;
@@ -652,6 +669,200 @@ export function measurePage(options) {
                 el,
                 `covered by ${selectorOf(hit)} at ${Math.round(x)},${Math.round(y)}`,
             );
+        }
+    }
+
+    // 7. Content under a sticky lead column while its scroller is at rest
+    // (scrollLeft 0): nothing should sit under the pinned column before scrolling.
+    for (const sticky of elements) {
+        const style = cs(sticky);
+
+        if (style.position !== 'sticky' || style.left === 'auto') {
+            continue;
+        }
+
+        const scroller = clipAncestor(sticky, 'x');
+
+        if (
+            !scroller ||
+            !['auto', 'scroll'].includes(scroller.overflow) ||
+            scroller.node.scrollWidth <= scroller.node.clientWidth + 1 ||
+            Math.abs(scroller.node.scrollLeft) > 0.5
+        ) {
+            continue;
+        }
+
+        const pin = sticky.getBoundingClientRect();
+
+        for (const t of textList) {
+            if (
+                sticky.contains(t.el) ||
+                t.el.contains(sticky) ||
+                !scroller.node.contains(t.el) ||
+                stickyOf(t.el) !== null
+            ) {
+                continue;
+            }
+
+            const hit = intersects(t.rect, {
+                left: pin.left,
+                top: pin.top,
+                right: pin.right,
+                bottom: pin.bottom,
+            });
+
+            if (hit) {
+                add(
+                    'under-sticky',
+                    t.el,
+                    `"${t.text.slice(0, 30)}" sits under the pinned ${selectorOf(sticky)} at rest by ${Math.round(hit.w)}×${Math.round(hit.h)}`,
+                );
+            }
+        }
+    }
+
+    // 8. A one-row strip that scrolls sideways with a scrollbar track (D127): tab and
+    // chip rows hide it. Headless phones use overlay scrollbars, so a strip that
+    // doesn't set scrollbar-width: none counts too (desktop browsers draw a track).
+    for (const el of elements) {
+        const style = cs(el);
+
+        if (
+            !['auto', 'scroll'].includes(style.overflowX) ||
+            el.scrollWidth <= el.clientWidth + 1 ||
+            el.clientHeight > 96
+        ) {
+            continue;
+        }
+
+        const track =
+            el.offsetHeight -
+            el.clientHeight -
+            parseFloat(style.borderTopWidth) -
+            parseFloat(style.borderBottomWidth);
+
+        if (track > 0.5 || style.scrollbarWidth !== 'none') {
+            add(
+                'visible-scrollbar',
+                el,
+                track > 0.5
+                    ? `a ${Math.round(track)}px scrollbar track under a one-row strip`
+                    : `one-row strip scrolls sideways without scrollbar-width: none`,
+            );
+        }
+    }
+
+    // 9. Segmented controls and tabs whose labels can't be seen: zero-sized, or cut
+    // to a sliver by a clipping parent that shrank below them (scrolling past them
+    // sideways or vertically is fine).
+    for (const el of all.filter((node) =>
+        node.matches?.('.cf-seg-btn, .cf-tab, [role="tab"]'),
+    )) {
+        const group = el.closest('.cf-seg, .cf-tabs, [role="tablist"]') || el;
+
+        if (!visible(group)) {
+            continue;
+        }
+
+        const rect = el.getBoundingClientRect();
+        // The smallest clipping parent: a strip or control squashed below its label.
+        let room = Infinity;
+
+        for (
+            let node = el.parentElement;
+            node && node !== document.body;
+            node = node.parentElement
+        ) {
+            const style = cs(node);
+
+            if (style.overflowY !== 'visible') {
+                room = Math.min(room, node.getBoundingClientRect().height);
+            }
+
+            if (style.position === 'fixed') {
+                break;
+            }
+        }
+
+        const label = textOf(el);
+        const seenHeight = Math.min(rect.height, room);
+
+        if (
+            rect.width < 4 ||
+            rect.height < 4 ||
+            !label ||
+            seenHeight < rect.height * 0.6
+        ) {
+            add(
+                'empty-control',
+                el,
+                `label "${label}" shows ${Math.round(seenHeight)} of ${Math.round(rect.height)}px (${Math.round(rect.width)}px wide)`,
+            );
+        }
+    }
+
+    // 10. App KPI tiles whose figure is smaller than the tile's label, or under 20 px.
+    for (const tile of elements.filter(
+        (node) =>
+            node.classList.contains('cf-kpi') &&
+            !node.classList.contains('is-loading'),
+    )) {
+        const label = tile.querySelector('.cf-kpi-title');
+        const figureBox = tile.querySelector('.cf-kpi-value') || tile;
+        const figures = [
+            ...figureBox.querySelectorAll(
+                '.t-money-lg, .t-money, .t-figure-hero',
+            ),
+        ].filter((node) => visible(node));
+
+        // A bare figure (text straight in the value row) counts as the figure.
+        if (
+            figures.length === 0 &&
+            figureBox !== tile &&
+            figureBox.textContent.trim()
+        ) {
+            figures.push(figureBox);
+        }
+
+        if (!label || figures.length === 0) {
+            continue;
+        }
+
+        const labelSize = parseFloat(cs(label).fontSize);
+        const figureSize = Math.max(
+            ...figures.map((node) => parseFloat(cs(node).fontSize)),
+        );
+
+        if (figureSize < labelSize || figureSize < 20) {
+            add(
+                'small-kpi',
+                tile,
+                `figure ${figureSize}px, label ${labelSize}px`,
+            );
+        }
+    }
+
+    // 11. A table scrolled sideways keeps each row's lead cell (its label) in view.
+    for (const wrap of elements.filter(
+        (node) =>
+            node.classList.contains('cf-table-wrap') && node.scrollLeft > 0.5,
+    )) {
+        const edge = wrap.getBoundingClientRect().left;
+
+        for (const row of wrap.querySelectorAll(
+            ':scope > .cf-table > .cf-tr:not(.cf-thead), :scope > .cf-table > [role="rowgroup"] > .cf-tr',
+        )) {
+            const lead = row.firstElementChild;
+            const left = lead ? lead.getBoundingClientRect().left : 0;
+
+            if (lead && textOf(lead) && left < edge - 1) {
+                add(
+                    'lead-scrolled-away',
+                    lead,
+                    `the row's label scrolls out of view (${Math.round(left)} < ${Math.round(edge)})`,
+                );
+                break;
+            }
         }
     }
 
