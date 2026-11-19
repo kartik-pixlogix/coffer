@@ -7746,4 +7746,92 @@ fieldset.cf-field:not(#\#) {
     }
 }
 
+/* Phone lists with the floating + button (Expenses): the pager is centred and the
+   list ends with room for the button, so it never covers the pager or a row. */
+.ex-mpager:not(#\#) {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cf-fab-space:not(#\#) {
+    display: block;
+    height: 72px;
+    flex: none;
+}
+
 /*
+ * Page-header actions on phones: with two or three controls they take the full
+ * width; a period select or switch gets its own row first, then the buttons share
+ * the next row (primary first) or take a row each when they don't fit.
+ */
+@media (max-width: 640px) {
+    .app-page:not(#\#) .cf-pagehead > .cf-actions:has(> :nth-child(2)) {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .app-page:not(#\#) .cf-pagehead > .cf-actions:has(> :nth-child(2)) > * {
+        flex: 1 1 auto;
+    }
+
+    .app-page:not(#\#)
+        .cf-pagehead
+        > .cf-actions:has(> :nth-child(2))
+        > :is(.cf-select, .cf-seg, .cf-field, .cf-search) {
+        flex-basis: 100%;
+        order: -2;
+    }
+
+    .app-page:not(#\#)
+        .cf-pagehead
+        > .cf-actions:has(> :nth-child(2))
+        > .cf-btn--primary {
+        order: -1;
+    }
+
+    .app-page:not(#\#)
+        .cf-pagehead
+        > .cf-actions:has(> :nth-child(2))
+        > .cf-iconbtn {
+        flex: none;
+    }
+}
+
+/*
+ * Dialog and sheet footers on phones: Cancel and the primary action fill the width
+ * (the primary the wider one); a destructive text button sits on its own row at
+ * the left edge, with no extra indent; a note takes its own row.
+ */
+@media (max-width: 640px) {
+    .cf-modal-foot:not(#\#) > .cf-btn,
+    .cf-modal-foot:not(#\#) .cf-row > .cf-btn,
+    .cf-modal:not(#\#) .cf-actions > .cf-btn {
+        flex: 1 1 0;
+    }
+
+    .cf-modal-foot:not(#\#) > :is(.cf-btn--primary, .cf-btn--danger),
+    .cf-modal-foot:not(#\#) .cf-row > :is(.cf-btn--primary, .cf-btn--danger),
+    .cf-modal:not(#\#) .cf-actions > :is(.cf-btn--primary, .cf-btn--danger) {
+        flex-grow: 1.6;
+    }
+
+    .cf-modal-foot:not(#\#) > span:not(.cf-btn) {
+        flex-basis: 100%;
+    }
+
+    .cf-foot-split:not(#\#) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cf-foot-split:not(#\#) > .cf-row {
+        width: 100%;
+    }
+
+    .cf-foot-split:not(#\#) > .cf-foot-aside {
+        flex: none;
+        align-self: flex-start;
+        padding-left: 0;
+        padding-right: 8px;
+    }
+}

@@ -1076,10 +1076,15 @@ function PhoneExpenses({
             )}
             {expenses.last_page > 1 && (
                 <Pager
+                    className="ex-mpager"
                     page={expenses.current_page}
                     pageCount={expenses.last_page}
                     onPageChange={(page) => visit({ page })}
                 />
+            )}
+            {abilities.create && (
+                // Room under the list so the + button never covers the pager or the last row.
+                <span className="cf-fab-space" aria-hidden="true" />
             )}
             {abilities.create && (
                 <button

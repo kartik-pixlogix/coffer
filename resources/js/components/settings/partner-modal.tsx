@@ -193,13 +193,13 @@ export function PartnerModal({
             subtitle={`${partner?.name ?? 'New partner'} · ${companyName}`}
             dirty
             footer={
-                <div className="flex w-full flex-wrap items-center justify-between gap-2.5">
+                <div className="cf-foot-split flex w-full flex-wrap items-center justify-between gap-2.5">
                     {partner ? (
                         <Button
                             variant="ghost"
                             size="lg"
                             icon={Trash2}
-                            className="invite-revoke"
+                            className="invite-revoke cf-foot-aside"
                             onClick={remove}
                         >
                             Remove partner
