@@ -3,7 +3,7 @@ import { CalendarDays, ChevronDown, Download, Plus } from 'lucide-react';
 import { PageHeader } from '@/components/shell/page-header';
 import { initialsFrom, partnerColourVar } from '@/components/ui/avatar';
 import type { PartnerColour } from '@/components/ui/avatar';
-import { Button, ButtonLink } from '@/components/ui/button';
+import { ButtonLink, buttonClass } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import type { DataTableColumn } from '@/components/ui/data-table';
 import { DonutChart } from '@/components/ui/donut-chart';
@@ -12,13 +12,15 @@ import { GroupedBars } from '@/components/ui/grouped-bars';
 import { Icon } from '@/components/ui/icon';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { StatusPill } from '@/components/ui/status-pill';
-import { Tooltip } from '@/components/ui/tooltip';
 import { formatEquity, formatEquityShort } from '@/lib/equity';
 import { formatInr, formatInrCompact, formatPercent } from '@/lib/format';
 import { formatCenti } from '@/lib/hours';
 import { firstName } from '@/lib/team';
 import { cn } from '@/lib/utils';
-import { index as partnersIndex } from '@/routes/partners';
+import {
+    exportMethod as exportPartners,
+    index as partnersIndex,
+} from '@/routes/partners';
 import { partners as settingsPartners } from '@/routes/settings';
 
 type PartnerRow = {
@@ -431,19 +433,17 @@ export default function Partners({
                     <h2 id="pd-h" className="cf-dot-title t-title">
                         Partner detail · {fy.label}
                     </h2>
-                    <Tooltip label="Exports come with Reports">
-                        <span tabIndex={0}>
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                icon={Download}
-                                disabled
-                                aria-label="Export (coming soon)"
-                            >
-                                Export
-                            </Button>
-                        </span>
-                    </Tooltip>
+                    {/* A plain link: the CSV downloads, no Inertia visit (P3). */}
+                    <a
+                        href={exportPartners({ query: { fy: fy.start } }).url}
+                        className={buttonClass({
+                            variant: 'secondary',
+                            size: 'sm',
+                        })}
+                    >
+                        <Icon icon={Download} size={16} />
+                        Export
+                    </a>
                 </div>
                 <DataTable
                     aria-label="Partner detail"

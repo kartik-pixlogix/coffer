@@ -153,7 +153,7 @@ export async function downloadPost(
     url: string,
     body: Record<string, unknown>,
     fallbackName: string,
-): Promise<VaultResult<null>> {
+): Promise<VaultResult<{ name: string }>> {
     const xsrf = xsrfToken();
     const response = await fetch(url, {
         method: 'POST',
@@ -204,5 +204,5 @@ export async function downloadPost(
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(href), 1000);
 
-    return { ok: true, status: response.status, data: null };
+    return { ok: true, status: response.status, data: { name } };
 }

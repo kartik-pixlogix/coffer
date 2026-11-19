@@ -57,6 +57,7 @@ const OWN_ACCOUNT_ROUTES = [
     'profile.*' => 'the user’s own profile, password, sessions, 2FA (spec §17)',
     'theme.update' => 'the user’s own theme',
     'notifications.*' => 'the user’s own notifications (D78)',
+    'search' => 'the ⌘K record search: each group checks its own page permission (F5, D116)',
     'settings.notifications' => 'the user’s own notification settings (D78)',
     'settings.notifications.update' => 'the user’s own notification settings (D78)',
     'billing.plans' => 'plan list for the Upgrade modal, read-only (D80)',

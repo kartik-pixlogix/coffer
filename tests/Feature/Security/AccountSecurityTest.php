@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\CompanyRole;
 use App\Models\Impersonation;
+use App\Models\Partner;
 use App\Models\PlatformAdmin;
 use App\Models\User;
 use App\Services\Platform\Impersonator;
@@ -149,4 +150,22 @@ test('the banner says who views as whom and flags a suspended workspace (S4, S5)
             ->where('impersonation.admin', 'Coffer Platform')
             ->where('impersonation.user', $tenant->name)
             ->where('impersonation.suspended', true));
+});
+
+test('the palette search finds records the role may open, in this company only (F5)', function () {
+    $books = jvBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    $viewer = userWithRole(CompanyRole::Viewer, $books->company);
+    $other = jvBooks();
+    Partner::factory()->for($other->company)->create(['name' => 'Aarav Elsewhere']);
+
+    $groups = collect($this->actingAs($admin)->getJson(route('search', ['q' => 'aarav']))->assertOk()->json('groups'));
+    expect($groups->firstWhere('label', 'Partners')['items'])->toHaveCount(1)
+        ->and(json_encode($groups->all()))->not->toContain('Elsewhere');
+
+    // A Viewer can't open Partners or Expenses by default: those groups never come back.
+    $viewerGroups = collect($this->actingAs($viewer)->getJson(route('search', ['q' => 'aarav']))->assertOk()->json('groups'))->pluck('label');
+    expect($viewerGroups)->not->toContain('Expenses');
+
+    $this->actingAs($admin)->getJson(route('search', ['q' => 'a']))->assertOk()->assertExactJson(['groups' => []]);
 });

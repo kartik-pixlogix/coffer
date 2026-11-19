@@ -1,4 +1,5 @@
 import { LogOut, Moon, Search, Sun } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { signOut } from '@/components/shell/sign-out';
 import {
     CommandPalette,
@@ -9,7 +10,9 @@ import { Icon } from '@/components/ui/icon';
 import { useShortcutLabel } from '@/components/ui/search-field';
 import { useTheme } from '@/hooks/use-theme';
 import { usePage } from '@inertiajs/react';
+import { jsonRequest } from '@/lib/json-request';
 import { railGroups } from '@/lib/navigation';
+import { search as searchRoute } from '@/routes';
 
 /**
  * The top-bar ⌘K search pill and the command palette it opens (also on ⌘K /
@@ -21,6 +24,28 @@ export function CommandMenu() {
     const { open, setOpen } = useCommandPalette();
     const { theme, toggleTheme } = useTheme();
     const shortcut = useShortcutLabel();
+    // F5 (D116): records from the server (people, partners, expenses, income, projects and
+    // vault names while unlocked), fetched a moment after typing stops.
+    const [found, setFound] = useState<CommandGroup[]>([]);
+    const timer = useRef<number | undefined>(undefined);
+
+    useEffect(() => () => window.clearTimeout(timer.current), []);
+
+    const onQueryChange = (query: string) => {
+        window.clearTimeout(timer.current);
+
+        if (query.trim().length < 2) {
+            setFound([]);
+
+            return;
+        }
+
+        timer.current = window.setTimeout(() => {
+            void jsonRequest<{ groups: CommandGroup[] }>(
+                searchRoute({ query: { q: query.trim() } }).url,
+            ).then((result) => setFound(result.ok ? result.data.groups : []));
+        }, 200);
+    };
 
     const groups: CommandGroup[] = [
         {
@@ -60,6 +85,7 @@ export function CommandMenu() {
                 },
             ],
         },
+        ...found,
     ];
 
     return (
@@ -83,8 +109,15 @@ export function CommandMenu() {
             </button>
             <CommandPalette
                 open={open}
-                onOpenChange={setOpen}
+                onOpenChange={(next) => {
+                    setOpen(next);
+
+                    if (!next) {
+                        setFound([]);
+                    }
+                }}
                 groups={groups}
+                onQueryChange={onQueryChange}
             />
         </>
     );

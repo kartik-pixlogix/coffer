@@ -14,6 +14,7 @@ use App\Models\TimeEntry;
 use App\Models\User;
 use App\Policies\TimeEntryPolicy;
 use App\Services\Team\Earnings;
+use App\Services\Team\SalaryRecalc;
 use App\Services\Timesheets\Hours;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
@@ -233,6 +234,13 @@ final class TimesheetsController extends Controller
     private function flashLogged(Member $member, iterable $dates, string $message): void
     {
         $warning = LogTime::longDayWarning($member, $dates);
+
+        // M2 (D116): hours in a month whose salary is posted re-run it (queued); say so.
+        $months = app(SalaryRecalc::class)->months();
+
+        if ($months !== []) {
+            $message .= '. '.implode(' and ', $months).' salary will be recalculated';
+        }
 
         Inertia::flash('toast', $warning === null
             ? ['type' => 'success', 'message' => $message]

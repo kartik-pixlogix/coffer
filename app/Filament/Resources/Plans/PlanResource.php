@@ -42,11 +42,16 @@ final class PlanResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        // S8 (D118): typed in rupees or dollars (2,499 or 2499.00), stored in paise / cents.
         $price = fn (string $column, string $label) => TextInput::make($column)
             ->label($label)
-            ->integer()
+            ->numeric()
             ->minValue(0)
-            ->helperText('Smallest unit: paise or cents. 249900 = ₹2,499. Blank = not sold this way.');
+            ->step(0.01)
+            ->prefix(str_contains($column, '_usd') ? '$' : '₹')
+            ->formatStateUsing(fn (mixed $state): ?string => is_numeric($state) ? number_format(((int) $state) / 100, 2, '.', '') : null)
+            ->dehydrateStateUsing(fn (mixed $state): ?int => $state === null || $state === '' ? null : (int) round(((float) $state) * 100))
+            ->helperText('Blank = not sold this way.');
 
         $limit = fn (string $column, string $label) => TextInput::make($column)
             ->label($label)
@@ -66,12 +71,13 @@ final class PlanResource extends Resource
                 Toggle::make('custom_pricing')->helperText('“Talk to us”: never sold through Checkout.'),
             ]),
             Section::make('Prices')->columns(2)->schema([
-                $price('price_monthly_inr', 'Monthly, INR (paise)'),
-                $price('price_yearly_inr', 'Yearly, INR (paise)'),
-                $price('price_monthly_usd', 'Monthly, USD (cents)'),
-                $price('price_yearly_usd', 'Yearly, USD (cents)'),
+                $price('price_monthly_inr', 'Monthly in rupees'),
+                $price('price_yearly_inr', 'Yearly in rupees'),
+                $price('price_monthly_usd', 'Monthly in dollars'),
+                $price('price_yearly_usd', 'Yearly in dollars'),
             ]),
-            Section::make('Limits')->columns(4)->schema([
+            // Two wide columns, so "1024" and the labels never wrap mid-word.
+            Section::make('Limits')->columns(2)->schema([
                 $limit('max_companies', 'Companies'),
                 $limit('max_users', 'Users'),
                 $limit('max_vault_items', 'Vault items'),

@@ -20,7 +20,7 @@ final class SitemapController extends Controller
         '/admin', '/horizon', '/health', '/home', '/dashboard', '/companies', '/partners', '/team', '/timesheets',
         '/income', '/expenses', '/reimbursements', '/capital', '/loans', '/settlements',
         '/salary', '/statements', '/reports', '/vault', '/settings', '/account', '/profile',
-        '/billing', '/notifications', '/invites', '/access-requests', '/login', '/logout',
+        '/billing', '/notifications', '/search', '/invites', '/access-requests', '/login', '/logout',
         '/forgot-password', '/reset-password', '/two-factor-challenge',
         '/email', '/user', '/auth', '/session', '/stripe', '/storage', '/balance-sheet',
         '/trial-balance', '/_inertia', '/dev', '/up',

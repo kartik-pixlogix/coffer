@@ -150,13 +150,13 @@ it('lists workspaces with users and companies, across every company scope', func
         ->assertTableColumnStateSet('companies_count', 2, $company->workspace);
 });
 
-it('edits a plan in paise and logs the change', function () {
+it('edits a plan (rupees in, paise stored) and logs the change', function () {
     $admin = platformAdmin();
     $this->actingAs($admin, 'platform');
     $plan = Plan::query()->where('key', 'starter')->sole();
 
     Livewire::test(EditPlan::class, ['record' => $plan->getRouteKey()])
-        ->fillForm(['price_monthly_inr' => 1_49_900, 'max_users' => null])
+        ->fillForm(['price_monthly_inr' => '1499', 'max_users' => null])
         ->call('save')
         ->assertHasNoFormErrors();
 
@@ -216,4 +216,19 @@ it('changes the platform password only with the current password and a matching 
         ->assertHasNoFormErrors();
 
     expect(Hash::check('a-new-platform-passphrase', $admin->fresh()->password))->toBeTrue();
+});
+
+it('edits plan prices in rupees and dollars, stored in paise and cents (S8)', function () {
+    $this->actingAs(platformAdmin(), 'platform');
+    $plan = Plan::query()->where('key', 'starter')->sole();
+
+    Livewire::test(EditPlan::class, ['record' => $plan->getRouteKey()])
+        ->assertSchemaStateSet(['price_monthly_inr' => '999.00'])
+        ->fillForm(['price_monthly_inr' => '1499', 'price_monthly_usd' => '19.5', 'max_storage_mb' => 1024])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($plan->refresh()->price_monthly_inr)->toBe(1_49_900)
+        ->and($plan->price_monthly_usd)->toBe(1_950)
+        ->and($plan->max_storage_mb)->toBe(1024);
 });

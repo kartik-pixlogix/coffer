@@ -13,12 +13,15 @@ use App\Models\JournalEntry;
 use App\Models\Partner;
 use App\Models\Side;
 use App\Models\User;
+use App\Support\Csv;
 use App\Support\CurrentCompany;
 use App\Support\Equity;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Partners (Partners.dc.html, spec §6): each partner's revenue, expenses, net contribution
@@ -27,6 +30,42 @@ use Inertia\Response;
  */
 final class PartnersController extends Controller
 {
+    /** "Export" on Partner detail (P3, D116): the same rows for the fiscal year, as CSV. */
+    public function export(Request $request, CurrentCompany $current, PartnerMetrics $metrics): StreamedResponse
+    {
+        $company = $current->require();
+        $today = CarbonImmutable::today();
+        $years = $this->years($company, $today);
+        $start = $years[$request->integer('fy')] ?? FiscalYears::startOf($company, $today);
+        $figures = $metrics->forPeriod($company, Period::between($start, $start->addYear()->subDay()));
+        $partners = Partner::query()->active()->with('side')->orderBy('position')->orderBy('id')->get();
+        $label = FiscalYears::label($company, $start);
+
+        activity('partners')->performedOn($company)->causedBy($request->user())->withProperties(['fy' => $label])->log('exported partners');
+
+        return response()->streamDownload(function () use ($partners, $figures, $company): void {
+            $out = fopen('php://output', 'w');
+
+            if ($out === false) {
+                return;
+            }
+
+            Csv::put($out, ['Partner', ...($company->isJv() ? ['Side'] : []), 'Equity (%)', 'Revenue (INR)', 'Direct expenses (INR)', 'Other expenses (INR)', 'Salaries (INR)', 'Expenses (INR)', 'Net (INR)', 'Hours']);
+
+            foreach ($partners as $p) {
+                $f = $figures[$p->id] ?? ['revenue' => 0, 'direct' => 0, 'other' => 0, 'salary' => 0, 'hoursCenti' => 0];
+                $expenses = $f['direct'] + $f['other'] + $f['salary'];
+                Csv::put($out, [
+                    $p->name, ...($company->isJv() ? [$p->side?->name] : []), number_format($p->equity_bps / 100, 2),
+                    Money::plain($f['revenue']), Money::plain($f['direct']), Money::plain($f['other']), Money::plain($f['salary']),
+                    Money::plain($expenses), Money::plain($f['revenue'] - $expenses), number_format($f['hoursCenti'] / 100, 2, '.', ''),
+                ]);
+            }
+
+            fclose($out);
+        }, 'partners-'.str_replace(' ', '-', strtolower($label)).'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
     public function index(Request $request, CurrentCompany $current, PartnerMetrics $metrics, SettlementCalculator $settlements): Response
     {
         $company = $current->require();

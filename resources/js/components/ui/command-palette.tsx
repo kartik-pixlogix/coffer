@@ -79,6 +79,8 @@ type CommandPaletteBodyProps = {
     /** Runs after an item is chosen (closes the dialog). */
     onDone?: () => void;
     autoFocus?: boolean;
+    /** Told each new query, for server results passed back in as groups (F5). */
+    onQueryChange?: (query: string) => void;
 };
 
 /** Input, grouped listbox and key hints; shared by the dialog and the static panel. */
@@ -87,6 +89,7 @@ function CommandPaletteBody({
     defaultQuery = '',
     onDone,
     autoFocus = false,
+    onQueryChange,
 }: CommandPaletteBodyProps) {
     const [query, setQuery] = useState(defaultQuery);
     const [active, setActive] = useState(0);
@@ -183,6 +186,7 @@ function CommandPaletteBody({
                     onChange={(event) => {
                         setQuery(event.target.value);
                         setActive(0);
+                        onQueryChange?.(event.target.value);
                     }}
                     onKeyDown={onKeyDown}
                 />
@@ -300,6 +304,7 @@ export type CommandPaletteProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     groups: CommandGroup[];
+    onQueryChange?: (query: string) => void;
 };
 
 /**
@@ -311,6 +316,7 @@ export function CommandPalette({
     open,
     onOpenChange,
     groups,
+    onQueryChange,
 }: CommandPaletteProps) {
     return (
         <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -327,6 +333,7 @@ export function CommandPalette({
                         <CommandPaletteBody
                             groups={groups}
                             onDone={() => onOpenChange(false)}
+                            onQueryChange={onQueryChange}
                             autoFocus
                         />
                     )}

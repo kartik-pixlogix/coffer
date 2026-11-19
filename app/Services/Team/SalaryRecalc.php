@@ -20,6 +20,19 @@ final class SalaryRecalc
     /** @var array<string, true> */
     private array $queued = [];
 
+    /** @var array<string, string> "2026-11" => "November 2026": months re-run in this request (M2). */
+    private array $months = [];
+
+    /**
+     * The months whose salary this request queued for a re-run, for the toast (M2, D116).
+     *
+     * @return list<string>
+     */
+    public function months(): array
+    {
+        return array_values($this->months);
+    }
+
     public function hoursChanged(int $companyId, int $memberId, DateTimeInterface $date): void
     {
         $month = Carbon::instance($date)->format('Y-m');
@@ -47,6 +60,8 @@ final class SalaryRecalc
                 unset($this->queued[$key]);
             });
         }
+
+        $this->months[$month] = Carbon::createFromFormat('!Y-m', $month)?->format('F Y') ?? $month;
 
         GenerateSalaries::dispatch($companyId, $month, $memberId);
     }

@@ -5,8 +5,12 @@ declare(strict_types=1);
 use App\Enums\CompanyRole;
 use App\Enums\MemberStatus;
 use App\Ledger\FiscalYears;
+use App\Ledger\PayerLine;
+use App\Ledger\Postings;
+use App\Models\JournalEntry;
 use App\Models\Member;
 use App\Models\Project;
+use App\Models\SalaryRun;
 use App\Models\TimeEntry;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -283,4 +287,17 @@ test('a Member’s hours bill to their assigned partner whatever is sent (M3), a
     $t->ishita->update(['user_id' => $ishitaUser->id]);
     $this->actingAs($ishitaUser)->get(route('timesheets.index'))
         ->assertInertia(fn (Assert $page) => $page->where('options.members.0.name', 'Aditi Kulkarni'));
+});
+
+test('editing hours in a month whose salary is posted says it will be recalculated (M2)', function () {
+    $t = timesheetCompany();
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['date' => '2026-10-14']))->assertSessionHasNoErrors();
+    app(Postings::class)->expense($t->company, CarbonImmutable::parse('2026-10-31'), category($t->company, 'expense', 'Software'), [PayerLine::partner(100_00, $t->aarav)]);
+    SalaryRun::query()->forceCreate([
+        'company_id' => $t->company->id, 'member_id' => $t->rohan->id, 'month' => '2026-10-01', 'amount_paise' => 3_750_00,
+        'billable_centi' => 750, 'journal_entry_id' => JournalEntry::query()->withoutGlobalScopes()->latest('id')->value('id'),
+    ]);
+
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['date' => '2026-10-15']))
+        ->assertInertiaFlash('toast.message', '7.5 h logged for Rohan Desai. October 2026 salary will be recalculated');
 });

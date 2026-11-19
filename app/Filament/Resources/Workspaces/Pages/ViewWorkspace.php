@@ -16,6 +16,8 @@ final class ViewWorkspace extends ViewRecord
     {
         return [
             WorkspaceResource::impersonateAction(),
+            WorkspaceResource::changePlanAction(),
+            WorkspaceResource::extendTrialAction(),
             WorkspaceResource::suspendAction(),
             WorkspaceResource::unsuspendAction(),
         ];

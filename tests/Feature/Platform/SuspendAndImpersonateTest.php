@@ -7,8 +7,10 @@ use App\Enums\VaultAccessLevel;
 use App\Filament\Resources\Workspaces\Pages\ViewWorkspace;
 use App\Models\Company;
 use App\Models\Impersonation;
+use App\Models\Plan;
 use App\Models\PlatformAdmin;
 use App\Models\User;
+use App\Models\WorkspaceSuspension;
 use App\Services\Platform\Impersonator;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
@@ -221,4 +223,43 @@ it('closes the impersonation record when the app signs out mid-impersonation', f
     $this->actingAs($tenant)->withSession(impersonating($this->admin, $tenant, $row->id))->post('/logout')->assertRedirect();
 
     expect($row->refresh()->ended_at)->not->toBeNull();
+});
+
+it('keeps a suspension history with who, when, why and when it was lifted (S6)', function () {
+    $tenant = userWithRole(CompanyRole::Admin);
+    $workspace = companyOf($tenant)->workspace;
+    $this->actingAs($this->admin, 'platform');
+
+    Livewire::test(ViewWorkspace::class, ['record' => $workspace->getRouteKey()])
+        ->callAction('suspend', ['reason' => 'Chargeback on the last invoice'])->assertHasNoFormErrors();
+    Livewire::test(ViewWorkspace::class, ['record' => $workspace->getRouteKey()])
+        ->callAction('unsuspend')->assertHasNoFormErrors();
+
+    $row = WorkspaceSuspension::query()->where('workspace_id', $workspace->id)->sole();
+    expect($row->reason)->toBe('Chargeback on the last invoice')
+        ->and($row->suspended_by)->toBe($this->admin->id)
+        ->and($row->unsuspended_at)->not->toBeNull()
+        ->and($row->unsuspended_by)->toBe($this->admin->id);
+
+    Livewire::test(ViewWorkspace::class, ['record' => $workspace->getRouteKey()])
+        ->assertSee('Chargeback on the last invoice')
+        ->assertSee('unsuspended');
+});
+
+it('changes a trial workspace’s plan and extends its trial, both audited (S7)', function () {
+    $tenant = userWithRole(CompanyRole::Admin);
+    $workspace = companyOf($tenant)->workspace;
+    $workspace->forceFill(['trial_ends_at' => now()->addDays(3)])->save();
+    $business = Plan::query()->where('key', 'business')->sole();
+    $this->actingAs($this->admin, 'platform');
+
+    Livewire::test(ViewWorkspace::class, ['record' => $workspace->getRouteKey()])
+        ->callAction('changePlan', ['plan_id' => $business->id, 'reason' => 'Agreed on a sales call'])->assertHasNoFormErrors();
+    Livewire::test(ViewWorkspace::class, ['record' => $workspace->getRouteKey()])
+        ->callAction('extendTrial', ['days' => 10, 'reason' => 'Onboarding took longer'])->assertHasNoFormErrors();
+
+    $fresh = $workspace->fresh();
+    expect($fresh->plan_id)->toBe($business->id)
+        ->and($fresh->trial_ends_at->toDateString())->toBe(now()->addDays(13)->toDateString())
+        ->and(Activity::query()->where('log_name', 'platform')->whereIn('description', ['workspace plan changed', 'workspace trial extended'])->count())->toBe(2);
 });

@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Ops\HealthController;
 use App\Http\Controllers\Platform\StopImpersonationController;
+use App\Http\Controllers\SearchController;
 use App\Http\Middleware\EnsureLocalEnvironment;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('company')->group(function () {
         Route::get('dashboard', DashboardController::class)->middleware('page:dashboard')->name('dashboard');
+
+        // The ⌘K palette's record search (F5, D116): names only, this company, per the matrix.
+        Route::get('search', SearchController::class)->middleware('throttle:60,1')->name('search');
 
         Route::post('access-requests', [AccessRequestController::class, 'store'])
             ->middleware('throttle:10,1')

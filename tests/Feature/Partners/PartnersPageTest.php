@@ -120,3 +120,14 @@ test('the seeded Saarthi books come close to the design figures', function () {
             ->where('sides.0.settlement.status', 'owes')
             ->where('sides.0.settlement.amountPaise', 3_24_600_00));
 });
+
+test('Partners exports the partner table for the fiscal year as CSV; Viewers can’t (P3)', function () {
+    $books = jvBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+
+    $csv = $this->actingAs($admin)->get(route('partners.export'))->assertOk()->streamedContent();
+    expect($csv)->toContain('Partner,Side,"Equity (%)"')
+        ->toContain('"Aarav Mehta","Vertex Labs",60.00');
+
+    $this->actingAs(userWithRole(CompanyRole::Viewer, $books->company))->get(route('partners.export'))->assertForbidden();
+});

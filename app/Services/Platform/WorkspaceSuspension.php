@@ -6,6 +6,7 @@ namespace App\Services\Platform;
 
 use App\Models\PlatformAdmin;
 use App\Models\Workspace;
+use App\Models\WorkspaceSuspension as WorkspaceSuspensionRecord;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -30,6 +31,11 @@ final class WorkspaceSuspension
             'suspended_by' => $admin->id,
         ])->save();
 
+        // S6 (D118): kept as history, like impersonations.
+        WorkspaceSuspensionRecord::query()->create([
+            'workspace_id' => $workspace->id, 'reason' => $reason, 'suspended_by' => $admin->id, 'suspended_at' => now(),
+        ]);
+
         activity('platform')
             ->causedBy($admin)
             ->performedOn($workspace)
@@ -44,6 +50,9 @@ final class WorkspaceSuspension
             'suspended_reason' => null,
             'suspended_by' => null,
         ])->save();
+
+        WorkspaceSuspensionRecord::query()->where('workspace_id', $workspace->id)->whereNull('unsuspended_at')
+            ->update(['unsuspended_at' => now(), 'unsuspended_by' => $admin->id]);
 
         activity('platform')
             ->causedBy($admin)

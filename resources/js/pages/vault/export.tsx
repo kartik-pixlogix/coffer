@@ -63,8 +63,9 @@ export default function VaultExportPage({
             setConfirm('');
             setCode('');
             setCodeNeeded(true);
+            // A7 (D116): name the file, so it can be found in Downloads.
             toast.success(
-                'Export downloaded. Keep the file and the passphrase apart.',
+                `Export downloaded: ${result.data.name}. Keep the file and the passphrase apart.`,
             );
 
             return;
