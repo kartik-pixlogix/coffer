@@ -81,3 +81,18 @@ test('the Vite dev server is allowed only in local while it runs', function () {
         @unlink($hot);
     }
 });
+
+test('outside local the CSP never falls back to a bare http: source, even with a hot file (F9)', function () {
+    $hot = storage_path('framework/testing-hot-ipv6-'.getmypid());
+    file_put_contents($hot, 'http://[::1]:5174');
+    Vite::useHotFile($hot);
+
+    try {
+        app()->detectEnvironment(fn () => 'production');
+
+        expect((new SecurityHeaders)->policy(Request::create('/dashboard'), 'n'))
+            ->not->toContain(' http:')->not->toContain(' ws:');
+    } finally {
+        @unlink($hot);
+    }
+});

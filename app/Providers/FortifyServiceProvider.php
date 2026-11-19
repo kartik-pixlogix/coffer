@@ -13,6 +13,7 @@ use App\Auth\LoginLockout;
 use App\Auth\RecoveryCodes;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Responses\LockoutResponse;
+use App\Http\Responses\SignedInResponse;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -28,6 +29,8 @@ use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
 use Laravel\Fortify\Actions\GenerateNewRecoveryCodes as FortifyGenerateRecoveryCodes;
 use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Contracts\LockoutResponse as LockoutResponseContract;
+use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\LoginRateLimiter;
@@ -42,6 +45,9 @@ class FortifyServiceProvider extends ServiceProvider
         // 5 failed tries lock sign-in for 15 minutes (spec §18).
         $this->app->bind(LoginRateLimiter::class, LoginLockout::class);
         $this->app->singleton(LockoutResponseContract::class, LockoutResponse::class);
+        // G10, G13 (D113): sign-in lands on a page (the one asked for, or the role's first), never a file.
+        $this->app->singleton(LoginResponse::class, SignedInResponse::class);
+        $this->app->singleton(TwoFactorLoginResponse::class, SignedInResponse::class);
         // Admins can't turn 2FA off (spec §23).
         $this->app->bind(FortifyDisableTwoFactor::class, DisableTwoFactorAuthentication::class);
         // Ten XXXX-XXXX recovery codes, as on Profile (spec §17).

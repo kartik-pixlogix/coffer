@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\TokenMismatchException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -78,6 +79,11 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
+        // F9 (D115): an unknown /api/* address is a plain JSON 404, never a debug dump.
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            return $request->is('api/*') ? response()->json(['message' => 'Not found.'], 404) : null;
+        });
+
         // An Inertia request after the session died (signed out, or the CSRF token is stale):
         // tell the page, which opens the re-auth dialog over itself instead of navigating (D30).
         $exceptions->render(function (AuthenticationException|TokenMismatchException $e, Request $request) {
@@ -95,7 +101,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return DeniedPage::render($request, $e instanceof PageDeniedException ? $e->page : null);
             }
 
-            // Outside debug mode, 403 / 404 / 419 / 500 / 503 render the designed error page (D89).
+            // 403 / 404 / 419 always, and 500 / 503 outside debug mode, render the designed error page (D89, D115).
             return ErrorPage::applies($request, $response) ? ErrorPage::render($request, $response) : $response;
         });
     })->create();

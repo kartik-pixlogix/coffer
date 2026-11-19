@@ -130,3 +130,19 @@ it('validates the reported link', function () {
     $this->post('/broken-links', ['path' => ''])
         ->assertSessionHasErrors('path');
 });
+
+it('uses the branded page for 404, 403 and 419 even in debug mode; only a 500 keeps the debug page (D10)', function () {
+    config(['app.debug' => true]);
+
+    $this->get('/no-such-page')
+        ->assertNotFound()
+        ->assertInertia(fn (Assert $page) => $page->component('errors/error')->where('status', 404));
+});
+
+it('answers an unknown /api/* address with a clean JSON 404 in debug mode too (F9)', function () {
+    config(['app.debug' => true]);
+
+    $this->get('/api/nothing-here')
+        ->assertNotFound()
+        ->assertExactJson(['message' => 'Not found.']);
+});

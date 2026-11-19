@@ -18,7 +18,8 @@ use Throwable;
  * The designed error pages (State404.dc.html, and the 403 / 419 / 500 / 503 pages
  * derived from it) rendered through Inertia as `errors/error` (D89).
  *
- * Only outside debug mode: locally the framework's debug pages stay. JSON requests,
+ * 403 / 404 / 419 always (they aren't debugging cases, D10/D115); 500 and 503 only outside
+ * debug mode, so locally a crash still shows the framework's debug page. JSON requests,
  * the Inertia "session expired" answer (D30) and any status not listed keep the
  * framework's response, and so does anything that fails while rendering the page.
  */
@@ -31,10 +32,13 @@ final class ErrorPage
 
     public static function applies(Request $request, Response $response): bool
     {
-        return ! app()->hasDebugModeEnabled()
+        $status = $response->getStatusCode();
+
+        return (! app()->hasDebugModeEnabled() || in_array($status, [403, 404, 419], true))
             && ! $request->expectsJson()
+            && ! $request->is('api/*')
             && ! $response->headers->has('X-Coffer-Session')
-            && in_array($response->getStatusCode(), self::STATUSES, true);
+            && in_array($status, self::STATUSES, true);
     }
 
     public static function render(Request $request, Response $response): Response

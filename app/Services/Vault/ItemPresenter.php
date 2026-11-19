@@ -116,8 +116,11 @@ final class ItemPresenter
             'set' => $c['secret'] ? isset($set[ItemTemplates::customKey($c['id'])]) : ($c['value'] ?? '') !== '',
         ], $item->custom_fields ?? []);
 
+        // X10 (D114): the item's whole activity (others' IPs and devices) is for Manage; with
+        // View, Use or Edit the drawer lists the viewer's own events only.
         $events = VaultAuditEvent::query()->with('user:id,name')
             ->where('vault_item_id', $item->id)
+            ->when($level !== VaultAccessLevel::Manage, fn ($q) => $q->where('user_id', $user->id))
             ->orderByDesc('created_at')->orderByDesc('id')
             ->limit(6)->get();
 

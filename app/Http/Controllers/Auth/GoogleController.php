@@ -10,6 +10,7 @@ use App\Auth\TrustedDevices;
 use App\Http\Controllers\Controller;
 use App\Models\Invite;
 use App\Models\User;
+use App\Support\Auth\IntendedUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -136,7 +137,7 @@ final class GoogleController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        return redirect()->to(IntendedUrl::pull($request));
     }
 
     private function fail(string $intent, ?string $inviteToken, string $message): RedirectResponse

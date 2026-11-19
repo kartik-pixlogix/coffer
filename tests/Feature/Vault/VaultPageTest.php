@@ -151,3 +151,23 @@ test('the member profile lists the vault items the member can open', function ()
     $this->actingAs(vaultUser(CompanyRole::Admin, $company))->get(route('team.show', $unlinked))
         ->assertInertia(fn (Assert $page) => $page->where('vaultAccess', null));
 });
+
+test('with Use access the drawer lists only the viewer’s own activity; Manage sees everyone’s (X10)', function () {
+    $company = Company::factory()->create();
+    $admin = vaultUser(CompanyRole::Admin, $company);
+    $member = vaultUser(CompanyRole::Member, $company);
+    $item = vaultItemFor($company, ['password' => 'demo-X10-Pass-1']);
+    vaultGrant($member, $item, VaultAccessLevel::Use);
+
+    // The Admin's view (with IP and device) is on the item first.
+    $this->actingAs($admin)->withSession(vaultUnlocked())->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0) Chrome/130')
+        ->get(route('vault.index', ['item' => $item->id]))->assertOk();
+
+    $this->actingAs($member)->withSession(vaultUnlocked())->get(route('vault.index', ['item' => $item->id]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('selected.activity', 1)
+            ->where('selected.activity.0.text', 'You viewed this item'));
+
+    $this->actingAs($admin)->withSession(vaultUnlocked())->get(route('vault.index', ['item' => $item->id]))
+        ->assertInertia(fn (Assert $page) => $page->where('selected.activity', fn ($a) => count($a) >= 3));
+});
