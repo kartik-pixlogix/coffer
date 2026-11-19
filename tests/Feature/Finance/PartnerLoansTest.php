@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\CompanyRole;
 use App\Enums\JournalType;
 use App\Ledger\FiscalYears;
+use App\Ledger\IntegrityCheck;
 use App\Ledger\PayerLine;
 use App\Ledger\Postings;
 use App\Models\Company;
@@ -13,6 +14,7 @@ use App\Models\Loan;
 use App\Models\LoanRepayment;
 use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Activitylog\Models\Activity;
 
 beforeEach(function () {
     CarbonImmutable::setTestNow('2026-11-15 10:00:00');
@@ -203,4 +205,146 @@ test('another company’s loans are not found', function () {
     $this->actingAs($admin)->post(route('partner-loans.repay', $theirs), ['amount_paise' => 100, 'date' => '2026-06-01', 'money_account_id' => $books->account->id])->assertNotFound();
     $this->actingAs($admin)->delete(route('partner-loans.destroy', $theirs))->assertNotFound();
     $this->actingAs($admin)->get(route('partner-loans.index'))->assertInertia(fn (Assert $page) => $page->has('loans', 0));
+});
+
+/** @return array<string, mixed> */
+function loanEditPayload(Loan $loan, array $overrides = []): array
+{
+    return $overrides + [
+        'amount_paise' => $loan->amount_paise,
+        'date' => $loan->lent_on->toDateString(),
+        'purpose' => $loan->purpose,
+        'instalment_paise' => $loan->instalment_paise,
+        'due_on' => $loan->due_on?->toDateString(),
+    ];
+}
+
+test('editing a loan follows the matrix (A6)', function (CompanyRole $role, bool $manage) {
+    $books = singleBooks();
+    $this->actingAs(userWithRole(CompanyRole::Admin, $books->company))->post(route('partner-loans.store'), loanPayload($books));
+    $loan = loansOf($books->company)->sole();
+
+    $response = $this->actingAs(userWithRole($role, $books->company))->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['purpose' => 'Bridge for October salaries']));
+
+    $manage ? $response->assertSessionHasNoErrors() : $response->assertForbidden();
+    expect($loan->refresh()->purpose)->toBe($manage ? 'Bridge for October salaries' : 'salaries before Asha milestone 2');
+})->with([
+    'admin' => [CompanyRole::Admin, true],
+    'partner' => [CompanyRole::Partner, false],
+    'member' => [CompanyRole::Member, false],
+    'viewer' => [CompanyRole::Viewer, false],
+]);
+
+test('a loan without repayments can change amount and date: reversed and posted again, books still balance (A6)', function () {
+    $books = singleBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    $this->actingAs($admin)->post(route('partner-loans.store'), loanPayload($books));
+    $loan = loansOf($books->company)->sole();
+    $old = $loan->journal_entry_id;
+
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['amount_paise' => 2_50_000_00, 'date' => '2026-06-10', 'instalment_paise' => 50_000_00]))
+        ->assertSessionHasNoErrors()
+        ->assertInertiaFlash('toast.message', 'L-01 updated; its entry was posted again');
+
+    $loan->refresh();
+    $a = $books->aarav->id;
+
+    expect($loan->amount_paise)->toBe(2_50_000_00)
+        ->and($loan->lent_on->toDateString())->toBe('2026-06-10')
+        ->and($loan->instalment_paise)->toBe(50_000_00)
+        ->and($loan->journal_entry_id)->not->toBe($old)
+        ->and(JournalEntry::query()->withoutGlobalScopes()->findOrFail($old)->isReversed())->toBeTrue()
+        ->and(JournalEntry::query()->withoutGlobalScopes()->findOrFail($loan->journal_entry_id)->date->toDateString())->toBe('2026-06-10')
+        ->and(journalLines($loan->journal_entry_id))->toContain("Loans payable — Aarav Mehta: Cr 25000000 [p={$a}]")
+        ->and(app(IntegrityCheck::class)->run($books->company))->toBe([]);
+
+    $log = Activity::query()->where('log_name', 'loans')->where('description', 'edited a loan')->sole();
+    expect($log->properties['changes'])->toMatchArray([
+        'amount_paise' => [2_00_000_00, 2_50_000_00],
+        'lent_on' => ['2026-05-02', '2026-06-10'],
+        'instalment_paise' => [40_000_00, 50_000_00],
+    ]);
+
+    // Sending the same values again changes nothing and posts nothing.
+    $entries = JournalEntry::query()->withoutGlobalScopes()->count();
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan))
+        ->assertInertiaFlash('toast.message', 'Nothing changed on L-01');
+    expect(JournalEntry::query()->withoutGlobalScopes()->count())->toBe($entries);
+});
+
+test('a loan with repayments keeps its amount and date, but its note and terms can change (A6)', function () {
+    $books = singleBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    $this->actingAs($admin)->post(route('partner-loans.store'), loanPayload($books));
+    $loan = loansOf($books->company)->sole();
+    $this->actingAs($admin)->post(route('partner-loans.repay', $loan), ['amount_paise' => 40_000_00, 'date' => '2026-06-30', 'money_account_id' => $books->account->id]);
+    $entry = $loan->refresh()->journal_entry_id;
+    $fixed = 'L-01 has repayments, so its amount and date can’t change. Delete the repayments first.';
+
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['amount_paise' => 1_00_000_00]))
+        ->assertSessionHasErrors(['amount_paise' => $fixed]);
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['date' => '2026-05-01']))
+        ->assertSessionHasErrors(['date' => $fixed]);
+
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['purpose' => '  Asha milestone 2  ', 'instalment_paise' => null, 'due_on' => '2027-03-31']))
+        ->assertSessionHasNoErrors()
+        ->assertInertiaFlash('toast.message', 'L-01 updated');
+
+    $loan->refresh();
+    expect($loan->purpose)->toBe('Asha milestone 2')
+        ->and($loan->instalment_paise)->toBeNull()
+        ->and($loan->due_on?->toDateString())->toBe('2027-03-31')
+        ->and($loan->amount_paise)->toBe(2_00_000_00)
+        ->and($loan->journal_entry_id)->toBe($entry);
+});
+
+test('editing validates every field and a converted loan stays within what is owed (A6)', function () {
+    $books = jvBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    app(Postings::class)->expense($books->company, fyDay(20), category($books->company, 'expense', 'Software'), [PayerLine::partner(18_450_00, $books->meera)]);
+    $this->actingAs($admin)->post(route('partner-loans.store'), loanPayload($books, ['partner_id' => $books->meera->id, 'source' => 'card', 'money_account_id' => null, 'instalment_paise' => null, 'amount_paise' => 10_000_00]))->assertSessionHasNoErrors();
+    $loan = loansOf($books->company)->sole();
+
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), ['amount_paise' => 0, 'date' => 'soon', 'purpose' => str_repeat('x', 201), 'instalment_paise' => 0])
+        ->assertSessionHasErrors(['amount_paise' => 'Enter an amount above ₹0.', 'date' => 'Pick a date.', 'purpose', 'instalment_paise']);
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['instalment_paise' => 20_000_00, 'due_on' => '2026-01-01']))
+        ->assertSessionHasErrors(['instalment_paise' => 'The instalment can’t be more than the loan.', 'due_on' => 'The due date can’t be before the loan.']);
+
+    // ₹18,450 was owed in all; the old ₹10,000 conversion is undone first, so up to ₹18,450 is fine.
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['amount_paise' => 18_450_01]))
+        ->assertSessionHasErrors(['amount_paise' => 'That’s more than the ₹18,450 owed to Meera Iyer for personal-card spending.']);
+    expect($loan->refresh()->amount_paise)->toBe(10_000_00)
+        ->and(JournalEntry::query()->withoutGlobalScopes()->findOrFail($loan->journal_entry_id)->isReversed())->toBeFalse();
+
+    $this->actingAs($admin)->put(route('partner-loans.update', $loan), loanEditPayload($loan, ['amount_paise' => 18_450_00]))->assertSessionHasNoErrors();
+    $m = $books->meera->id;
+    $b = $books->bluefin->id;
+    expect(journalLines($loan->refresh()->journal_entry_id))->toBe(["Partner current — Meera Iyer: Dr 1845000 [p={$m} s={$b}]", "Loans payable — Meera Iyer: Cr 1845000 [p={$m} s={$b}]"])
+        ->and(app(IntegrityCheck::class)->run($books->company))->toBe([]);
+});
+
+test('a loan lent in a closed fiscal year can’t be edited, nor moved into one (A6)', function () {
+    $books = singleBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    $this->actingAs($admin)->post(route('partner-loans.store'), loanPayload($books, ['date' => '2025-12-01']));
+    $this->actingAs($admin)->post(route('partner-loans.store'), loanPayload($books, ['date' => '2026-05-02']));
+    [$old, $new] = loansOf($books->company)->all();
+    app(FiscalYears::class)->forDate($books->company, CarbonImmutable::parse('2025-12-01'))->update(['closed_at' => now()]);
+    $locked = 'FY 2025-26 is closed, so nothing dated inside it can change. An Admin can reopen it in Settings.';
+
+    $this->actingAs($admin)->put(route('partner-loans.update', $old), loanEditPayload($old, ['purpose' => 'New note']))->assertSessionHasErrors(['date' => $locked]);
+    $this->actingAs($admin)->put(route('partner-loans.update', $new), loanEditPayload($new, ['date' => '2026-03-01']))->assertSessionHasErrors(['date' => $locked]);
+
+    $this->actingAs($admin)->get(route('partner-loans.index'))
+        ->assertInertia(fn (Assert $page) => $page->where('loans.0.locked', true)->where('loans.1.locked', false));
+    expect($old->refresh()->purpose)->toBe('salaries before Asha milestone 2');
+});
+
+test('another company’s loan can’t be edited (A6)', function () {
+    $books = singleBooks();
+    $other = singleBooks();
+    $this->actingAs(userWithRole(CompanyRole::Admin, $other->company))->post(route('partner-loans.store'), loanPayload($other));
+    $theirs = loansOf($other->company)->sole();
+
+    $this->actingAs(userWithRole(CompanyRole::Admin, $books->company))->put(route('partner-loans.update', $theirs), loanEditPayload($theirs, ['purpose' => 'x']))->assertNotFound();
 });

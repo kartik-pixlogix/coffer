@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified', 'company', 'page:partner_loans'])->prefix
     Route::post('/', [PartnerLoansController::class, 'store'])->middleware('throttle:60,1')->name('partner-loans.store');
     Route::delete('repayments/{repayment}', [PartnerLoansController::class, 'destroyRepayment'])->name('partner-loans.repayments.destroy');
     Route::post('{loan}/repayments', [PartnerLoansController::class, 'repay'])->middleware('throttle:60,1')->name('partner-loans.repay');
+    Route::put('{loan}', [PartnerLoansController::class, 'update'])->middleware('throttle:60,1')->name('partner-loans.update');
     Route::delete('{loan}', [PartnerLoansController::class, 'destroy'])->name('partner-loans.destroy');
 });
 

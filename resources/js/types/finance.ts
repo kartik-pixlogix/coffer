@@ -179,6 +179,8 @@ export type LoanRow = {
     repaymentsCount: number;
     next: { amountPaise: number; date: string; by: boolean } | null;
     terms: string;
+    /** Lent inside a closed fiscal year: no edits or deletion (A6). */
+    locked: boolean;
     fromAccountId: number;
 };
 

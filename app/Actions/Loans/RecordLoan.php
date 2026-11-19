@@ -8,15 +8,18 @@ use App\Ledger\ChartOfAccounts;
 use App\Ledger\Postings;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\JournalEntry;
 use App\Models\Loan;
 use App\Models\LoanRepayment;
 use App\Models\MoneyAccount;
+use App\Models\Partner;
 use App\Models\User;
 use App\Services\Finance\EntryReverser;
 use App\Services\Finance\PeriodGuard;
 use App\Services\Finance\PersonalCardBalances;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -28,7 +31,9 @@ use Illuminate\Validation\ValidationException;
  * - Repayment to P from M posts Dr Loans payable P, Cr M; it can't exceed what is
  *   outstanding, and the loan closes on its own when that reaches ₹0.
  * Deleting a repayment reverses it and reopens the loan; a loan can be deleted
- * (reversed) only while nothing has been repaid. Closed fiscal years are locked.
+ * (reversed) only while nothing has been repaid. Editing (A6, D138) changes what it's
+ * for and its terms at any time, and its amount and date only while nothing has been
+ * repaid (the old entry is reversed and a new one posted). Closed fiscal years are locked.
  */
 final class RecordLoan
 {
@@ -71,14 +76,70 @@ final class RecordLoan
                 'created_by' => $by->id,
             ]);
 
-            $memo = $loan->code().' — '.$data->partner->name.($data->purpose !== null ? ' — '.$data->purpose : '');
-            $entry = $data->into === null
-                ? $this->postings->convertToLoan($company, $data->lentOn, $data->partner, $data->amountPaise, 'Personal-card balance converted to a loan — '.$memo, $loan, $by)
-                : $this->postings->loan($company, $data->lentOn, $data->partner, $data->amountPaise, $data->into, 'Loan '.$memo, $loan, $by);
-
-            $loan->update(['journal_entry_id' => $entry->id]);
+            $loan->update(['journal_entry_id' => $this->post($company, $loan, $data->partner, $data->into, $by)->id]);
 
             return $loan;
+        }), 'date');
+    }
+
+    /**
+     * Edit loan (A6, D138). Returns what changed as field => [old, new] for the activity log.
+     *
+     * @return array<string, array{0: mixed, 1: mixed}>
+     */
+    public function edit(Company $company, Loan $loan, LoanEdit $data, User $by): array
+    {
+        $this->periods->assertOpen($company, [$loan->lent_on, $data->lentOn], 'date');
+
+        return $this->periods->run(fn () => DB::transaction(function () use ($company, $loan, $data, $by): array {
+            /** @var Loan $locked */
+            $locked = Loan::query()->with(['partner', 'moneyAccount'])->lockForUpdate()->findOrFail($loan->id);
+
+            $locked->fill([
+                'amount_paise' => $data->amountPaise,
+                'lent_on' => $data->lentOn->toDateString(),
+                'purpose' => $data->purpose,
+                'instalment_paise' => $data->instalmentPaise,
+                'due_on' => $data->dueOn?->toDateString(),
+            ]);
+
+            $changes = [];
+
+            foreach (array_keys($locked->getDirty()) as $field) {
+                $changes[$field] = [$this->plain($locked->getOriginal($field)), $this->plain($locked->getAttribute($field))];
+            }
+
+            $repost = $locked->isDirty(['amount_paise', 'lent_on']);
+
+            if ($repost && $locked->repayments()->exists()) {
+                throw ValidationException::withMessages([$locked->isDirty('amount_paise') ? 'amount_paise' : 'date' => "{$locked->code()} has repayments, so its amount and date can’t change. Delete the repayments first."]);
+            }
+
+            if ($changes === []) {
+                return [];
+            }
+
+            $locked->save();
+
+            if ($repost) {
+                $this->reverser->reverse($locked->journal_entry_id, 'Loan edited — '.$locked->code(), $by);
+
+                if ($locked->converted) {
+                    // The old conversion is undone above, so what is owed includes it again.
+                    Account::query()->whereKey($this->chart->partnerCurrent($locked->partner)->id)->lockForUpdate()->first();
+                    $owed = $this->balances->owedTo($locked->partner);
+
+                    if ($locked->amount_paise > $owed) {
+                        throw ValidationException::withMessages(['amount_paise' => 'That’s more than the '.Money::format($owed).' owed to '.$locked->partner->name.' for personal-card spending.']);
+                    }
+                }
+
+                $locked->update(['journal_entry_id' => $this->post($company, $locked, $locked->partner, $locked->moneyAccount, $by)->id]);
+            }
+
+            $loan->setRawAttributes($locked->getAttributes(), true);
+
+            return $changes;
         }), 'date');
     }
 
@@ -158,6 +219,21 @@ final class RecordLoan
     public function repaid(Loan $loan): int
     {
         return (int) LoanRepayment::query()->where('loan_id', $loan->id)->sum('amount_paise');
+    }
+
+    /** The loan's entry: money received into an account, or a personal-card balance converted. */
+    private function post(Company $company, Loan $loan, Partner $partner, ?MoneyAccount $into, User $by): JournalEntry
+    {
+        $memo = $loan->code().' — '.$partner->name.($loan->purpose !== null ? ' — '.$loan->purpose : '');
+
+        return $into === null
+            ? $this->postings->convertToLoan($company, $loan->lent_on, $partner, $loan->amount_paise, 'Personal-card balance converted to a loan — '.$memo, $loan, $by)
+            : $this->postings->loan($company, $loan->lent_on, $partner, $loan->amount_paise, $into, 'Loan '.$memo, $loan, $by);
+    }
+
+    private function plain(mixed $value): mixed
+    {
+        return $value instanceof CarbonInterface ? $value->toDateString() : $value;
     }
 
     /** Closed on the last repayment's date once fully repaid; open otherwise. */

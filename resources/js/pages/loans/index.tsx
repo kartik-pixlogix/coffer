@@ -6,12 +6,17 @@ import {
     Coins,
     Ellipsis,
     Lock,
+    Pencil,
     Plus,
     Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cleanQuery, FyMenu } from '@/components/finance/fy-menu';
-import { LoanModal, RepaymentModal } from '@/components/finance/loan-modals';
+import {
+    EditLoanModal,
+    LoanModal,
+    RepaymentModal,
+} from '@/components/finance/loan-modals';
 import type { LoanPartner } from '@/components/finance/loan-modals';
 import { PageHeader } from '@/components/shell/page-header';
 import { AlertBanner } from '@/components/ui/alert-banner';
@@ -99,6 +104,7 @@ export default function PartnerLoans(props: Props) {
     const [view, setView] = useState<View>('all');
     const [loanModal, setLoanModal] = useState(false);
     const [paying, setPaying] = useState<number | null>(null);
+    const [editing, setEditing] = useState<LoanRow | null>(null);
     const [removing, setRemoving] = useState<
         | { kind: 'loan'; row: LoanRow }
         | { kind: 'repayment'; row: RepaymentRow }
@@ -404,7 +410,7 @@ export default function PartnerLoans(props: Props) {
                                         : 'Closed'}
                                 </span>
                             )}
-                            {abilities.manage && l.repaymentsCount === 0 && (
+                            {abilities.manage && !l.locked && (
                                 <DropdownMenu
                                     aria-label={`Actions for ${l.code}`}
                                     align="end"
@@ -417,15 +423,24 @@ export default function PartnerLoans(props: Props) {
                                     }
                                     entries={[
                                         {
-                                            label: 'Delete loan',
-                                            icon: Trash2,
-                                            danger: true,
-                                            onSelect: () =>
-                                                setRemoving({
-                                                    kind: 'loan',
-                                                    row: l,
-                                                }),
+                                            label: 'Edit loan',
+                                            icon: Pencil,
+                                            onSelect: () => setEditing(l),
                                         },
+                                        ...(l.repaymentsCount === 0
+                                            ? [
+                                                  {
+                                                      label: 'Delete loan',
+                                                      icon: Trash2,
+                                                      danger: true,
+                                                      onSelect: () =>
+                                                          setRemoving({
+                                                              kind: 'loan',
+                                                              row: l,
+                                                          }),
+                                                  },
+                                              ]
+                                            : []),
                                     ]}
                                 />
                             )}
@@ -539,6 +554,10 @@ export default function PartnerLoans(props: Props) {
                         partners={options.partners}
                         accounts={options.accounts}
                         today={today}
+                    />
+                    <EditLoanModal
+                        loan={editing}
+                        onClose={() => setEditing(null)}
                     />
                     <RepaymentModal
                         loanId={paying}

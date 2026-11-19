@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Loans\RecordLoan;
 use App\Http\Requests\Finance\LoanRequest;
+use App\Http\Requests\Finance\LoanUpdateRequest;
 use App\Http\Requests\Finance\RepaymentRequest;
 use App\Ledger\ChartOfAccounts;
 use App\Ledger\FiscalYears;
@@ -59,7 +60,7 @@ final class PartnerLoansController extends Controller
             ->orderByDesc('paid_on')->orderByDesc('id')
             ->get();
 
-        $rows = $loans->map(fn (Loan $loan) => $this->row($loan, $chart))->values();
+        $rows = $loans->map(fn (Loan $loan) => $this->row($loan, $chart, $years->closedYearFor($company, $loan->lent_on) !== null))->values();
         $borrowed = (int) $rows->sum('amountPaise');
         $repaid = (int) $rows->sum('repaidPaise');
         $open = $rows->filter(fn (array $r) => $r['outstandingPaise'] > 0);
@@ -122,6 +123,33 @@ final class PartnerLoansController extends Controller
         return back();
     }
 
+    /**
+     * Edit loan (A6, D138): what it's for and the terms always; the amount and date only
+     * while nothing has been repaid (reversed and posted again). The change is logged
+     * field by field.
+     */
+    public function update(LoanUpdateRequest $request, Loan $loan, CurrentCompany $current, RecordLoan $record): RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $changes = $record->edit($current->require(), $loan, $request->loanEdit(), $user);
+
+        if ($changes === []) {
+            Inertia::flash('toast', ['type' => 'info', 'message' => 'Nothing changed on '.$loan->code()]);
+
+            return back();
+        }
+
+        activity('loans')->performedOn($loan)->causedBy($user)
+            ->withProperties(['loan' => $loan->code(), 'changes' => $changes])
+            ->log('edited a loan');
+
+        $reposted = isset($changes['amount_paise']) || isset($changes['lent_on']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $loan->code().' updated'.($reposted ? '; its entry was posted again' : '')]);
+
+        return back();
+    }
+
     public function repay(RepaymentRequest $request, Loan $loan, CurrentCompany $current, RecordLoan $record): RedirectResponse
     {
         /** @var User $user */
@@ -167,7 +195,7 @@ final class PartnerLoansController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function row(Loan $loan, ChartOfAccounts $chart): array
+    private function row(Loan $loan, ChartOfAccounts $chart, bool $locked): array
     {
         $repaid = (int) $loan->repayments->sum('amount_paise');
         $outstanding = $loan->amount_paise - $repaid;
@@ -193,6 +221,8 @@ final class PartnerLoansController extends Controller
             'next' => $this->next($loan, $outstanding, $last?->paid_on),
             'terms' => $this->terms($loan),
             // Repaid from the account it came into, else the lender's own (side) account.
+            // Lent inside a closed fiscal year: it can't be edited or deleted (A6).
+            'locked' => $locked,
             'fromAccountId' => $loan->money_account_id ?? $chart->payingAccountFor($loan->partner)->id,
         ];
     }

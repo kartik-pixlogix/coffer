@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { Check, Coins, Plus } from 'lucide-react';
+import { Check, Coins, Pencil, Plus } from 'lucide-react';
 import { useId, useState } from 'react';
 import { AmountInput } from '@/components/ui/amount-input';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,12 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { TextInput } from '@/components/ui/text-input';
-import { formatInr } from '@/lib/format';
+import { countOf, formatInr } from '@/lib/format';
 import { firstName } from '@/lib/team';
 import {
     repay as repayRoute,
     store as storeLoan,
+    update as updateLoan,
 } from '@/routes/partner-loans';
 import type { LoanRow, MoneyAccountOption } from '@/types/finance';
 
@@ -510,6 +511,168 @@ export function RepaymentModal({
                         : `${afterPct}% of ${formatInr(loan.amountPaise)} repaid to ${loan.name}.`}
                 </span>
             </div>
+        </Modal>
+    );
+}
+
+/* -------------------------------------------------------------- edit loan */
+
+type EditDraft = {
+    amount: number | null;
+    date: string;
+    purpose: string;
+    instalment: number | null;
+    dueOn: string | null;
+};
+
+const editDraftFor = (loan: LoanRow): EditDraft => ({
+    amount: loan.amountPaise,
+    date: loan.date,
+    purpose: loan.purpose ?? '',
+    instalment: loan.instalmentPaise,
+    dueOn: loan.dueOn,
+});
+
+/**
+ * Edit loan (A6, D138; no board, so it follows Record loan): what it's for and the
+ * repayment terms can always change; the amount and date only while nothing has been
+ * repaid, and changing them reverses the loan's entry and posts it again. The lender
+ * and where the money came from are fixed (delete and record again).
+ */
+export function EditLoanModal({
+    loan,
+    onClose,
+}: {
+    loan: LoanRow | null;
+    onClose: () => void;
+}) {
+    const [draft, setDraft] = useState<EditDraft | null>(null);
+    const [shownFor, setShownFor] = useState<number | null>(null);
+    const [errors, setErrors] = useState<Errors>({});
+    const [saving, setSaving] = useState(false);
+
+    if ((loan?.id ?? null) !== shownFor) {
+        setShownFor(loan?.id ?? null);
+        setErrors({});
+        setDraft(loan ? editDraftFor(loan) : null);
+    }
+
+    if (loan === null || draft === null) {
+        return null;
+    }
+
+    const set = (patch: Partial<EditDraft>) =>
+        setDraft((d) => (d ? { ...d, ...patch } : d));
+    const fixed = loan.repaymentsCount > 0;
+    const amount = draft.amount ?? 0;
+    const purpose = draft.purpose.trim();
+    const reposts = amount !== loan.amountPaise || draft.date !== loan.date;
+    const changed =
+        reposts ||
+        purpose !== (loan.purpose ?? '') ||
+        draft.instalment !== loan.instalmentPaise ||
+        draft.dueOn !== loan.dueOn;
+    const source = loan.converted
+        ? 'converted from personal-card spending'
+        : loan.intoName
+          ? `received into ${loan.intoName}`
+          : 'new money';
+
+    const save = () =>
+        router.put(
+            updateLoan(loan.id).url,
+            {
+                amount_paise: amount,
+                date: draft.date,
+                purpose: purpose || null,
+                instalment_paise: draft.instalment,
+                due_on: draft.dueOn,
+            },
+            visit(setSaving, setErrors, onClose),
+        );
+
+    return (
+        <Modal
+            open
+            onOpenChange={(o) => !o && onClose()}
+            title="Edit loan"
+            subtitle={`${loan.code} · ${loan.name}`}
+            icon={Pencil}
+            dirty
+            footer={
+                <>
+                    <Button variant="secondary" size="lg" onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        disc={Check}
+                        loading={saving}
+                        disabled={amount <= 0 || !changed}
+                        onClick={save}
+                    >
+                        Save changes
+                    </Button>
+                </>
+            }
+        >
+            <div className="wiz-grid-2">
+                <AmountInput
+                    id="el-a"
+                    label="Amount"
+                    value={draft.amount}
+                    disabled={fixed}
+                    onValueChange={(value) => set({ amount: value })}
+                    help={
+                        fixed
+                            ? `Fixed: ${countOf(loan.repaymentsCount, 'repayment')} recorded`
+                            : undefined
+                    }
+                    error={errors.amount_paise}
+                />
+                <DatePicker
+                    id="el-d"
+                    label="Date"
+                    value={draft.date}
+                    disabled={fixed}
+                    onValueChange={(date) => date && set({ date })}
+                    help={fixed ? 'Fixed while it has repayments' : undefined}
+                    error={errors.date}
+                />
+            </div>
+            <TextInput
+                id="el-n"
+                label="What it’s for"
+                placeholder="Optional, e.g. salaries before milestone 2"
+                value={draft.purpose}
+                maxLength={200}
+                onChange={(e) => set({ purpose: e.target.value })}
+                error={errors.purpose}
+            />
+            <div className="wiz-grid-2">
+                <AmountInput
+                    id="el-i"
+                    label="Monthly instalment"
+                    value={draft.instalment}
+                    onValueChange={(instalment) => set({ instalment })}
+                    help="Optional"
+                    error={errors.instalment_paise}
+                />
+                <DatePicker
+                    id="el-due"
+                    label="Due by"
+                    value={draft.dueOn}
+                    onValueChange={(dueOn) => set({ dueOn })}
+                    help="Optional"
+                    error={errors.due_on}
+                />
+            </div>
+            <p className="cf-help m-0" role="status">
+                {reposts
+                    ? `Saving reverses ${loan.code}’s entry and posts it again with the new amount and date.`
+                    : `Lent by ${loan.name}, ${source}. To change the lender or where the money came from, delete the loan and record it again.`}
+            </p>
         </Modal>
     );
 }
