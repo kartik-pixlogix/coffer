@@ -7649,4 +7649,101 @@ fieldset.cf-field:not(#\#) {
 }
 
 /*
- *
+ * Pinned lead column for custom tables (`cf-table--pin`: Members, Team members by
+ * partner, the roles matrix). While the wrap scrolls sideways the first cell of
+ * every row stays at the left edge on a solid background the height of its row, so
+ * labels are always readable and nothing passes under them at rest.
+ */
+.cf-table-wrap.is-overflowing:not(#\#) .cf-table--pin > .cf-tr > :first-child,
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--pin
+    > [role='rowgroup']
+    > .cf-tr
+    > :first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    margin: -8px 0 -8px -14px;
+    padding: 8px 0 8px 14px;
+    background: inherit;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    box-shadow: 8px 0 8px -8px var(--line-strong);
+}
+
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--pin
+    > .cf-tr
+    > .cf-stack:first-child,
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--pin
+    > [role='rowgroup']
+    > .cf-tr
+    > .cf-stack:first-child {
+    align-items: stretch;
+    justify-content: center;
+}
+
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--pin
+    > .cf-thead
+    > :first-child {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    background: var(--surface-card);
+}
+
+/* Group headings ("AARAV MEHTA", "Expenses") stay in view too. */
+.cf-table-wrap.is-overflowing:not(#\#) .cf-table--pin > .pmg > :first-child,
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--pin
+    > [role='rowgroup']
+    > .pmg
+    > :first-child {
+    position: sticky;
+    left: 12px;
+}
+
+/* The roles matrix on phones: narrower check columns so the label and two or three
+   roles fit beside each other. */
+@media (max-width: 640px) {
+    .pm:not(#\#) {
+        grid-template-columns: minmax(120px, 1fr) repeat(4, 48px);
+        column-gap: 8px;
+    }
+}
+
+/* Members on phones: each member is a card (the stacked table, D128) with the
+   avatar and name on top, the menu in its top-right corner. */
+@media (max-width: 640px) {
+    .mb-stack:not(#\#) > .cf-tr:not(.cf-thead) {
+        position: relative;
+    }
+
+    .mb-stack:not(#\#) > .cf-tr > .cf-td-lead {
+        padding-right: 40px;
+        overflow-wrap: anywhere;
+    }
+
+    .mb-stack:not(#\#) > .cf-tr > .cf-rowacts {
+        position: absolute;
+        top: 12px;
+        right: 10px;
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .mb-stack:not(#\#) > .cf-tr > .cf-rowacts:empty {
+        display: none;
+    }
+
+    .mb-stack:not(#\#) > .cf-tr > .mb-email {
+        white-space: normal;
+    }
+}
+
+/*

@@ -169,7 +169,7 @@ export default function Members({
                 </div>
                 <TableWrap label="Members">
                     <div
-                        className="cf-table min-w-[940px]"
+                        className="cf-table cf-table--stack cf-table--pin mb-stack min-w-[940px]"
                         role="table"
                         aria-label="Members"
                     >
@@ -200,7 +200,7 @@ export default function Members({
                                 >
                                     <span
                                         role="cell"
-                                        className="cf-row gap-2.5"
+                                        className="cf-td-lead cf-row gap-2.5"
                                     >
                                         <span
                                             className={`cf-avatar ${user.colour === null ? 'cf-avatar--graphite' : ''}`}
@@ -234,11 +234,12 @@ export default function Members({
                                     </span>
                                     <span
                                         role="cell"
-                                        className="t-body t-muted truncate"
+                                        className="mb-email t-body t-muted truncate"
+                                        data-label="Email"
                                     >
                                         {user.email}
                                     </span>
-                                    <span role="cell">
+                                    <span role="cell" data-label="Role">
                                         <Select
                                             pill
                                             aria-label={`Role for ${user.name}`}
@@ -265,19 +266,23 @@ export default function Members({
                                             }))}
                                         />
                                     </span>
-                                    <span role="cell" className="cf-stack">
-                                        <span className="t-body">
-                                            {user.linked?.label ?? 'Not linked'}
-                                        </span>
-                                        {user.linked && (
-                                            <span className="t-caption t-muted">
-                                                {user.linked.kind}
+                                    <span role="cell" data-label="Linked to">
+                                        <span className="cf-stack">
+                                            <span className="t-body">
+                                                {user.linked?.label ??
+                                                    'Not linked'}
                                             </span>
-                                        )}
+                                            {user.linked && (
+                                                <span className="t-caption t-muted">
+                                                    {user.linked.kind}
+                                                </span>
+                                            )}
+                                        </span>
                                     </span>
                                     <span
                                         role="cell"
                                         className="t-body t-muted"
+                                        data-label="Joined"
                                     >
                                         {user.joined
                                             ? formatDate(user.joined)
@@ -344,7 +349,7 @@ export default function Members({
                     </h2>
                     <TableWrap label="Team members by partner">
                         <div
-                            className="cf-table min-w-[640px]"
+                            className="cf-table cf-table--pin min-w-[640px]"
                             role="table"
                             aria-label="Team members by partner"
                         >

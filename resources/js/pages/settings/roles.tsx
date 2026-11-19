@@ -259,7 +259,7 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                     </h2>
                     <TableWrap label="Page access by role">
                         <div
-                            className="cf-table min-w-[400px] gap-0.5"
+                            className="cf-table cf-table--pin min-w-min gap-0.5"
                             role="table"
                             aria-label="Page access by role"
                         >
@@ -286,7 +286,7 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                     </h2>
                     <TableWrap label="Actions by role">
                         <div
-                            className="cf-table min-w-[400px] gap-0.5"
+                            className="cf-table cf-table--pin min-w-min gap-0.5"
                             role="table"
                             aria-label="Actions by role"
                         >
