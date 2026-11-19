@@ -273,13 +273,13 @@ export default function Income(props: Props) {
                             headingLevel="h2"
                             title="Entries"
                             icon={FileText}
-                            value={kpis.entries.toLocaleString('en-IN')}
+                            count={kpis.entries}
                         />
                         <KpiTile
                             headingLevel="h2"
                             title="Active months"
                             icon={TrendingUp}
-                            value={String(kpis.activeMonths)}
+                            count={kpis.activeMonths}
                         />
                     </div>
                 </div>

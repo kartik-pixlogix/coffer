@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
-import { Hours, Money } from '@/components/ui/money';
+import { Count, Hours, Money } from '@/components/ui/money';
 import { cn } from '@/lib/utils';
 
 export type KpiTileProps = {
@@ -17,7 +17,9 @@ export type KpiTileProps = {
     paise?: number;
     /** Or hours: `<Hours size="lg" countUp>`. */
     hours?: number;
-    /** Or any custom figure. */
+    /** Or a count ("Entries 28"): the same large figure as money. */
+    count?: number;
+    /** Or any custom figure (a plain string or number gets the large figure style). */
     value?: ReactNode;
     /** Count the figure up on first load (default on; off under reduced motion). */
     countUp?: boolean;
@@ -46,6 +48,7 @@ export function KpiTile({
     aside,
     paise,
     hours,
+    count,
     value,
     countUp = true,
     caption,
@@ -120,22 +123,28 @@ export function KpiTile({
     }
 
     const figure =
-        value ??
-        (paise !== undefined ? (
-            <Money
-                paise={paise}
-                size="lg"
-                countUp={countUp}
-                className="gap-1"
-            />
-        ) : hours !== undefined ? (
-            <Hours
-                hours={hours}
-                size="lg"
-                countUp={countUp}
-                className="gap-1"
-            />
-        ) : null);
+        typeof value === 'string' || typeof value === 'number' ? (
+            <span className="t-money-lg">{value}</span>
+        ) : (
+            (value ??
+            (count !== undefined ? (
+                <Count value={count} countUp={countUp} />
+            ) : paise !== undefined ? (
+                <Money
+                    paise={paise}
+                    size="lg"
+                    countUp={countUp}
+                    className="gap-1"
+                />
+            ) : hours !== undefined ? (
+                <Hours
+                    hours={hours}
+                    size="lg"
+                    countUp={countUp}
+                    className="gap-1"
+                />
+            ) : null))
+        );
 
     const captionNode =
         caption === undefined ? null : captionHref ? (

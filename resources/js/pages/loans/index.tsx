@@ -339,7 +339,7 @@ export default function PartnerLoans(props: Props) {
                         headingLevel="h2"
                         title="Open loans"
                         icon={Clock}
-                        value={String(kpis.openCount)}
+                        count={kpis.openCount}
                         caption={
                             kpis.next
                                 ? `Next: ${nextText(kpis.next, today)}`
