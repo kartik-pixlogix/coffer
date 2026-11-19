@@ -313,8 +313,8 @@ Hosting (`hostinger_starter_v3`), LiteSpeed, PHP 8.4 (account-wide; sodium on), 
 1. `git archive HEAD | tar -x -C <dir>`, then in `<dir>`: `composer install --no-dev --optimize-autoloader --no-scripts`.
 2. `npm run build` in the repo and copy `public/build` into `<dir>/public/build` (never `public/hot`).
 3. `tar -czf coffer.tar.gz .` (leave out `tests`, `design`, `docs`, `node_modules`).
-4. Upload `coffer.tar.gz` (and `env.production` only when the `.env` changes) to `.coffer-inbox`
-   with `hosting_files_generate-upload-url` (TUS), plus `deploy.sh`.
+4. Upload (`scripts/hostinger/upload.sh`) `coffer.tar.gz` (and `env.production` only when the `.env` changes) to `.coffer-inbox`
+   with `hosting_files_generate-upload-url` (TUS), plus `scripts/hostinger/deploy.sh`.
 5. Run `bash ~/domains/unboundsolutions.in/public_html/.coffer-inbox/deploy.sh` once from a
    temporary cron job (no SSH): maintenance mode, unpack, `package:discover`, `migrate --force`,
    `filament:upgrade`, `optimize`, `queue:restart`, `up`. It exits at once when no release is
