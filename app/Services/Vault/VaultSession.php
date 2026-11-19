@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 /**
  * The vault's lock and step-up state, kept in the session (spec §14.3, D69):
@@ -28,6 +30,13 @@ final readonly class VaultSession
     /** With "a fresh code before every reveal" (D76): the code already spent on one. */
     private const string SPENT = 'vault.verified_spent';
 
+    /**
+     * P7 (D109): a random token per unlock. Locking revokes it in the cache, which is written
+     * at once, so a request that read the session before the lock (a heartbeat, a page
+     * reload) and saves it afterwards can't bring the vault back open.
+     */
+    private const string TOKEN = 'vault.token';
+
     public function __construct(private Session $session, private CurrentCompany $current) {}
 
     public function policy(): VaultPolicy
@@ -39,7 +48,7 @@ final readonly class VaultSession
     {
         $lockAt = $this->lockAt();
 
-        return $lockAt !== null && $lockAt->isFuture();
+        return $lockAt !== null && $lockAt->isFuture() && ! $this->revoked();
     }
 
     /** When the vault locks itself if nothing else happens. */
@@ -92,6 +101,7 @@ final readonly class VaultSession
         $now = now()->getTimestamp();
         $this->session->put(self::UNLOCKED, $now);
         $this->session->put(self::ACTIVE, $now);
+        $this->session->put(self::TOKEN, Str::random(40));
 
         if ($withCode) {
             $this->session->put(self::VERIFIED, $now);
@@ -108,7 +118,26 @@ final readonly class VaultSession
 
     public function lock(): void
     {
-        $this->session->forget([self::UNLOCKED, self::ACTIVE, self::VERIFIED, self::SPENT]);
+        $token = $this->session->get(self::TOKEN);
+
+        if (is_string($token)) {
+            Cache::put(self::revokedKey($token), true, now()->addDay());
+        }
+
+        $this->session->forget([self::UNLOCKED, self::ACTIVE, self::VERIFIED, self::SPENT, self::TOKEN]);
+    }
+
+    /** Was this session's unlock locked since (by another request)? */
+    private function revoked(): bool
+    {
+        $token = $this->session->get(self::TOKEN);
+
+        return is_string($token) && Cache::has(self::revokedKey($token));
+    }
+
+    private static function revokedKey(string $token): string
+    {
+        return 'vault-locked:'.hash('sha256', $token);
     }
 
     /** @return array{unlocked: bool, verifiedUntil: string|null, lockAt: string|null} */

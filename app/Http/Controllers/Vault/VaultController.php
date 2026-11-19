@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultAccessRequest;
 use App\Models\VaultItem;
+use App\Services\Auth\TwoFactorCodes;
 use App\Services\Vault\ItemPresenter;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultAudit;
@@ -24,12 +25,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 
 /**
  * Vault home (Vault.dc.html, MobileVault.dc.html; spec §14): the rail of vaults and smart
@@ -105,14 +104,15 @@ final class VaultController extends Controller
     }
 
     /** Unlock with a 2FA code (also a fresh step-up for reveals) or the account password. */
-    public function unlock(Request $request, VaultSession $session, VaultAudit $audit, TwoFactorAuthenticationProvider $provider): JsonResponse
+    public function unlock(Request $request, VaultSession $session, VaultAudit $audit, TwoFactorCodes $codes): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
+        // V2 (D108): the vault needs 2FA, so unlock and step-up take a 2FA or recovery code;
+        // the account password alone never opens it.
         $request->validate([
-            'code' => ['required_without:password', 'nullable', 'string', 'max:32'],
-            'password' => ['required_without:code', 'nullable', 'string', 'max:255'],
-        ], ['code.required_without' => 'Enter the 6-digit code.', 'password.required_without' => 'Enter your password.']);
+            'code' => ['required', 'string', 'max:32'],
+        ], ['code.required' => 'Enter the 6-digit code or a recovery code.']);
 
         if (! $user->hasTwoFactorEnabled()) {
             return response()->json(['message' => 'Turn on two-factor sign-in to use the vault.'], 403);
@@ -120,7 +120,7 @@ final class VaultController extends Controller
 
         $key = 'vault-unlock:'.$user->id;
         $max = (int) config('vault.unlock_attempts');
-        $field = $request->filled('code') ? 'code' : 'password';
+        $field = 'code';
 
         if (RateLimiter::tooManyAttempts($key, $max)) {
             $minutes = max(1, (int) ceil(RateLimiter::availableIn($key) / 60));
@@ -128,23 +128,25 @@ final class VaultController extends Controller
             return response()->json(['errors' => [$field => ["Too many tries. Wait {$minutes} ".($minutes === 1 ? 'minute' : 'minutes').' and try again.']]], 429);
         }
 
-        $ok = $field === 'code'
-            ? $this->codeMatches($user, $request->string('code')->toString(), $provider)
-            : Hash::check($request->string('password')->toString(), $user->password);
+        $result = $codes->check($user, $request->string('code')->toString());
 
-        if (! $ok) {
+        // V3: a code just spent on sign-in is not a wrong code; don't count it.
+        if ($result === TwoFactorCodes::REPLAYED) {
+            return response()->json(['errors' => [$field => [TwoFactorCodes::REPLAY_MESSAGE]]], 422);
+        }
+
+        if ($result !== TwoFactorCodes::VALID) {
             RateLimiter::hit($key, (int) config('vault.unlock_lockout_seconds'));
             $audit->record(VaultAuditAction::FailedUnlock, $user, null, null, ['method' => $field]);
             $left = max(0, $max - RateLimiter::attempts($key));
-            $what = $field === 'code' ? 'That code didn’t match.' : 'That password didn’t work.';
             $tail = $left > 0 ? " {$left} ".($left === 1 ? 'try' : 'tries').' left before a 5-minute pause.' : ' Wait 5 minutes and try again.';
 
-            return response()->json(['errors' => [$field => [$what.$tail]]], 422);
+            return response()->json(['errors' => [$field => ['That code didn’t match.'.$tail]]], 422);
         }
 
         RateLimiter::clear($key);
         $wasUnlocked = $session->isUnlocked();
-        $session->unlock(withCode: $field === 'code');
+        $session->unlock(withCode: true);
         $audit->record(VaultAuditAction::Unlocked, $user, null, null, ['method' => $field, 'step_up' => $wasUnlocked]);
 
         return response()->json(['ok' => true, 'state' => $session->state()]);
@@ -237,26 +239,5 @@ final class VaultController extends Controller
             'pending' => $manages ? VaultAccessRequest::query()->with(['vault', 'item'])->where('status', VaultRequestStatus::Pending->value)->get()
                 ->filter(fn (VaultAccessRequest $r) => $sharing->canDecide($user, $r))->count() : null,
         ];
-    }
-
-    private function codeMatches(User $user, string $code, TwoFactorAuthenticationProvider $provider): bool
-    {
-        $code = trim(str_replace(' ', '', $code));
-
-        if ($code === '') {
-            return false;
-        }
-
-        if (preg_match('/^\d{6}$/', $code) === 1 && $provider->verify((string) decrypt((string) $user->two_factor_secret), $code)) {
-            return true;
-        }
-
-        if (in_array($code, $user->recoveryCodes(), true)) {
-            $user->replaceRecoveryCode($code);
-
-            return true;
-        }
-
-        return false;
     }
 }

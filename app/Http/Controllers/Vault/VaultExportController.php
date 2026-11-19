@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vault;
 use App\Models\VaultItem;
+use App\Services\Auth\TwoFactorCodes;
 use App\Services\Vault\Transfer\ExportCrypto;
 use App\Services\Vault\Transfer\VaultExporter;
 use App\Services\Vault\VaultAccess;
@@ -20,7 +21,6 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
@@ -49,7 +49,7 @@ final class VaultExportController extends Controller
         ]);
     }
 
-    public function store(Request $request, VaultSession $session, VaultExporter $exporter, ExportCrypto $crypto, VaultAudit $audit, CurrentCompany $current, TwoFactorAuthenticationProvider $twoFactor): HttpResponse
+    public function store(Request $request, VaultSession $session, VaultExporter $exporter, ExportCrypto $crypto, VaultAudit $audit, CurrentCompany $current, TwoFactorCodes $codes): HttpResponse
     {
         $user = $this->authorizeExport($request, $current);
         $company = $current->require();
@@ -71,8 +71,10 @@ final class VaultExportController extends Controller
         if (! $session->isVerified()) {
             $code = preg_replace('/\s+/', '', (string) ($data['code'] ?? '')) ?? '';
 
-            if (preg_match('/^\d{6}$/', $code) !== 1 || ! $twoFactor->verify((string) decrypt((string) $user->two_factor_secret), $code)) {
-                throw ValidationException::withMessages(['code' => 'Enter the current 6-digit code from your authenticator app.']);
+            $result = preg_match('/^\d{6}$/', $code) === 1 ? $codes->check($user, $code, allowRecovery: false) : TwoFactorCodes::INVALID;
+
+            if ($result !== TwoFactorCodes::VALID) {
+                throw ValidationException::withMessages(['code' => $result === TwoFactorCodes::REPLAYED ? TwoFactorCodes::REPLAY_MESSAGE : 'Enter the current 6-digit code from your authenticator app.']);
             }
 
             $session->unlock(withCode: true);

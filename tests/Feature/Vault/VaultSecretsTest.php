@@ -12,6 +12,7 @@ use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use PragmaRX\Google2FA\Google2FA;
 
 beforeEach(function () {
@@ -164,15 +165,21 @@ test('attachments are stored encrypted and download decrypted after the same che
         ->and(auditActions($company))->toContain('downloaded');
 });
 
-test('unlock with a 2FA code verifies; a password only unlocks; mistakes count down to a 5-minute pause', function () {
+test('unlock takes a 2FA or recovery code, never the password alone; mistakes count down to a 5-minute pause', function () {
     $company = Company::factory()->create();
     $admin = vaultUser(CompanyRole::Admin, $company);
 
+    // V2 (D108): the account password doesn't open the vault.
     $this->actingAs($admin)->postJson(route('vault.unlock'), ['password' => 'password'])
-        ->assertOk()->assertJsonPath('state.unlocked', true)->assertJsonPath('state.verifiedUntil', null);
+        ->assertStatus(422)->assertJsonValidationErrors('code');
 
-    $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => currentCode()])
-        ->assertOk()->assertJsonPath('state.verifiedUntil', now()->addMinutes(15)->toIso8601String());
+    $code = currentCode();
+    $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => $code])
+        ->assertOk()->assertJsonPath('state.unlocked', true)->assertJsonPath('state.verifiedUntil', now()->addMinutes(15)->toIso8601String());
+
+    // V3: the same code again is a replay, not a mistake, and isn't counted.
+    $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => $code])
+        ->assertStatus(422)->assertJsonPath('errors.code.0', 'That code was just used. Wait for the next one.');
 
     $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => 'VAULT-RECOVERY-1'])->assertOk();
     expect($admin->fresh()->recoveryCodes())->not->toContain('VAULT-RECOVERY-1');
@@ -181,12 +188,50 @@ test('unlock with a 2FA code verifies; a password only unlocks; mistakes count d
         ->assertStatus(422)->assertJsonPath('errors.code.0', 'That code didn’t match. 4 tries left before a 5-minute pause.');
 
     for ($i = 0; $i < 4; $i++) {
-        $this->actingAs($admin)->postJson(route('vault.unlock'), ['password' => 'wrong']);
+        $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => 'WRONG-CODE']);
     }
 
     $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => currentCode()])->assertStatus(429);
 
-    expect(collect(auditActions($company))->countBy()->all())->toMatchArray(['unlocked' => 3, 'failed_unlock' => 5]);
+    expect(collect(auditActions($company))->countBy()->all())->toMatchArray(['unlocked' => 2, 'failed_unlock' => 5]);
+});
+
+test('a code just used to sign in is a replay at unlock, not a failed try (V3)', function () {
+    $company = Company::factory()->create();
+    $admin = vaultUser(CompanyRole::Admin, $company);
+    $code = currentCode();
+
+    // Fortify's provider remembers the code it accepted at sign-in.
+    expect(app(TwoFactorAuthenticationProvider::class)->verify(VAULT_TEST_2FA, $code))->toBeTrue();
+
+    $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => $code])
+        ->assertStatus(422)->assertJsonPath('errors.code.0', 'That code was just used. Wait for the next one.');
+
+    expect(auditActions($company))->not->toContain('failed_unlock');
+});
+
+test('the server decides the lock: idle past the policy is 423 and a stale session can’t reopen it (P7)', function () {
+    $company = Company::factory()->create();
+    $admin = vaultUser(CompanyRole::Admin, $company);
+    $item = vaultItemFor($company, ['password' => 'demo-Reveal-Me-42!']);
+
+    $this->actingAs($admin)->withSession(vaultUnlocked());
+    $this->postJson(route('vault.items.reveal', $item), ['field' => 'password'])->assertOk();
+
+    // 16 minutes with nothing (policy: 15) locks every secret endpoint.
+    CarbonImmutable::setTestNow('2026-11-15 10:16:01');
+    foreach (['vault.items.reveal', 'vault.items.copy'] as $route) {
+        $this->postJson(route($route, $item), ['field' => 'password'])->assertStatus(423);
+    }
+    $this->postJson(route('vault.touch'))->assertOk()->assertJsonPath('state.unlocked', false);
+
+    // Unlocked again, then locked: a request that read the session before the lock and
+    // writes it back afterwards (the old keys) still finds the vault locked.
+    $this->postJson(route('vault.unlock'), ['code' => currentCode()])->assertOk();
+    $stale = collect(session()->all())->filter(fn ($v, $k) => str_starts_with((string) $k, 'vault.'))->all();
+    $this->postJson(route('vault.items.reveal', $item), ['field' => 'password'])->assertOk();
+    $this->postJson(route('vault.lock'))->assertOk();
+    $this->withSession($stale)->postJson(route('vault.items.reveal', $item), ['field' => 'password'])->assertStatus(423);
 });
 
 test('lock ends the session’s access; touch keeps it alive', function () {
@@ -209,7 +254,7 @@ test('users without 2FA can’t unlock or reveal', function () {
     $admin = userWithRole(CompanyRole::Admin, $company);
     $item = vaultItemFor($company, ['password' => 'demo-Reveal-Me-42!']);
 
-    $this->actingAs($admin)->postJson(route('vault.unlock'), ['password' => 'password'])->assertForbidden();
+    $this->actingAs($admin)->postJson(route('vault.unlock'), ['code' => '123456'])->assertForbidden();
     $this->actingAs($admin)->withSession(vaultUnlocked())->postJson(route('vault.items.reveal', $item), ['field' => 'password'])->assertForbidden();
 });
 

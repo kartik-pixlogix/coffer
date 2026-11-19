@@ -8,13 +8,13 @@ use App\Auth\LoginLockout;
 use App\Auth\TrustedDevices;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Auth\TwoFactorCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 
 /**
  * The session-expired dialog (StateSession.dc.html, D30): sign back in without leaving
@@ -64,7 +64,7 @@ final class ReauthController extends Controller
         return $this->signIn($request, $user);
     }
 
-    public function code(Request $request, TwoFactorAuthenticationProvider $provider): JsonResponse
+    public function code(Request $request, TwoFactorCodes $codes): JsonResponse
     {
         $request->validate(['code' => ['required', 'string', 'max:32']]);
 
@@ -80,15 +80,13 @@ final class ReauthController extends Controller
             return response()->json(['errors' => ['code' => ['Too many codes. Wait a minute and try again.']]], 429);
         }
 
-        $code = trim($request->string('code')->value());
-        $valid = $provider->verify((string) decrypt((string) $user->two_factor_secret), $code);
+        $result = $codes->check($user, $request->string('code')->value());
 
-        if (! $valid && in_array($code, $user->recoveryCodes(), true)) {
-            $user->replaceRecoveryCode($code);
-            $valid = true;
+        if ($result === TwoFactorCodes::REPLAYED) {
+            return response()->json(['errors' => ['code' => [TwoFactorCodes::REPLAY_MESSAGE]]], 422);
         }
 
-        if (! $valid) {
+        if ($result !== TwoFactorCodes::VALID) {
             RateLimiter::hit($key, 60);
 
             return response()->json(['errors' => ['code' => ['That code didn’t match. Codes change every 30 seconds.']]], 422);

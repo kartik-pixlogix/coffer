@@ -5,7 +5,6 @@ import type { FormEvent } from 'react';
 import { Button, TextButton } from '@/components/ui/button';
 import { CodeInput } from '@/components/ui/code-input';
 import { Icon } from '@/components/ui/icon';
-import { PasswordField } from '@/components/ui/password-field';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TextInput } from '@/components/ui/text-input';
 import { signOut } from '@/components/shell/sign-out';
@@ -19,7 +18,7 @@ import type { VaultPolicy, VaultUnlockResponse } from '@/types/vault';
 
 export type LockReason = 'idle' | 'manual' | 'session';
 
-type Mode = 'code' | 'recovery' | 'password';
+type Mode = 'code' | 'recovery';
 
 type Props = {
     firstName: string;
@@ -37,7 +36,8 @@ const SKELETON_ROWS = ['46%', '38%', '52%', '30%', '44%', '36%', '50%', '28%'];
 
 /**
  * The locked vault (VaultLockPolicies.dc.html "Vault locked"): the list blurred behind
- * a card asking for the 6-digit code, a recovery code or the account password.
+ * a card asking for the 6-digit code or a recovery code (the password alone never opens
+ * it, D108).
  */
 export function LockCard({
     firstName,
@@ -75,27 +75,20 @@ export function LockCard({
 
         setChecking(true);
         setError(undefined);
-        const body =
-            mode === 'password'
-                ? { password: text }
-                : { code: mode === 'code' ? codeValue : text.trim() };
+        const body = { code: mode === 'code' ? codeValue : text.trim() };
         const result = await vaultRequest<VaultUnlockResponse>(
             unlock().url,
             body,
         );
 
         if (result.ok) {
-            onUnlocked(result.data.state, mode !== 'password');
+            onUnlocked(result.data.state, true);
 
             return;
         }
 
         setChecking(false);
-        setError(
-            result.errors.code?.[0] ??
-                result.errors.password?.[0] ??
-                result.message,
-        );
+        setError(result.errors.code?.[0] ?? result.message);
         setCode('');
     };
 
@@ -154,9 +147,7 @@ export function LockCard({
                     <p id="vh-lock-d" className="t-body t-muted m-0">
                         {mode === 'code'
                             ? description
-                            : mode === 'recovery'
-                              ? 'Enter one of the recovery codes you saved when you turned on two-factor sign-in. Each one works once.'
-                              : 'Enter your account password. Revealing a password will still ask for a code from your authenticator app.'}
+                            : 'Enter one of the recovery codes you saved when you turned on two-factor sign-in. Each one works once.'}
                     </p>
                 </div>
 
@@ -181,7 +172,7 @@ export function LockCard({
                             autoFocus
                         />
                     </div>
-                ) : mode === 'recovery' ? (
+                ) : (
                     <TextInput
                         label="Recovery code"
                         value={text}
@@ -192,17 +183,6 @@ export function LockCard({
                         error={error}
                         autoComplete="off"
                         spellCheck={false}
-                        autoFocus
-                    />
-                ) : (
-                    <PasswordField
-                        label="Password"
-                        value={text}
-                        onChange={(event) => {
-                            setText(event.currentTarget.value);
-                            setError(undefined);
-                        }}
-                        error={error}
                         autoFocus
                     />
                 )}
@@ -219,26 +199,12 @@ export function LockCard({
 
                 <div className="vh-lock-links">
                     {mode === 'code' ? (
-                        <>
-                            <TextButton
-                                className="t-caption"
-                                onClick={() => switchTo('recovery')}
-                            >
-                                Use a recovery code
-                            </TextButton>
-                            <span
-                                className="t-caption t-muted"
-                                aria-hidden="true"
-                            >
-                                ·
-                            </span>
-                            <TextButton
-                                className="t-caption"
-                                onClick={() => switchTo('password')}
-                            >
-                                Use your password
-                            </TextButton>
-                        </>
+                        <TextButton
+                            className="t-caption"
+                            onClick={() => switchTo('recovery')}
+                        >
+                            Use a recovery code
+                        </TextButton>
                     ) : (
                         <TextButton
                             className="t-caption"
