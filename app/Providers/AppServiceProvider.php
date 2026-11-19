@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -99,6 +100,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Inertia::disableSsr(fn (Request $request): bool => ! $request->routeIs('welcome', 'marketing.*'));
+
+        // The QA sweep's server (docs/QA.md) uses the built assets even while Vite dev runs.
+        $hot = config('app.vite_hot_file');
+
+        if (is_string($hot) && $hot !== '') {
+            Vite::useHotFile($hot);
+        }
     }
 
     /**

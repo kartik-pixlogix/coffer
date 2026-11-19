@@ -1,0 +1,4 @@
+{
+    "about": "Sweep findings that are intended, each with the reason (docs/QA.md). Match on kind plus any of page, selector, text, detail (substrings), minWidth, maxWidth.",
+    "allow": []
+}

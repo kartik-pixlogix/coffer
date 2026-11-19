@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // The QA sweep (docs/QA.md) serves built assets on a second port while `composer run dev`
+    // keeps public/hot: pointing this at a missing file makes that server ignore the hot file.
+    'vite_hot_file' => env('VITE_HOT_FILE'),
+
 ];

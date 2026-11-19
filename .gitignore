@@ -48,3 +48,4 @@ yarn-error.log
 /public/js/filament
 /public/fonts/filament
 /storage/backups
+/storage/qa
