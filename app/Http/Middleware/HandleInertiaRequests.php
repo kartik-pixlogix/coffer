@@ -78,10 +78,14 @@ class HandleInertiaRequests extends Middleware
 
         $marker = app(Impersonator::class)->current($request);
 
+        // S5 (D111): the banner says when the workspace being viewed is suspended.
+        $workspace = app(CurrentCompany::class)->get()?->workspace;
+
         return $marker === null ? null : [
             'admin' => $marker['admin_name'],
             'user' => $user->name,
             'reason' => $marker['reason'],
+            'suspended' => $workspace !== null && $workspace->isSuspended(),
         ];
     }
 

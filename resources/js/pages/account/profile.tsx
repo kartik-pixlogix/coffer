@@ -1,11 +1,12 @@
-import { Head, router } from '@inertiajs/react';
-import { Laptop, Smartphone } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Laptop, ShieldOff, Smartphone } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { MeterDots, StrengthLabel } from '@/components/auth/auth-parts';
 import { PrivacyCard } from '@/components/account/privacy-card';
 import { TwoFactorCard } from '@/components/account/two-factor-card';
 import type { TwoFactorProps } from '@/components/account/two-factor-card';
 import { PageHeader } from '@/components/shell/page-header';
+import { AlertBanner } from '@/components/ui/alert-banner';
 import { initialsFrom } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -297,6 +298,7 @@ function PasswordCard({ changedAt }: { changedAt: string | null }) {
             <PasswordField
                 id="pw-c"
                 label="Current password"
+                placeholder="Your current password"
                 autoComplete="current-password"
                 value={current}
                 onChange={(e) => setCurrent(e.target.value)}
@@ -306,6 +308,7 @@ function PasswordCard({ changedAt }: { changedAt: string | null }) {
                 <PasswordField
                     id="pw-n"
                     label="New password"
+                    placeholder="At least 12 characters"
                     autoComplete="new-password"
                     revealable={false}
                     value={next}
@@ -317,6 +320,7 @@ function PasswordCard({ changedAt }: { changedAt: string | null }) {
                 <PasswordField
                     id="pw-r"
                     label="Repeat new password"
+                    placeholder="Type it again"
                     autoComplete="new-password"
                     revealable={false}
                     value={repeat}
@@ -428,6 +432,8 @@ export default function ProfilePage({
         timezone: profile.timezone,
         numberFormat: profile.numberFormat,
     };
+    // S2 (D110): a platform admin viewing as this person can't touch account security.
+    const impersonating = usePage().props.impersonation !== null;
     const [form, setFormState] = useState(saved);
     const [last, setLast] = useState(profile);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -486,7 +492,7 @@ export default function ProfilePage({
                             variant="primary"
                             size="lg"
                             loading={saving}
-                            disabled={!dirty}
+                            disabled={!dirty || impersonating}
                             onClick={save}
                         >
                             Save profile
@@ -495,6 +501,16 @@ export default function ProfilePage({
                 }
             />
 
+            {impersonating && (
+                <AlertBanner
+                    variant="warn"
+                    icon={ShieldOff}
+                    title="Account security is off while you’re viewing as this person"
+                >
+                    Password, email, two-factor sign-in, sessions, data export
+                    and deletion can only be changed by the person themselves.
+                </AlertBanner>
+            )}
             <div className="profile-body">
                 <div className="profile-col">
                     <ProfileDetails
@@ -506,11 +522,20 @@ export default function ProfilePage({
                         timezones={timezones}
                         errors={errors}
                     />
-                    <PasswordCard changedAt={password.changedAt} />
-                    <SessionsCard sessions={sessions} />
-                    <PrivacyCard privacy={privacy} />
+                    {!impersonating && (
+                        <>
+                            <PasswordCard changedAt={password.changedAt} />
+                            <SessionsCard sessions={sessions} />
+                            <PrivacyCard privacy={privacy} />
+                        </>
+                    )}
                 </div>
-                <TwoFactorCard twoFactor={twoFactor} email={profile.email} />
+                {!impersonating && (
+                    <TwoFactorCard
+                        twoFactor={twoFactor}
+                        email={profile.email}
+                    />
+                )}
             </div>
         </>
     );

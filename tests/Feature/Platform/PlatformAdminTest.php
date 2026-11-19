@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\CompanyRole;
+use App\Filament\Pages\EditPlatformProfile;
 use App\Filament\Resources\ContactRequests\ContactRequestResource;
 use App\Filament\Resources\Plans\Pages\EditPlan;
 use App\Filament\Resources\Plans\PlanResource;
@@ -17,6 +18,7 @@ use App\Models\Workspace;
 use Filament\Auth\Pages\Login;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use PragmaRX\Google2FA\Google2FA;
 use Spatie\Activitylog\Models\Activity;
@@ -190,4 +192,28 @@ it('reads the command defaults from the environment config', function () {
     $this->artisan('coffer:platform-admin')->assertSuccessful();
 
     expect(PlatformAdmin::query()->where('email', 'env@coffer.test')->value('name'))->toBe('Env Admin');
+});
+
+it('changes the platform password only with the current password and a matching confirmation (S9)', function () {
+    $admin = platformAdmin();
+    $this->actingAs($admin, 'platform');
+
+    Livewire::test(EditPlatformProfile::class)
+        ->fillForm(['password' => 'a-new-platform-passphrase'])
+        ->call('save')
+        ->assertHasFormErrors(['passwordConfirmation' => 'required', 'currentPassword' => 'required']);
+
+    Livewire::test(EditPlatformProfile::class)
+        ->fillForm(['password' => 'a-new-platform-passphrase', 'passwordConfirmation' => 'a-new-platform-passphrase', 'currentPassword' => 'wrong-one'])
+        ->call('save')
+        ->assertHasFormErrors(['currentPassword']);
+
+    expect(Hash::check('platform-password', $admin->fresh()->password))->toBeTrue();
+
+    Livewire::test(EditPlatformProfile::class)
+        ->fillForm(['password' => 'a-new-platform-passphrase', 'passwordConfirmation' => 'a-new-platform-passphrase', 'currentPassword' => 'platform-password'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(Hash::check('a-new-platform-passphrase', $admin->fresh()->password))->toBeTrue();
 });

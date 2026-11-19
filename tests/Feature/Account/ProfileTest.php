@@ -161,7 +161,7 @@ test('Admins can’t turn 2FA off; others can', function () {
 
     $this->actingAs($admin)
         ->withSession(['auth.password_confirmed_at' => time()])
-        ->delete(route('two-factor.disable'))
+        ->delete(route('two-factor.disable'), ['confirmation' => 'password'])
         ->assertSessionHasErrors(['two_factor' => 'You’re an Admin, so 2FA stays on.']);
     expect($admin->fresh()->hasTwoFactorEnabled())->toBeTrue();
 
@@ -169,7 +169,7 @@ test('Admins can’t turn 2FA off; others can', function () {
 
     $this->actingAs($partner)
         ->withSession(['auth.password_confirmed_at' => time()])
-        ->delete(route('two-factor.disable'))
+        ->delete(route('two-factor.disable'), ['confirmation' => 'password'])
         ->assertSessionHasNoErrors();
     expect($partner->fresh()->hasTwoFactorEnabled())->toBeFalse();
 });
@@ -207,7 +207,7 @@ test('replacing the authenticator issues a new secret', function () {
 
     $this->actingAs($user)
         ->withSession(['auth.password_confirmed_at' => time()])
-        ->post(route('profile.two-factor.replace'))
+        ->post(route('profile.two-factor.replace'), ['confirmation' => 'password'])
         ->assertRedirect();
 
     expect(decrypt($user->fresh()->two_factor_secret))->not->toBe('OLDSECRETOLDSECR');

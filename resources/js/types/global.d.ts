@@ -28,6 +28,8 @@ declare module '@inertiajs/core' {
                 admin: string;
                 user: string;
                 reason: string;
+                /** The workspace being viewed is suspended (S5). */
+                suspended: boolean;
             } | null;
             [key: string]: unknown;
         };

@@ -1,12 +1,19 @@
 import { router } from '@inertiajs/react';
-import { ArrowRight, Check, Download, ShieldCheck } from 'lucide-react';
+import {
+    ArrowRight,
+    Check,
+    Download,
+    KeyRound,
+    ShieldCheck,
+} from 'lucide-react';
 import { useState } from 'react';
 import { AlertBanner } from '@/components/ui/alert-banner';
 import { Button, TextButton } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CodeInput } from '@/components/ui/code-input';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Icon } from '@/components/ui/icon';
+import { Modal } from '@/components/ui/modal';
+import { PasswordField } from '@/components/ui/password-field';
 import { useToast } from '@/components/ui/toast';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -246,9 +253,120 @@ function SetUp({
     );
 }
 
+type Sensitive = 'codes' | 'replace' | 'off';
+
+const SENSITIVE: Record<Sensitive, { title: string; confirm: string }> = {
+    codes: { title: 'Make new recovery codes?', confirm: 'Make new codes' },
+    replace: { title: 'Replace your authenticator?', confirm: 'Replace' },
+    off: {
+        title: 'Turn off two-factor authentication?',
+        confirm: 'Turn off 2FA',
+    },
+};
+
+/**
+ * P9 (D110): turning 2FA off, new recovery codes and replacing the authenticator ask for
+ * the password or a current code in the same request; the server checks it.
+ */
+function ConfirmIdentity({
+    action,
+    onClose,
+}: {
+    action: Sensitive | null;
+    onClose: () => void;
+}) {
+    const [value, setValue] = useState('');
+    const [error, setError] = useState<string | undefined>();
+    const [busy, setBusy] = useState(false);
+    const toast = useToast();
+    const copy = action ? SENSITIVE[action] : SENSITIVE.off;
+
+    const close = () => {
+        setValue('');
+        setError(undefined);
+        onClose();
+    };
+
+    const options = {
+        preserveScroll: true,
+        onStart: () => setBusy(true),
+        onFinish: () => setBusy(false),
+        onError: (errors: Record<string, string>) =>
+            setError(errors.confirmation ?? Object.values(errors)[0]),
+        onSuccess: () => {
+            if (action === 'codes') {
+                toast.success(
+                    'New recovery codes made. The old ones stopped working.',
+                );
+            }
+
+            close();
+        },
+    };
+
+    const submit = () => {
+        if (value.trim() === '' || action === null) {
+            setError('Enter your password or a 6-digit code to confirm.');
+
+            return;
+        }
+
+        const data = { confirmation: value.trim() };
+
+        if (action === 'off') {
+            router.delete(disableTwoFactor().url, { ...options, data });
+        } else if (action === 'codes') {
+            router.post(regenerateRecoveryCodes().url, data, options);
+        } else {
+            router.post(replaceTwoFactor().url, data, options);
+        }
+    };
+
+    return (
+        <Modal
+            open={action !== null}
+            onOpenChange={(open) => !open && close()}
+            title={copy.title}
+            subtitle={
+                action === 'off'
+                    ? 'Sign-in will only ask for your password, and your recovery codes stop working.'
+                    : 'Confirm it’s you first.'
+            }
+            icon={KeyRound}
+            size="sm"
+            onSubmit={(event) => {
+                event.preventDefault();
+                submit();
+            }}
+            footer={
+                <>
+                    <Button variant="ghost" onClick={close}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" variant="primary" loading={busy}>
+                        {copy.confirm}
+                    </Button>
+                </>
+            }
+        >
+            <PasswordField
+                label="Password or 6-digit code"
+                value={value}
+                onChange={(event) => {
+                    setValue(event.currentTarget.value);
+                    setError(undefined);
+                }}
+                error={error}
+                autoComplete="current-password"
+                autoFocus
+            />
+        </Modal>
+    );
+}
+
 function On({ twoFactor }: { twoFactor: TwoFactorProps }) {
     const [offWarn, setOffWarn] = useState(false);
-    const [confirmOff, setConfirmOff] = useState(false);
+    const [sensitive, setSensitive] = useState<Sensitive | null>(null);
     const toast = useToast();
 
     return (
@@ -313,31 +431,13 @@ function On({ twoFactor }: { twoFactor: TwoFactorProps }) {
             <div className="cf-row flex-wrap gap-2">
                 <Button
                     variant="secondary"
-                    onClick={() =>
-                        router.post(
-                            regenerateRecoveryCodes().url,
-                            {},
-                            {
-                                preserveScroll: true,
-                                onSuccess: () =>
-                                    toast.success(
-                                        'New recovery codes made. The old ones stopped working.',
-                                    ),
-                            },
-                        )
-                    }
+                    onClick={() => setSensitive('codes')}
                 >
                     Make new recovery codes
                 </Button>
                 <Button
                     variant="secondary"
-                    onClick={() =>
-                        router.post(
-                            replaceTwoFactor().url,
-                            {},
-                            { preserveScroll: true },
-                        )
-                    }
+                    onClick={() => setSensitive('replace')}
                 >
                     Replace authenticator
                 </Button>
@@ -347,7 +447,7 @@ function On({ twoFactor }: { twoFactor: TwoFactorProps }) {
                     onClick={() =>
                         twoFactor.required
                             ? setOffWarn(true)
-                            : setConfirmOff(true)
+                            : setSensitive('off')
                     }
                 >
                     Turn off
@@ -371,19 +471,9 @@ function On({ twoFactor }: { twoFactor: TwoFactorProps }) {
                     </div>
                 </div>
             )}
-            <ConfirmDialog
-                open={confirmOff}
-                onOpenChange={setConfirmOff}
-                title="Turn off two-factor authentication?"
-                description="Sign-in will only ask for your password, and your recovery codes stop working."
-                confirmLabel="Turn off 2FA"
-                cancelLabel="Keep it on"
-                onConfirm={() => {
-                    router.delete(disableTwoFactor().url, {
-                        preserveScroll: true,
-                    });
-                    setConfirmOff(false);
-                }}
+            <ConfirmIdentity
+                action={sensitive}
+                onClose={() => setSensitive(null)}
             />
         </>
     );

@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { stop } from '@/routes/impersonation';
 
 /**
- * While a platform admin impersonates this user (spec §22, D86): who, as whom and why,
- * on every page, with "Stop impersonating". Vault secrets are locked meanwhile.
+ * While a platform admin impersonates this user (spec §22, D86, D111): who is viewing as
+ * whom and why, on every page, with "Stop impersonating". Vault secrets and account
+ * security stay locked meanwhile; a suspended workspace says so.
  */
 export function ImpersonationBanner() {
     const { impersonation } = usePage().props;
@@ -17,11 +18,11 @@ export function ImpersonationBanner() {
 
     return (
         <AlertBanner
-            variant="warn"
+            variant={impersonation.suspended ? 'neg' : 'warn'}
             slim
             role="status"
             icon={UserRoundCog}
-            title={`${impersonation.admin} is signed in as ${impersonation.user}`}
+            title={`${impersonation.admin} (Coffer platform) viewing as ${impersonation.user}`}
             action={
                 <Button
                     variant="secondary"
@@ -31,7 +32,11 @@ export function ImpersonationBanner() {
                 </Button>
             }
         >
-            Reason: {impersonation.reason}. Vault secrets stay locked.
+            {impersonation.suspended
+                ? 'This workspace is suspended: its people can’t use it. '
+                : ''}
+            Reason: {impersonation.reason}. Vault secrets and account security
+            stay locked.
         </AlertBanner>
     );
 }

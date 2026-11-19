@@ -26,12 +26,13 @@ final class Impersonator
     public const string SESSION = 'impersonation';
 
     /** Session keys a platform admin must not inherit from an earlier tenant session. */
-    private const array TENANT_SESSION_KEYS = [
+    public const array TENANT_SESSION_KEYS = [
         CurrentCompany::SESSION_KEY,
         'vault.unlocked_at',
         'vault.active_at',
         'vault.verified_at',
         'vault.verified_spent',
+        'vault.token',
         'auth.password_confirmed_at',
     ];
 

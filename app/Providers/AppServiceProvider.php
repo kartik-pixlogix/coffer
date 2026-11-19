@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Auth\SignOutController;
 use App\Jobs\CheckVaultBreaches;
 use App\Jobs\CommitTimesheetImport;
 use App\Jobs\CommitVaultImport;
@@ -48,6 +49,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Laravel\Cashier\Cashier;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -74,6 +76,9 @@ class AppServiceProvider extends ServiceProvider
         // Notifications carry their company in a column (D78).
         $this->app->bind(DatabaseChannel::class, CompanyDatabaseChannel::class);
 
+        // S3 (D111): signing out of the app keeps a platform admin's /admin session.
+        $this->app->bind(AuthenticatedSessionController::class, SignOutController::class);
+
         // Billing (D80): the workspace is Cashier's customer; Stripe is the only gateway so far.
         Cashier::useCustomerModel(Workspace::class);
         $this->app->singleton(WorkspaceBilling::class);
@@ -96,6 +101,11 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Logout::class, function (Logout $event): void {
             if ($event->guard === 'web' && session()->has(Impersonator::SESSION)) {
                 app(Impersonator::class)->stop(signOut: false);
+            }
+
+            // S4 (D111): the platform admin signing out of /admin ends the impersonation too.
+            if ($event->guard === 'platform' && session()->has(Impersonator::SESSION)) {
+                app(Impersonator::class)->stop();
             }
         });
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\EditPlatformProfile;
 use App\Filament\Widgets\PlatformStats;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
@@ -43,7 +44,7 @@ final class AdminPanelProvider extends PanelProvider
                 [AppAuthentication::make()->brandName('Coffer Platform')->recoverable()],
                 isRequired: fn (): bool => (bool) config('platform.mfa_required'),
             )
-            ->profile(isSimple: false)
+            ->profile(EditPlatformProfile::class, isSimple: false)
             ->brandName('Coffer Platform')
             ->brandLogo(asset('brand/coffer-lockup-on-light.svg'))
             ->darkModeBrandLogo(asset('brand/coffer-lockup-on-dark.svg'))

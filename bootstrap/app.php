@@ -8,6 +8,7 @@ use App\Http\Middleware\EnsurePageAllowed;
 use App\Http\Middleware\EnsureVaultUnlocked;
 use App\Http\Middleware\EnsureWorkspaceNotSuspended;
 use App\Http\Middleware\EnsureWorkspaceWritable;
+use App\Http\Middleware\GuardAccountSecurity;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SecurityHeaders;
@@ -45,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             EnsureWorkspaceNotSuspended::class,
             EnsureWorkspaceWritable::class,
+            GuardAccountSecurity::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
