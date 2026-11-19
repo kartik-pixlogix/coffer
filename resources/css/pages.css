@@ -7611,12 +7611,9 @@ fieldset.cf-field:not(#\#) {
     }
 }
 
-/* Feature previews: the value and its pill stay on one line, and a masked secret
-   shows fewer dots on phones, so Password reads like Username and Environment. */
-.lp-prev-val:not(#\#) {
-    flex-wrap: nowrap;
-}
-
+/* Feature previews: a masked secret shows fewer dots on phones, so the Password row
+   keeps label, dots and pill on one line like Username and Environment (on the
+   smallest phones every row puts its value under the label, D6). */
 @media (max-width: 480px) {
     .lp-dots-more:not(#\#) {
         display: none;
@@ -7761,8 +7758,8 @@ fieldset.cf-field:not(#\#) {
 
 /*
  * Page-header actions on phones: with two or three controls they take the full
- * width; a period select or switch gets its own row first, then the buttons share
- * the next row (primary first) or take a row each when they don't fit.
+ * width; a period select, period menu or switch gets its own row first, then the
+ * buttons share the next row (primary first) or take a row each when they don't fit.
  */
 @media (max-width: 640px) {
     .app-page:not(#\#) .cf-pagehead > .cf-actions:has(> :nth-child(2)) {
@@ -7777,7 +7774,7 @@ fieldset.cf-field:not(#\#) {
     .app-page:not(#\#)
         .cf-pagehead
         > .cf-actions:has(> :nth-child(2))
-        > :is(.cf-select, .cf-seg, .cf-field, .cf-search) {
+        > :is(.cf-select, .cf-seg, .cf-field, .cf-search, .cf-btn--muted) {
         flex-basis: 100%;
         order: -2;
     }
@@ -7833,5 +7830,20 @@ fieldset.cf-field:not(#\#) {
         align-self: flex-start;
         padding-left: 0;
         padding-right: 8px;
+    }
+}
+
+/* The two matrix cards sit side by side only where each has room for its four role
+   columns (the label column gives 14 px so they fit the widest page); below that
+   they stack, so the matrix scrolls only on phones. */
+@media (min-width: 641px) {
+    .pm:not(#\#) {
+        grid-template-columns: minmax(136px, 1fr) repeat(4, 62px);
+    }
+}
+
+@media (max-width: 1439px) {
+    .matrix-grid:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
