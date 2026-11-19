@@ -196,6 +196,32 @@ export const DIALOGS = [
         optional: true,
     },
     {
+        name: 'Edit loan',
+        route: '/loans',
+        roles: ['admin'],
+        steps: [
+            {
+                click: {
+                    selector: 'button[aria-label^="More actions for L-"]',
+                },
+            },
+            { pause: 400 },
+            { click: { text: 'Edit loan', exact: true } },
+            { wait: DIALOG },
+        ],
+        optional: true,
+    },
+    {
+        name: 'Archive company',
+        route: '/settings/company',
+        roles: ['admin'],
+        steps: [
+            { click: { text: 'Archive company', exact: true } },
+            { wait: DIALOG },
+        ],
+        optional: true,
+    },
+    {
         name: 'Record transfer',
         route: '/settlements',
         roles: ['admin'],

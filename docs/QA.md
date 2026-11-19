@@ -59,3 +59,26 @@ page / viewport / theme and per dialog. The command exits 1 when anything outsid
 Pages and dialog scenarios live in `scripts/qa/routes.mjs`. A scenario is a route, the roles that
 can open it and steps (`click` by visible text or selector, `wait` for a selector, `code` for a 2FA
 step, `pause`). New pages and dialogs should be added there when they ship.
+
+## Notes
+
+- 2FA codes are single-use (D108): the sweep waits for the next 30-second window when the code it
+  typed last is still current, so sign-in and the vault unlock can take up to half a minute.
+- Content passing under a sticky or fixed bar (the top bar, a dialog's pinned header and footer,
+  the phone tab bar), popovers floating over content and one-row scroll strips (`cf-tabs`,
+  `cf-scroll-row`) are not reported. Visually hidden content (`cf-sr`) is skipped.
+- Headless Chrome uses overlay scrollbars, so a page measured at 1150 px has the full 1150 px;
+  a desktop browser with classic scrollbars has about 15 px less. Check layouts that switch near a
+  width with that margin in mind.
+- The baseline before the owner's QA round (19 Nov 2026) had 5,917 findings (356 distinct).
+- After the round (19 Nov 2026, full run `storage/qa/b2`): 10 findings (5 distinct), all fixed
+  and re-checked on the pages they touched (0 open), plus a pass over the archive / Edit loan /
+  month-mode pages that landed during the run (0 open). The 40 allowed hits are the landing hero's
+  designed overlap (`allow.json`).
+- The sweep unlocks the vault before visiting it, so it never measures the lock card; check it by
+  hand at 320 and 375 px after changing it. It also reports a `<select>` whose chosen option ends
+  in an ellipsis: prefer a label that fits.
+- The sweep measures whatever the server runs. When someone else has uncommitted work (or an
+  unrun migration) in the tree, serve a clean checkout instead: `git worktree add --detach
+  ../coffer-qa HEAD`, junction `vendor` and `node_modules` into it, copy `.env` and
+  `bootstrap/cache/*.php`, `npm run build` there and start the 8010 server from it.
