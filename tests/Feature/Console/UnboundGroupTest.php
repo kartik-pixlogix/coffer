@@ -26,11 +26,11 @@ test('coffer:unbound sets up the group: three companies, the partners’ equity,
     expect($workspace->owner->email)->toBe('kartik@unbound.test')
         ->and(app(WorkspaceBilling::class)->for($workspace)->status)->toBe('unmanaged');
 
-    $companies = Company::query()->where('workspace_id', $workspace->id)->get()->keyBy('short_code');
+    $companies = Company::query()->where('workspace_id', $workspace->id)->orderBy('id')->get()->keyBy('short_code');
     expect($companies->keys()->all())->toBe(['SOL', 'SVC', 'INN']);
 
     foreach (SetUpUnboundGroup::COMPANIES as $code => $definition) {
-        $partners = Partner::query()->withoutGlobalScopes()->where('company_id', $companies[$code]->id)->pluck('equity_bps', 'name')->all();
+        $partners = Partner::query()->withoutGlobalScopes()->where('company_id', $companies[$code]->id)->orderBy('position')->pluck('equity_bps', 'name')->all();
         expect($partners)->toEqual($definition['partners']);
     }
 
