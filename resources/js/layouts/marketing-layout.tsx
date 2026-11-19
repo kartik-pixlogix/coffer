@@ -281,8 +281,7 @@ function Footer() {
                     <nav
                         key={column.title}
                         aria-label={column.title}
-                        className="cf-stack"
-                        style={{ gap: 10 }}
+                        className="cf-stack lp-foot-col"
                     >
                         <span className="t-label-strong">{column.title}</span>
                         {column.links.map((link) => (

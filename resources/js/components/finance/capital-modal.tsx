@@ -3,6 +3,7 @@ import { ArrowDownRight, ArrowUpRight, Check } from 'lucide-react';
 import { useState } from 'react';
 import { AmountInput } from '@/components/ui/amount-input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
@@ -69,6 +70,7 @@ export function CapitalModal({
     const [shownFor, setShownFor] = useState<CapitalKind | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
+    const [confirmOverdraw, setConfirmOverdraw] = useState(false);
     const active = partners.filter((p) => p.active);
 
     const accountFor = (partnerId: string): string => {
@@ -86,6 +88,7 @@ export function CapitalModal({
     if (kind !== shownFor) {
         setShownFor(kind);
         setErrors({});
+        setConfirmOverdraw(false);
 
         if (kind) {
             const first = String(active[0]?.id ?? '');
@@ -113,6 +116,9 @@ export function CapitalModal({
     const amount = draft.amount ?? 0;
     const after = kind === 'contribution' ? closing + amount : closing - amount;
     const amountBad = errors.amount_paise !== undefined;
+    // A drawing past the partner's capital takes their account below zero: it needs
+    // a tick first, sent as `confirm_overdraw` (D134).
+    const overdraw = kind === 'drawing' && amount > 0 && after < 0;
 
     const save = () => {
         if (amount <= 0) {
@@ -130,6 +136,7 @@ export function CapitalModal({
                 date: draft.date,
                 money_account_id: draft.accountId,
                 note: draft.note.trim() || null,
+                confirm_overdraw: overdraw && confirmOverdraw,
             },
             {
                 preserveScroll: true,
@@ -161,6 +168,7 @@ export function CapitalModal({
                         size="lg"
                         disc={Check}
                         loading={saving}
+                        disabled={overdraw && !confirmOverdraw}
                         onClick={save}
                     >
                         {copy.save}
@@ -245,6 +253,16 @@ export function CapitalModal({
                     </span>
                 </div>
             </div>
+            {overdraw && (
+                <Checkbox
+                    checked={confirmOverdraw}
+                    onCheckedChange={setConfirmOverdraw}
+                    error={errors.confirm_overdraw}
+                >
+                    Record anyway: {partner?.name ?? 'the partner'}’s capital
+                    goes below zero
+                </Checkbox>
+            )}
         </Modal>
     );
 }

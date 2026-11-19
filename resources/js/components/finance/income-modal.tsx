@@ -180,7 +180,14 @@ export function IncomeModal({
             onStart: () => setSaving(true),
             onFinish: () => setSaving(false),
             onSuccess: () => onOpenChange(false),
-            onError: (bag: Record<string, string>) => setErrors(bag),
+            onError: (bag: Record<string, string>) => {
+                setErrors(bag);
+
+                // A refused attachment: clear the chip so the field shows why (G5).
+                if (bag.attachment) {
+                    set({ file: null });
+                }
+            },
         };
 
         if (income) {
@@ -252,6 +259,7 @@ export function IncomeModal({
                 <AmountInput
                     id="ai-a"
                     label="Amount"
+                    placeholder="1,20,000"
                     value={draft.amount}
                     onValueChange={(amount) => set({ amount })}
                     error={errors.amount_paise}

@@ -11,7 +11,7 @@ import { Modal } from '@/components/ui/modal';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { TextInput } from '@/components/ui/text-input';
-import { toIsoDate } from '@/lib/format';
+import { formatDate, toIsoDate } from '@/lib/format';
 import { store as addMember, update as updateMember } from '@/routes/team';
 import type {
     CostType,
@@ -66,7 +66,8 @@ const start = (
     ratePaise: member?.ratePaise ?? null,
     partnerId: String(member?.partnerId ?? partners[0]?.id ?? ''),
     userId: member?.userId ? String(member.userId) : null,
-    effectiveFrom: null,
+    // Today, so a rate change can be saved straight away (A2); only sent when it changes.
+    effectiveFrom: member ? toIsoDate(new Date()) : null,
 });
 
 /**
@@ -106,11 +107,18 @@ export function MemberModal({
         (draft.costType !== member.costType ||
             draft.ratePaise !== member.ratePaise);
     const rateLocked = member !== null && !canEditRates;
-    const canSave =
-        draft.name.trim() !== '' &&
-        draft.partnerId !== '' &&
-        (draft.ratePaise ?? 0) > 0 &&
-        (!rateChanged || draft.effectiveFrom !== null);
+    // Why Save is off, said next to it (A2).
+    const blocker =
+        draft.name.trim() === ''
+            ? 'Add a name to save'
+            : (draft.ratePaise ?? 0) <= 0
+              ? `Enter the ${cost.label.toLowerCase()} to save`
+              : draft.partnerId === ''
+                ? 'Pick the partner they bill to'
+                : rateChanged && draft.effectiveFrom === null
+                  ? 'Pick when the new rate starts'
+                  : null;
+    const canSave = blocker === null;
 
     const save = () => {
         const payload = {
@@ -147,6 +155,11 @@ export function MemberModal({
             dirty
             footer={
                 <>
+                    {blocker && (
+                        <span className="t-caption t-muted mr-auto self-center">
+                            {blocker}
+                        </span>
+                    )}
                     <Button
                         variant="secondary"
                         size="lg"
@@ -171,6 +184,7 @@ export function MemberModal({
                 <TextInput
                     id="am-n"
                     label="Name"
+                    placeholder="Priya Menon"
                     value={draft.name}
                     maxLength={120}
                     onChange={(e) => set({ name: e.target.value })}
@@ -179,6 +193,7 @@ export function MemberModal({
                 <TextInput
                     id="am-d"
                     label="Designation"
+                    placeholder="Frontend developer"
                     value={draft.designation}
                     maxLength={120}
                     onChange={(e) => set({ designation: e.target.value })}
@@ -214,6 +229,9 @@ export function MemberModal({
                     id="am-r"
                     label={cost.label}
                     suffix={cost.suffix}
+                    placeholder={
+                        draft.costType === 'hourly' ? '1,200' : '80,000'
+                    }
                     value={draft.ratePaise}
                     onValueChange={(ratePaise) => set({ ratePaise })}
                     readOnly={rateLocked}
@@ -242,7 +260,7 @@ export function MemberModal({
                     label="New rate starts"
                     value={draft.effectiveFrom}
                     onValueChange={(effectiveFrom) => set({ effectiveFrom })}
-                    placeholder={toIsoDate(new Date())}
+                    placeholder={formatDate(toIsoDate(new Date()))}
                     help="Salaries already run keep the old rate."
                     error={errors.effective_from}
                 />

@@ -304,7 +304,6 @@ export function PrivacyCard({ privacy }: { privacy: PrivacyProps }) {
                         ? 'Delete workspace'
                         : 'Delete account'
                 }
-                cancelLabel="Keep it"
                 confirmPhrase={
                     pending?.kind === 'workspace' ? pending.name : 'DELETE'
                 }

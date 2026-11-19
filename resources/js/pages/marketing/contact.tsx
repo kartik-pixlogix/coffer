@@ -169,6 +169,7 @@ export default function Contact({
                                         <TextInput
                                             label="Your name"
                                             name="name"
+                                            placeholder="Aarav Mehta"
                                             autoComplete="name"
                                             required
                                             maxLength={120}
@@ -177,6 +178,7 @@ export default function Contact({
                                         <TextInput
                                             label="Work email"
                                             name="email"
+                                            placeholder="you@company.com"
                                             type="email"
                                             autoComplete="email"
                                             required
@@ -186,6 +188,7 @@ export default function Contact({
                                         <TextInput
                                             label="Company"
                                             name="company"
+                                            placeholder="Vertex Labs"
                                             autoComplete="organization"
                                             maxLength={120}
                                             error={errors.company}
@@ -193,6 +196,7 @@ export default function Contact({
                                         <TextInput
                                             label="Phone (optional)"
                                             name="phone"
+                                            placeholder="+91 98765 43210"
                                             type="tel"
                                             autoComplete="tel"
                                             maxLength={40}
@@ -216,6 +220,7 @@ export default function Contact({
                                                 : 'Your message'
                                         }
                                         name="message"
+                                        placeholder="Tell us about your team and what you want to track"
                                         rows={5}
                                         limit={5000}
                                         error={errors.message}

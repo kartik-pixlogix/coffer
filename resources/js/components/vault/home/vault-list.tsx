@@ -220,7 +220,9 @@ function ItemRow({ item, on, onOpen, timeZone }: RowProps) {
                 />
                 <span className="vh-row-text">
                     <span className="t-label-strong vh-row-name">
-                        {item.name}
+                        <span className="vh-ellipsis" title={item.name}>
+                            {item.name}
+                        </span>
                         {item.favourite && <FavStar />}
                     </span>
                     <span className="t-money-sm t-muted vh-ellipsis">
@@ -270,7 +272,9 @@ function ItemCard({ item, on, onOpen, timeZone }: RowProps) {
             </span>
             <span className="vh-row-text">
                 <span className="t-label-strong vh-row-name">
-                    {item.name}
+                    <span className="vh-ellipsis" title={item.name}>
+                        {item.name}
+                    </span>
                     {item.favourite && <FavStar />}
                 </span>
                 {item.subtitle && (

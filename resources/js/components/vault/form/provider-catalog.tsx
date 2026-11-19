@@ -80,7 +80,7 @@ export function ProviderCatalog({
                         onValueChange={setQuery}
                     />
                 </div>
-                <FilterChipGroup aria-label="Category">
+                <FilterChipGroup aria-label="Category" scroll>
                     {[ALL, ...categories].map((c) => (
                         <FilterChip
                             key={c}
@@ -163,7 +163,7 @@ export function ProviderCatalog({
                         Pick a type and fill in your own fields.
                     </span>
                 </div>
-                <FilterChipGroup aria-label="Item type">
+                <FilterChipGroup aria-label="Item type" scroll>
                     {types.map((t) => (
                         <FilterChip
                             key={t.type}

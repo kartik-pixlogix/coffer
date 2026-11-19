@@ -99,6 +99,6 @@ final class ProfitAndLossExport
     {
         return ProfitAndLossReport::pooled($company)
             ? 'Net contribution is revenue a partner brought in, less the expenses and salaries booked to them and their share of shared costs. Profit due is net profit × equity (JV pooled).'
-            : 'Net contribution is revenue a partner brought in, less the expenses and salaries booked to them and their share of shared costs. Profit due is their attributed result plus their equity share of everything unattributed (spec §4.4).';
+            : 'Net contribution is revenue a partner brought in, less the expenses and salaries booked to them and their share of shared costs. Profit due is their attributed result plus their equity share of everything unattributed.';
     }
 }

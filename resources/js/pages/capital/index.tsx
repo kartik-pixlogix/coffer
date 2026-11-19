@@ -89,7 +89,7 @@ export default function CapitalAccounts(props: Props) {
     const asOf = formatDate(kpis.asOf);
     const equityCaption = props.company.pooled
         ? `Shared by equity: ${statement.map((r) => Math.round(r.equityBps / 100)).join(' · ')}`
-        : 'Shared by what each partner brings in (spec §4.4)';
+        : 'Shared by what each partner brings in';
 
     const money = (paise: number) => formatInr(paise);
     const columns: DataTableColumn<CapitalStatementRow>[] = [

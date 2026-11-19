@@ -416,6 +416,7 @@ export default function CompanySettings({
                         <div className="co-grid">
                             <TextInput
                                 label="Company name"
+                                placeholder="Vertex Labs"
                                 value={form.name}
                                 onChange={(e) => set({ name: e.target.value })}
                                 error={errors.name}
@@ -423,6 +424,7 @@ export default function CompanySettings({
                             />
                             <TextInput
                                 label="Legal name"
+                                placeholder="Vertex Labs Private Limited"
                                 value={form.legal_name}
                                 onChange={(e) =>
                                     set({ legal_name: e.target.value })
@@ -431,6 +433,7 @@ export default function CompanySettings({
                             />
                             <TextInput
                                 label="GSTIN"
+                                placeholder="29ABCDE1234F1Z5"
                                 value={form.gstin}
                                 onChange={(e) =>
                                     set({ gstin: e.target.value.toUpperCase() })
@@ -442,6 +445,7 @@ export default function CompanySettings({
                             />
                             <TextInput
                                 label="Short code"
+                                placeholder="VTX"
                                 value={form.short_code}
                                 onChange={(e) =>
                                     set({
@@ -474,6 +478,7 @@ export default function CompanySettings({
                             </div>
                             <TextInput
                                 label="Registered address"
+                                placeholder="Street, city, state and PIN"
                                 value={form.address}
                                 onChange={(e) =>
                                     set({ address: e.target.value })
@@ -494,6 +499,7 @@ export default function CompanySettings({
                         <div className="co-grid">
                             <AmountInput
                                 label="Opening balance"
+                                placeholder="0"
                                 value={form.opening_balance}
                                 onValueChange={(paise) =>
                                     set({ opening_balance: paise ?? 0 })
@@ -628,6 +634,7 @@ export default function CompanySettings({
                         <div className="co-grid">
                             <TextInput
                                 label="Standard day (hours)"
+                                placeholder="8"
                                 inputMode="decimal"
                                 value={form.hours_per_day}
                                 onChange={(e) =>

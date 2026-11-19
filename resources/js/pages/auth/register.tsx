@@ -24,17 +24,33 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
  * the strength meter, and the terms. Then email verification and the create-company
  * wizard, on a 14-day trial with no card (spec §18).
  */
+type ChosenPlan = { key: string; name: string };
+
 type Props = {
     /** R3 (D119): Google sign-up shows only when it is configured. */
     googleEnabled?: boolean;
-    /** The plan a Pricing CTA picked (`?plan=`), trialled instead of the default (D83). */
-    plan?: { key: string; name: string } | string | null;
+    /**
+     * The plan a Pricing CTA picked (`?plan=`), trialled instead of the default (D83).
+     * The server sends `{key, name}`; a bare key is still understood.
+     */
+    plan?: ChosenPlan | string | null;
+};
+
+const chosenPlan = (plan: Props['plan']): ChosenPlan | null => {
+    if (!plan) {
+        return null;
+    }
+
+    return typeof plan === 'string'
+        ? { key: plan, name: plan.charAt(0).toUpperCase() + plan.slice(1) }
+        : plan;
 };
 
 export default function Register({
-    plan = null,
+    plan: planProp = null,
     googleEnabled = false,
 }: Props) {
+    const plan = chosenPlan(planProp);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const meter = signUpStrength(password);
@@ -75,13 +91,29 @@ export default function Register({
                         )}
 
                         {plan && (
-                            <input
-                                type="hidden"
-                                name="plan"
-                                value={
-                                    typeof plan === 'string' ? plan : plan.key
-                                }
-                            />
+                            <div
+                                className="cf-inset cf-row su-plan"
+                                role="status"
+                            >
+                                <span className="t-body">
+                                    Your trial is on the{' '}
+                                    <span className="t-label-strong">
+                                        {plan.name}
+                                    </span>{' '}
+                                    plan
+                                </span>
+                                <a
+                                    href="/pricing"
+                                    className="cf-link t-caption"
+                                >
+                                    Change plan
+                                </a>
+                                <input
+                                    type="hidden"
+                                    name="plan"
+                                    value={plan.key}
+                                />
+                            </div>
                         )}
 
                         <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
@@ -134,7 +166,12 @@ export default function Register({
                             revealable={false}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            labelAction={<StrengthLabel meter={meter} />}
+                            // The word appears once there is something to judge (D14/W4).
+                            labelAction={
+                                password === '' ? undefined : (
+                                    <StrengthLabel meter={meter} />
+                                )
+                            }
                             meter={<MeterDots meter={meter} />}
                             help="At least 12 characters. A short sentence works well."
                             error={errors.password}

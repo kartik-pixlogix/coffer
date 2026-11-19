@@ -570,7 +570,7 @@ export default function Reports({
                     shared costs.{' '}
                     {company.pooled
                         ? 'Profit due follows equity only (JV pooled).'
-                        : 'Profit due adds their equity share of everything nobody brought in or paid personally (spec §4.4).'}
+                        : 'Profit due adds their equity share of everything nobody brought in or paid personally.'}
                 </p>
             </section>
         </>

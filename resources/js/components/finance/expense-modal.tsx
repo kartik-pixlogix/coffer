@@ -461,8 +461,14 @@ export function ExpenseModal({
                             Paid from the company account. No partner balance or
                             loan changes.
                         </div>
-                        {fromOptions(options, 'company', keepFrom).length > 1 &&
-                            fromSelect(0, 'Account it was paid from')}
+                        {/* In a row like the other modes: as a bare column child the
+                            select's flex basis made it 180 px tall (X1). */}
+                        {fromOptions(options, 'company', keepFrom).length >
+                            1 && (
+                            <div className="ex-payer">
+                                {fromSelect(0, 'Account it was paid from')}
+                            </div>
+                        )}
                     </>
                 )}
                 {pError && <FieldError>{pError}</FieldError>}

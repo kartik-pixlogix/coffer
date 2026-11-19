@@ -598,7 +598,6 @@ export function ItemActions({
                     title={`Delete ${item.name}?`}
                     description="People lose access straight away. Its history stays in the audit log."
                     confirmLabel="Delete item"
-                    cancelLabel="Keep it"
                 />
             )}
         </div>

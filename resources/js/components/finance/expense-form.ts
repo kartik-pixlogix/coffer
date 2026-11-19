@@ -81,7 +81,8 @@ export function fromOptions(
         ? accounts
         : [
               ...accounts,
-              { value: PERSONAL, label: 'Personal card (reimburse)' },
+              // Short enough for the payer row (X4); the reimbursement shows on the row.
+              { value: PERSONAL, label: 'Personal card' },
           ];
 }
 

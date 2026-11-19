@@ -484,7 +484,8 @@ export default function Billing({
                         style={{ gap: 8 }}
                     >
                         <Button
-                            variant="glass"
+                            // The dark pill: white-on-lime glass was unreadable (X33).
+                            variant="primary"
                             onClick={() => setUpgradeOpen(true)}
                         >
                             {state.hasSubscription

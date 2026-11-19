@@ -367,12 +367,28 @@ export default function Pricing({
                         </div>
                         {ROWS.map((row) =>
                             'group' in row ? (
+                                // The group row keeps the grid, so the Growth band
+                                // runs unbroken through it (W7).
                                 <div
                                     key={row.group}
-                                    className="cmp-group"
+                                    className="cmp cmp-group-row"
                                     role="row"
                                 >
-                                    <span role="rowheader">{row.group}</span>
+                                    <span
+                                        role="rowheader"
+                                        className="cmp-group"
+                                    >
+                                        {row.group}
+                                    </span>
+                                    {plans.map((plan) => (
+                                        <span
+                                            key={plan.key}
+                                            aria-hidden="true"
+                                            className={cn(
+                                                plan.popular && 'col-pop',
+                                            )}
+                                        />
+                                    ))}
                                 </div>
                             ) : (
                                 <div key={row.label} className="cmp" role="row">

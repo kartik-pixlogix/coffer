@@ -482,8 +482,7 @@ export default function Members({
                 icon={UserMinus}
                 title={`Remove ${removing?.name ?? ''} from ${currentCompany.name}?`}
                 description={`They lose access to this company straight away. Their account, and their records here, stay.${removing && removing.vaultItems > 0 ? ` They can use ${removing.vaultItems} vault ${removing.vaultItems === 1 ? 'item' : 'items'}: you’ll get a list to rotate.` : ''}`}
-                confirmLabel="Remove"
-                cancelLabel="Keep them"
+                confirmLabel="Remove member"
                 onConfirm={() => {
                     if (removing) {
                         router.delete(removeMember(removing.id).url, {

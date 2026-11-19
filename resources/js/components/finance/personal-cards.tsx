@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { Check, Coins, CreditCard, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, Coins, CreditCard, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { LoanModal } from '@/components/finance/loan-modals';
 import { AmountInput } from '@/components/ui/amount-input';
@@ -8,6 +8,7 @@ import type { PartnerColour } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { DatePicker } from '@/components/ui/date-picker';
+import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
@@ -110,7 +111,14 @@ export function PersonalCards({
             ))}
             {panel.recent.length > 0 && (
                 <details className="ex-payouts">
-                    <summary className="t-label-strong">Recent payouts</summary>
+                    <summary className="t-label-strong">
+                        Recent payouts
+                        <Icon
+                            icon={ChevronDown}
+                            size={16}
+                            className="ex-payouts-chev"
+                        />
+                    </summary>
                     {panel.recent.map((r) => (
                         <div key={r.id} className="ex-payout">
                             <span className="t-body t-muted">

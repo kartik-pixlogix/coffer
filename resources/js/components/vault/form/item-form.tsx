@@ -591,6 +591,7 @@ export function ItemForm({
                             id="vf-name"
                             fieldClassName="vf-wide"
                             label="Name"
+                            placeholder="Hostinger · main account"
                             value={state.name}
                             maxLength={160}
                             autoComplete="off"

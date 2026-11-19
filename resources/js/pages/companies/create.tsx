@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
 import { PlanLimitBanner } from '@/components/billing/billing-banners';
@@ -125,12 +125,16 @@ export default function CreateCompany({
         );
     };
 
+    // At the plan's company limit the wizard stops at step 1 with the upgrade
+    // banner, instead of letting all three steps be filled in first (G9, D132).
+    const atLimit = usePage().props.planLimit?.full === true;
     const canContinue =
-        step === 1
+        !atLimit &&
+        (step === 1
             ? stepOneValid(state)
             : step === 2
               ? stepTwoValid(state)
-              : true;
+              : true);
     const [kicker, title] = HEADINGS[step];
     const crumbsRoot =
         step === 1 ? workspace.name : state.name || workspace.name;
@@ -258,13 +262,19 @@ export default function CreateCompany({
                             size="lg"
                             disc={ArrowRight}
                             loading={busy}
+                            disabled={atLimit}
                             onClick={submit}
                         >
                             Launch {state.name}
                         </Button>
                     ) : (
                         <span className="cf-row">
-                            {!canContinue && step === 1 && (
+                            {atLimit && (
+                                <span className="t-caption t-muted">
+                                    Upgrade to add another company
+                                </span>
+                            )}
+                            {!atLimit && !canContinue && step === 1 && (
                                 <span className="t-caption t-muted">
                                     {state.type === 'jv'
                                         ? 'Every total must be 100% to continue'

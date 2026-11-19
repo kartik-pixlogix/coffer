@@ -37,7 +37,7 @@ import { IconButton } from '@/components/ui/icon-button';
 import { KpiTile } from '@/components/ui/kpi-tile';
 import { StatusPill } from '@/components/ui/status-pill';
 import { TrendChip } from '@/components/ui/trend-chip';
-import { useCountUp } from '@/hooks/use-count-up';
+import { COUNT_UP_MS, useCountUp } from '@/hooks/use-count-up';
 import { formatDate, formatInr, formatInrCompact } from '@/lib/format';
 import { firstName } from '@/lib/team';
 import { dashboard } from '@/routes';
@@ -202,7 +202,13 @@ function Figures({
 }: Props & { data: DashboardData }) {
     const [selected, setSelected] = useState<number | null>(data.selectedMonth);
     const { kpis, balance } = data;
-    const balanceShown = useCountUp(balance.currentPaise);
+    // Whole rupees while counting, the exact balance at the end (R6).
+    const balanceShown = useCountUp(
+        balance.currentPaise,
+        true,
+        COUNT_UP_MS,
+        100,
+    );
     const comparedTo = period.comparedTo;
     const fyCaption =
         period.preset === 'fy' ? `${period.fy.label} to date` : period.label;

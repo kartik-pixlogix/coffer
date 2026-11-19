@@ -86,7 +86,14 @@ export function useExpenseForm({
             onStart: () => setSaving(true),
             onFinish: () => setSaving(false),
             onSuccess: () => onDone(),
-            onError: (bag: Record<string, string>) => setErrors(bag),
+            onError: (bag: Record<string, string>) => {
+                setErrors(bag);
+
+                // A refused receipt: clear the chip so the field shows why (G5).
+                if (bag.receipt) {
+                    setDraft((d) => ({ ...d, file: null }));
+                }
+            },
         };
 
         if (expense) {

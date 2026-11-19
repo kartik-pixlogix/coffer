@@ -326,7 +326,6 @@ export default function Roles({ pages, actions, matrix, canEdit }: Props) {
                 title="Reset permissions to the defaults?"
                 description="Partners, Members and Viewers go back to the standard pages and actions. Any changes you made here are lost."
                 confirmLabel="Reset to defaults"
-                cancelLabel="Keep my changes"
                 onConfirm={() => {
                     router.post(resetRoles().url, {}, { preserveScroll: true });
                     setResetOpen(false);

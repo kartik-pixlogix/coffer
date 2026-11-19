@@ -3,6 +3,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { useState } from 'react';
 import { AmountInput } from '@/components/ui/amount-input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Drawer } from '@/components/ui/drawer';
 import { Icon } from '@/components/ui/icon';
@@ -34,7 +35,8 @@ export type TransferTarget =
 /**
  * Record transfer (Settlements.dc.html panel, spec §13): from side → to side (they must
  * differ), amount, date and a bank reference, with what is owed now and what is left
- * after this transfer. An amount above what is owed is allowed but warned about.
+ * after this transfer. An amount above what is owed needs "Record anyway" ticked first
+ * (sent as `confirm_over`, F7 / D134).
  * Editing a recorded transfer reverses it and posts it again.
  */
 export function TransferDrawer({
@@ -56,10 +58,12 @@ export function TransferDrawer({
     const [shownFor, setShownFor] = useState<TransferTarget | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
+    const [confirmOver, setConfirmOver] = useState(false);
 
     if (target !== shownFor) {
         setShownFor(target);
         setErrors({});
+        setConfirmOver(false);
 
         if (target?.mode === 'edit') {
             const t = target.transfer;
@@ -109,6 +113,7 @@ export function TransferDrawer({
     const amount = draft.amount ?? 0;
     const left = owed - amount;
     const same = draft.fromId === draft.toId;
+    const over = amount > 0 && left < 0;
 
     const help =
         owed === 0
@@ -126,6 +131,7 @@ export function TransferDrawer({
             amount_paise: amount,
             date: draft.date,
             reference: draft.reference.trim() || null,
+            confirm_over: over && confirmOver,
         };
         const options = {
             preserveScroll: true,
@@ -233,6 +239,15 @@ export function TransferDrawer({
                     </span>
                 </div>
             </div>
+            {over && (
+                <Checkbox
+                    checked={confirmOver}
+                    onCheckedChange={setConfirmOver}
+                    error={errors.confirm_over}
+                >
+                    Record anyway: {formatInr(-left)} more than is owed
+                </Checkbox>
+            )}
             <div className="cf-actions">
                 <Button variant="secondary" size="lg" onClick={onClose}>
                     Cancel
@@ -242,7 +257,7 @@ export function TransferDrawer({
                     size="lg"
                     disc={Check}
                     loading={saving}
-                    disabled={amount <= 0 || same}
+                    disabled={amount <= 0 || same || (over && !confirmOver)}
                     onClick={save}
                     className="flex-1 justify-between"
                 >
