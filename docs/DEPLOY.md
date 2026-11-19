@@ -127,7 +127,7 @@ D99). Production values that differ from the example:
 
 ```dotenv
 APP_ENV=production
-APP_DEBUG=false
+APP_DEBUG=false                         # never true in production: debug pages expose paths and config
 APP_URL=https://app.example.com        # canonical, OG and signed URLs use it; https
 APP_KEY=                               # php artisan key:generate --show, once; never change it
 LOG_STACK=daily
@@ -263,7 +263,9 @@ Manual run: `php artisan coffer:backup` (or `--no-files` for the database only).
   `APP_URL`) and put its signing secret in `STRIPE_WEBHOOK_SECRET`. It is CSRF-exempt and
   signature-checked.
 - Mail: a transactional provider with SPF, DKIM and DMARC set for the sending domain. Test with
-  an invite to yourself. Notifications go out on the `mail` queue.
+  an invite to yourself. Notifications, invites, email confirmation, password resets and contact
+  leads all go out on the `mail` queue, so a worker must listen on it. SMTP settings and the
+  local setup are in docs/MAIL.md.
 
 ## 10. Security notes
 

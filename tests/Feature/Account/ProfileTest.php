@@ -6,7 +6,7 @@ use App\Enums\CompanyRole;
 use App\Enums\NumberFormat;
 use App\Models\TrustedDevice;
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\Auth\QueuedVerifyEmail;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -71,7 +71,7 @@ test('a new email needs confirming again', function () {
 
     $user->refresh();
     expect($user->email)->toBe('new@vertexlabs.in')->and($user->email_verified_at)->toBeNull();
-    Notification::assertSentTo($user, VerifyEmail::class);
+    Notification::assertSentTo($user, QueuedVerifyEmail::class, fn ($n) => $n->queue === 'mail');
 });
 
 test('profile details are validated', function () {

@@ -22,7 +22,7 @@ Route::name('marketing.')->group(function () {
 
     Route::get('contact', [ContactController::class, 'show'])->name('contact');
     Route::post('contact', [ContactController::class, 'store'])
-        ->middleware('throttle:contact')
+        ->middleware('throttle:30,1') // flood guard only; the hourly limit counts accepted messages (D119)
         ->name('contact.store');
 
     foreach (MarketingPage::legal() as $page) {

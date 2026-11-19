@@ -23,7 +23,11 @@ type Props = {
  * password shows the red line and, from the third try, how many are left before the
  * 15-minute lock (spec §18). The 2FA code step is auth/two-factor-challenge.
  */
-export default function Login({ status, canResetPassword }: Props) {
+export default function Login({
+    status,
+    canResetPassword,
+    googleEnabled,
+}: Props) {
     return (
         <>
             <Head title="Sign in" />
@@ -33,13 +37,20 @@ export default function Login({ status, canResetPassword }: Props) {
                 <span className="t-display">Sign in</span>
             </h1>
 
-            <GoogleButton
-                href={googleRedirect({ query: { intent: 'login' } }).url}
-            >
-                Continue with Google
-            </GoogleButton>
+            {/* R3 (D119): only when Google sign-in is configured. */}
+            {googleEnabled && (
+                <>
+                    <GoogleButton
+                        href={
+                            googleRedirect({ query: { intent: 'login' } }).url
+                        }
+                    >
+                        Continue with Google
+                    </GoogleButton>
 
-            <OrDivider />
+                    <OrDivider />
+                </>
+            )}
 
             {status && (
                 <AlertBanner variant="pos" slim role="status">

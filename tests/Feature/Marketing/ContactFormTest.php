@@ -108,3 +108,17 @@ it('rate-limits submissions per IP with a form error', function () {
     expect(ContactRequest::query()->count())->toBe(3);
     Mail::assertQueuedCount(3);
 });
+
+it('doesn’t count a submission sent back with errors towards the limit (W2)', function () {
+    config(['marketing.contact_per_hour' => 2]);
+
+    foreach (range(1, 4) as $i) {
+        $this->from('/contact')->post('/contact', contactPayload(['email' => 'not-an-email']))->assertSessionHasErrors('email');
+    }
+
+    $this->post('/contact', contactPayload(['email' => 'lead1@example.com']))->assertSessionHasNoErrors();
+    $this->post('/contact', contactPayload(['email' => 'lead2@example.com']))->assertSessionHasNoErrors();
+    $this->from('/contact')->post('/contact', contactPayload(['email' => 'lead3@example.com']))->assertSessionHasErrors('form');
+
+    expect(ContactRequest::query()->count())->toBe(2);
+});

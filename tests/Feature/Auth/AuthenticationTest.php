@@ -120,3 +120,12 @@ test('users can sign out', function () {
 
     $this->assertGuest();
 });
+
+test('the Google buttons only show when Google sign-in is configured (R3)', function () {
+    config(['services.google.client_id' => null, 'services.google.client_secret' => null]);
+    $this->get(route('login'))->assertInertia(fn (Assert $page) => $page->where('googleEnabled', false));
+    $this->get(route('register'))->assertInertia(fn (Assert $page) => $page->where('googleEnabled', false));
+
+    config(['services.google.client_id' => 'id.apps.googleusercontent.com', 'services.google.client_secret' => 'secret']);
+    $this->get(route('login'))->assertInertia(fn (Assert $page) => $page->where('googleEnabled', true));
+});

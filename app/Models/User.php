@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\NumberFormat;
 use App\Enums\Theme;
+use App\Notifications\Auth\QueuedResetPassword;
+use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\NotificationEvents;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
@@ -80,6 +82,18 @@ class User extends Authenticatable implements MustVerifyEmail
             'deletion_scheduled_for' => 'datetime',
             'anonymised_at' => 'datetime',
         ];
+    }
+
+    /** "Confirm your email", queued on `mail` (D119). */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new QueuedVerifyEmail);
+    }
+
+    /** The reset link, queued on `mail` (D119). */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new QueuedResetPassword($token));
     }
 
     /** @return BelongsToMany<Company, $this, Membership, 'membership'> */

@@ -13,6 +13,7 @@ use App\Support\Marketing\Seo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -37,10 +38,22 @@ final class ContactController extends Controller
         ]);
     }
 
+    public const string TOO_MANY = 'That’s a lot of messages from here. Try again in an hour, or email us.';
+
     public function store(ContactRequestForm $request): RedirectResponse
     {
         /** @var array{topic: string, name: string, email: string, company?: string|null, phone?: string|null, team_size?: string|null, message?: string|null} $data */
         $data = $request->validated();
+
+        // W2 (D119): only accepted submissions count towards the hourly limit, so a form
+        // sent back with a typo doesn't use up a try.
+        $key = 'contact:'.$request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, (int) config('marketing.contact_per_hour'))) {
+            return back()->withErrors(['form' => self::TOO_MANY])->withInput();
+        }
+
+        RateLimiter::hit($key, 3600);
 
         if (! $request->isSpam()) {
             $lead = ContactRequest::query()->create([

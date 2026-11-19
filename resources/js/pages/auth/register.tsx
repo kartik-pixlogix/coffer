@@ -25,11 +25,16 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
  * wizard, on a 14-day trial with no card (spec §18).
  */
 type Props = {
+    /** R3 (D119): Google sign-up shows only when it is configured. */
+    googleEnabled?: boolean;
     /** The plan a Pricing CTA picked (`?plan=`), trialled instead of the default (D83). */
-    plan?: string | null;
+    plan?: { key: string; name: string } | string | null;
 };
 
-export default function Register({ plan = null }: Props) {
+export default function Register({
+    plan = null,
+    googleEnabled = false,
+}: Props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const meter = signUpStrength(password);
@@ -53,19 +58,30 @@ export default function Register({ plan = null }: Props) {
                             <span className="t-display">Set up Coffer</span>
                         </h1>
 
-                        <GoogleButton
-                            href={
-                                googleRedirect({ query: { intent: 'signup' } })
-                                    .url
-                            }
-                        >
-                            Sign up with Google
-                        </GoogleButton>
+                        {googleEnabled && (
+                            <>
+                                <GoogleButton
+                                    href={
+                                        googleRedirect({
+                                            query: { intent: 'signup' },
+                                        }).url
+                                    }
+                                >
+                                    Sign up with Google
+                                </GoogleButton>
 
-                        <OrDivider />
+                                <OrDivider />
+                            </>
+                        )}
 
                         {plan && (
-                            <input type="hidden" name="plan" value={plan} />
+                            <input
+                                type="hidden"
+                                name="plan"
+                                value={
+                                    typeof plan === 'string' ? plan : plan.key
+                                }
+                            />
                         )}
 
                         <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">

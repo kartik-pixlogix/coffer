@@ -14,6 +14,7 @@ use App\Auth\RecoveryCodes;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Responses\LockoutResponse;
 use App\Http\Responses\SignedInResponse;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -108,6 +109,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
             'status' => $request->session()->get('status'),
             'email' => $request->user()?->email,
+            // R4 (D119): locally with MAIL_MAILER=log the link is in the log, not an inbox.
+            'mailLog' => app()->isLocal() && config('mail.default') === 'log',
         ]));
 
         // A Pricing CTA links here with ?plan= (D83): remembered for the Google path too.
@@ -118,9 +121,13 @@ class FortifyServiceProvider extends ServiceProvider
                 $request->session()->put(CreateWorkspace::SIGNUP_PLAN, $plan);
             }
 
+            // W3 (D119): the form names the plan ("Starter plan · 14-day trial").
+            $key = $plan ?? $request->session()->get(CreateWorkspace::SIGNUP_PLAN);
+            $chosen = is_string($key) ? Plan::query()->where('key', $key)->first(['key', 'name']) : null;
+
             return Inertia::render('auth/register', [
                 'googleEnabled' => GoogleController::enabled(),
-                'plan' => $plan ?? $request->session()->get(CreateWorkspace::SIGNUP_PLAN),
+                'plan' => $chosen === null ? null : ['key' => $chosen->key, 'name' => $chosen->name],
             ]);
         });
 

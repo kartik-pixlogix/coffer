@@ -98,7 +98,7 @@ it('preselects the contact topic from the query string', function () {
 it('trials the plan a Pricing CTA picked', function () {
     $this->get('/register?plan=starter')
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->where('plan', 'starter'))
+        ->assertInertia(fn (Assert $page) => $page->where('plan', ['key' => 'starter', 'name' => 'Starter']))
         ->assertSessionHas('signup.plan', 'starter');
 
     $this->post('/register', [

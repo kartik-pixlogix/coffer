@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\Auth\QueuedVerifyEmail;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 
@@ -18,7 +18,7 @@ test('sends verification notification', function () {
         ->post(route('verification.send'))
         ->assertRedirect(route('welcome'));
 
-    Notification::assertSentTo($user, VerifyEmail::class);
+    Notification::assertSentTo($user, QueuedVerifyEmail::class, fn ($n) => $n->queue === 'mail');
 });
 
 test('does not send verification notification if email is verified', function () {

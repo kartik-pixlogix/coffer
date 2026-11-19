@@ -9,10 +9,12 @@ import { send } from '@/routes/verification';
 type Props = {
     status?: string;
     email: string | null;
+    /** Local only, with MAIL_MAILER=log: the mail is in the log file, not an inbox (R4). */
+    mailLog?: boolean;
 };
 
 /** "Confirm your email" after sign-up, on the sign-in layout (spec §18). */
-export default function VerifyEmail({ status, email }: Props) {
+export default function VerifyEmail({ status, email, mailLog = false }: Props) {
     return (
         <>
             <Head title="Confirm your email" />
@@ -40,6 +42,17 @@ export default function VerifyEmail({ status, email }: Props) {
             {status === 'verification-link-sent' && (
                 <AlertBanner variant="pos" slim role="status">
                     We sent a new link. It works for 60 minutes.
+                </AlertBanner>
+            )}
+
+            {mailLog && (
+                <AlertBanner
+                    variant="info"
+                    slim
+                    title="Local mail goes to the log"
+                >
+                    MAIL_MAILER is log, so the link is in
+                    storage/logs/laravel.log (docs/MAIL.md sets up real mail).
                 </AlertBanner>
             )}
 

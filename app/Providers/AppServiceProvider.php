@@ -172,11 +172,8 @@ class AppServiceProvider extends ServiceProvider
                 ->by($name.':'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
         }
 
-        // The marketing Contact / Book a demo form (D84): a few an hour per IP, answered
-        // with a form error rather than a bare 429 page.
-        RateLimiter::for('contact', fn (Request $request): Limit => Limit::perHour((int) config('marketing.contact_per_hour'))
-            ->by('contact:'.$request->ip())
-            ->response(fn () => back()->withErrors(['form' => 'That’s a lot of messages from here. Try again in an hour, or email us.'])->withInput()));
+        // The marketing Contact form's hourly limit (D84) lives in ContactController now, so
+        // only accepted messages count (W2, D119).
     }
 
     /**

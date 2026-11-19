@@ -155,7 +155,8 @@ const roleArticle = (role: CompanyRole) =>
     `${role === 'admin' ? 'an' : 'a'} ${formatRole(role)}`;
 
 function JoinForm(props: Props) {
-    const { token, invite, company, account, existingAccount } = props;
+    const { token, invite, company, account, existingAccount, googleEnabled } =
+        props;
     const join = `Join ${company.name}`;
 
     if (account !== null && !account.matches) {
@@ -288,23 +289,28 @@ function JoinForm(props: Props) {
                         >
                             {join}
                         </Button>
-                        <a
-                            href={
-                                googleRedirect({
-                                    query: { intent: 'invite', invite: token },
-                                }).url
-                            }
-                            className="cf-btn cf-btn--secondary cf-btn--lg"
-                            style={{ flex: '1 1 200px' }}
-                        >
-                            <span
-                                className="cf-avatar cf-avatar--sm auth-google"
-                                aria-hidden="true"
+                        {googleEnabled && (
+                            <a
+                                href={
+                                    googleRedirect({
+                                        query: {
+                                            intent: 'invite',
+                                            invite: token,
+                                        },
+                                    }).url
+                                }
+                                className="cf-btn cf-btn--secondary cf-btn--lg"
+                                style={{ flex: '1 1 200px' }}
                             >
-                                G
-                            </span>
-                            Join with Google
-                        </a>
+                                <span
+                                    className="cf-avatar cf-avatar--sm auth-google"
+                                    aria-hidden="true"
+                                >
+                                    G
+                                </span>
+                                Join with Google
+                            </a>
+                        )}
                     </div>
                 </>
             )}
