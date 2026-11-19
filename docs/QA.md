@@ -84,8 +84,9 @@ step, `pause`, `scroll` a sideways scroller to its end). New pages and dialogs s
 - Owner QA round 3 (19 Nov 2026, D143): five new checks (`under-sticky`, `lead-scrolled-away`,
   `visible-scrollbar`, `empty-control`, `small-kpi`) and three scenarios (Log hours › phone sheet,
   whole month; Edit partner; Roles matrix › scrolled sideways). Run against the build before the
-  fixes they found 11 of the owner's issues (settings tabs scrollbar, the squashed Log hours switch,
-  Entries / Active months / Open loans, the roles labels scrolling away). After the fixes, the
+  fixes they caught four of the owner's thirteen items (the settings tabs scrollbar, the squashed
+  Log hours switch, the small Entries / Active months / Open loans figures, the roles labels
+  scrolling away); the rest are visual judgements the screenshots still need. After the fixes, the
   affected pages (marketing heroes and features, dashboard, partners, team, timesheets, income,
   expenses, capital, loans, settlements, reports, statements, vault audit and health, settings
   company / members / partners / roles) at every width, both themes, as Admin, Member and signed
