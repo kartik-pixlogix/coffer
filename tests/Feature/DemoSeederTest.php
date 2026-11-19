@@ -154,3 +154,12 @@ test('the demo vault matches the Vault board (D71)', function () {
     expect($summary['counts'])->toMatchArray(['weak' => 4, 'reused' => 2, 'breached' => 1, 'expiring' => 2]);
     CarbonImmutable::setTestNow();
 });
+
+test('the demo seeders need no dev-only packages, so staging can seed after composer install --no-dev', function () {
+    foreach (glob(database_path('seeders/{,*/}*.php'), GLOB_BRACE) ?: [] as $file) {
+        expect((string) file_get_contents($file))
+            ->not->toContain('::factory(')
+            ->not->toContain('fake(')
+            ->not->toContain('use Faker');
+    }
+});

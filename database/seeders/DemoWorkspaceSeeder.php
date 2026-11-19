@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Models\Workspace;
 use App\Support\CurrentCompany;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
  * The design's sample data (spec §24): Vertex Group with Saarthi Portal JV (Vertex Labs
@@ -222,6 +223,13 @@ class DemoWorkspaceSeeder extends Seeder
 
     private function user(string $name, string $email): User
     {
-        return User::factory()->create(['name' => $name, 'email' => $email]);
+        // Not the factory: staging installs with `composer install --no-dev`, so Faker isn't there.
+        return User::query()->forceCreate([
+            'name' => $name,
+            'email' => $email,
+            'email_verified_at' => now(),
+            'password' => 'password',
+            'remember_token' => Str::random(10),
+        ]);
     }
 }
