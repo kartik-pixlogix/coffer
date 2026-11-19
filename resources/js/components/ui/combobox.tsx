@@ -416,92 +416,106 @@ export function Combobox({
                 onOpenChange={(next) => !next && close()}
             >
                 <Popover.Anchor asChild>{field}</Popover.Anchor>
-                <Popover.Content
-                    role={undefined}
-                    className="cf-pop z-40 animate-[cfFade_var(--duration-panel)_var(--ease-out)]"
-                    collisionPadding={16}
-                    side="bottom"
-                    align="start"
-                    sideOffset={6}
-                    style={{
-                        width: 'var(--radix-popover-trigger-width)',
-                        maxHeight:
-                            'min(320px, var(--radix-popover-content-available-height))',
-                        overflowY: 'auto',
-                    }}
-                    // Focus stays in the input; clicks in the list mustn't blur it.
-                    onMouseDown={(event) => event.preventDefault()}
-                    onOpenAutoFocus={(event) => event.preventDefault()}
-                    onCloseAutoFocus={(event) => event.preventDefault()}
-                    // Focus never enters the list; the input's blur closes it.
-                    onFocusOutside={(event) => event.preventDefault()}
-                    onInteractOutside={(event) => {
-                        if (
-                            event.target instanceof Node &&
-                            anchorRef.current?.contains(event.target)
-                        ) {
-                            event.preventDefault();
-                        }
-                    }}
-                >
-                    <ul
-                        className="cf-listbox"
-                        id={listboxId}
-                        role="listbox"
-                        aria-label={listLabel}
-                        aria-busy={loading || undefined}
+                {/* Portalled so a scrolling dialog can't clip the list (X2, D123). */}
+                <Popover.Portal>
+                    <Popover.Content
+                        role={undefined}
+                        className="cf-pop z-50 animate-[cfFade_var(--duration-panel)_var(--ease-out)]"
+                        collisionPadding={16}
+                        side="bottom"
+                        align="start"
+                        sideOffset={6}
+                        style={{
+                            width: 'var(--radix-popover-trigger-width)',
+                            maxHeight:
+                                'min(320px, var(--radix-popover-content-available-height))',
+                            overflowY: 'auto',
+                        }}
+                        // Focus stays in the input; clicks in the list mustn't blur it.
+                        onMouseDown={(event) => event.preventDefault()}
+                        // A modal dialog's scroll lock listens on the document: keep the
+                        // list's own wheel and touch scrolling from reaching it.
+                        onWheel={(event) => event.stopPropagation()}
+                        onTouchMove={(event) => event.stopPropagation()}
+                        onOpenAutoFocus={(event) => event.preventDefault()}
+                        onCloseAutoFocus={(event) => event.preventDefault()}
+                        // Focus never enters the list; the input's blur closes it.
+                        onFocusOutside={(event) => event.preventDefault()}
+                        onInteractOutside={(event) => {
+                            if (
+                                event.target instanceof Node &&
+                                anchorRef.current?.contains(event.target)
+                            ) {
+                                event.preventDefault();
+                            }
+                        }}
                     >
-                        {results.map((result, position) => {
-                            const { option } = result;
-                            const isSelected = option.value === selectedValue;
+                        <ul
+                            className="cf-listbox"
+                            id={listboxId}
+                            role="listbox"
+                            aria-label={listLabel}
+                            aria-busy={loading || undefined}
+                        >
+                            {results.map((result, position) => {
+                                const { option } = result;
+                                const isSelected =
+                                    option.value === selectedValue;
 
-                            return (
-                                <li
-                                    key={option.value}
-                                    role="option"
-                                    id={optionId(result.index)}
-                                    className={cn(
-                                        'cf-option',
-                                        position === active && 'is-active',
-                                    )}
-                                    aria-selected={
-                                        option.disabled ? undefined : isSelected
-                                    }
-                                    aria-disabled={option.disabled || undefined}
-                                    onMouseMove={() =>
-                                        !option.disabled &&
-                                        position !== active &&
-                                        setActive(position)
-                                    }
-                                    onClick={() => pick(option)}
-                                >
-                                    {option.leading}
-                                    <span>
-                                        <Segments segments={result.label} />
-                                        {result.meta && (
-                                            <>
-                                                {' '}
-                                                <span className="t-muted">
-                                                    ·{' '}
-                                                    <Segments
-                                                        segments={result.meta}
-                                                    />
-                                                </span>
-                                            </>
+                                return (
+                                    <li
+                                        key={option.value}
+                                        role="option"
+                                        id={optionId(result.index)}
+                                        className={cn(
+                                            'cf-option',
+                                            position === active && 'is-active',
                                         )}
-                                    </span>
-                                    {isSelected && (
-                                        <Icon
-                                            icon={Check}
-                                            size={16}
-                                            className="cf-check-ic"
-                                        />
-                                    )}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </Popover.Content>
+                                        aria-selected={
+                                            option.disabled
+                                                ? undefined
+                                                : isSelected
+                                        }
+                                        aria-disabled={
+                                            option.disabled || undefined
+                                        }
+                                        onMouseMove={() =>
+                                            !option.disabled &&
+                                            position !== active &&
+                                            setActive(position)
+                                        }
+                                        onClick={() => pick(option)}
+                                    >
+                                        {option.leading}
+                                        <span>
+                                            <Segments segments={result.label} />
+                                            {result.meta && (
+                                                <>
+                                                    {' '}
+                                                    <span className="t-muted">
+                                                        ·{' '}
+                                                        <Segments
+                                                            segments={
+                                                                result.meta
+                                                            }
+                                                        />
+                                                    </span>
+                                                </>
+                                            )}
+                                        </span>
+                                        {isSelected && (
+                                            <Icon
+                                                icon={Check}
+                                                size={16}
+                                                className="cf-check-ic"
+                                            />
+                                        )}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </Popover.Content>
+                </Popover.Portal>
             </Popover.Root>
             {name !== undefined && (
                 <input type="hidden" name={name} value={selectedValue ?? ''} />

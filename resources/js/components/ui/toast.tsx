@@ -18,8 +18,8 @@ export type ToastOptions = {
     /** Override the icon (e.g. Trash2 for "Expense deleted"). */
     icon?: LucideIcon;
     /**
-     * Milliseconds before it leaves. Defaults: 2.6s, 8s when it offers an action,
-     * errors never (they stay until dismissed).
+     * Milliseconds before it leaves. Defaults: 2.6s, 8s when it offers an action
+     * and for errors (every toast leaves on its own, X32 / D125).
      */
     duration?: number;
 };
@@ -37,7 +37,7 @@ export type ToastRecord = {
 export const TOAST_DURATION = 2600;
 /** Long enough to reach an Undo (StateToasts.dc.html). */
 export const TOAST_ACTION_DURATION = 8000;
-/** Up to three at once, newest on top. */
+/** Up to three at once, newest nearest the corner. */
 export const TOAST_LIMIT = 3;
 
 const KIND_ICON: Record<ToastKind, LucideIcon> = {
@@ -55,12 +55,25 @@ const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
 function push(kind: ToastKind, message: string, options: ToastOptions = {}) {
+    // The same message twice (a double click, a repeated refusal) shows once (A3):
+    // the copy on screen starts its clock again.
+    const same = toasts.find(
+        (t) => t.kind === kind && t.message === message && !t.action,
+    );
+
+    if (same && !options.action) {
+        toasts = [{ ...same, id: ++seq }, ...toasts.filter((t) => t !== same)];
+        emit();
+
+        return toasts[0].id;
+    }
+
     const id = ++seq;
     const duration =
-        kind === 'error'
-            ? (options.duration ?? null)
-            : (options.duration ??
-              (options.action ? TOAST_ACTION_DURATION : TOAST_DURATION));
+        options.duration ??
+        (kind === 'error' || options.action
+            ? TOAST_ACTION_DURATION
+            : TOAST_DURATION);
 
     toasts = [
         {
@@ -81,6 +94,17 @@ function push(kind: ToastKind, message: string, options: ToastOptions = {}) {
 function dismiss(id?: number) {
     toasts = id === undefined ? [] : toasts.filter((t) => t.id !== id);
     emit();
+}
+
+/**
+ * Errors belong to the page they were raised on (A3, D125): going to another page
+ * clears them. Success and info toasts (a flash after a redirect) stay.
+ */
+export function dismissErrors(): void {
+    if (toasts.some((t) => t.kind === 'error')) {
+        toasts = toasts.filter((t) => t.kind !== 'error');
+        emit();
+    }
 }
 
 export type ToastApi = {
@@ -228,7 +252,10 @@ function LiveToast({ record }: { record: ToastRecord }) {
     );
 }
 
-/** The top-right stack. Rendered by ToastProvider; one per app. */
+/**
+ * The stack, bottom right so it never covers the top bar's theme, bell and account
+ * buttons; above the bottom tab bar on phones (X32, D125). Rendered by ToastProvider.
+ */
 export function Toaster() {
     const list = useSyncExternalStore(
         subscribe,
@@ -238,7 +265,7 @@ export function Toaster() {
 
     return (
         <div
-            className="pointer-events-none fixed top-6 right-6 z-[60] flex w-[420px] max-w-[calc(100vw-32px)] flex-col items-end gap-2 max-sm:top-4 max-sm:right-4"
+            className="pointer-events-none fixed right-6 bottom-6 z-[60] flex w-[420px] max-w-[calc(100vw-32px)] flex-col-reverse items-end gap-2 max-sm:right-4 max-sm:bottom-[calc(96px+env(safe-area-inset-bottom))]"
             aria-live="polite"
         >
             {list.map((record) => (

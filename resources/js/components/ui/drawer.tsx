@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { useEffect, useId, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import { IconButton } from '@/components/ui/icon-button';
 import { SCRIM_CLASS } from '@/components/ui/modal';
@@ -153,31 +153,16 @@ export function DrawerPanel({
     );
 }
 
-const SMALL_QUERY = '(max-width: 767px)';
-
-function subscribeSmall(callback: () => void) {
-    const media = window.matchMedia(SMALL_QUERY);
-    media.addEventListener('change', callback);
-
-    return () => media.removeEventListener('change', callback);
-}
-
-const useSmallScreen = () =>
-    useSyncExternalStore(
-        subscribeSmall,
-        () => window.matchMedia(SMALL_QUERY).matches,
-        () => false,
-    );
-
 export type DrawerProps = DrawerLookProps & {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
 /**
- * Floating side drawer (`cf-drawer--float`) over the page, sliding in from the right.
- * On wide screens the page stays usable and an outside click closes it; on small
- * screens it adds the scrim and traps focus. Esc closes; focus returns to the opener.
+ * Floating side drawer (`cf-drawer--float`) over the page, sliding in from the right,
+ * over the dimmed scrim at every width (Settlements.dc.html; D122): it traps focus and
+ * the page behind can't be used. Esc, the close button or a scrim click close it;
+ * focus returns to the opener.
  */
 export function Drawer({
     open,
@@ -191,17 +176,12 @@ export function Drawer({
     className,
     style,
 }: DrawerProps) {
-    const small = useSmallScreen();
     const descriptionId = useId();
 
     return (
-        <DialogPrimitive.Root
-            open={open}
-            onOpenChange={onOpenChange}
-            modal={small}
-        >
+        <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
             <DialogPrimitive.Portal>
-                {small && <DialogPrimitive.Overlay className={SCRIM_CLASS} />}
+                <DialogPrimitive.Overlay className={SCRIM_CLASS} />
                 <DialogPrimitive.Content
                     className={cn(
                         'cf-drawer cf-drawer--float fixed max-w-[calc(100vw-40px)] focus-visible:shadow-pop max-sm:top-3 max-sm:right-3 max-sm:bottom-3 max-sm:max-w-[calc(100vw-24px)]',

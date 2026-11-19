@@ -6657,3 +6657,722 @@ a.lp-pillar:not(#\#):hover {
 .lp:not(#\#) > main:focus {
     outline: 0;
 }
+
+/* qa-fixes: start ── the owner's QA round (D120–D134) */
+
+/*
+ * Live dialogs (X5, D120). The modal sits in a fixed frame: 112 px down (the boards)
+ * while it fits, moving up to 24 px and growing to the viewport less 48 px when it
+ * doesn't. The ::before spacer gives way first (its huge shrink factor), then the
+ * modal shrinks and its body scrolls with the header and footer pinned.
+ */
+.cf-modal-frame:not(#\#) {
+    position: fixed;
+    inset: 0;
+    z-index: 41;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    pointer-events: none;
+}
+
+.cf-modal-frame:not(#\#)::before {
+    content: '';
+    flex: 0 10000 88px;
+}
+
+.cf-modal-frame:not(#\#)::after {
+    content: '';
+    flex: 1 1 0;
+}
+
+.cf-modal--live:not(#\#) {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    pointer-events: auto;
+    animation: cfModalIn var(--duration-panel) var(--ease-out) both;
+}
+
+.cf-modal--live:not(#\#) > .cf-modal-head {
+    position: sticky;
+    top: -24px;
+    z-index: 2;
+    flex-shrink: 0;
+    margin: -24px -24px -12px;
+    padding: 24px 24px 12px;
+    background: var(--surface);
+}
+
+.cf-modal--live:not(#\#) .cf-modal-foot {
+    position: sticky;
+    bottom: -24px;
+    z-index: 2;
+    flex-shrink: 0;
+    margin: 0 -24px -24px;
+    padding: 16px 24px 24px;
+    background: var(--surface);
+}
+
+/* X14: a long unbroken word wraps instead of scrolling the dialog sideways. */
+.cf-modal:not(#\#) .cf-modal-title,
+.cf-modal:not(#\#) .cf-modal-title > div,
+.cf-modal:not(#\#) [role='alertdialog'] p,
+.cf-modal--live:not(#\#) > p,
+.cf-drawer-head:not(#\#) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@keyframes cfModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .cf-modal-frame:not(#\#) {
+        padding: 0;
+    }
+
+    .cf-modal-frame:not(#\#)::before {
+        display: none;
+    }
+
+    .cf-modal-frame:not(#\#) > .cf-modal--live {
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: 100%;
+        max-height: none;
+        border: 0;
+        border-radius: 0;
+        animation-name: cfSheet;
+    }
+
+    /* Confirmations dock to the bottom edge instead of filling the screen. */
+    .cf-modal-frame--bottom:not(#\#) {
+        justify-content: flex-end;
+    }
+
+    .cf-modal-frame--bottom:not(#\#)::after {
+        display: none;
+    }
+
+    .cf-modal-frame--bottom:not(#\#) > .cf-modal--live {
+        flex: 0 1 auto;
+        max-height: 100%;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+}
+
+/*
+ * Scrollbars follow the theme (X6, D121). color-scheme comes from the tokens; the
+ * thumb and track are tokens too, for Chrome / Firefox (scrollbar-color, inherited)
+ * and older WebKit (the pseudo-elements, used only where scrollbar-color isn't).
+ */
+.cf:not(#\#) {
+    scrollbar-color: var(--line-strong) transparent;
+}
+
+@supports not (scrollbar-color: red blue) {
+    .cf:not(#\#) ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .cf:not(#\#) ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .cf:not(#\#) ::-webkit-scrollbar-thumb {
+        border: 2px solid transparent;
+        border-radius: var(--radius-full);
+        background: var(--line-strong) padding-box;
+    }
+}
+
+/*
+ * Menus and popovers never run off screen (X13, D123): Radix measures the room on
+ * the chosen side (collision padding 16) and the panel scrolls inside it.
+ */
+[data-radix-popper-content-wrapper] > .cf-menu:not(#\#),
+[data-radix-popper-content-wrapper] > .cf-pop:not(#\#) {
+    max-height: var(
+        --radix-dropdown-menu-content-available-height,
+        var(--radix-popover-content-available-height, none)
+    );
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/*
+ * App shell (G6, X11, X28; D124). From 641 px the rail stays in view (sticky, its own
+ * scroll when it is taller than the window) and so does the top bar, which keeps the
+ * page's surface behind it while content scrolls underneath.
+ */
+@media (min-width: 641px) {
+    .app-rail:not(#\#) {
+        position: sticky;
+        top: 20px;
+        max-height: calc(100dvh - 40px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+    }
+
+    .app-rail:not(#\#)::-webkit-scrollbar {
+        display: none;
+    }
+
+    .app-page:not(#\#) .cf-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        margin-block: -12px;
+        padding-block: 12px;
+        background: var(--surface);
+    }
+}
+
+/* Sign out is outlined like the other rail items in both themes (X28). */
+.app-rail:not(#\#) .cf-rail-out {
+    border-color: var(--line);
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.app-rail:not(#\#) .cf-rail-out:hover {
+    background: var(--surface-muted);
+}
+
+/* Long company names end in an ellipsis instead of wrapping word by word (X11). */
+.cf-switcher:not(#\#) {
+    min-width: 0;
+    max-width: 100%;
+    flex: 0 1 auto;
+}
+
+.cf-switcher-text:not(#\#) {
+    min-width: 0;
+}
+
+.cf-switcher-text:not(#\#) > span {
+    display: block;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Tablets: the workspace line goes, the name gets less room, search is an icon. */
+@media (min-width: 641px) and (max-width: 960px) {
+    .app-page:not(#\#) .cf-switcher-text > .t-caption {
+        display: none;
+    }
+
+    .app-page:not(#\#) .cf-switcher-text > span {
+        max-width: 150px;
+    }
+
+    .app-page:not(#\#) .cf-topbar-l .cf-search {
+        flex: none;
+        width: 54px;
+        min-width: 0;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .app-page:not(#\#) .cf-topbar-l .cf-search > :not(svg) {
+        display: none;
+    }
+}
+
+/*
+ * KPI figures fit their tile (R6/D9, D126): the value row is a size container and a
+ * long figure shrinks (from 36 px down to 20 px) by its final length instead of
+ * clipping. Money never breaks between the minus, ₹ and the digits.
+ */
+.cf-kpi-value:not(#\#) {
+    container-type: inline-size;
+    min-width: 0;
+}
+
+.cf-kpi-value:not(#\#) .t-money-lg {
+    font-size: clamp(
+        20px,
+        calc((100cqi - 28px) / (var(--cf-money-len, 8) * 0.62)),
+        36px
+    );
+    line-height: 1.12;
+    white-space: nowrap;
+}
+
+.t-money:not(#\#),
+.t-money-sm:not(#\#),
+.t-money-lg:not(#\#),
+.t-money-unit:not(#\#) {
+    white-space: nowrap;
+}
+
+/*
+ * Tab pills and chip rows stay on one line (R7/X9, X20; D127): they scroll sideways
+ * without a scrollbar, and where scroll-driven animations exist the edge that has
+ * more to show fades out.
+ */
+.cf-tabs:not(#\#),
+.cf-scroll-row:not(#\#) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+.cf-tabs:not(#\#)::-webkit-scrollbar,
+.cf-scroll-row:not(#\#)::-webkit-scrollbar {
+    display: none;
+}
+
+.cf-tabs:not(#\#) > .cf-tab,
+.cf-scroll-row:not(#\#) > * {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@supports (animation-timeline: scroll()) {
+    .cf-tabs:not(#\#),
+    .cf-scroll-row:not(#\#) {
+        animation: cfEdgeFade linear both;
+        animation-timeline: scroll(self inline);
+    }
+}
+
+@keyframes cfEdgeFade {
+    0% {
+        mask-image: linear-gradient(
+            to right,
+            #000 calc(100% - 24px),
+            transparent
+        );
+    }
+
+    2%,
+    98% {
+        mask-image: linear-gradient(
+            to right,
+            transparent,
+            #000 24px,
+            #000 calc(100% - 24px),
+            transparent
+        );
+    }
+
+    100% {
+        mask-image: linear-gradient(to right, transparent, #000 24px);
+    }
+}
+
+/*
+ * Data tables (D1–D4, D8, X7, X23, X25, X34, X36; D128). The table is never narrower
+ * than its columns' minimums (data-table.utils.ts), so rows keep their background
+ * under every column and Actions stay inside. While the wrap scrolls sideways the
+ * lead column stays pinned and the edge with more to show fades.
+ */
+.cf-table-wrap.is-overflowing:not(#\#) .cf-table--grid > .cf-tr > .cf-td-lead {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    margin-left: -14px;
+    padding-left: 14px;
+    background: inherit;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    box-shadow: 8px 0 8px -8px var(--line-strong);
+}
+
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--grid.is-selectable
+    > .cf-tr
+    > .cf-td-lead {
+    margin-left: 0;
+    padding-left: 0;
+    border-radius: 0;
+}
+
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--grid
+    > .cf-thead
+    > .cf-td-lead {
+    background: var(--surface-card);
+}
+
+.cf-table-wrap.is-overflowing:not(#\#)
+    .cf-table--grid
+    > .cf-tr.is-total
+    > .cf-td-lead {
+    background: var(--surface-card);
+    box-shadow: none;
+}
+
+@supports (animation-timeline: scroll()) {
+    .cf-table-wrap.is-overflowing:not(#\#) {
+        animation: cfEdgeFade linear both;
+        animation-timeline: scroll(self inline);
+    }
+}
+
+/* An empty table never scrolls sideways (the wizard's step 2). */
+.cf-table-wrap:not(#\#):has(> .cf-table:not(.cf-table--grid) .cf-empty-row) {
+    overflow-x: visible;
+}
+
+/* Phones: each row is a card of label / value lines; the header row goes. */
+@media (max-width: 640px) {
+    .cf-table-wrap:not(#\#):has(> .cf-table--stack) {
+        overflow-x: visible;
+        margin: 0;
+        padding: 0;
+        animation: none;
+    }
+
+    .cf-table--stack:not(#\#) {
+        /* Beats the inline minimum the wide layout needs. */
+        min-width: 0 !important;
+        gap: 8px;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-thead {
+        display: none;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 12px 14px;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr > [role='cell'] {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr > [role='cell']:empty {
+        display: none;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr > [role='cell'][data-label]::before {
+        content: attr(data-label);
+        flex: none;
+        max-width: 45%;
+        color: var(--ink-secondary);
+        font-family: var(--font-sans);
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: 400;
+        text-align: left;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr > .cf-td-lead {
+        justify-content: flex-start;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr > .cf-td-lead::before {
+        display: none;
+    }
+
+    .cf-table--stack:not(#\#) > .cf-tr > .cf-rowacts {
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px solid var(--line);
+    }
+}
+
+/*
+ * One field height in dialogs (X3/X18/X21, D129): inputs, selects, date and month
+ * pickers and comboboxes are 48 px; compact fields (the `--sm` sizes, and every
+ * control in a payer row) are deliberately the 40 px control. Placeholders are in
+ * the body face, even in mono fields (X17).
+ */
+.cf:not(#\#) {
+    --field-h: 48px;
+    --field-h-sm: var(--control-md);
+}
+
+.cf-modal:not(#\#) .cf-input,
+.cf-modal:not(#\#) .cf-inwrap,
+.cf-modal:not(#\#) .cf-selectbox,
+.cf-modal:not(#\#) .cf-select > select,
+.cf-modal:not(#\#) .cf-month-trigger {
+    height: var(--field-h);
+}
+
+.cf-modal:not(#\#) .cf-input--sm,
+.cf-modal:not(#\#) .cf-inwrap--sm,
+.cf-modal:not(#\#) .cf-select--pill > select,
+.cf-modal:not(#\#) .ex-payer .cf-select > select,
+.cf-modal:not(#\#) .ex-payer .cf-inwrap {
+    height: var(--field-h-sm);
+}
+
+.cf:not(#\#) ::placeholder {
+    font-family: var(--font-sans);
+}
+
+/* Long select choices end in an ellipsis (the title attribute holds them whole, X4/X8). */
+.cf-select:not(#\#) > select {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* "Recent payouts" opens with the kit chevron, not the browser triangle (X22). */
+.ex-payouts:not(#\#) > summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+}
+
+.ex-payouts:not(#\#) > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ex-payouts-chev:not(#\#) {
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.ex-payouts[open]:not(#\#) .ex-payouts-chev {
+    transform: rotate(180deg);
+}
+
+/* A suggestion list (datalist) keeps the plain field look: no native arrow (X35). */
+.cf:not(#\#) input[list]::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+/* Change plan: the four plans sit 2 × 2, never 3 + 1 (X15); one column on phones. */
+.upg-grid:not(#\#) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 480px) {
+    .upg-grid:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Invite: one column until the 900 px modal fits, so the four roles never clip (X24). */
+@media (max-width: 960px) {
+    .invite-cols:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .invite-side:not(#\#) {
+        padding-left: 0;
+        border-left: 0;
+    }
+}
+
+/* Long vault item names end in an ellipsis in the list and grid (A8). */
+.vh-row-name:not(#\#) {
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+
+/* Wizard step 3: the four review cards sit 2 × 2, so "When you launch" never sits
+   alone on a row (X26); one column on narrow screens. */
+.wiz-review:not(#\#) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+    .wiz-review:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* A status pill that is itself a table cell keeps its content width (X30). */
+.cf-tr:not(#\#) > .cf-pill,
+.cf-tr:not(#\#) > [role='cell'] > .cf-pill {
+    align-self: flex-start;
+    justify-self: start;
+}
+
+/* Sign up: the plan picked on Pricing (W3). */
+.su-plan:not(#\#) {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface-muted);
+}
+
+.lp-foot-col:not(#\#) {
+    gap: 10px;
+}
+
+/* Marketing on phones (D5, D6, D12; D127). */
+@media (max-width: 640px) {
+    /* Footer links are 44 px tap targets; the gaps tighten to keep the rhythm. */
+    .lp-foot:not(#\#) nav a,
+    .lp-foot-base:not(#\#) a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+    }
+
+    .lp-foot-col:not(#\#) {
+        gap: 0;
+    }
+
+    .lp-foot-base:not(#\#) {
+        align-items: center;
+    }
+}
+
+/* The dashboard preview's KPI tiles: one column on small phones so figures never clip. */
+@media (max-width: 420px) {
+    .lp-kpis:not(#\#),
+    .lp-kpis--2:not(#\#) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.lp-kpi-value:not(#\#) {
+    white-space: nowrap;
+}
+
+/* Pricing comparison: group headings keep the grid so the Growth band is unbroken (W7). */
+.cmp-group-row:not(#\#) {
+    min-height: 0;
+    align-items: stretch;
+    border-bottom: 0;
+}
+
+.cmp-group-row:not(#\#) > .cmp-group {
+    padding: 22px 12px 8px;
+}
+
+/*
+ * Transfers (Settlements) and repayment history (Loans) rows (D2, D3, X23; D128).
+ * Below 1100 px each row takes two lines: date, who and amount on the first, the
+ * reference / account under who; actions stay at the end. Phones stack who and
+ * amount, then the date, then the detail.
+ */
+.ln-hrow:not(#\#) > :nth-child(2) {
+    flex-wrap: wrap;
+    row-gap: 4px;
+}
+
+@media (max-width: 1100px) {
+    .st-trow:not(#\#),
+    .ln-hrow:not(#\#) {
+        grid-template-columns: 100px minmax(0, 1fr) auto;
+        row-gap: 4px;
+    }
+
+    .st-trow--acts:not(#\#),
+    .ln-hrow--acts:not(#\#) {
+        grid-template-columns: 100px minmax(0, 1fr) auto 32px;
+    }
+
+    .st-trow:not(#\#) > :nth-child(1),
+    .ln-hrow:not(#\#) > :nth-child(1) {
+        grid-area: 1 / 1;
+    }
+
+    .st-trow:not(#\#) > :nth-child(2),
+    .ln-hrow:not(#\#) > :nth-child(2) {
+        grid-area: 1 / 2;
+    }
+
+    .st-trow:not(#\#) > :nth-child(3),
+    .ln-hrow:not(#\#) > :nth-child(3) {
+        grid-area: 1 / 3;
+    }
+
+    .st-trow:not(#\#) > :nth-child(4) {
+        grid-area: 2 / 2;
+    }
+
+    .st-trow:not(#\#) > :nth-child(5) {
+        grid-area: 2 / 3;
+        text-align: right;
+    }
+
+    .ln-hrow:not(#\#) > :nth-child(4) {
+        grid-area: 2 / 2 / 3 / 4;
+    }
+
+    .st-trow--acts:not(#\#) > :nth-child(6),
+    .ln-hrow--acts:not(#\#) > :nth-child(5) {
+        grid-area: 1 / 4 / 3 / 5;
+    }
+}
+
+@media (max-width: 640px) {
+    .st-trow:not(#\#),
+    .ln-hrow:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .st-trow--acts:not(#\#),
+    .ln-hrow--acts:not(#\#) {
+        grid-template-columns: minmax(0, 1fr) auto 32px;
+    }
+
+    .st-trow:not(#\#) > :nth-child(2),
+    .ln-hrow:not(#\#) > :nth-child(2) {
+        grid-area: 1 / 1;
+    }
+
+    .st-trow:not(#\#) > :nth-child(3),
+    .ln-hrow:not(#\#) > :nth-child(3) {
+        grid-area: 1 / 2;
+    }
+
+    .st-trow:not(#\#) > :nth-child(1),
+    .ln-hrow:not(#\#) > :nth-child(1) {
+        grid-area: 2 / 1;
+    }
+
+    .st-trow:not(#\#) > :nth-child(5) {
+        grid-area: 2 / 2;
+    }
+
+    .st-trow:not(#\#) > :nth-child(4),
+    .ln-hrow:not(#\#) > :nth-child(4) {
+        grid-area: 3 / 1 / 4 / 3;
+    }
+
+    .st-trow--acts:not(#\#) > :nth-child(6),
+    .ln-hrow--acts:not(#\#) > :nth-child(5) {
+        grid-area: 1 / 3 / 4 / 4;
+        align-self: start;
+    }
+}
+
+/* A payer row holding only the account select gives it the row (Direct company). */
+.ex-payer:not(#\#) > .ex-from:only-child {
+    flex: 1 1 auto;
+}

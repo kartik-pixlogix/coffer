@@ -46,7 +46,11 @@ export function NavRailItem({
         const reason = item.disabledReason ?? 'not available';
 
         return (
-            <Tooltip label={`${item.label} · ${reason}`} disabled={!tooltip}>
+            <Tooltip
+                label={`${item.label} · ${reason}`}
+                side="right"
+                disabled={!tooltip}
+            >
                 <span
                     className={cn('cf-rail-item opacity-45', className)}
                     role="link"
@@ -65,7 +69,7 @@ export function NavRailItem({
         : item.label;
 
     return (
-        <Tooltip label={item.label} disabled={!tooltip}>
+        <Tooltip label={item.label} side="right" disabled={!tooltip}>
             <Link
                 href={item.href}
                 className={cn('cf-rail-item', className)}
@@ -149,7 +153,7 @@ export function NavRail({
             {signOutSeparator && (
                 <span className={sepClass} aria-hidden="true" />
             )}
-            <Tooltip label="Sign out">
+            <Tooltip label="Sign out" side="right">
                 <button
                     type="button"
                     className="cf-rail-item cf-rail-out"

@@ -39,8 +39,10 @@ export function CompanySwitcherTrigger({
             <span className="cf-switcher-ini" aria-hidden="true">
                 {company.initials}
             </span>
-            <span className="cf-stack">
-                <span className="t-label-strong">{company.name}</span>
+            <span className="cf-stack cf-switcher-text">
+                <span className="t-label-strong" title={company.name}>
+                    {company.name}
+                </span>
                 <span className="t-caption t-muted">
                     {formatCompanyMeta(company.type, company.role)}
                 </span>
@@ -231,7 +233,7 @@ export function CompanySwitcher({
                     id={listId}
                     role="listbox"
                     aria-label="Your companies"
-                    className="cf-pop cf-menu z-40 max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop"
+                    className="cf-pop cf-menu z-50 max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop"
                     style={LIST_STYLE}
                     onKeyDown={onListKeyDown}
                     align="start"

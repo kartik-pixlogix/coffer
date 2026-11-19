@@ -48,6 +48,8 @@ export type TooltipProps = {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     sideOffset?: number;
+    /** Where it opens (default above); the nav rail's open to the right (G6). */
+    side?: 'top' | 'right' | 'bottom' | 'left';
     /** Hide the tooltip without unwrapping the trigger. */
     disabled?: boolean;
 };
@@ -64,6 +66,7 @@ export function Tooltip({
     open,
     onOpenChange,
     sideOffset = 10,
+    side = 'top',
     disabled = false,
 }: TooltipProps) {
     if (disabled) {
@@ -81,11 +84,11 @@ export function Tooltip({
             </TooltipPrimitive.Trigger>
             <TooltipPrimitive.Portal>
                 <TooltipPrimitive.Content
-                    side="top"
+                    side={side}
                     align="center"
                     sideOffset={sideOffset}
                     collisionPadding={8}
-                    className="cf-tooltip z-[70] animate-[cfFade_var(--duration-fast)_var(--ease-out)] data-[side=bottom]:after:top-[-4px] data-[side=bottom]:after:bottom-auto"
+                    className="cf-tooltip z-[70] animate-[cfFade_var(--duration-fast)_var(--ease-out)] data-[side=bottom]:after:top-[-4px] data-[side=bottom]:after:bottom-auto data-[side=left]:after:top-1/2 data-[side=left]:after:right-[-4px] data-[side=left]:after:bottom-auto data-[side=left]:after:left-auto data-[side=left]:after:-mt-1 data-[side=left]:after:ml-0 data-[side=right]:after:top-1/2 data-[side=right]:after:bottom-auto data-[side=right]:after:left-[-4px] data-[side=right]:after:-mt-1 data-[side=right]:after:ml-0"
                 >
                     {label}
                 </TooltipPrimitive.Content>

@@ -174,7 +174,7 @@ export function DropdownMenu({
                     collisionPadding={16}
                     aria-label={rest['aria-label']}
                     className={cn(
-                        'cf-pop cf-menu z-40 max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop',
+                        'cf-pop cf-menu z-50 max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop',
                         className,
                     )}
                 >

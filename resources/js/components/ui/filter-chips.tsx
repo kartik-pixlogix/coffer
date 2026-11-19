@@ -39,6 +39,8 @@ export type FilterChipGroupProps = {
     'aria-label': string;
     children: ReactNode;
     className?: string;
+    /** One row that scrolls sideways (no scrollbar, faded edges) instead of wrapping. */
+    scroll?: boolean;
 };
 
 /** Wrapping row of chips (`cf-row`, `role="group"`) as on the screens. */
@@ -46,11 +48,12 @@ export function FilterChipGroup({
     'aria-label': ariaLabel,
     children,
     className,
+    scroll = false,
 }: FilterChipGroupProps) {
     return (
         <div
-            className={cn('cf-row', className)}
-            style={{ flexWrap: 'wrap' }}
+            className={cn('cf-row', scroll && 'cf-scroll-row', className)}
+            style={scroll ? undefined : { flexWrap: 'wrap' }}
             role="group"
             aria-label={ariaLabel}
         >

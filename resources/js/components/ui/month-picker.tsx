@@ -223,7 +223,10 @@ export function MonthPicker({
     return (
         <Popover.Root open={open} onOpenChange={setOpen}>
             <Popover.Trigger
-                className={buttonClass({ variant: 'secondary', className })}
+                className={buttonClass({
+                    variant: 'secondary',
+                    className: cn('cf-month-trigger', className),
+                })}
                 aria-label={ariaLabel ? `${ariaLabel}: ${text}` : undefined}
                 disabled={disabled}
             >
@@ -234,27 +237,29 @@ export function MonthPicker({
             {name !== undefined && (
                 <input type="hidden" name={name} value={selected ?? ''} />
             )}
-            <Popover.Content
-                className="cf-pop z-40 animate-[cfFade_var(--duration-panel)_var(--ease-out)]"
-                collisionPadding={16}
-                aria-label="Choose a month"
-                style={{ width: 280, padding: 14 }}
-                side="bottom"
-                align="start"
-                sideOffset={8}
-                onOpenAutoFocus={(event) => event.preventDefault()}
-            >
-                <MonthGrid
-                    {...grid}
-                    selected={selected}
-                    autoFocus
-                    onSelect={(month) => {
-                        setUncontrolled(month);
-                        onValueChange?.(month);
-                        setOpen(false);
-                    }}
-                />
-            </Popover.Content>
+            <Popover.Portal>
+                <Popover.Content
+                    className="cf-pop z-50 animate-[cfFade_var(--duration-panel)_var(--ease-out)]"
+                    collisionPadding={16}
+                    aria-label="Choose a month"
+                    style={{ width: 280, padding: 14 }}
+                    side="bottom"
+                    align="start"
+                    sideOffset={8}
+                    onOpenAutoFocus={(event) => event.preventDefault()}
+                >
+                    <MonthGrid
+                        {...grid}
+                        selected={selected}
+                        autoFocus
+                        onSelect={(month) => {
+                            setUncontrolled(month);
+                            onValueChange?.(month);
+                            setOpen(false);
+                        }}
+                    />
+                </Popover.Content>
+            </Popover.Portal>
         </Popover.Root>
     );
 }

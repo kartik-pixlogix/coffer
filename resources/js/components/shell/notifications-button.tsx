@@ -168,7 +168,7 @@ export function NotificationsButton() {
                     collisionPadding={16}
                     role="dialog"
                     aria-labelledby={titleId}
-                    className="cf-pop cf-notif notif-panel z-40 animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop"
+                    className="cf-pop cf-notif notif-panel z-50 animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop"
                 >
                     <div className="cf-notif-head">
                         <h2 id={titleId} className="t-title m-0">

@@ -134,6 +134,16 @@ export function measurePage(options) {
                 return false;
             }
 
+            // Inside a visually hidden box (cf-sr tables behind charts).
+            if (
+                node !== el &&
+                (node.classList.contains('cf-sr') ||
+                    node.classList.contains('sr-only') ||
+                    hiddenBySr(node, node.getBoundingClientRect()))
+            ) {
+                return false;
+            }
+
             node = node.parentElement;
         }
 
@@ -183,6 +193,33 @@ export function measurePage(options) {
         }
 
         return text.replace(/\s+/g, ' ').trim();
+    }
+
+    /** Each line box of the element's own text. */
+    function lineRects(el) {
+        const out = [];
+
+        for (const child of el.childNodes) {
+            if (child.nodeType !== 3 || !child.nodeValue.trim()) {
+                continue;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(child);
+
+            for (const r of range.getClientRects()) {
+                if (r.width >= 1 && r.height >= 1) {
+                    out.push({
+                        left: r.left,
+                        top: r.top,
+                        right: r.right,
+                        bottom: r.bottom,
+                    });
+                }
+            }
+        }
+
+        return out;
     }
 
     function textRect(el) {
@@ -253,6 +290,20 @@ export function measurePage(options) {
 
     const FLOATING =
         '[data-radix-popper-content-wrapper], .cf-pop, [role="menu"], [role="listbox"], [role="tooltip"]';
+
+    function stickyOf(el) {
+        let node = el;
+
+        while (node && node.nodeType === 1) {
+            if (cs(node).position === 'sticky') {
+                return node;
+            }
+
+            node = node.parentElement;
+        }
+
+        return null;
+    }
 
     function floating(el) {
         return !!el.closest(FLOATING);
@@ -417,7 +468,10 @@ export function measurePage(options) {
         const seenRect = clippedRect(el, rect);
 
         if (seenRect) {
-            texts.push({ el, rect: seenRect, text: own });
+            const lines = lineRects(el)
+                .map((r) => clippedRect(el, r))
+                .filter(Boolean);
+            texts.push({ el, rect: seenRect, lines, text: own });
         }
 
         const ellipsis = style.textOverflow === 'ellipsis';
@@ -518,7 +572,15 @@ export function measurePage(options) {
                 continue;
             }
 
-            const hit = intersects(a.rect, b.rect);
+            let hit = null;
+
+            if (intersects(a.rect, b.rect)) {
+                for (const ra of a.lines) {
+                    for (const rb of b.lines) {
+                        hit = hit || intersects(ra, rb);
+                    }
+                }
+            }
 
             if (hit) {
                 add(
@@ -573,6 +635,14 @@ export function measurePage(options) {
                 (pinned(hit) && !pinned(el)) ||
                 (floating(hit) && !floating(el))
             ) {
+                continue;
+            }
+
+            // Content scrolling under a sticky header or footer in its own scroller
+            // (a dialog's pinned head and foot) is the design.
+            const sticky = stickyOf(hit);
+
+            if (sticky && !sticky.contains(el)) {
                 continue;
             }
 

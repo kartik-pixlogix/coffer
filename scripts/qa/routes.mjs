@@ -206,7 +206,10 @@ export const DIALOGS = [
         name: 'Reports › Month or range',
         route: '/reports',
         roles: ['admin'],
-        steps: [{ click: { text: 'Month or range' } }, { pause: 500 }],
+        steps: [
+            { click: { selector: 'button[aria-label^="Period"]' } },
+            { pause: 500 },
+        ],
         optional: true,
     },
     {
@@ -248,6 +251,8 @@ export const DIALOGS = [
         name: 'Notifications popover',
         route: '/dashboard',
         roles: ['admin'],
+        // Phones open the Notifications page from the compact bar instead.
+        minWidth: 641,
         steps: [
             { click: { selector: 'button[aria-label^="Notifications"]' } },
             { pause: 700 },

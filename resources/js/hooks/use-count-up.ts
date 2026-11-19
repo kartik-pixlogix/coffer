@@ -11,11 +11,16 @@ const ease = (x: number) => 1 - Math.pow(1 - x, 4);
  * Animate a figure from 0 to `target` over duration-count on first render and
  * from the previous value on change. Integer in, integer out (paise stay paise).
  * Under reduced motion the final value shows at once.
+ *
+ * `quantum` rounds the frames in between (100 for paise: whole rupees), so a
+ * counting figure never shows decimals it won't end with (R6, D126); the last frame
+ * is always exactly `target`.
  */
 export function useCountUp(
     target: number,
     enabled = true,
     duration = COUNT_UP_MS,
+    quantum = 1,
 ): number {
     const reduced = useReducedMotion();
     const animate = enabled && !reduced;
@@ -36,7 +41,12 @@ export function useCountUp(
 
         const step = (now: number) => {
             const x = Math.min(1, (now - start) / duration);
-            const next = Math.round(origin + (target - origin) * ease(x));
+            const next =
+                x < 1
+                    ? Math.round(
+                          (origin + (target - origin) * ease(x)) / quantum,
+                      ) * quantum
+                    : target;
 
             from.current = next;
             setValue(next);
@@ -49,7 +59,7 @@ export function useCountUp(
         frame = requestAnimationFrame(step);
 
         return () => cancelAnimationFrame(frame);
-    }, [target, animate, duration]);
+    }, [target, animate, duration, quantum]);
 
     return value;
 }

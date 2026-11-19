@@ -215,6 +215,21 @@ async function signIn(page, role) {
     console.log(`  signed in as ${email} → ${landed.replace(base, '')}`);
 }
 
+/** Unlock the vault for this session (the lock card asks for the 2FA code), if it is locked. */
+async function unlockVault(page) {
+    await page.goto(`${base}/vault`, { settle: 900 });
+
+    if (
+        await page.evaluate(
+            "!!document.querySelector('.vh-lock-card .cf-code-box')",
+        )
+    ) {
+        await typeCode(page);
+        await sleep(1500);
+        console.log('  vault unlocked');
+    }
+}
+
 async function setTheme(page, theme) {
     await page.evaluate(
         `document.documentElement.setAttribute('data-theme', ${JSON.stringify(theme)}); true`,
@@ -553,6 +568,7 @@ async function main() {
             try {
                 if (role !== 'guest') {
                     await signIn(page, role);
+                    await unlockVault(page);
                 }
 
                 if (runPages) {

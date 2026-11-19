@@ -54,8 +54,11 @@ const toPaise = (text: string): number | null =>
 /**
  * Every rupee value: ₹ prefix, IBM Plex Mono with tabular figures, Indian grouping as
  * the person types (caret kept in place). Value in and out is integer paise; a minus
- * can never be typed (a refund or drawing is its own record).
+ * can never be typed (a refund or drawing is its own record): it is refused with an
+ * inline "Amounts can't be negative" until the field is left (F2, D133).
  */
+export const NEGATIVE_AMOUNT = 'Amounts can’t be negative';
+
 export function AmountInput({
     label,
     labelAction,
@@ -81,7 +84,13 @@ export function AmountInput({
     ref,
     ...rest
 }: AmountInputProps) {
-    const ids = useFieldIds(idProp, { help, error }, describedByProp);
+    const [refusedMinus, setRefusedMinus] = useState(false);
+    const shownError = error ?? (refusedMinus ? NEGATIVE_AMOUNT : undefined);
+    const ids = useFieldIds(
+        idProp,
+        { help, error: shownError },
+        describedByProp,
+    );
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [draft, setDraft] = useState<{ text: string; caret: number | null }>(
         () => ({ text: toText(value ?? defaultValue), caret: null }),
@@ -112,6 +121,11 @@ export function AmountInput({
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         const input = event.currentTarget;
+
+        if (/[-−–]/.test(input.value)) {
+            setRefusedMinus(true);
+        }
+
         const next = reformatAmountInput(
             input.value,
             input.selectionStart ?? input.value.length,
@@ -187,6 +201,10 @@ export function AmountInput({
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 {...rest}
+                onBlur={(event) => {
+                    setRefusedMinus(false);
+                    rest.onBlur?.(event);
+                }}
             />
             {suffix !== undefined && (
                 <span className="t-caption t-muted whitespace-nowrap">
@@ -204,8 +222,22 @@ export function AmountInput({
         </span>
     );
 
+    // A bare control (in a payer row) keeps its tree, so focus survives the message.
     if (label === undefined && help === undefined && error === undefined) {
-        return control;
+        return (
+            <>
+                {control}
+                {refusedMinus && (
+                    <span
+                        id={`${ids.id}-neg`}
+                        className="cf-errtext"
+                        role="alert"
+                    >
+                        {NEGATIVE_AMOUNT}
+                    </span>
+                )}
+            </>
+        );
     }
 
     return (
@@ -214,7 +246,7 @@ export function AmountInput({
             label={label}
             labelAction={labelAction}
             help={help}
-            error={error}
+            error={shownError}
             className={fieldClassName}
         >
             {control}

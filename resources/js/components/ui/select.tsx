@@ -45,6 +45,12 @@ export function Select({
     ...rest
 }: SelectProps) {
     const ids = useFieldIds(idProp, { help, error }, describedByProp);
+    // A long choice ends in an ellipsis (pages.css); the title shows it whole (X4/X8).
+    const chosen =
+        rest.value === undefined
+            ? undefined
+            : options?.find((option) => option.value === String(rest.value))
+                  ?.label;
 
     const control = (
         <span
@@ -60,6 +66,7 @@ export function Select({
                 id={ids.id}
                 aria-invalid={ids.invalid || undefined}
                 aria-describedby={ids.describedBy}
+                title={chosen}
                 {...rest}
             >
                 {placeholder !== undefined && (

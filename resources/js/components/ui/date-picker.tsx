@@ -330,17 +330,21 @@ function DateFieldShell({
                         {hidden}
                     </span>
                 </Popover.Anchor>
-                <Popover.Content
-                    className="cf-pop cf-cal z-40 animate-[cfFade_var(--duration-panel)_var(--ease-out)]"
-                    collisionPadding={16}
-                    aria-label={popoverLabel}
-                    side="bottom"
-                    align="start"
-                    sideOffset={8}
-                    onOpenAutoFocus={(event) => event.preventDefault()}
-                >
-                    {calendar}
-                </Popover.Content>
+                {/* Portalled with collision handling, so a scrolling dialog never clips
+                    it: it flips above the field when there's no room below (X2, D123). */}
+                <Popover.Portal>
+                    <Popover.Content
+                        className="cf-pop cf-cal z-50 animate-[cfFade_var(--duration-panel)_var(--ease-out)]"
+                        collisionPadding={16}
+                        aria-label={popoverLabel}
+                        side="bottom"
+                        align="start"
+                        sideOffset={8}
+                        onOpenAutoFocus={(event) => event.preventDefault()}
+                    >
+                        {calendar}
+                    </Popover.Content>
+                </Popover.Portal>
             </Popover.Root>
         </Field>
     );

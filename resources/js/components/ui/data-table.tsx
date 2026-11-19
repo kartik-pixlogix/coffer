@@ -9,6 +9,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Icon } from '@/components/ui/icon';
+import { columnTrack, tableMinWidth } from '@/components/ui/data-table.utils';
 import { nextSort, sortRows } from '@/components/ui/table-sort';
 import type {
     SortDirection,
@@ -23,7 +24,12 @@ export type { SortDirection, SortState, SortValue };
 export type DataTableColumn<Row> = {
     key: string;
     header: ReactNode;
-    /** Grid track, e.g. "minmax(200px,2fr)" or "120px". Default `minmax(0,1fr)`. */
+    /** The cell's label in the phone card layout, when `header` isn't plain text. */
+    label?: string;
+    /**
+     * Grid track, e.g. "minmax(200px,2fr)" or "120px". Default `minmax(128px,1fr)`
+     * (96 px for numeric columns); a zero minimum is raised to those (D128).
+     */
     width?: string;
     /** `end` right-aligns the header and the cell (money, actions). */
     align?: 'start' | 'end';
@@ -85,8 +91,16 @@ export type DataTableProps<Row> = {
     maxHeight?: number | string;
     /** Wrap in `cf-table-wrap` so wide tables scroll sideways. Default on. */
     scroll?: boolean;
-    /** Minimum width of the table inside the scroll wrap, e.g. 880. */
+    /**
+     * Minimum width of the table inside the scroll wrap, e.g. 880. The table is never
+     * narrower than its columns' minimums either.
+     */
     minWidth?: number | string;
+    /**
+     * At phone width each row becomes a card of label / value lines (default on;
+     * D128). Off for tables that already fit a phone.
+     */
+    stack?: boolean;
     className?: string;
 };
 
@@ -177,16 +191,28 @@ export function DataTable<Row>({
     maxHeight,
     scroll = true,
     minWidth,
+    stack = true,
     className,
 }: DataTableProps<Row>) {
     const selection = selected ?? new Set<string>();
 
     const tracks = [
         selectable ? '28px' : null,
-        ...columns.map((c) => c.width ?? 'minmax(0,1fr)'),
+        ...columns.map((c) => columnTrack(c.width, c.numeric === true)),
         rowActions ? actionsWidth : null,
     ].filter((t): t is string => t !== null);
     const gridStyle: CSSProperties = { gridTemplateColumns: tracks.join(' ') };
+    const fitMin = tableMinWidth(tracks);
+    const tableMin =
+        minWidth === undefined
+            ? fitMin
+            : typeof minWidth === 'number'
+              ? Math.max(minWidth, fitMin)
+              : `max(${minWidth}, ${fitMin}px)`;
+    const labelOf = (column: DataTableColumn<Row>) =>
+        column.label ??
+        (typeof column.header === 'string' ? column.header : undefined);
+    const lead = columns[0]?.key;
 
     const sortColumn = sort
         ? columns.find((c) => c.key === sort.key)
@@ -265,6 +291,7 @@ export function DataTable<Row>({
                         <span
                             key={column.key}
                             role="columnheader"
+                            className={cn(column.key === lead && 'cf-td-lead')}
                             style={alignStyle(column)}
                         >
                             {column.header}
@@ -280,6 +307,7 @@ export function DataTable<Row>({
                         key={column.key}
                         role="columnheader"
                         aria-sort={direction}
+                        className={cn(column.key === lead && 'cf-td-lead')}
                         style={alignStyle(column)}
                     >
                         <button
@@ -396,11 +424,13 @@ export function DataTable<Row>({
                         <span
                             key={column.key}
                             role="cell"
+                            data-label={labelOf(column)}
                             className={cn(
                                 column.numeric && 'cf-num',
                                 !column.numeric &&
                                     column.align === 'end' &&
                                     'text-right',
+                                column.key === lead && 'cf-td-lead',
                                 typeof column.className === 'function'
                                     ? column.className(row)
                                     : column.className,
@@ -441,11 +471,16 @@ export function DataTable<Row>({
         </div>
     ) : (
         <div
-            className={cn('cf-table', className)}
+            className={cn(
+                'cf-table cf-table--grid',
+                stack && 'cf-table--stack',
+                selectable && 'is-selectable',
+                className,
+            )}
             role="table"
             aria-label={ariaLabel}
             aria-busy={loading || undefined}
-            style={minWidth !== undefined ? { minWidth } : undefined}
+            style={{ minWidth: tableMin }}
         >
             {showHeader && header}
             {body}
@@ -456,11 +491,17 @@ export function DataTable<Row>({
                         <span
                             key={column.key}
                             role="cell"
+                            data-label={
+                                totals[column.key] === undefined
+                                    ? undefined
+                                    : labelOf(column)
+                            }
                             className={cn(
                                 column.numeric && 'cf-num',
                                 !column.numeric &&
                                     column.align === 'end' &&
                                     'text-right',
+                                column.key === lead && 'cf-td-lead',
                             )}
                         >
                             {totals[column.key]}

@@ -1,4 +1,5 @@
-import { useCountUp } from '@/hooks/use-count-up';
+import type { CSSProperties } from 'react';
+import { COUNT_UP_MS, useCountUp } from '@/hooks/use-count-up';
 import { formatHours, formatInr, formatPaiseDigits, MINUS } from '@/lib/format';
 import type { MoneyFormatOptions } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -39,7 +40,8 @@ export function Money({
     signed = false,
     className,
 }: MoneyProps) {
-    const shown = useCountUp(paise, countUp);
+    // Whole rupees while counting, the exact figure at the end (R6).
+    const shown = useCountUp(paise, countUp, COUNT_UP_MS, 100);
     const toneClass =
         tone === 'none'
             ? undefined
@@ -52,6 +54,7 @@ export function Money({
 
     if (size === 'lg') {
         const sign = shown < 0 ? MINUS : signed && shown > 0 ? '+' : '';
+        const digits = formatPaiseDigits(paise, decimals);
 
         return (
             <span
@@ -60,6 +63,8 @@ export function Money({
                     toneClass,
                     className,
                 )}
+                // The final figure's length sizes the KPI value to fit its tile (D126).
+                style={{ '--cf-money-len': digits.length } as CSSProperties}
             >
                 <span
                     className="t-money-unit"
@@ -111,7 +116,14 @@ export function Hours({
 
     if (size === 'lg') {
         return (
-            <span className={cn('inline-flex items-baseline', className)}>
+            <span
+                className={cn('inline-flex items-baseline', className)}
+                style={
+                    {
+                        '--cf-money-len': formatHours(hours).length,
+                    } as CSSProperties
+                }
+            >
                 <span className="t-money-lg" aria-hidden={countUp || undefined}>
                     {text}
                 </span>

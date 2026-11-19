@@ -171,7 +171,7 @@ export function NotificationPopover({
                     sideOffset={8}
                     collisionPadding={16}
                     aria-labelledby={titleId}
-                    className="cf-pop cf-notif z-40 max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop"
+                    className="cf-pop cf-notif z-50 max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop"
                 >
                     <PanelContent {...rest} titleId={titleId} />
                 </PopoverPrimitive.Content>

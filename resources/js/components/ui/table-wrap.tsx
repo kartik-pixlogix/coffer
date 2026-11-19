@@ -5,7 +5,8 @@ import { cn } from '@/lib/utils';
 /**
  * `cf-table-wrap`: a wide table scrolls sideways inside its card. While it
  * overflows, the wrapper joins the tab order so keyboard users can scroll it
- * (WCAG 2.1.1, axe "scrollable-region-focusable", D91).
+ * (WCAG 2.1.1, axe "scrollable-region-focusable", D91), and `is-overflowing` pins
+ * the lead column and fades the edge that has more to show (D128).
  */
 export function TableWrap({
     label,
@@ -45,7 +46,11 @@ export function TableWrap({
     return (
         <div
             ref={ref}
-            className={cn('cf-table-wrap', className)}
+            className={cn(
+                'cf-table-wrap',
+                overflows && 'is-overflowing',
+                className,
+            )}
             style={style}
             tabIndex={overflows ? 0 : undefined}
             role={overflows && label !== undefined ? 'region' : undefined}

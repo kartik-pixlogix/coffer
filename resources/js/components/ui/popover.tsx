@@ -132,7 +132,7 @@ export function Popover({
                     collisionPadding={16}
                     aria-labelledby={titleId}
                     className={cn(
-                        'cf-pop cf-popover z-40 w-[360px] max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop',
+                        'cf-pop cf-popover z-50 w-[360px] max-w-[calc(100vw-32px)] animate-[cfFade_var(--duration-panel)_var(--ease-out)] focus-visible:shadow-pop',
                         className,
                     )}
                     style={style}

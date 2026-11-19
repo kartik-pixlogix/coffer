@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { useToast } from '@/components/ui/toast';
+import { dismissErrors, useToast } from '@/components/ui/toast';
 import type { ToastApi } from '@/components/ui/toast';
 import type { FlashToast } from '@/types/ui';
 
@@ -39,13 +39,29 @@ export function showFlashToast(event: Event, toast: ToastApi): boolean {
     return true;
 }
 
-/** Shows the server's `Inertia::flash('toast', [...])` as a toast. */
+/**
+ * Shows the server's `Inertia::flash('toast', [...])` as a toast, and clears the
+ * previous page's error toasts when a visit to another page starts (partial reloads,
+ * like a poll, keep them).
+ */
 export function useFlashToast(): void {
     const toast = useToast();
 
     useEffect(
         () => router.on('flash', (event) => void showFlashToast(event, toast)),
         [toast],
+    );
+
+    useEffect(
+        () =>
+            router.on('start', (event) => {
+                const { visit } = event.detail;
+
+                if (visit.only.length === 0 && visit.method === 'get') {
+                    dismissErrors();
+                }
+            }),
+        [],
     );
 }
 

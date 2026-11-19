@@ -1,16 +1,16 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { TriangleAlert } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode, Ref } from 'react';
 import { Button, buttonClass } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
-import { SCRIM_CLASS } from '@/components/ui/modal';
+import { ModalFrame, SCRIM_CLASS } from '@/components/ui/modal';
 import { cn } from '@/lib/utils';
 
 const TITLE_STYLE: CSSProperties = { fontSize: 20, lineHeight: '24px' };
 
-const LIVE_DIALOG =
-    'fixed focus-visible:shadow-none max-h-[calc(100dvh-136px)] overflow-y-auto max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-w-full max-sm:left-0 max-sm:transform-none max-sm:animate-[cfSheet_var(--duration-panel)_var(--ease-out)_both] max-sm:rounded-b-none';
+const LIVE_DIALOG = 'cf-modal--live focus-visible:shadow-none';
 
 type ConfirmLookProps = {
     /** A question naming the thing: "Delete this expense?" */
@@ -208,6 +208,8 @@ export function ConfirmDialog({
     confirmPhrase,
     loading = false,
     className,
+    // One look for every confirmation (X31, D131): the red disc always shows.
+    icon = TriangleAlert,
     ...rest
 }: ConfirmDialogProps) {
     const descriptionId = useId();
@@ -232,54 +234,59 @@ export function ConfirmDialog({
         <DialogPrimitive.Root open={open} onOpenChange={change}>
             <DialogPrimitive.Portal>
                 <DialogPrimitive.Overlay className={SCRIM_CLASS} />
-                <DialogPrimitive.Content
-                    role="alertdialog"
-                    className={cn(
-                        'cf-modal cf-modal--sm',
-                        LIVE_DIALOG,
-                        className,
-                    )}
-                    aria-describedby={description ? descriptionId : undefined}
-                    onOpenAutoFocus={(event) => {
-                        event.preventDefault();
-                        (inputRef.current ?? cancelRef.current)?.focus();
-                    }}
-                    onPointerDownOutside={(event) => event.preventDefault()}
-                    onInteractOutside={(event) => event.preventDefault()}
-                    asChild
-                >
-                    <form
-                        noValidate
-                        onSubmit={(event) => {
+                <ModalFrame phone="bottom">
+                    <DialogPrimitive.Content
+                        role="alertdialog"
+                        className={cn(
+                            'cf-modal cf-modal--sm',
+                            LIVE_DIALOG,
+                            className,
+                        )}
+                        aria-describedby={
+                            description ? descriptionId : undefined
+                        }
+                        onOpenAutoFocus={(event) => {
                             event.preventDefault();
-
-                            if (matches && !loading) {
-                                onConfirm();
-                            }
+                            (inputRef.current ?? cancelRef.current)?.focus();
                         }}
+                        onPointerDownOutside={(event) => event.preventDefault()}
+                        onInteractOutside={(event) => event.preventDefault()}
+                        asChild
                     >
-                        <ConfirmBody
-                            {...rest}
-                            description={description}
-                            confirmPhrase={confirmPhrase}
-                            loading={loading}
-                            titleNode={
-                                <DialogPrimitive.Title
-                                    className="t-heading m-0"
-                                    style={TITLE_STYLE}
-                                >
-                                    {title}
-                                </DialogPrimitive.Title>
-                            }
-                            descriptionId={descriptionId}
-                            typed={typed}
-                            onTypedChange={setTyped}
-                            onCancel={() => change(false)}
-                            cancelRef={cancelRef}
-                            inputRef={inputRef}
-                        />
-                    </form>
-                </DialogPrimitive.Content>
+                        <form
+                            noValidate
+                            onSubmit={(event) => {
+                                event.preventDefault();
+
+                                if (matches && !loading) {
+                                    onConfirm();
+                                }
+                            }}
+                        >
+                            <ConfirmBody
+                                {...rest}
+                                icon={icon}
+                                description={description}
+                                confirmPhrase={confirmPhrase}
+                                loading={loading}
+                                titleNode={
+                                    <DialogPrimitive.Title
+                                        className="t-heading m-0"
+                                        style={TITLE_STYLE}
+                                    >
+                                        {title}
+                                    </DialogPrimitive.Title>
+                                }
+                                descriptionId={descriptionId}
+                                typed={typed}
+                                onTypedChange={setTyped}
+                                onCancel={() => change(false)}
+                                cancelRef={cancelRef}
+                                inputRef={inputRef}
+                            />
+                        </form>
+                    </DialogPrimitive.Content>
+                </ModalFrame>
             </DialogPrimitive.Portal>
         </DialogPrimitive.Root>
     );
