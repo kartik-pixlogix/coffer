@@ -7171,9 +7171,10 @@ a.lp-pillar:not(#\#):hover {
     transform: rotate(180deg);
 }
 
-/* A suggestion list (datalist) keeps the plain field look: no native arrow (X35). */
+/* A suggestion list (datalist) keeps the plain field look: no native arrow (X35).
+   Chrome still drew it on focus without !important (checked in headless Chrome). */
 .cf:not(#\#) input[list]::-webkit-calendar-picker-indicator {
-    display: none;
+    display: none !important;
 }
 
 /* Change plan: the four plans sit 2 × 2, never 3 + 1 (X15); one column on phones. */
