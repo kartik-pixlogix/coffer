@@ -69,7 +69,7 @@ Also turn on **switching plans**, with the three Coffer products and their price
 3. It prints a signing secret. Put it in `.env` as `STRIPE_WEBHOOK_SECRET=whsec_...`, then run `php artisan config:clear`.
 4. Keep `composer run dev` running. It includes the queue worker that sends notification emails. Locally, mail goes to the log (`MAIL_MAILER=log`) unless you set up Mailpit or another mailer.
 
-The endpoint is Cashier's `/stripe/webhook`. It checks the signature and syncs the subscription. `App\Listeners\SyncWorkspaceBilling` then copies the plan, cycle, currency and renewal date onto the workspace, and tracks failed payments.
+The endpoint is Cashier's `/stripe/webhook`. It checks the signature and syncs the subscription. **Without `STRIPE_WEBHOOK_SECRET` every webhook is refused (403, D116)**, so run `stripe listen` and copy its secret before testing webhooks. You don't need webhooks to see a Checkout land: on the way back Coffer reads the Checkout Session from Stripe and syncs the subscription and card straight away (D117), and **Refresh from Stripe** on Billing does the same at any time. `App\Listeners\SyncWorkspaceBilling` then copies the plan, cycle, currency and renewal date onto the workspace, and tracks failed payments.
 
 ## 5. Convert a trial to paid (the acceptance test)
 
@@ -77,7 +77,7 @@ The endpoint is Cashier's `/stripe/webhook`. It checks the signature and syncs t
 2. Sign in as `aarav@vertexlabs.in` with the password `password`. Open **Billing** (`/billing`). It should show **Free trial** with the days left.
 3. Choose **Upgrade**, then **Growth**, **Monthly**, **Continue with Growth**. Stripe Checkout opens.
 4. Pay with the test card `4242 4242 4242 4242`, any future expiry, any CVC and any address. For an Indian card, use `4000 0035 6000 0008`.
-5. You land back on `/billing?checkout=done`. Within a few seconds the webhook arrives (watch the `stripe listen` terminal) and the page shows:
+5. You land back on `/billing?checkout=done&session_id=cs_...`. Coffer reads that session from Stripe at once (no webhook needed) and the page shows:
    - the Growth plan, monthly
    - the card's last four digits
    - the renewal date
@@ -117,11 +117,14 @@ Passing means the workspace shows the paid plan, an invoice is listed, the trial
 
 | You see | Cause |
 |---|---|
-| "Payments aren't set up on this server yet" | `STRIPE_KEY` / `STRIPE_SECRET` are missing, or the config is cached (`php artisan config:clear`). |
+| "Online payments aren't available yet" | `STRIPE_KEY` / `STRIPE_SECRET` are missing, or the config is cached (`php artisan config:clear`). |
 | "Growth isn't set up for monthly payments in INR yet" | That `STRIPE_PRICE_*` id is empty. |
 | "Stripe couldn't be reached just now" | A Stripe API error. The details are in `storage/logs/laravel.log`. Nothing was charged. |
 | Webhooks return 403 | `STRIPE_WEBHOOK_SECRET` doesn't match the one `stripe listen` printed. |
-| Plan doesn't change after Checkout | No webhook arrived. Is `stripe listen` running, and are the events above selected? |
+| Plan doesn't change after Checkout | Use **Refresh from Stripe** on Billing. If that finds nothing, the Checkout didn't finish. Later changes (portal, renewals) still need webhooks: is `stripe listen` running, with the events above? |
+| "Online payments aren't available yet" (customers) | The server has no Stripe keys. Locally the page also says which keys to add. |
+| "... can't be bought right now: its Stripe price doesn't match" | A `STRIPE_PRICE_*` id points at a Stripe price whose amount or currency differs from the plan in /admin (Plans). The details are logged (`Billing: Stripe price does not match the plan`). |
+| "... is too small for this workspace" | The workspace already uses more than that plan allows (D118). |
 
 ## Razorpay
 

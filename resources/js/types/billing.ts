@@ -74,6 +74,8 @@ export type UpgradeContext = {
         owner: string;
     };
     gatewayReady: boolean;
+    /** Local only: say which keys to add (F6); customers see "Contact support". */
+    gatewayHint: boolean;
 };
 
 export type UsageRow = {

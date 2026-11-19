@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Controllers\Auth\SignOutController;
+use App\Http\Controllers\Billing\StripeWebhookController;
 use App\Jobs\CheckVaultBreaches;
 use App\Jobs\CommitTimesheetImport;
 use App\Jobs\CommitVaultImport;
@@ -49,6 +50,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Http\Controllers\WebhookController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 class AppServiceProvider extends ServiceProvider
@@ -83,6 +85,8 @@ class AppServiceProvider extends ServiceProvider
         Cashier::useCustomerModel(Workspace::class);
         $this->app->singleton(WorkspaceBilling::class);
         $this->app->bind(PaymentGateway::class, StripeGateway::class);
+        // B4 (D116): no STRIPE_WEBHOOK_SECRET, no webhooks (Cashier alone would accept unsigned ones).
+        $this->app->bind(WebhookController::class, StripeWebhookController::class);
     }
 
     /**

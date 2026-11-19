@@ -42,6 +42,22 @@ final class BillingController extends Controller
     public function index(Request $request, PlanUsage $usage, PlanCatalog $catalog): Response
     {
         $workspace = $this->workspace();
+        $checkout = in_array($request->query('checkout'), ['done', 'cancelled'], true) ? (string) $request->query('checkout') : null;
+
+        // B2 (D117): back from Checkout, read the session from Stripe and sync now, as the
+        // webhook would (webhooks don't reach localhost, and they can lag in production).
+        $sessionId = $request->query('session_id');
+
+        if ($checkout === 'done' && is_string($sessionId) && preg_match('/^cs_[A-Za-z0-9_]+$/', $sessionId) === 1 && $this->gatewayReady()) {
+            try {
+                $checkout = $this->gateway->syncCheckout($workspace, $sessionId) ? 'synced' : 'done';
+            } catch (ApiErrorException $e) {
+                Log::warning('Billing: Checkout Session could not be read', ['workspace' => $workspace->id, 'error' => $e->getMessage()]);
+            }
+
+            $workspace->refresh();
+        }
+
         $state = $this->billing->for($workspace);
         [$invoices, $invoicesFailed] = $this->invoices($workspace);
 
@@ -72,7 +88,9 @@ final class BillingController extends Controller
             'invoicesFailed' => $invoicesFailed,
             'plans' => $catalog->all(),
             'gatewayReady' => $this->gatewayReady(),
-            'checkout' => in_array($request->query('checkout'), ['done', 'cancelled'], true) ? $request->query('checkout') : null,
+            // F6 (D118): the note about Stripe keys is for developers (local) only.
+            'gatewayHint' => app()->isLocal(),
+            'checkout' => $checkout,
         ]);
     }
 
@@ -88,6 +106,7 @@ final class BillingController extends Controller
             'current' => ['plan' => $state->plan?->key, 'cycle' => $state->cycle, 'currency' => $state->currency, 'status' => $state->status, 'hasSubscription' => $state->hasSubscription()],
             'workspace' => ['name' => $workspace->name, 'companies' => $counts['companies']['used'], 'users' => $counts['users']['used'], 'owner' => $workspace->owner->name],
             'gatewayReady' => $this->gatewayReady(),
+            'gatewayHint' => app()->isLocal(),
         ]);
     }
 
@@ -110,10 +129,18 @@ final class BillingController extends Controller
         }
 
         if (! $this->gatewayReady()) {
-            throw ValidationException::withMessages(['plan' => 'Payments aren’t set up on this server yet. Add the Stripe keys (docs/BILLING_TESTING.md).']);
+            throw ValidationException::withMessages(['plan' => self::unavailable()]);
         }
 
-        $currency = $state->hasSubscription() ? $state->currency : ($data['currency'] ?? $state->currency);
+        $this->assertFits($workspace, $plan);
+
+        // B3 (D117): Stripe may know a subscription this server hasn't heard of yet (a
+        // webhook that never arrived): sync it first, so it's changed in place, not doubled.
+        if (! $state->hasSubscription() && $workspace->hasStripeId() && $this->stripe(fn () => $this->gateway->syncFromStripe($workspace))) {
+            $state = $this->billing->for($workspace->refresh());
+        }
+
+        $currency = $state->hasSubscription() ? $state->currency : $this->currencyFor($plan, $data['cycle'], $data['currency'] ?? null, $state->currency);
 
         // A live subscription (also a cancelled one still paid up) is changed in place, never doubled.
         if ($state->hasSubscription()) {
@@ -139,7 +166,7 @@ final class BillingController extends Controller
             $plan,
             $data['cycle'],
             $currency,
-            route('billing.index', ['checkout' => 'done']),
+            route('billing.index', ['checkout' => 'done']).'&session_id={CHECKOUT_SESSION_ID}',
             route('billing.index', ['checkout' => 'cancelled']),
         ));
         activity('billing')->performedOn($workspace)->causedBy($request->user())
@@ -152,7 +179,7 @@ final class BillingController extends Controller
     public function portal(): HttpResponse
     {
         if (! $this->gatewayReady()) {
-            throw ValidationException::withMessages(['portal' => 'Payments aren’t set up on this server yet.']);
+            throw ValidationException::withMessages(['portal' => self::unavailable()]);
         }
 
         $workspace = $this->workspace();
@@ -192,6 +219,67 @@ final class BillingController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Billing details saved. New invoices use them.']);
 
         return back();
+    }
+
+    /** "Refresh from Stripe" (B2): pull the subscription and card straight from Stripe. */
+    public function sync(Request $request): RedirectResponse
+    {
+        if (! $this->gatewayReady()) {
+            throw ValidationException::withMessages(['plan' => self::unavailable()]);
+        }
+
+        $workspace = $this->workspace();
+        $live = $this->stripe(fn () => $this->gateway->syncFromStripe($workspace));
+        activity('billing')->performedOn($workspace)->causedBy($request->user())->log('refreshed from Stripe');
+
+        Inertia::flash('toast', $live
+            ? ['type' => 'success', 'message' => 'Up to date with Stripe.']
+            : ['type' => 'info', 'message' => 'Stripe has no subscription for this workspace yet.']);
+
+        return back();
+    }
+
+    /** What customers see while the server has no Stripe keys (F6); setup is in docs/BILLING_TESTING.md. */
+    public static function unavailable(): string
+    {
+        return 'Online payments aren’t available yet. Contact support.';
+    }
+
+    /**
+     * B6 (D118): a plan whose limits are below what the workspace already uses can't be
+     * chosen; the message lists what's over.
+     */
+    private function assertFits(Workspace $workspace, Plan $plan): void
+    {
+        $usage = app(PlanUsage::class);
+        $over = [];
+
+        foreach (PlanLimit::cases() as $limit) {
+            $max = $plan->limit($limit);
+            $used = $usage->used($workspace, $limit);
+
+            if ($max !== null && $used > $max) {
+                $over[] = $limit === PlanLimit::Storage
+                    ? "storage ({$used} MB of {$max} MB)"
+                    : strtolower($limit->label())." ({$used} of {$max})";
+            }
+        }
+
+        if ($over !== []) {
+            throw ValidationException::withMessages(['plan' => "{$plan->name} is too small for this workspace: ".implode(', ', $over).'. Remove some first, or pick a bigger plan.']);
+        }
+    }
+
+    /** B5 (D118): never default to a currency the plan can't be paid in. */
+    private function currencyFor(Plan $plan, string $cycle, ?string $asked, string $current): string
+    {
+        foreach (array_filter([$asked, $current, ...(array) config('billing.currencies')]) as $currency) {
+            if ($plan->stripePrice($cycle, (string) $currency) !== null) {
+                return (string) $currency;
+            }
+        }
+
+        return $asked ?? $current;
     }
 
     /** @return list<array{key: string, label: string, used: int, limit: int|null, detail: string}> */

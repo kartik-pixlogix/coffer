@@ -29,6 +29,15 @@ interface PaymentGateway
 
     public function downloadInvoice(Workspace $workspace, string $invoiceId): Response;
 
+    /**
+     * Back from Checkout (B2, D117): read the Checkout Session from Stripe and write its
+     * subscription and card locally, as the webhook would. False if it isn't this workspace's.
+     */
+    public function syncCheckout(Workspace $workspace, string $sessionId): bool;
+
+    /** "Refresh from Stripe" (B2) and the duplicate guard (B3): sync the customer's subscriptions; true if one is live. */
+    public function syncFromStripe(Workspace $workspace): bool;
+
     /** Ends the subscription now, with no further charge (workspace deletion, D98). No subscription: nothing to do. */
     public function cancelNow(Workspace $workspace): void;
 }

@@ -20,6 +20,31 @@ export { planPrice };
 
 const unit = (cycle: BillingCycle) => (cycle === 'yearly' ? 'year' : 'month');
 
+const CURRENCIES: { value: BillingCurrency; label: string }[] = [
+    { value: 'inr', label: '₹ INR' },
+    { value: 'usd', label: '$ USD' },
+];
+
+/** Currencies at least one plan can be paid in (a Stripe price id is set), B5. */
+function payableCurrencies(plans: PlanOption[]): BillingCurrency[] {
+    return CURRENCIES.map((c) => c.value).filter((currency) =>
+        plans.some(
+            (p) =>
+                p.purchasable.monthly[currency] ||
+                p.purchasable.yearly[currency],
+        ),
+    );
+}
+
+/** The currency switch hides a currency nothing can be paid in, unless none can be yet. */
+function currencyOptions(plans: PlanOption[]) {
+    const usable = payableCurrencies(plans);
+
+    return usable.length === 0
+        ? CURRENCIES
+        : CURRENCIES.filter((c) => usable.includes(c.value));
+}
+
 /** What each plan adds, as in Billing.dc.html's plan cards. */
 const ADDS: Record<string, string> = {
     starter: 'One company, timesheets, money and reports',
@@ -78,7 +103,13 @@ export function UpgradeModal({
                 : (current?.key ?? next?.key ?? null),
         );
         setCycle(context.current.cycle);
-        setCurrency(context.current.currency);
+        // B5 (D118): never start on a currency nothing can be paid in.
+        const usable = payableCurrencies(context.plans);
+        setCurrency(
+            usable.length === 0 || usable.includes(context.current.currency)
+                ? context.current.currency
+                : usable[0],
+        );
         setError(null);
     }, [open, context]);
 
@@ -304,10 +335,7 @@ export function UpgradeModal({
                                     aria-labelledby="up-cur"
                                     value={currency}
                                     onValueChange={setCurrency}
-                                    options={[
-                                        { value: 'inr', label: '₹ INR' },
-                                        { value: 'usd', label: '$ USD' },
-                                    ]}
+                                    options={currencyOptions(context.plans)}
                                 />
                             </div>
                         )}
@@ -336,10 +364,11 @@ export function UpgradeModal({
                         <AlertBanner
                             variant="info"
                             slim
-                            title="Payments aren’t set up yet"
+                            title="Online payments aren’t available yet"
                         >
-                            Add the Stripe keys to this server to take payments
-                            (docs/BILLING_TESTING.md).
+                            {context.gatewayHint
+                                ? 'Add the Stripe keys to this server to take payments (docs/BILLING_TESTING.md).'
+                                : 'Contact support and we’ll set up your plan.'}
                         </AlertBanner>
                     )}
 

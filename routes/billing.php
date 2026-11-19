@@ -24,6 +24,7 @@ Route::middleware(['auth', 'verified', 'company'])->group(function () {
 Route::middleware(['auth', 'verified', 'company', 'page:billing'])->prefix('billing')->group(function () {
     Route::get('/', [BillingController::class, 'index'])->name('billing.index');
     Route::post('checkout', [BillingController::class, 'checkout'])->middleware('throttle:10,1')->name('billing.checkout');
+    Route::post('sync', [BillingController::class, 'sync'])->middleware('throttle:10,1')->name('billing.sync');
     Route::get('portal', [BillingController::class, 'portal'])->middleware('throttle:10,1')->name('billing.portal');
     Route::put('details', [BillingController::class, 'details'])->middleware('throttle:20,1')->name('billing.details');
     Route::get('invoices/{invoice}', [BillingController::class, 'invoice'])->middleware('throttle:30,1')->name('billing.invoice');

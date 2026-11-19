@@ -134,7 +134,7 @@ test('a Stripe outage leaves the page up and says so', function () {
 test('Checkout starts a subscription for the trial’s remaining days and sends the browser to Stripe', function () {
     config(['billing.stripe.prices.business.yearly.inr' => 'price_business_y_inr']);
     $w = trialWorkspace();
-    $stripe = FakeStripe::install()->customer()
+    $stripe = FakeStripe::install()->customer()->price('price_business_y_inr', 'business', 'yearly', 'inr')
         ->on('post', '/v1/checkout/sessions', ['id' => 'cs_test_1', 'object' => 'checkout.session', 'url' => 'https://checkout.stripe.com/c/pay/cs_test_1']);
 
     $this->actingAs($w->owner)
@@ -148,7 +148,7 @@ test('Checkout starts a subscription for the trial’s remaining days and sends 
         ->and($session['line_items'][0]['price'])->toBe('price_business_y_inr')
         ->and($session['subscription_data']['trial_end'])->toBe($w->workspace->trial_ends_at->timestamp)
         ->and($session['client_reference_id'])->toBe((string) $w->workspace->id)
-        ->and($session['success_url'])->toBe(route('billing.index', ['checkout' => 'done']))
+        ->and($session['success_url'])->toBe(route('billing.index', ['checkout' => 'done']).'&session_id={CHECKOUT_SESSION_ID}')
         ->and($stripe->sent('post', '/v1/customers')[0]['params']['metadata'])->toBe(['workspace_id' => (string) $w->workspace->id])
         ->and($w->workspace->fresh()->stripe_id)->toBe('cus_test123');
 });
@@ -157,7 +157,7 @@ test('Checkout refuses Enterprise, an unknown plan, a plan without a price id, a
     $w = trialWorkspace();
 
     $this->actingAs($w->owner)->post(route('billing.checkout'), ['plan' => 'growth', 'cycle' => 'monthly'])
-        ->assertSessionHasErrors(['plan' => 'Payments aren’t set up on this server yet. Add the Stripe keys (docs/BILLING_TESTING.md).']);
+        ->assertSessionHasErrors(['plan' => 'Online payments aren’t available yet. Contact support.']);
 
     FakeStripe::install();
     $this->actingAs($w->owner)->post(route('billing.checkout'), ['plan' => 'enterprise', 'cycle' => 'monthly'])
@@ -197,6 +197,16 @@ test('a subscribed workspace swaps plan and cycle instead of a new checkout', fu
         }
 
         public function cancelNow(Workspace $workspace): void {}
+
+        public function syncCheckout(Workspace $workspace, string $sessionId): bool
+        {
+            return false;
+        }
+
+        public function syncFromStripe(Workspace $workspace): bool
+        {
+            return false;
+        }
 
         public function downloadInvoice(Workspace $workspace, string $invoiceId): Response
         {
@@ -295,6 +305,16 @@ test('a cancelled plan still in its paid period is resumed in place, never bough
         }
 
         public function cancelNow(Workspace $workspace): void {}
+
+        public function syncCheckout(Workspace $workspace, string $sessionId): bool
+        {
+            return false;
+        }
+
+        public function syncFromStripe(Workspace $workspace): bool
+        {
+            return false;
+        }
 
         public function downloadInvoice(Workspace $workspace, string $invoiceId): Response
         {

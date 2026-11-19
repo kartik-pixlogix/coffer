@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Models\Plan;
 use RuntimeException;
 use Stripe\ApiRequestor;
 use Stripe\HttpClient\ClientInterface;
@@ -76,6 +77,14 @@ final class FakeStripe implements ClientInterface
     public function sent(string $method, string $path): array
     {
         return array_values(array_filter($this->requests, fn (array $r) => $r['method'] === strtolower($method) && $r['path'] === $path));
+    }
+
+    /** A Stripe Price that charges exactly what the plan shows (the B1 safeguard reads it). */
+    public function price(string $id, string $plan, string $cycle, string $currency, ?int $amount = null): self
+    {
+        $amount ??= Plan::query()->where('key', $plan)->sole()->price($cycle, $currency);
+
+        return $this->on('get', '/v1/prices/'.$id, ['id' => $id, 'object' => 'price', 'currency' => $currency, 'unit_amount' => $amount, 'product' => 'prod_'.$plan]);
     }
 
     /** A customer for `customers.create`. */

@@ -21,6 +21,7 @@ import {
     details as detailsRoute,
     invoice as invoiceRoute,
     portal as portalRoute,
+    sync as syncRoute,
 } from '@/routes/billing';
 import type {
     BillingCurrency,
@@ -57,7 +58,10 @@ type Props = {
     invoicesFailed: boolean;
     plans: PlanOption[];
     gatewayReady: boolean;
-    checkout: 'done' | 'cancelled' | null;
+    /** Local only: the setup note about Stripe keys (F6). */
+    gatewayHint: boolean;
+    /** Back from Checkout: synced from Stripe already, still confirming, or cancelled (B2, B8). */
+    checkout: 'synced' | 'done' | 'cancelled' | null;
 };
 
 const STATUS_PILL: Record<
@@ -212,6 +216,7 @@ export default function Billing({
     invoicesFailed,
     plans,
     gatewayReady,
+    gatewayHint,
     checkout,
 }: Props) {
     const toast = useToast();
@@ -220,9 +225,11 @@ export default function Billing({
     const [detailsOpen, setDetailsOpen] = useState(false);
 
     useEffect(() => {
-        if (checkout === 'done') {
+        if (checkout === 'synced') {
+            toast.success('Thanks! Your plan is on and your card is saved.');
+        } else if (checkout === 'done') {
             toast.success(
-                'Thanks! Stripe is confirming the payment; this page updates in a moment.',
+                'Thanks! Stripe is still confirming the payment. Use “Refresh from Stripe” in a moment.',
             );
         } else if (checkout === 'cancelled') {
             toast.info('Checkout cancelled. Nothing was charged.');
@@ -250,8 +257,22 @@ export default function Billing({
             owner: state.ownerName,
         },
         gatewayReady,
+        gatewayHint,
     };
     const pill = STATUS_PILL[state.status];
+    const [syncing, setSyncing] = useState(false);
+    const refresh = () =>
+        router.post(
+            syncRoute().url,
+            {},
+            {
+                preserveScroll: true,
+                onStart: () => setSyncing(true),
+                onFinish: () => setSyncing(false),
+                onError: (errors) =>
+                    toast.error(errors.plan ?? 'Stripe couldn’t be reached.'),
+            },
+        );
     const portal = () => router.get(portalRoute().url);
 
     const columns: DataTableColumn<InvoiceRow>[] = [
@@ -374,10 +395,11 @@ export default function Billing({
                 <AlertBanner
                     variant="info"
                     slim
-                    title="Payments aren’t set up on this server"
+                    title="Online payments aren’t available yet"
                 >
-                    Add STRIPE_KEY, STRIPE_SECRET and the price ids to take
-                    payments (see docs/BILLING_TESTING.md).
+                    {gatewayHint
+                        ? 'Add STRIPE_KEY, STRIPE_SECRET and the price ids to take payments (see docs/BILLING_TESTING.md).'
+                        : 'Contact support and we’ll set up your plan.'}
                 </AlertBanner>
             )}
 
@@ -585,6 +607,16 @@ export default function Billing({
                                 </Button>
                             )}
                         </div>
+                        {gatewayReady && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                loading={syncing}
+                                onClick={refresh}
+                            >
+                                Refresh from Stripe
+                            </Button>
+                        )}
                         <div className="cf-divider" role="separator" />
                         <div className="cf-kv t-body">
                             <span className="t-muted">Billing email</span>
