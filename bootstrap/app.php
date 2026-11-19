@@ -48,7 +48,9 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureWorkspaceNotSuspended::class,
             EnsureWorkspaceWritable::class,
             GuardAccountSecurity::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            // D146: capped, because LiteSpeed (Hostinger) answers 500 when one header passes ~8 KB;
+            // the page's own modulepreload tags still list every chunk.
+            AddLinkHeadersForPreloadedAssets::using(20),
         ]);
 
         // The current company must be known before route-model binding runs, so bound

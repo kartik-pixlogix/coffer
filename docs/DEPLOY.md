@@ -296,6 +296,40 @@ Not used in production today; an outline for a container platform:
 
 ---
 
+## 12. Hostinger shared hosting (coffer.unboundsolutions.in)
+
+Production since 19 Nov 2026 (D146); Laravel Cloud is staging. Account `u728361439`, Single Web
+Hosting (`hostinger_starter_v3`), LiteSpeed, PHP 8.4 (account-wide; sodium on), MySQL
+`u728361439_coffer` on `127.0.0.1`. No SSH, Composer, Node, Redis or always-on processes.
+
+| What | Where |
+|---|---|
+| App (code, `.env`, storage) | `~/coffer-app`, outside the web root |
+| Web root | `public_html/coffer` → symlink to `~/coffer-app/public` |
+| Upload inbox | `public_html/.coffer-inbox` (its `.htaccess` denies all web access) |
+| PHP CLI | `/opt/alt/php84/usr/bin/php -d disable_functions=` (the account disables `proc_open`, `exec` and `symlink`; the CLI override lets the scheduler run commands) |
+
+**Deploy a release** (everything is built on a dev machine):
+1. `git archive HEAD | tar -x -C <dir>`, then in `<dir>`: `composer install --no-dev --optimize-autoloader --no-scripts`.
+2. `npm run build` in the repo and copy `public/build` into `<dir>/public/build` (never `public/hot`).
+3. `tar -czf coffer.tar.gz .` (leave out `tests`, `design`, `docs`, `node_modules`).
+4. Upload `coffer.tar.gz` (and `env.production` only when the `.env` changes) to `.coffer-inbox`
+   with `hosting_files_generate-upload-url` (TUS), plus `deploy.sh`.
+5. Run `bash ~/domains/unboundsolutions.in/public_html/.coffer-inbox/deploy.sh` once from a
+   temporary cron job (no SSH): maintenance mode, unpack, `package:discover`, `migrate --force`,
+   `filament:upgrade`, `optimize`, `queue:restart`, `up`. It exits at once when no release is
+   waiting, so a repeating cron can't take the site down. Delete the cron job afterwards.
+
+**Cron jobs (hPanel → Advanced → Cron Jobs):**
+- every minute: `/opt/alt/php84/usr/bin/php -d disable_functions= /home/u728361439/coffer-app/artisan schedule:run`
+- every minute: `/opt/alt/php84/usr/bin/php -d disable_functions= /home/u728361439/coffer-app/artisan queue:work --queue=default,mail,exports,imports,vault --stop-when-empty --max-time=50 --tries=3`
+
+**Gotchas met on the first deploy:**
+- `storage:link` fails (no `exec`/`symlink` in PHP): the link is made with `ln -s` in a shell script.
+- LiteSpeed answers 500 when a response header passes ~8 KB, before Laravel can log anything. The
+  preload `Link` header had reached 11 KB, so it is capped at 20 assets (`bootstrap/app.php`).
+- Hostinger's CDN (`Server: hcdn`) can serve a cached page for a minute after a change.
+
 ## Production checklist
 
 The Phase 9 acceptance criterion. Tick every box before launch; repeat the ones marked (each
