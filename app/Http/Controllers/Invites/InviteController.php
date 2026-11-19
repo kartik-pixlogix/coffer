@@ -38,7 +38,8 @@ final class InviteController extends Controller
     {
         $invite = Invite::findByToken($token);
 
-        abort_if($invite === null, 404);
+        // A deleted company's invites are gone with it (V4, D140).
+        abort_if($invite === null || ! $invite->company()->exists(), 404);
 
         $company = $invite->company;
         $inviter = $invite->inviter;

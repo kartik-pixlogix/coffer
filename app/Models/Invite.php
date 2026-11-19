@@ -150,7 +150,9 @@ class Invite extends Model
         return $this->revoked_at === null
             && $this->declined_at === null
             && $this->expires_at->isFuture()
-            && ($this->isLink() || $this->accepted_at === null);
+            && ($this->isLink() || $this->accepted_at === null)
+            // V4 (D139, D140): an archived or (soft-)deleted company takes nobody new.
+            && $this->company()->whereNull('archived_at')->exists();
     }
 
     /** Why the link no longer works, for the expired state. */

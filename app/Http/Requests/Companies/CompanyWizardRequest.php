@@ -224,7 +224,7 @@ class CompanyWizardRequest extends FormRequest
         return function (string $attribute, mixed $value, Closure $fail): void {
             $workspace = $this->workspace();
 
-            if ($workspace !== null && Company::query()->where('workspace_id', $workspace->id)->where('short_code', $value)->exists()) {
+            if ($workspace !== null && Company::query()->withTrashed()->where('workspace_id', $workspace->id)->where('short_code', $value)->exists()) {
                 $fail("Another company in {$workspace->name} uses {$value}. Pick another code.");
             }
         };

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Actions\Companies\UpdateCompanySettings;
+use App\Enums\CompanyRole;
 use App\Enums\ExpenseStatus;
 use App\Enums\JournalType;
 use App\Http\Controllers\Controller;
@@ -18,6 +19,7 @@ use App\Models\Company;
 use App\Models\Expense;
 use App\Models\FiscalYear;
 use App\Models\JournalEntry;
+use App\Models\Membership;
 use App\Models\Partner;
 use App\Models\User;
 use App\Notifications\Events\FiscalYearClosed;
@@ -26,6 +28,7 @@ use App\Support\CurrentCompany;
 use App\Support\Money;
 use App\Support\Permissions\Catalog;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -97,7 +100,45 @@ final class CompanyController extends Controller
                 'closeYear' => $user->can('action.fy.close'),
                 'reopenYear' => $current->isAdmin(),
             ],
+            'lifecycle' => $this->lifecycle($company, $user),
         ]);
+    }
+
+    /**
+     * Archive and delete (V4, D139–D141): who may, whether this is the person's last company,
+     * and the archived or deleted companies they can restore or keep.
+     *
+     * @return array<string, mixed>
+     */
+    private function lifecycle(Company $company, User $user): array
+    {
+        $managed = Membership::query()->select('company_id')->where('user_id', $user->id)->where('role', CompanyRole::Admin->value);
+        $mine = $user->companies()->pluck('companies.id')->map(fn ($id): int => (int) $id)->all();
+
+        $others = Company::query()->withTrashed()->with('workspace:id,name')
+            ->whereKeyNot($company->id)
+            ->where(fn (Builder $q) => $q->whereNotNull('archived_at')->orWhereNotNull('deletion_scheduled_for'))
+            ->where(fn (Builder $q) => $q->whereIn('id', $managed)->orWhereHas('workspace', fn (Builder $w) => $w->where('owner_id', $user->id)))
+            ->orderBy('name')
+            ->get();
+
+        return [
+            'companyId' => $company->id,
+            'canManage' => Gate::allows('company.remove', $company),
+            'archivedAt' => $company->archived_at?->toDateString(),
+            'onlyCompany' => ! $user->companies()->whereKeyNot($company->id)->exists(),
+            'owner' => $company->workspace->isOwnedBy($user),
+            'graceDays' => (int) config('privacy.grace_days'),
+            'others' => $others->map(fn (Company $c) => [
+                'id' => $c->id,
+                'name' => $c->name,
+                'workspace' => $c->workspace->name,
+                'archivedAt' => $c->archived_at?->toDateString(),
+                'deletionScheduledFor' => $c->trashed() ? $c->deletion_scheduled_for?->toDateString() : null,
+                // Opening it (read-only) needs a membership; the owner may not have one.
+                'canOpen' => ! $c->trashed() && in_array($c->id, $mine, true),
+            ])->values(),
+        ];
     }
 
     public function update(CompanySettingsRequest $request, CurrentCompany $current, UpdateCompanySettings $update): RedirectResponse

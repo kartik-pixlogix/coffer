@@ -37,7 +37,8 @@ final class GenerateSalariesCommand extends Command
             return self::INVALID;
         }
 
-        $companies = Company::query()
+        // Archived companies are read-only (V4, D139): no salaries are posted into them.
+        $companies = Company::query()->whereNull('archived_at')
             ->when($this->option('company'), fn ($q, $id) => $q->whereKey((int) $id))
             ->orderBy('id')
             ->get();

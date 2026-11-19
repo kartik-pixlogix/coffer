@@ -2,6 +2,8 @@ import { Head, router } from '@inertiajs/react';
 import { Check, Lock, LockOpen } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import { CompanyLifecycleCard } from '@/components/settings/company-lifecycle';
+import type { Lifecycle } from '@/components/settings/company-lifecycle';
 import { SettingsShell } from '@/components/settings/settings-shell';
 import { AlertBanner } from '@/components/ui/alert-banner';
 import { AmountInput } from '@/components/ui/amount-input';
@@ -89,6 +91,8 @@ type Props = {
     /** Loaded when the Close dialog opens (spec §4.6 preview). */
     closing?: ClosingPreview | null;
     abilities: { closeYear: boolean; reopenYear: boolean };
+    /** Archive and delete (V4, D139–D141). */
+    lifecycle: Lifecycle;
 };
 
 type Form = {
@@ -170,6 +174,7 @@ export default function CompanySettings({
     years,
     closing,
     abilities,
+    lifecycle,
 }: Props) {
     const [form, setForm] = useState<Form>(() => toForm(settings));
     const [base, setBase] = useState(settings);
@@ -306,7 +311,7 @@ export default function CompanySettings({
                             variant="primary"
                             size="lg"
                             disc={Check}
-                            disabled={!dirty}
+                            disabled={!dirty || lifecycle.archivedAt !== null}
                             loading={saving}
                             onClick={() => save()}
                         >
@@ -741,6 +746,11 @@ export default function CompanySettings({
                         </p>
                     </section>
                 </form>
+
+                <CompanyLifecycleCard
+                    companyName={base.name}
+                    lifecycle={lifecycle}
+                />
             </SettingsShell>
 
             <ConfirmDialog

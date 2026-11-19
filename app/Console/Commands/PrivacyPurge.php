@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Privacy\AnonymiseUser;
+use App\Actions\Privacy\PurgeCompany;
 use App\Actions\Privacy\PurgeWorkspace;
+use App\Models\Company;
 use App\Models\DataExport;
 use App\Models\User;
 use App\Models\Workspace;
@@ -15,9 +17,10 @@ use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
- * Nightly (D98): erases workspaces and accounts whose grace period is over, and deletes data
- * export files past their link's expiry. Workspaces first, so an owner who deleted their
- * workspace and then their account is erased in the right order.
+ * Nightly (D98): erases workspaces, companies deleted on their own (V4, D140) and accounts
+ * whose grace period is over, and deletes data export files past their link's expiry.
+ * Workspaces first, so an owner who deleted their workspace and then their account is
+ * erased in the right order.
  */
 final class PrivacyPurge extends Command
 {
@@ -25,7 +28,7 @@ final class PrivacyPurge extends Command
 
     protected $description = 'Erase workspaces and accounts past their deletion grace period; delete expired data exports';
 
-    public function handle(PurgeWorkspace $purge, AnonymiseUser $anonymise): int
+    public function handle(PurgeWorkspace $purge, PurgeCompany $purgeCompany, AnonymiseUser $anonymise): int
     {
         $failed = false;
 
@@ -37,6 +40,18 @@ final class PrivacyPurge extends Command
                 $failed = true;
                 Log::critical('Workspace erasure failed', ['workspace' => $workspace->id, 'exception' => $e::class, 'message' => $e->getMessage()]);
                 $this->error("Workspace {$workspace->id}: ".$e->getMessage());
+            }
+        }
+
+        // One company deleted on its own (V4, D140); its workspace stays.
+        foreach (Company::onlyTrashed()->whereNotNull('deletion_scheduled_for')->where('deletion_scheduled_for', '<=', now())->get() as $company) {
+            try {
+                $purgeCompany->handle($company);
+                $this->line("Erased company {$company->id}.");
+            } catch (Throwable $e) {
+                $failed = true;
+                Log::critical('Company erasure failed', ['company' => $company->id, 'exception' => $e::class, 'message' => $e->getMessage()]);
+                $this->error("Company {$company->id}: ".$e->getMessage());
             }
         }
 

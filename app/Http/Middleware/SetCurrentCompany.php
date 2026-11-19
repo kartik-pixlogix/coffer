@@ -40,9 +40,11 @@ final class SetCurrentCompany
         $chosen = $request->session()->get(CurrentCompany::SESSION_KEY);
 
         /** @var Company|null $company */
-        // The switcher's choice, else the company they were last active in.
+        // The switcher's choice, else the company they were last active in (an archived one,
+        // read-only, only when they have nothing else: V4, D139).
         $company = (is_int($chosen) ? $user->companies()->whereKey($chosen)->first() : null)
             ?? $user->companies()->reorder()
+                ->orderByRaw('case when companies.archived_at is null then 0 else 1 end')
                 ->orderByRaw('case when company_user.last_active_at is null then 1 else 0 end')
                 ->orderByPivot('last_active_at', 'desc')
                 ->orderBy('companies.name')

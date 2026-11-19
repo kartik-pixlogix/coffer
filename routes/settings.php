@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\CategoriesController;
 use App\Http\Controllers\Settings\CompanyController;
+use App\Http\Controllers\Settings\CompanyLifecycleController;
 use App\Http\Controllers\Settings\InvitesController;
 use App\Http\Controllers\Settings\MembersController;
 use App\Http\Controllers\Settings\PartnersController;
@@ -17,6 +18,13 @@ Route::middleware(['auth'])->group(function () {
         ->name('theme.update');
 });
 
+// Archived and deleted companies (V4, D139–D141): restored or kept by their Admin or the
+// workspace owner (the `company.remove` gate), from whichever company is open.
+Route::middleware(['auth', 'verified'])->prefix('companies/{company}')->group(function () {
+    Route::post('restore', [CompanyLifecycleController::class, 'restore'])->middleware('throttle:10,1')->name('companies.restore');
+    Route::post('keep', [CompanyLifecycleController::class, 'keep'])->middleware('throttle:10,1')->withTrashed()->name('companies.keep');
+});
+
 // Company settings (spec §16): the Settings page permission, Admins by default.
 Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('settings')->group(function () {
     Route::redirect('/', '/settings/company');
@@ -28,6 +36,8 @@ Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('set
     Route::delete('company/logo', [CompanyController::class, 'removeLogo'])->name('settings.company.logo.destroy');
     Route::post('company/fiscal-years/{fiscalYear}/close', [CompanyController::class, 'close'])->middleware('throttle:10,1')->name('settings.company.close');
     Route::post('company/fiscal-years/{fiscalYear}/reopen', [CompanyController::class, 'reopen'])->middleware('throttle:10,1')->name('settings.company.reopen');
+    Route::post('company/archive', [CompanyLifecycleController::class, 'archive'])->middleware('throttle:6,1')->name('settings.company.archive');
+    Route::post('company/delete', [CompanyLifecycleController::class, 'destroy'])->middleware('throttle:6,1')->name('settings.company.delete');
 
     Route::get('members', [MembersController::class, 'index'])->name('settings.members');
     Route::patch('members/{user}/role', [MembersController::class, 'updateRole'])->name('settings.members.role');

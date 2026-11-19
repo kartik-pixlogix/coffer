@@ -41,7 +41,8 @@ final class SendReminders extends Command
     {
         $today = CarbonImmutable::today();
 
-        Company::query()->orderBy('id')->each(function (Company $company) use ($settlements, $years, $current, $audience, $today): void {
+        // Archived companies (V4, D139) are read-only, so nothing is due in them.
+        Company::query()->whereNull('archived_at')->orderBy('id')->each(function (Company $company) use ($settlements, $years, $current, $audience, $today): void {
             $current->run($company, function () use ($company, $settlements, $years, $audience, $today): void {
                 if ($company->type === CompanyType::Jv) {
                     $this->settlement($company, $settlements, $years, $audience, $today);

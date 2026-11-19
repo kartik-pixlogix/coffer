@@ -117,7 +117,9 @@ class HandleInertiaRequests extends Middleware
         $company = $current->get();
         $access = app(Access::class);
 
-        $companies = $user->companies()->with('workspace:id,name')->get();
+        // Archived companies leave the switcher (V4, D139), unless it is the one open now.
+        $companies = $user->companies()->with('workspace:id,name')->get()
+            ->filter(fn (Company $c) => ! $c->isArchived() || $c->id === $company?->id);
 
         return [
             'workspace' => $company === null ? null : [
@@ -203,6 +205,7 @@ class HandleInertiaRequests extends Middleware
             'type' => $company->type->value,
             'role' => $membership->role->value,
             'workspace' => $company->relationLoaded('workspace') ? $company->workspace->name : null,
+            'archived' => $company->isArchived(),
         ];
     }
 }

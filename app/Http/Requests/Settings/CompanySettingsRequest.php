@@ -101,7 +101,7 @@ final class CompanySettingsRequest extends FormRequest
         return function (string $attribute, mixed $value, Closure $fail): void {
             $company = app(CurrentCompany::class)->require();
 
-            if (Company::query()->where('workspace_id', $company->workspace_id)->where('short_code', $value)->whereKeyNot($company->id)->exists()) {
+            if (Company::query()->withTrashed()->where('workspace_id', $company->workspace_id)->where('short_code', $value)->whereKeyNot($company->id)->exists()) {
                 $fail("Another company in this workspace uses {$value}. Pick another code.");
             }
         };

@@ -18,4 +18,6 @@ export type CompanySummary = {
     role: CompanyRole;
     /** Workspace name, shown when the user belongs to more than one workspace. */
     workspace: string | null;
+    /** Archived (V4, D139): read-only; only listed while it is the current company. */
+    archived?: boolean;
 };

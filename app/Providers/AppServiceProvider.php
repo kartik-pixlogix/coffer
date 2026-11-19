@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\CompanyRole;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\Billing\StripeWebhookController;
 use App\Jobs\CheckVaultBreaches;
@@ -11,6 +12,8 @@ use App\Jobs\GenerateDataExport;
 use App\Jobs\GenerateReportExport;
 use App\Jobs\ReencryptVaultData;
 use App\Mail\ContactRequestReceived;
+use App\Models\Company;
+use App\Models\Membership;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Notifications\CofferNotification;
@@ -227,6 +230,16 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return $current->isAdmin() || $company->workspace->isOwnedBy($user);
+        });
+
+        // Archive, restore, delete or keep one company (V4, D139–D141): its Admin or the
+        // workspace owner. Works for a soft-deleted company too (the membership row stays).
+        Gate::define('company.remove', function (User $user, Company $company): bool {
+            if ((int) $company->workspace()->value('owner_id') === $user->id) {
+                return true;
+            }
+
+            return Membership::query()->where('company_id', $company->id)->where('user_id', $user->id)->first()?->role === CompanyRole::Admin;
         });
     }
 }

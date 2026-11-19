@@ -37,6 +37,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $address
  * @property int $hours_per_day_centi standard working day in hundredths of an hour (D63)
  * @property string|null $logo_path private-disk path of the logo
+ * @property CarbonImmutable|null $archived_at archived (V4, D139): out of the switcher and the plan count, read-only
+ * @property int|null $archived_by
+ * @property CarbonImmutable|null $deletion_requested_at deletion asked for (V4, D140); the row is soft-deleted meanwhile
+ * @property CarbonImmutable|null $deletion_scheduled_for erased by coffer:privacy-purge from this day
+ * @property int|null $deletion_requested_by
+ * @property CarbonImmutable|null $deleted_at
  * @property CarbonImmutable|null $created_at
  * @property-read Workspace $workspace
  * @property-read Collection<int, User> $users
@@ -65,6 +71,9 @@ class Company extends Model
             'fy_start_month' => 'integer',
             'working_days' => 'integer',
             'hours_per_day_centi' => 'integer',
+            'archived_at' => 'immutable_datetime',
+            'deletion_requested_at' => 'immutable_datetime',
+            'deletion_scheduled_for' => 'immutable_datetime',
         ];
     }
 
@@ -118,6 +127,12 @@ class Company extends Model
     public function invites(): HasMany
     {
         return $this->hasMany(Invite::class);
+    }
+
+    /** Archived (V4, D139): read-only, out of the switcher and the plan's company count. */
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
     }
 
     public function isJv(): bool

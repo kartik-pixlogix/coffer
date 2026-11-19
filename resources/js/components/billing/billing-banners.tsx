@@ -3,16 +3,42 @@ import { AlertBanner } from '@/components/ui/alert-banner';
 import { Button } from '@/components/ui/button';
 import { openUpgrade } from '@/lib/upgrade';
 import { index as billingRoute } from '@/routes/billing';
+import { company as settingsCompany } from '@/routes/settings';
 
 /**
  * The shell's billing line (D80, D81): the last week of the trial, a failed payment, an
  * ended trial in its grace days, and read-only. Hidden on the Billing page itself.
  */
 export function BillingBanner() {
-    const { billingStatus: b, currentCompany } = usePage().props;
+    const { billingStatus: b, currentCompany, can } = usePage().props;
     const onBilling =
         typeof window !== 'undefined' &&
         window.location.pathname.startsWith('/billing');
+
+    // An archived company (V4, D139) is read-only whatever the plan.
+    if (currentCompany?.archived) {
+        return (
+            <AlertBanner
+                variant="info"
+                slim
+                role="status"
+                title={`${currentCompany.name} is archived`}
+                action={
+                    can.pages.settings ? (
+                        <Link
+                            href={settingsCompany().url}
+                            className="cf-btn cf-btn--secondary"
+                        >
+                            Restore in Settings
+                        </Link>
+                    ) : undefined
+                }
+            >
+                Everything stays visible, but nothing can change until an Admin
+                restores it.
+            </AlertBanner>
+        );
+    }
 
     if (b === null || currentCompany === null || onBilling) {
         return null;

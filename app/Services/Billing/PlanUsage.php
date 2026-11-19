@@ -44,7 +44,8 @@ final class PlanUsage
         $companies = Company::query()->where('workspace_id', $workspace->id)->select('id');
 
         return match ($limit) {
-            PlanLimit::Companies => Company::query()->where('workspace_id', $workspace->id)->count(),
+            // Archived companies free their slot; deleted ones are soft-deleted (V4, D139).
+            PlanLimit::Companies => Company::query()->where('workspace_id', $workspace->id)->whereNull('archived_at')->count(),
             PlanLimit::Users => Membership::query()->whereIn('company_id', $companies)->distinct()->count('user_id'),
             PlanLimit::VaultItems => VaultItem::query()->withoutGlobalScope('company')->whereIn('company_id', $companies)->count(),
             PlanLimit::Storage => (int) ceil($this->storageBytes($companies) / 1_048_576),
