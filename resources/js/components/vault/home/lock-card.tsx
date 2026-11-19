@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button, TextButton } from '@/components/ui/button';
 import { CodeInput } from '@/components/ui/code-input';
@@ -63,16 +63,20 @@ export function LockCard({
     const ready =
         mode === 'code' ? /^\d{6}$/.test(code) : text.trim().length > 0;
 
+    const sending = useRef(false);
+
     const submit = async (value?: string) => {
         const codeValue = value ?? code;
 
         if (
-            checking ||
+            sending.current ||
             (mode === 'code' ? !/^\d{6}$/.test(codeValue) : !ready)
         ) {
             return;
         }
 
+        // A ref, not state: the sixth digit and Enter can both land before a re-render.
+        sending.current = true;
         setChecking(true);
         setError(undefined);
         const body = { code: mode === 'code' ? codeValue : text.trim() };
@@ -80,6 +84,8 @@ export function LockCard({
             unlock().url,
             body,
         );
+
+        sending.current = false;
 
         if (result.ok) {
             onUnlocked(result.data.state, true);

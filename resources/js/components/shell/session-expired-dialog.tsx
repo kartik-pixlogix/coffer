@@ -48,6 +48,7 @@ export function SessionExpiredDialog({
     const [code, setCode] = useState('');
     const [error, setError] = useState<string | undefined>();
     const [busy, setBusy] = useState(false);
+    const sendingCode = useRef(false);
     const passwordRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
 
@@ -100,6 +101,13 @@ export function SessionExpiredDialog({
     };
 
     const submitCode = async (value = code) => {
+        // One check at a time: the sixth digit and Enter would otherwise post the
+        // same code twice, and the second post is refused as already used.
+        if (sendingCode.current) {
+            return;
+        }
+
+        sendingCode.current = true;
         setBusy(true);
         setError(undefined);
 
@@ -117,6 +125,7 @@ export function SessionExpiredDialog({
                 );
             }
         } finally {
+            sendingCode.current = false;
             setBusy(false);
         }
     };

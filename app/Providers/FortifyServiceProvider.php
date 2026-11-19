@@ -12,6 +12,7 @@ use App\Actions\Workspaces\CreateWorkspace;
 use App\Auth\LoginLockout;
 use App\Auth\RecoveryCodes;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Responses\FailedTwoFactorSignIn;
 use App\Http\Responses\LockoutResponse;
 use App\Http\Responses\SignedInResponse;
 use App\Models\Plan;
@@ -29,6 +30,7 @@ use Laravel\Fortify\Actions\EnableTwoFactorAuthentication as FortifyEnableTwoFac
 use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
 use Laravel\Fortify\Actions\GenerateNewRecoveryCodes as FortifyGenerateRecoveryCodes;
 use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
+use Laravel\Fortify\Contracts\FailedTwoFactorLoginResponse;
 use Laravel\Fortify\Contracts\LockoutResponse as LockoutResponseContract;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
@@ -49,6 +51,8 @@ class FortifyServiceProvider extends ServiceProvider
         // G10, G13 (D113): sign-in lands on a page (the one asked for, or the role's first), never a file.
         $this->app->singleton(LoginResponse::class, SignedInResponse::class);
         $this->app->singleton(TwoFactorLoginResponse::class, SignedInResponse::class);
+        // A refused 2FA code says why: wrong, just used, or an expired sign-in.
+        $this->app->singleton(FailedTwoFactorLoginResponse::class, FailedTwoFactorSignIn::class);
         // Admins can't turn 2FA off (spec §23).
         $this->app->bind(FortifyDisableTwoFactor::class, DisableTwoFactorAuthentication::class);
         // Ten XXXX-XXXX recovery codes, as on Profile (spec §17).

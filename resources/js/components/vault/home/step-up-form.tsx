@@ -1,5 +1,5 @@
 import { Smartphone } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CodeInput } from '@/components/ui/code-input';
 import { Icon } from '@/components/ui/icon';
@@ -23,14 +23,19 @@ export function StepUpForm({ action = 'reveal', onVerify, onCancel }: Props) {
     const [checking, setChecking] = useState(false);
     const complete = /^\d{6}$/.test(code);
 
+    const sending = useRef(false);
+
     const submit = async (value = code) => {
-        if (!/^\d{6}$/.test(value) || checking) {
+        if (!/^\d{6}$/.test(value) || sending.current) {
             return;
         }
 
+        // A ref, not state: the sixth digit and Enter can both land before a re-render.
+        sending.current = true;
         setChecking(true);
         setError(undefined);
         const failure = await onVerify(value);
+        sending.current = false;
         setChecking(false);
 
         if (failure !== null) {

@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Http\Responses\FailedTwoFactorSignIn;
 use App\Models\TrustedDevice;
 use App\Models\User;
+use App\Services\Auth\TwoFactorCodes;
 use Inertia\Testing\AssertableInertia as Assert;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -75,4 +77,31 @@ test('a wrong code keeps the user out', function () {
     $this->post(route('two-factor.login.store'), ['code' => '000000'])->assertSessionHasErrors('code');
 
     $this->assertGuest();
+});
+
+test('a wrong code says so', function () {
+    [, $code] = challengedUser($this);
+    $wrong = $code === '123456' ? '654321' : '123456';
+
+    $this->post(route('two-factor.login.store'), ['code' => $wrong])
+        ->assertRedirect(route('two-factor.login'))
+        ->assertSessionHasErrors(['code' => FailedTwoFactorSignIn::WRONG_CODE]);
+});
+
+test('the same code sent twice (sixth digit, then Enter) is reported as just used, not as wrong (D142)', function () {
+    [$user, $code] = challengedUser($this);
+
+    // The first post already spent this code: Fortify remembers it for its window.
+    cache()->put('fortify.2fa_codes.'.md5($code), (new Google2FA)->getTimestamp(), 60);
+
+    $this->post(route('two-factor.login.store'), ['code' => $code])
+        ->assertSessionHasErrors(['code' => TwoFactorCodes::REPLAY_MESSAGE]);
+
+    $this->assertGuest();
+});
+
+test('a code sent after the pending sign-in expired goes back to the password step', function () {
+    $this->post(route('two-factor.login.store'), ['code' => '123456'])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors(['email' => FailedTwoFactorSignIn::EXPIRED]);
 });

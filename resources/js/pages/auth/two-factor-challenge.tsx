@@ -1,6 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, TextButton } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CodeInput } from '@/components/ui/code-input';
@@ -23,6 +23,7 @@ type Props = {
 export default function TwoFactorChallenge({ email }: Props) {
     const [recovery, setRecovery] = useState(false);
     const [lostOpen, setLostOpen] = useState(false);
+    const inFlight = useRef(false);
 
     return (
         <>
@@ -71,6 +72,19 @@ export default function TwoFactorChallenge({ email }: Props) {
             <Form
                 {...store.form()}
                 resetOnError
+                // One request at a time: the sixth digit submits, and Enter or the
+                // button straight after would post the same code again. A code works
+                // once, so that second post was refused as "didn't match" (D142).
+                onBefore={() => {
+                    if (inFlight.current) {
+                        return false;
+                    }
+
+                    inFlight.current = true;
+                }}
+                onFinish={() => {
+                    inFlight.current = false;
+                }}
                 className="flex flex-col gap-5"
             >
                 {({ processing, errors, submit }) => (
@@ -95,11 +109,7 @@ export default function TwoFactorChallenge({ email }: Props) {
                                 verifying={processing}
                                 verifyingLabel="Checking"
                                 onComplete={() => submit()}
-                                error={
-                                    errors.code
-                                        ? 'That code didn’t match. Codes change every 30 seconds.'
-                                        : undefined
-                                }
+                                error={errors.code}
                             />
                         )}
 
@@ -113,6 +123,7 @@ export default function TwoFactorChallenge({ email }: Props) {
                             size="lg"
                             disc={ArrowRight}
                             loading={processing}
+                            disabled={processing}
                             className="w-full justify-between"
                         >
                             Verify and sign in

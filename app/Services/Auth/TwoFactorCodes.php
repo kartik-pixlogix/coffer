@@ -42,10 +42,7 @@ final readonly class TwoFactorCodes
                 return self::VALID;
             }
 
-            // Right for this moment, but Fortify has already accepted it once.
-            return cache()->has('fortify.2fa_codes.'.md5($code)) && $this->engine->verifyKey($secret, $code)
-                ? self::REPLAYED
-                : self::INVALID;
+            return $this->wasJustUsed($user, $code) ? self::REPLAYED : self::INVALID;
         }
 
         if ($allowRecovery && in_array($code, $user->recoveryCodes(), true)) {
@@ -55,5 +52,16 @@ final readonly class TwoFactorCodes
         }
 
         return self::INVALID;
+    }
+
+    /** Right for this moment, but Fortify has already accepted it once. */
+    public function wasJustUsed(User $user, string $code): bool
+    {
+        if (preg_match('/^\d{6}$/', $code) !== 1 || empty($user->two_factor_secret)) {
+            return false;
+        }
+
+        return cache()->has('fortify.2fa_codes.'.md5($code))
+            && $this->engine->verifyKey((string) decrypt((string) $user->two_factor_secret), $code);
     }
 }
