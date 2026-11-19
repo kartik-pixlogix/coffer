@@ -248,7 +248,7 @@ export function ExpenseSheet({
             <Toggle
                 checked={draft.billable}
                 onCheckedChange={(billable) => set({ billable })}
-                className="w-full justify-between"
+                className="w-full flex-row-reverse justify-between"
             >
                 <span className="cf-stack">
                     <span className="t-label-strong">Bill to a client</span>
