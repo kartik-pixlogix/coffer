@@ -7529,3 +7529,38 @@ a.lp-pillar:not(#\#):hover {
         line-height: 20px;
     }
 }
+
+/* 6-digit code boxes shrink with their container instead of running past it (the
+   vault lock card at 320–375 px; also the 2FA challenge and setup). A fieldset
+   otherwise refuses to be narrower than its content. */
+fieldset.cf-field:not(#\#) {
+    min-width: 0;
+}
+
+.cf-code:not(#\#) {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.cf-code:not(#\#) > .cf-code-box {
+    flex: 0 1 48px;
+    min-width: 0;
+}
+
+.vh-lock-code:not(#\#) {
+    width: 100%;
+    min-width: 0;
+}
+
+@media (max-width: 400px) {
+    .cf-code:not(#\#) {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 400px) {
+    .vh-lock-card:not(#\#) {
+        max-width: calc(100% - 16px);
+        padding: 20px 16px;
+    }
+}
