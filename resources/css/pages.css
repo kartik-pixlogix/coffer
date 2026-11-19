@@ -7495,3 +7495,28 @@ a.lp-pillar:not(#\#):hover {
         min-height: 0;
     }
 }
+
+/* Phones: the hero window is a cropped preview, so its content fades out at the
+   window's bottom edge instead of being cut through a card (D7). */
+@media (max-width: 640px) {
+    .lp-win-main:not(#\#) {
+        mask-image: linear-gradient(
+            to bottom,
+            #000 calc(100% - 72px),
+            transparent
+        );
+    }
+}
+
+/* Vault unlock links: when they no longer fit on one line they stack, and the "·"
+   between them goes, so it never hangs at a line end (D11). */
+@media (max-width: 400px) {
+    .vh-lock-links:not(#\#) {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .vh-lock-links:not(#\#) > [aria-hidden='true'] {
+        display: none;
+    }
+}
