@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Finance;
 
 use App\Actions\Loans\LoanData;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 
 /**
@@ -31,7 +32,7 @@ final class LoanRequest extends MoneyFormRequest
             'date' => $this->dateRules(),
             'money_account_id' => ['required_if:source,account', 'nullable', 'integer', $this->activeIn('money_accounts')],
             'purpose' => ['nullable', 'string', 'max:200'],
-            'instalment_paise' => ['nullable', 'integer', 'min:1', 'lte:amount_paise'],
+            'instalment_paise' => ['nullable', 'integer', 'min:1', 'max:'.Money::maxPaise(), 'lte:amount_paise'],
             'due_on' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date'],
         ];
     }

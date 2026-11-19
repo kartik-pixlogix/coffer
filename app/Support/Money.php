@@ -15,6 +15,18 @@ final class Money
     /** The largest amount accepted from a form: ₹1,000 crore. */
     public const int MAX_PAISE = 1_000_00_00_000_00;
 
+    /** The largest amount a money field accepts (F1, D116): `money.max_paise`, never above MAX_PAISE. */
+    public static function maxPaise(): int
+    {
+        return max(1, min(self::MAX_PAISE, (int) config('money.max_paise', self::MAX_PAISE)));
+    }
+
+    /** The message for a money field over maxPaise() (shows the cap in Indian format). */
+    public static function maxMessage(): string
+    {
+        return 'That amount is too large. The most one entry can be is '.self::format(self::maxPaise()).'.';
+    }
+
     /** "2,50,000" / "₹1,234.5" / "0" → paise; null when it isn't a non-negative amount with ≤ 2 decimals. */
     public static function parseRupees(string|int|float|null $value): ?int
     {

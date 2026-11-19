@@ -289,3 +289,46 @@ test('a form that fails validation never flashes secrets back into the session',
         ->and(session()->getOldInput('secrets'))->toBeNull();
     $response->assertSessionHasInput('vault_id');
 });
+
+test('restoring a version needs a fresh 2FA step-up, like a reveal (V7)', function () {
+    $company = Company::factory()->create();
+    $vault = vaultIn($company);
+    $admin = vaultUser(CompanyRole::Admin, $company);
+    $this->actingAs($admin)->withSession(vaultUnlocked(verified: false))->post(route('vault.items.store'), itemPayload($vault));
+    $item = soleItem($company);
+    $this->actingAs($admin)->put(route('vault.items.update', $item), itemPayload($vault, ['name' => 'Renamed', 'secrets' => ['password' => 'demo-second-password-1']]));
+
+    $this->actingAs($admin)->post(route('vault.items.restore', ['item' => $item, 'version' => 1]))
+        ->assertRedirect()
+        ->assertInertiaFlash('toast.type', 'warning');
+
+    expect($item->fresh()->version)->toBe(2)
+        ->and(secretsOf($item)['password'])->toBe('demo-second-password-1');
+});
+
+test('a javascript: or data: address is refused with a reason (V6)', function (string $url, string $message) {
+    $company = Company::factory()->create();
+    $vault = vaultIn($company);
+    $admin = vaultUser(CompanyRole::Admin, $company);
+
+    $payload = itemPayload($vault);
+    $payload['fields']['url'] = $url;
+
+    $this->actingAs($admin)->withSession(vaultUnlocked())->post(route('vault.items.store'), $payload)
+        ->assertSessionHasErrors(['fields.url' => $message]);
+})->with([
+    ['javascript:alert(1)', 'Use an http or https address.'],
+    ['data:text/html,hi', 'Use an http or https address.'],
+    ['not a url', 'Enter a web address.'],
+]);
+
+test('ordinary addresses still save (V6)', function (string $url) {
+    $company = Company::factory()->create();
+    $vault = vaultIn($company);
+    $admin = vaultUser(CompanyRole::Admin, $company);
+
+    $payload = itemPayload($vault);
+    $payload['fields']['url'] = $url;
+
+    $this->actingAs($admin)->withSession(vaultUnlocked())->post(route('vault.items.store'), $payload)->assertSessionHasNoErrors();
+})->with(['https://gitlab.com/saarthi', 'gitlab.com/saarthi', 'localhost:3000/admin']);

@@ -60,6 +60,14 @@ function groupDigits(digits: string): string {
 }
 
 /** Group the integer part of any number the Indian way (sign not included). */
+/**
+ * "1 entry" / "12 entries" / "1,250 entries" (G12): the count in Indian grouping with
+ * the right noun. `many` defaults to `one` + "s".
+ */
+export function countOf(n: number, one: string, many = `${one}s`): string {
+    return `${formatIndianNumber(n)} ${Math.abs(n) === 1 ? one : many}`;
+}
+
 export function formatIndianNumber(value: number, fractionDigits = 0): string {
     const fixed = Math.abs(value).toFixed(fractionDigits);
     const [whole, fraction] = fixed.split('.');

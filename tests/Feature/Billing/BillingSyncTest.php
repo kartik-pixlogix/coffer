@@ -13,7 +13,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\FakeStripe;
 
 /*
-| Billing QA fixes (D116-D118): webhooks need the secret (B4); the return from Checkout and
+| Billing QA fixes (D117, D118): webhooks need the secret (B4); the return from Checkout and
 | "Refresh from Stripe" sync straight from Stripe (B2); no second subscription (B3);
 | payable currencies (B5); no downgrade below usage (B6); trial days match (B7); the
 | Stripe price must match the plan (B1 safeguard); customers never see the keys note (F6).

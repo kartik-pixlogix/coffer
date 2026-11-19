@@ -32,7 +32,10 @@ export type NotificationRow = {
     done: { label: string; tone: 'pos' | 'neg' } | null;
 };
 
-export type NotificationCounts = Record<NotificationFilter, number>;
+export type NotificationCounts = Record<NotificationFilter, number> & {
+    /** Approvals still waiting for this person (F8). */
+    actionable?: number;
+};
 
 export type NotificationPanelData = {
     items: NotificationRow[];

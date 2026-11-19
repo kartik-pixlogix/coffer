@@ -73,6 +73,8 @@ type Props = {
         addExpense: boolean;
         expenses: boolean;
         settlements: boolean;
+        /** May record a transfer; else the banner says "View settlements" (P4). */
+        recordSettlements?: boolean;
     };
 };
 
@@ -394,7 +396,9 @@ function Figures({
                                 size="lg"
                                 disc={ArrowRight}
                             >
-                                Resolve
+                                {abilities.recordSettlements
+                                    ? 'Resolve'
+                                    : 'View settlements'}
                             </ButtonLink>
                         ) : undefined
                     }

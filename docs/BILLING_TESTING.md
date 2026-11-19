@@ -69,7 +69,7 @@ Also turn on **switching plans**, with the three Coffer products and their price
 3. It prints a signing secret. Put it in `.env` as `STRIPE_WEBHOOK_SECRET=whsec_...`, then run `php artisan config:clear`.
 4. Keep `composer run dev` running. It includes the queue worker that sends notification emails. Locally, mail goes to the log (`MAIL_MAILER=log`) unless you set up Mailpit or another mailer.
 
-The endpoint is Cashier's `/stripe/webhook`. It checks the signature and syncs the subscription. **Without `STRIPE_WEBHOOK_SECRET` every webhook is refused (403, D116)**, so run `stripe listen` and copy its secret before testing webhooks. You don't need webhooks to see a Checkout land: on the way back Coffer reads the Checkout Session from Stripe and syncs the subscription and card straight away (D117), and **Refresh from Stripe** on Billing does the same at any time. `App\Listeners\SyncWorkspaceBilling` then copies the plan, cycle, currency and renewal date onto the workspace, and tracks failed payments.
+The endpoint is Cashier's `/stripe/webhook`. It checks the signature and syncs the subscription. **Without `STRIPE_WEBHOOK_SECRET` every webhook is refused (403, D117)**, so run `stripe listen` and copy its secret before testing webhooks. You don't need webhooks to see a Checkout land: on the way back Coffer reads the Checkout Session from Stripe and syncs the subscription and card straight away (D117), and **Refresh from Stripe** on Billing does the same at any time. `App\Listeners\SyncWorkspaceBilling` then copies the plan, cycle, currency and renewal date onto the workspace, and tracks failed payments.
 
 ## 5. Convert a trial to paid (the acceptance test)
 

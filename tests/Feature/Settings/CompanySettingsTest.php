@@ -370,3 +370,18 @@ test('a closed year blocks create, edit and delete in every module (spec §4.6)'
         ->and($scoped(TimeEntry::class)->sole()->hours_centi)->toBe(600)
         ->and(app(IntegrityCheck::class)->run($books->company))->toBe([]);
 });
+
+test('an SVG logo gets a clear message, and company names stop at 60 characters (A5, G7)', function () {
+    Storage::fake('local');
+    $books = singleBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+
+    $this->actingAs($admin)->post(route('settings.company.logo.store'), ['logo' => UploadedFile::fake()->create('logo.svg', 10, 'image/svg+xml')])
+        ->assertSessionHasErrors(['logo' => 'Use a PNG, JPG or WebP image. SVG logos aren’t supported.']);
+
+    $this->actingAs($admin)->put(route('settings.company.update'), companyForm($books->company, ['name' => str_repeat('A', 61)]))
+        ->assertSessionHasErrors(['name' => 'Keep the company name to 60 characters.']);
+    $this->actingAs($admin)->put(route('settings.company.update'), companyForm($books->company, ['name' => '  '.str_repeat('B', 60).'  ']))
+        ->assertSessionHasNoErrors();
+    expect($books->company->fresh()->name)->toBe(str_repeat('B', 60));
+});

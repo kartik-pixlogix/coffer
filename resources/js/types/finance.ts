@@ -70,6 +70,8 @@ export type IncomeOptions = {
     accounts: MoneyAccountOption[];
     projects: ProjectOption[];
     sources: string[];
+    /** The signed-in person's own partner, the default "Brought in by" (P1). */
+    myPartnerId?: number | null;
 };
 
 export type ExpenseStatus = 'pending' | 'approved' | 'rejected';

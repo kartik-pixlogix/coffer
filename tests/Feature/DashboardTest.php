@@ -244,3 +244,14 @@ test('a role that can’t open Expenses gets only the count and total of pending
             ->where('approvals.totalPaise', 3_000_00)
             ->has('approvals.rows', 0));
 });
+
+test('no vault card without 2FA, and "View settlements" for roles that can’t record (P4)', function () {
+    $books = jvBooks();
+    $partner = userWithRole(CompanyRole::Partner, $books->company);
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+
+    $this->actingAs($partner)->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page->where('vault', null)->where('abilities.recordSettlements', false));
+    $this->actingAs($admin)->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page->where('vault', null)->where('abilities.recordSettlements', true));
+});

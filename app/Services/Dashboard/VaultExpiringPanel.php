@@ -21,7 +21,8 @@ final readonly class VaultExpiringPanel implements DashboardVaultPanel
 
     public function for(Company $company, User $user): ?array
     {
-        if ($this->access->ceiling($user) === null || ! $user->can('page.vault')) {
+        // P4 (D116): no vault card (or health link) for someone who can't open the vault, 2FA included.
+        if ($this->access->ceiling($user) === null || ! $user->can('page.vault') || ! $user->hasTwoFactorEnabled()) {
             return null;
         }
 

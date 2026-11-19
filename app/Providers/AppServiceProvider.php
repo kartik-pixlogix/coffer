@@ -85,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
         Cashier::useCustomerModel(Workspace::class);
         $this->app->singleton(WorkspaceBilling::class);
         $this->app->bind(PaymentGateway::class, StripeGateway::class);
-        // B4 (D116): no STRIPE_WEBHOOK_SECRET, no webhooks (Cashier alone would accept unsigned ones).
+        // B4 (D117): no STRIPE_WEBHOOK_SECRET, no webhooks (Cashier alone would accept unsigned ones).
         $this->app->bind(WebhookController::class, StripeWebhookController::class);
     }
 

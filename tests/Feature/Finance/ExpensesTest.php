@@ -573,3 +573,40 @@ test('a description that looks like a formula is exported as text (G3)', functio
     $csv = $this->actingAs($books->admin)->get(route('expenses.export'))->assertOk()->streamedContent();
     expect($csv)->toContain('"\'=HYPERLINK(""http://evil"",""x"")"');
 });
+
+test('a Member adds and edits their own expense; the form’s empty new_category is fine (M1, M4, F3)', function () {
+    $books = expenseBooks();
+    $own = ['payers' => [['type' => 'member', 'member_id' => $books->rohan->id, 'account_id' => null, 'amount_paise' => 0]], 'new_category' => null];
+
+    $this->actingAs($books->rohanUser)->post(route('expenses.store'), expensePayload($books, ['description' => 'Uber to client'] + $own))
+        ->assertSessionHasNoErrors();
+    $expense = lastExpense($books->company);
+
+    $this->actingAs($books->rohanUser)->put(route('expenses.update', $expense), expensePayload($books, ['description' => 'Uber to client (return)', 'amount_paise' => 1_200_00] + $own))
+        ->assertSessionHasNoErrors();
+    expect($expense->refresh()->description)->toBe('Uber to client (return)')
+        ->and($expense->status)->toBe(ExpenseStatus::Pending)
+        ->and($expense->journal_entry_id)->toBeNull();
+
+    // Members still can't name a new category.
+    $this->actingAs($books->rohanUser)->post(route('expenses.store'), expensePayload($books, ['category_id' => null, 'new_category' => 'Snacks'] + array_diff_key($own, ['new_category' => 1])))
+        ->assertSessionHasErrors(['new_category' => 'Ask an Admin or partner to add categories.']);
+});
+
+test('every money field has a sane maximum (F1)', function () {
+    config(['money.max_paise' => 100_00_00_000_00]);
+    $books = expenseBooks();
+
+    $this->actingAs($books->admin)->post(route('expenses.store'), expensePayload($books, ['amount_paise' => 100_00_00_000_01]))
+        ->assertSessionHasErrors(['amount_paise' => 'That amount is too large. The most one entry can be is ₹1,00,00,00,000.']);
+});
+
+test('dates before the company’s books are refused instead of vanishing (G11), and messages use friendly names (G12)', function () {
+    $books = expenseBooks();
+
+    $this->actingAs($books->admin)->post(route('expenses.store'), expensePayload($books, ['spent_on' => '1990-01-01']))
+        ->assertSessionHasErrors(['spent_on' => 'Pick a date from 1 Apr 2025 (FY 2025-26) onwards.']);
+
+    $this->actingAs($books->admin)->post(route('expenses.store'), expensePayload($books, ['payers' => [['type' => 'partner', 'partner_id' => $books->kabir->id, 'account_id' => null, 'amount_paise' => 'lots']]]))
+        ->assertSessionHasErrors(['payers.0.amount_paise' => 'The payer amount field must be an integer.']);
+});

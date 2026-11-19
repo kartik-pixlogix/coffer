@@ -10,7 +10,9 @@ use App\Enums\CategoryKind;
 use App\Enums\ProjectStatus;
 use App\Models\Income;
 use App\Services\Finance\Attachments;
+use App\Support\BooksWindow;
 use App\Support\CurrentCompany;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
@@ -45,8 +47,8 @@ final class IncomeRequest extends FormRequest
 
         return [
             'source' => ['required', 'string', 'max:200'],
-            'amount_paise' => ['required', 'integer', 'min:1', 'max:'.(10 ** 13)],
-            'received_on' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.CarbonImmutable::today()->addYear()->toDateString()],
+            'amount_paise' => ['required', 'integer', 'min:1', 'max:'.Money::maxPaise()],
+            'received_on' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.CarbonImmutable::today()->addYear()->toDateString(), BooksWindow::rule($company)],
             'category_id' => ['required', 'integer', Rule::exists('categories', 'id')->where('company_id', $company->id)->where('kind', CategoryKind::Income->value)
                 ->where(fn ($q) => $q->whereNull('archived_at')->when($income !== null, fn ($w) => $w->orWhere('id', $income?->category_id)))],
             'brought_in_by' => [$pooled ? 'nullable' : 'required', 'integer',
@@ -71,12 +73,21 @@ final class IncomeRequest extends FormRequest
     }
 
     /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return ['amount_paise' => 'amount', 'received_on' => 'date', 'category_id' => 'category', 'new_category' => 'new category',
+            'brought_in_by' => 'brought in by', 'received_into' => 'received into', 'project_id' => 'project'];
+    }
+
+    /** @return array<string, string> */
     public function messages(): array
     {
         return [
             'source.required' => 'Add who paid and what it’s for.',
             'amount_paise.required' => 'Enter an amount.',
             'amount_paise.min' => 'Enter an amount.',
+            'amount_paise.max' => Money::maxMessage(),
+            'received_on.after_or_equal' => BooksWindow::message(app(CurrentCompany::class)->require()),
             'received_on.required' => 'Pick the date it came in.',
             'received_on.before_or_equal' => 'That date is too far ahead.',
             'category_id.required' => 'Pick a category.',

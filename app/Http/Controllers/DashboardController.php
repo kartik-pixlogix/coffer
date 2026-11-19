@@ -56,6 +56,7 @@ final class DashboardController extends Controller
                 'addExpense' => $user->can('action.expenses.create') && $user->can('page.expenses'),
                 'expenses' => $user->can('page.expenses'),
                 'settlements' => $user->can('page.settlements'),
+                'recordSettlements' => $user->can('page.settlements') && $user->can('action.settlements.record'),
             ],
         ]);
     }

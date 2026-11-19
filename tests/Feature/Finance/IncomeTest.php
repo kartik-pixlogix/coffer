@@ -303,3 +303,12 @@ test('export downloads the year’s entries as CSV', function () {
         ->toContain('Date,Source,"Amount (INR)"')
         ->toContain('2026-10-28,"Asha Retail — store build, milestone 3",350000.00,Project,"Aarav Mehta","Company account"');
 });
+
+test('Add income starts on the signed-in person’s own partner (P1)', function () {
+    $books = jvBooks();
+    $meeraUser = userWithRole(CompanyRole::Partner, $books->company, ['name' => 'Meera Iyer']);
+    $books->meera->update(['user_id' => $meeraUser->id]);
+
+    $this->actingAs($meeraUser)->get(route('income.index'))
+        ->assertInertia(fn (Assert $page) => $page->where('options.myPartnerId', $books->meera->id));
+});

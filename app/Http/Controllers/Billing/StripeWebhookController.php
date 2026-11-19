@@ -10,7 +10,7 @@ use Laravel\Cashier\Http\Controllers\WebhookController;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Cashier's webhook endpoint, bound in its place (B4, D116). Cashier checks the Stripe
+ * Cashier's webhook endpoint, bound in its place (B4, D117). Cashier checks the Stripe
  * signature only when `STRIPE_WEBHOOK_SECRET` is set, and otherwise accepts anything;
  * here an unset secret refuses every webhook (403). Locally, `stripe listen` prints the
  * secret to use.

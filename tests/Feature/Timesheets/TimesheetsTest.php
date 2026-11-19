@@ -246,3 +246,41 @@ test('another company’s entry is out of reach', function () {
     $this->actingAs($t->admin)->delete(route('timesheets.destroy', $theirs))->assertNotFound();
     expect($theirs->fresh())->not->toBeNull();
 });
+
+test('a member’s day holds at most 24 h across entries: day, month and edits (G4)', function () {
+    $t = timesheetCompany();
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['hours' => '20']))->assertSessionHasNoErrors();
+
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['hours' => '6']))
+        ->assertSessionHasErrors(['hours' => 'That puts Rohan Desai at 26.0 h on 14 Nov 2026. A day holds at most 24 h across all entries.']);
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['hours' => '4']))->assertSessionHasNoErrors();
+
+    // Month mode adds on top of the day entries: 14 Nov is already full.
+    $this->actingAs($t->admin)->post(route('timesheets.store'), [
+        'member_id' => $t->rohan->id, 'mode' => 'month', 'month' => '2026-11', 'hours' => '400', 'saturdays' => true,
+        'project_id' => $t->project->id, 'billable' => true,
+    ])->assertSessionHasErrors('hours');
+
+    // Editing the 4 h entry to 5 h would overfill the day; its own old hours don't count.
+    $entry = entriesOf($t->rohan)->firstWhere('hours_centi', 400);
+    $this->actingAs($t->admin)->put(route('timesheets.update', $entry), array_diff_key(dayPayload($t, ['hours' => '5']), ['mode' => 1]))->assertSessionHasErrors('hours');
+    $this->actingAs($t->admin)->put(route('timesheets.update', $entry), array_diff_key(dayPayload($t, ['hours' => '3']), ['mode' => 1]))->assertSessionHasNoErrors();
+
+    expect(entriesOf($t->rohan)->sum('hours_centi'))->toBe(2300);
+});
+
+test('a Member’s hours bill to their assigned partner whatever is sent (M3), and Log hours starts on them (P1)', function () {
+    $t = timesheetCompany();
+    $user = userWithRole(CompanyRole::Member, $t->company, ['name' => 'Rohan Desai']);
+    $t->rohan->update(['user_id' => $user->id]);
+    Member::factory()->create(['company_id' => $t->company->id, 'partner_id' => $t->ishita->id, 'name' => 'Aditi Kulkarni', 'rate_paise' => 400_00]);
+
+    $this->actingAs($user)->post(route('timesheets.store'), dayPayload($t, ['partner_id' => $t->ishita->id]))->assertSessionHasNoErrors();
+    expect(entriesOf($t->rohan)->sole()->partner_id)->toBe($t->aarav->id);
+
+    // Ishita (a partner user) opens Log hours on her own team first.
+    $ishitaUser = userWithRole(CompanyRole::Partner, $t->company, ['name' => 'Ishita Rao']);
+    $t->ishita->update(['user_id' => $ishitaUser->id]);
+    $this->actingAs($ishitaUser)->get(route('timesheets.index'))
+        ->assertInertia(fn (Assert $page) => $page->where('options.members.0.name', 'Aditi Kulkarni'));
+});

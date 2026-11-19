@@ -43,6 +43,7 @@ final class TimesheetsController extends Controller
         $month = $this->monthFrom($request->query('month')) ?? $today->startOfMonth();
         $monthEnd = $month->endOfMonth()->startOfDay();
         $ownOnly = $policy->ownOnly();
+        $myPartner = Partner::query()->where('user_id', $user->id)->value('id');
         $ownMember = $ownOnly ? Member::query()->where('user_id', $user->id)->first() : null;
 
         /** @var array{member?: string, partner?: string, project?: string, billable?: string, q?: string} $filters */
@@ -136,7 +137,10 @@ final class TimesheetsController extends Controller
             'entries' => $entries->through($row),
             'week' => ['day' => $day->toDateString(), 'start' => $weekStart->toDateString(), 'entries' => $week->map($row)->values()],
             'options' => [
+                // P1 (D116): Log hours starts on the signed-in person (their own member row,
+                // else the team on their partner), so it bills to the right partner and side.
                 'members' => $members->filter(fn (Member $m) => $m->isActive())
+                    ->sortBy(fn (Member $m) => $m->user_id === $user->id ? 0 : ($myPartner !== null && $m->partner_id === $myPartner ? 1 : 2))
                     ->map(fn (Member $m) => ['id' => $m->id, 'name' => $m->name, 'partnerId' => $m->partner_id])->values(),
                 'partners' => Partner::query()->active()->orderBy('position')->orderBy('id')->get()
                     ->map(fn (Partner $p) => ['id' => $p->id, 'name' => $p->name, 'colour' => $p->colour])->values(),
@@ -182,6 +186,7 @@ final class TimesheetsController extends Controller
         $centi = $request->centi();
         $date = $request->day();
         $log->assertOpen($current->require(), [$entry->date, $date]);
+        $log->assertDayCap($member, [$date->toDateString() => $centi], except: $entry->id);
         $details = $request->details();
 
         $entry->update([

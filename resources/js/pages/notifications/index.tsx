@@ -124,7 +124,9 @@ export default function NotificationsPage({
                     <h2 id="nt-h" className="cf-dot-title t-title">
                         {counts.unread > 0
                             ? `${counts.unread} unread`
-                            : 'You’re all caught up'}
+                            : (counts.actionable ?? 0) > 0
+                              ? `${counts.actionable} waiting for you`
+                              : 'You’re all caught up'}
                     </h2>
                     <span className="t-caption t-muted">
                         Approvals, vault alerts, settlements and billing · kept

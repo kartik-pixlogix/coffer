@@ -42,7 +42,7 @@ final class CompanySettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:120'],
+            'name' => ['required', 'string', 'max:60'],
             'legal_name' => ['nullable', 'string', 'max:160'],
             'gstin' => ['nullable', 'string', 'regex:'.self::GSTIN_PATTERN],
             'address' => ['nullable', 'string', 'max:500'],
@@ -65,6 +65,7 @@ final class CompanySettingsRequest extends FormRequest
     {
         return [
             'name.required' => 'Add the company’s name.',
+            'name.max' => 'Keep the company name to 60 characters.',
             'gstin.regex' => 'A GSTIN is 15 characters, like 27ABCDE1234F1Z5.',
             'short_code.regex' => 'Use 2–6 letters, like SPJV.',
             'working_days.between' => 'Pick at least one working day.',

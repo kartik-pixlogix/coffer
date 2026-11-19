@@ -68,7 +68,31 @@ final class Inbox
             }
         }
 
+        // F8/X9 (D116): "Approvals" counts what still needs this person's decision, not
+        // every approval notice (decided and rejected ones included); `actionable` lets the
+        // page say "N waiting for you" instead of "all caught up".
+        $counts['actionable'] = $this->actionable($user);
+        $counts['approvals'] = $counts['actionable'];
+
         return $counts;
+    }
+
+    /** Approval notices whose expense is still pending and this person may decide. */
+    public function actionable(User $user): int
+    {
+        $ids = $this->query($user, 'approvals')->limit(500)->get()
+            ->map(fn (DatabaseNotification $n) => $this->subject($n))
+            ->filter(fn (?array $s) => $s !== null && $s['type'] === 'expense')
+            ->map(fn (array $s) => $s['id'])
+            ->unique()->values()->all();
+
+        if ($ids === []) {
+            return 0;
+        }
+
+        return Expense::query()->with('payers')->whereKey($ids)->where('status', ExpenseStatus::Pending->value)->get()
+            ->filter(fn (Expense $e) => $user->can('decide', $e))
+            ->count();
     }
 
     /**
@@ -83,7 +107,7 @@ final class Inbox
             ->unique()
             ->values()
             ->all();
-        $expenses = $expenseIds === [] ? new Collection : Expense::query()->with('decider:id,name')->whereKey($expenseIds)->get()->keyBy('id');
+        $expenses = $expenseIds === [] ? new Collection : Expense::query()->with(['decider:id,name', 'payers'])->whereKey($expenseIds)->get()->keyBy('id');
         $timezone = $viewer->timezone;
 
         return array_values($rows->map(function (DatabaseNotification $n) use ($expenses, $viewer, $timezone): array {
@@ -91,12 +115,14 @@ final class Inbox
             $data = $n->data;
             $subject = $this->subject($n);
             $expense = $subject !== null && $subject['type'] === 'expense' ? $expenses->get($subject['id']) : null;
+            // N1 (D116): an expense deleted since says so instead of linking to nothing.
+            $gone = $subject !== null && in_array($subject['type'], ['expense', 'approved', 'rejected'], true) && ! $expenses->has($subject['id']);
 
             return [
                 'id' => $n->id,
                 'title' => (string) ($data['title'] ?? ''),
-                'body' => (string) ($data['body'] ?? ''),
-                'url' => (string) ($data['url'] ?? ''),
+                'body' => trim((string) ($data['body'] ?? '').($gone ? ' This expense was deleted.' : '')),
+                'url' => $gone ? '' : (string) ($data['url'] ?? ''),
                 'icon' => (string) ($data['icon'] ?? 'bell'),
                 'tone' => (string) ($data['tone'] ?? 'plain'),
                 'link' => (string) ($data['link'] ?? 'Open'),

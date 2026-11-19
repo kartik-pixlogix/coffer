@@ -67,7 +67,7 @@ class CompanyWizardRequest extends FormRequest
             $rules += [
                 'company' => ['required', 'array'],
                 'company.type' => ['required', Rule::enum(CompanyType::class)],
-                'company.name' => ['required', 'string', 'max:120'],
+                'company.name' => ['required', 'string', 'max:60'],
                 'company.short_code' => ['required', 'string', 'regex:/^[A-Z]{2,6}$/', $this->uniqueCode()],
                 'company.opening_balance' => ['nullable', $this->rupees()],
                 'company.currency' => ['required', Rule::in(self::CURRENCIES)],
@@ -107,6 +107,7 @@ class CompanyWizardRequest extends FormRequest
     {
         return [
             'company.name.required' => 'Add a company name.',
+            'company.name.max' => 'Keep the company name to 60 characters.',
             'company.short_code.required' => 'Add a short code of 2–6 letters.',
             'company.short_code.regex' => 'Use 2–6 letters, like VL or SPJV.',
             'sides.min' => 'A joint venture needs at least two sides.',

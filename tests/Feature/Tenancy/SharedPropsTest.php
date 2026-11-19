@@ -14,4 +14,13 @@ test('pages keep the shared permission props', function (string $route) {
         ->get(route($route))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->has('can.pages')->has('can.actions'));
-})->with(['vault.index', 'vault.requests', 'vault.health', 'vault.audit', 'vault.policies', 'partners.index', 'team.index', 'timesheets.index', 'timesheets.import', 'settings.projects', 'settings.categories', 'income.index', 'expenses.index', 'capital-accounts.index', 'partner-loans.index', 'settlements.index', 'dashboard', 'reports.index', 'reports.trial-balance', 'reports.balance-sheet', 'settings.company', 'notifications.index', 'settings.notifications', 'billing.index']);
+})->with(['vault.index', 'vault.requests', 'vault.health', 'vault.audit', 'vault.policies', 'partners.index', 'team.index', 'timesheets.index', 'timesheets.import', 'settings.projects', 'settings.categories', 'income.index', 'expenses.index', 'capital-accounts.index', 'partner-loans.index', 'dashboard', 'reports.index', 'reports.trial-balance', 'reports.balance-sheet', 'settings.company', 'notifications.index', 'settings.notifications', 'billing.index']);
+
+test('Settlements in a joint venture keeps the shared permission props (it is JV-only, P12)', function () {
+    $books = jvBooks();
+
+    $this->actingAs(userWithRole(CompanyRole::Admin, $books->company))
+        ->get(route('settlements.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->has('can.pages')->has('can.actions'));
+});

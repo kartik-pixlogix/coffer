@@ -116,9 +116,10 @@ final class CompanyController extends Controller
     public function uploadLogo(Request $request, CurrentCompany $current): RedirectResponse
     {
         $request->validate([
-            'logo' => ['required', 'file', 'mimes:png,jpg,jpeg,webp', 'max:2048', 'dimensions:min_width=256,min_height=256'],
+            'logo' => ['bail', 'required', 'file', 'mimes:png,jpg,jpeg,webp', 'max:2048', 'dimensions:min_width=256,min_height=256'],
         ], [
-            'logo.mimes' => 'Use a PNG, JPG or WebP image.',
+            // A5 (D116): an SVG (or anything else) gets this, never silence.
+            'logo.mimes' => 'Use a PNG, JPG or WebP image. SVG logos aren’t supported.',
             'logo.max' => 'The logo can be up to 2 MB.',
             'logo.dimensions' => 'The logo needs to be at least 256 px on each side.',
         ]);

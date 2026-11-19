@@ -7,6 +7,7 @@ namespace App\Services\Finance;
 use App\Ledger\FiscalYears;
 use App\Ledger\Period;
 use App\Models\Company;
+use App\Models\Expense;
 use App\Models\JournalEntry;
 use Carbon\CarbonImmutable;
 
@@ -29,6 +30,9 @@ final readonly class FiscalYearFilter
     {
         $today ??= CarbonImmutable::today();
         $first = JournalEntry::query()->withoutGlobalScope('company')->where('company_id', $company->id)->min('date');
+        // G11 (D116): a pending expense posts nothing yet; its year still belongs on the menu.
+        $pending = Expense::query()->withoutGlobalScope('company')->where('company_id', $company->id)->min('spent_on');
+        $first = $first === null ? $pending : ($pending === null ? $first : min((string) $first, (string) $pending));
         $from = FiscalYears::startOf($company, $first !== null ? CarbonImmutable::parse((string) $first) : $today);
         $to = FiscalYears::startOf($company, $today);
 

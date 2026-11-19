@@ -154,3 +154,28 @@ test('export downloads the statement as CSV', function () {
     expect($csv)->toContain('Partner,Side,"Equity (%)"')
         ->and($csv)->toContain('"Aarav Mehta",,60.00,0.00,200000.00,0.00,0.00,200000.00');
 });
+
+test('a drawing larger than the partner’s capital needs confirm_overdraw (F1)', function () {
+    $books = singleBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    $this->actingAs($admin)->post(route('capital-accounts.store'), capitalPayload($books, ['amount_paise' => 1_00_000_00]))->assertSessionHasNoErrors();
+
+    $drawing = capitalPayload($books, ['kind' => 'drawing', 'amount_paise' => 1_50_000_00, 'date' => '2026-05-01', 'note' => null]);
+
+    $this->actingAs($admin)->post(route('capital-accounts.store'), $drawing)
+        ->assertSessionHasErrors(['confirm_overdraw' => 'This takes Aarav Mehta’s capital below zero (it is ₹1,00,000 now). Tick “Record anyway” to go ahead.']);
+    expect(movementsOf($books->company))->toHaveCount(1);
+
+    // Within the capital, or confirmed: recorded.
+    $this->actingAs($admin)->post(route('capital-accounts.store'), [...$drawing, 'amount_paise' => 50_000_00])->assertSessionHasNoErrors();
+    $this->actingAs($admin)->post(route('capital-accounts.store'), [...$drawing, 'confirm_overdraw' => true])->assertSessionHasNoErrors();
+    expect(movementsOf($books->company))->toHaveCount(3);
+});
+
+test('a capital amount above the cap is refused (F1)', function () {
+    $books = singleBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+
+    $this->actingAs($admin)->post(route('capital-accounts.store'), capitalPayload($books, ['amount_paise' => 100_00_00_000_01]))
+        ->assertSessionHasErrors('amount_paise');
+});

@@ -14,6 +14,7 @@ use App\Models\Expense;
 use App\Models\Member;
 use App\Policies\ExpensePolicy;
 use App\Services\Finance\Attachments;
+use App\Support\BooksWindow;
 use App\Support\CurrentCompany;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
@@ -56,12 +57,12 @@ final class ExpenseRequest extends FormRequest
 
         return [
             'description' => ['required', 'string', 'max:200'],
-            'amount_paise' => ['required', 'integer', 'min:1', 'max:'.Money::MAX_PAISE],
-            'spent_on' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.CarbonImmutable::today()->addDays(31)->toDateString()],
+            'amount_paise' => ['required', 'integer', 'min:1', 'max:'.Money::maxPaise()],
+            'spent_on' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.CarbonImmutable::today()->addDays(31)->toDateString(), BooksWindow::rule($company)],
             'category_id' => ['nullable', 'required_without:new_category', 'integer',
                 Rule::exists('categories', 'id')->where('company_id', $company->id)->where('kind', CategoryKind::Expense->value)
                     ->where($keep('archived_at', $expense ? [$expense->category_id] : null))],
-            'new_category' => [$member ? 'prohibited' : 'nullable', 'string', 'max:60'],
+            'new_category' => ['nullable', ...($member ? ['prohibited'] : []), 'string', 'max:60'],
             'project_id' => ['nullable', 'required_if_accepted:billable', 'integer', Rule::exists('projects', 'id')->where('company_id', $company->id)
                 ->where(fn ($q) => $q->where('status', ProjectStatus::Active->value)->when($expense?->project_id, fn ($w, $id) => $w->orWhere('id', $id)))],
             'billable' => ['boolean'],
@@ -77,7 +78,22 @@ final class ExpenseRequest extends FormRequest
                 Rule::exists('members', 'id')->where('company_id', $company->id)->whereNull('deleted_at')],
             'payers.*.account_id' => ['nullable', 'required_if:payers.*.type,company', 'integer',
                 Rule::exists('money_accounts', 'id')->where('company_id', $company->id)->where($keep('archived_at', $payerAccounts))],
-            'payers.*.amount_paise' => ['required', 'integer', 'min:0'],
+            'payers.*.amount_paise' => ['required', 'integer', 'min:0', 'max:'.Money::maxPaise()],
+        ];
+    }
+
+    /**
+     * G12 (D116): friendly names in any framework message ("The payer amount field…").
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'amount_paise' => 'amount', 'spent_on' => 'date', 'category_id' => 'category', 'new_category' => 'new category',
+            'project_id' => 'project', 'payer_mode' => 'paid by', 'payers' => 'paid by',
+            'payers.*.type' => 'payer type', 'payers.*.partner_id' => 'payer partner', 'payers.*.member_id' => 'payer team member',
+            'payers.*.account_id' => 'payer account', 'payers.*.amount_paise' => 'payer amount', 'remove_receipt' => 'remove receipt',
         ];
     }
 
@@ -88,8 +104,11 @@ final class ExpenseRequest extends FormRequest
             'description.required' => 'Add a description.',
             'amount_paise.required' => 'Enter an amount.',
             'amount_paise.min' => 'Enter an amount.',
+            'amount_paise.max' => Money::maxMessage(),
+            'payers.*.amount_paise.max' => Money::maxMessage(),
             'spent_on.required' => 'Pick the date.',
             'spent_on.before_or_equal' => 'That date is too far ahead.',
+            'spent_on.after_or_equal' => BooksWindow::message(app(CurrentCompany::class)->require()),
             'category_id.required_without' => 'Pick a category.',
             'category_id.exists' => 'Pick an active expense category.',
             'new_category.prohibited' => 'Ask an Admin or partner to add categories.',

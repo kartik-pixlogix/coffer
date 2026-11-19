@@ -41,12 +41,7 @@ import { Select } from '@/components/ui/select';
 import { StatusPill } from '@/components/ui/status-pill';
 import { Tooltip } from '@/components/ui/tooltip';
 import { PHONE_QUERY, useMediaQuery } from '@/hooks/use-media-query';
-import {
-    formatDate,
-    formatIndianNumber,
-    formatInr,
-    toDate,
-} from '@/lib/format';
+import { countOf, formatDate, formatInr, toDate } from '@/lib/format';
 import { monthLong } from '@/lib/team';
 import {
     approve as approveRoute,
@@ -597,14 +592,14 @@ function DesktopExpenses({
                     title="Total expenses"
                     icon={Receipt}
                     paise={total}
-                    caption={`${fy.label} · ${formatIndianNumber(kpis.approvedCount + kpis.pendingCount)} entries`}
+                    caption={`${fy.label} · ${countOf(kpis.approvedCount + kpis.pendingCount, 'entry', 'entries')}`}
                 />
                 <KpiTile
                     headingLevel="h2"
                     title="Approved"
                     icon={Check}
                     paise={kpis.approvedPaise}
-                    caption={`${formatIndianNumber(kpis.approvedCount)} entries · rejected entries excluded`}
+                    caption={`${countOf(kpis.approvedCount, 'entry', 'entries')} · rejected entries excluded`}
                 />
                 <KpiTile
                     headingLevel="h2"

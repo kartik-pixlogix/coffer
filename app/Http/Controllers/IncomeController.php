@@ -116,6 +116,8 @@ final class IncomeController extends Controller
                 'projects' => Project::query()->orderBy('name')->get()
                     ->map(fn (Project $p) => ['id' => $p->id, 'name' => $p->name, 'active' => $p->status === ProjectStatus::Active])->values(),
                 'sources' => Income::query()->select('source')->groupBy('source')->orderByRaw('MAX(received_on) DESC')->limit(50)->pluck('source'),
+                // P1 (D116): "Brought in by" starts on the signed-in person's own partner, if any.
+                'myPartnerId' => Partner::query()->active()->where('user_id', $user->id)->value('id'),
             ],
             'abilities' => ['manage' => $user->can('action.income.manage')],
         ]);

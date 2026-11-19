@@ -37,12 +37,8 @@ final class SettlementsController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        if (! $company->isJv()) {
-            return Inertia::render('settlements/index', [
-                'company' => ['name' => $company->name, 'jv' => false],
-                'today' => now()->toDateString(),
-            ]);
-        }
+        // P12 (D116): Settlements is a joint-venture page; the menu hides it elsewhere.
+        abort_unless($company->isJv(), 404);
 
         $fy = FiscalYearFilter::for($company, $request->query('fy'));
         $closed = $years->closedYearFor($company, $fy->start) !== null;

@@ -118,8 +118,49 @@ final class ImportChecker
         }
 
         $this->duplicates($checked);
+        $this->dayCaps($checked);
 
         return $checked;
+    }
+
+    /**
+     * G4 (D116): imported day rows can't take a member past 24 h on a day, counting what's
+     * already logged and the rows above them in the file.
+     *
+     * @param  list<ImportRow>  $rows
+     */
+    private function dayCaps(array $rows): void
+    {
+        $ok = array_values(array_filter($rows, fn (ImportRow $r) => $r->ok() && ! $r->monthly && $r->date !== null && $r->centi !== null));
+
+        if ($ok === []) {
+            return;
+        }
+
+        $dates = array_map(fn (ImportRow $r) => (string) $r->date?->toDateString(), $ok);
+        $totals = [];
+
+        TimeEntry::query()->withoutGlobalScope('company')
+            ->whereIn('member_id', array_unique(array_map(fn (ImportRow $r) => $r->memberId, $ok)))
+            ->whereBetween('date', [min($dates), max($dates)])
+            ->get(['member_id', 'date', 'hours_centi'])
+            ->each(function (TimeEntry $e) use (&$totals): void {
+                $key = $e->member_id.'|'.$e->date->toDateString();
+                $totals[$key] = ($totals[$key] ?? 0) + $e->hours_centi;
+            });
+
+        foreach ($ok as $row) {
+            $key = $row->memberId.'|'.$row->date?->toDateString();
+            $total = ($totals[$key] ?? 0) + (int) $row->centi;
+
+            if ($total > Hours::MAX) {
+                $row->error = "That puts {$row->member} at ".Hours::format($total).' h on '.$row->date?->format('j M Y').'. A day holds at most 24 h across all entries.';
+
+                continue;
+            }
+
+            $totals[$key] = $total;
+        }
     }
 
     /** @param list<ImportRow> $rows */

@@ -146,7 +146,12 @@ final class VaultItemRequest extends FormRequest
             'toggle' => is_bool($value) || in_array($value, [0, 1, '0', '1', 'true', 'false'], true) ? null : $fail('Turn it on or off.'),
             'number' => is_numeric($value) && (int) $value >= 0 && (int) $value <= 1_000_000 ? null : $fail("{$field['label']} must be a number."),
             'select' => in_array($value, $field['options'] ?? [], true) ? null : $fail("Pick a {$field['label']}."),
-            'url' => is_string($value) && mb_strlen($value) <= 2048 && preg_match('#^(https?://)?[^\s]+$#i', $value) === 1 ? null : $fail('Enter a web address.'),
+            // V6 (D116): only http(s) addresses; javascript:, data: and the like are refused with a reason.
+            'url' => match (true) {
+                ! is_string($value) || mb_strlen($value) > 2048 || preg_match('#^(https?://)?[^\s]+$#i', $value) !== 1 => $fail('Enter a web address.'),
+                preg_match('#^[a-z][a-z0-9+.\-]*:(?!\d)#i', $value) === 1 && preg_match('#^https?://#i', $value) !== 1 => $fail('Use an http or https address.'),
+                default => null,
+            },
             'email' => is_string($value) && filter_var($value, FILTER_VALIDATE_EMAIL) !== false ? null : $fail('Enter an email address.'),
             default => is_string($value) && mb_strlen($value) <= 2048 ? null : $fail("{$field['label']} is too long."),
         };

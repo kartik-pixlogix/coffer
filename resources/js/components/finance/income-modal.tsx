@@ -92,7 +92,9 @@ export function IncomeModal({
         setErrors({});
 
         if (open) {
-            const first = String(partners[0]?.id ?? '');
+            // P1: the signed-in person's own partner (and so their side's account) first.
+            const mine = partners.find((p) => p.id === options.myPartnerId);
+            const first = String((mine ?? partners[0])?.id ?? '');
             setDraft(
                 income
                     ? {

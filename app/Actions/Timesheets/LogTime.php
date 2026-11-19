@@ -34,6 +34,7 @@ final class LogTime
     public function day(Company $company, User $actor, Member $member, CarbonImmutable $date, int $centi, array $details): Collection
     {
         $this->assertOpen($company, [$date]);
+        $this->assertDayCap($member, [$date->toDateString() => $centi]);
 
         return DB::transaction(fn () => collect([$this->create($member, $date, $centi, $details, null, $actor)]));
     }
@@ -55,6 +56,8 @@ final class LogTime
         }
 
         $this->assertOpen($company, $days);
+        $parts = Hours::distribute($totalCenti, count($days));
+        $this->assertDayCap($member, array_combine(array_map(fn (CarbonImmutable $d) => $d->toDateString(), $days), $parts));
 
         return $this->batch($member, $days, $totalCenti, $details, $actor);
     }
@@ -122,6 +125,44 @@ final class LogTime
     public function imported(Member $member, CarbonImmutable $date, int $centi, array $details, ?User $actor, int $importId): TimeEntry
     {
         return $this->create($member, $date, $centi, $details, null, $actor, $importId);
+    }
+
+    /**
+     * G4 (D116): a member's day holds at most 24 h across all their entries. `$adding` is
+     * date => hundredths being added; `$except` is an entry being edited (its old hours
+     * don't count). Refuses with the first day over, e.g. "That puts Rohan Desai at 26.0 h
+     * on 14 Nov 2026. A day holds at most 24 h across all entries."
+     *
+     * @param  array<string, int>  $adding
+     */
+    public function assertDayCap(Member $member, array $adding, ?int $except = null): void
+    {
+        $adding = array_filter($adding, fn (int $c) => $c > 0);
+
+        if ($adding === []) {
+            return;
+        }
+
+        $existing = TimeEntry::query()->withoutGlobalScope('company')
+            ->where('member_id', $member->id)
+            ->whereIn('date', array_keys($adding))
+            ->when($except, fn ($q, int $id) => $q->whereKeyNot($id))
+            ->groupBy('date')
+            ->selectRaw('date, SUM(hours_centi) as centi')
+            ->toBase()->get()
+            ->mapWithKeys(fn (object $r) => [CarbonImmutable::parse((string) $r->date)->toDateString() => (int) $r->centi]);
+
+        ksort($adding);
+
+        foreach ($adding as $date => $centi) {
+            $total = $centi + (int) ($existing[$date] ?? 0);
+
+            if ($total > Hours::MAX) {
+                $day = CarbonImmutable::parse($date)->format('j M Y');
+
+                throw ValidationException::withMessages(['hours' => "That puts {$member->name} at ".Hours::format($total)." h on {$day}. A day holds at most 24 h across all entries."]);
+            }
+        }
     }
 
     /** @param iterable<CarbonImmutable> $dates */

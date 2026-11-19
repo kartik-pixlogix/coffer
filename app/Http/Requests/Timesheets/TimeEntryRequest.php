@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Timesheets;
 
+use App\Enums\CompanyRole;
 use App\Enums\MemberStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Member;
@@ -95,7 +96,8 @@ final class TimeEntryRequest extends FormRequest
     {
         return [
             'project_id' => $this->integer('project_id'),
-            'partner_id' => $this->filled('partner_id') ? $this->integer('partner_id') : null,
+            // M3 (D116): a Member's hours bill to their assigned partner, whatever is sent.
+            'partner_id' => $this->filled('partner_id') && app(CurrentCompany::class)->role() !== CompanyRole::Member ? $this->integer('partner_id') : null,
             'billable' => $this->boolean('billable', true),
             'notes' => $this->filled('notes') ? trim($this->string('notes')->toString()) : null,
         ];

@@ -155,23 +155,22 @@ test('validation: two different sides of this JV, an amount and a date', functio
 test('a closed fiscal year blocks recording, editing and deleting', function () {
     $books = settlementBooks();
     $admin = userWithRole(CompanyRole::Admin, $books->company);
-    $this->actingAs($admin)->post(route('settlements.store'), transferPayload($books, ['date' => '2025-12-01']));
+    $this->actingAs($admin)->post(route('settlements.store'), transferPayload($books, ['date' => '2025-12-01', 'confirm_over' => true]));
     $transfer = transfersOf($books->company)->sole();
 
     app(FiscalYears::class)->forDate($books->company, CarbonImmutable::parse('2025-12-01'))->update(['closed_at' => now()]);
     $locked = 'FY 2025-26 is closed, so nothing dated inside it can change. An Admin can reopen it in Settings.';
 
-    $this->actingAs($admin)->post(route('settlements.store'), transferPayload($books, ['date' => '2026-01-01']))->assertSessionHasErrors(['date' => $locked]);
-    $this->actingAs($admin)->put(route('settlements.update', $transfer), transferPayload($books))->assertSessionHasErrors(['date' => $locked]);
+    $this->actingAs($admin)->post(route('settlements.store'), transferPayload($books, ['date' => '2026-01-01', 'confirm_over' => true]))->assertSessionHasErrors(['date' => $locked]);
+    $this->actingAs($admin)->put(route('settlements.update', $transfer), transferPayload($books, ['confirm_over' => true]))->assertSessionHasErrors(['date' => $locked]);
     $this->actingAs($admin)->delete(route('settlements.destroy', $transfer))->assertSessionHasErrors(['date' => $locked]);
 });
 
-test('a Single company sees the empty state and can’t record transfers', function () {
+test('a Single company has no Settlements page (404, as the menu hides it) and can’t record transfers (P12)', function () {
     $books = singleBooks();
     $admin = userWithRole(CompanyRole::Admin, $books->company);
 
-    $this->actingAs($admin)->get(route('settlements.index'))
-        ->assertInertia(fn (Assert $page) => $page->component('settlements/index')->where('company.jv', false)->where('company.name', 'Vertex Labs Pvt Ltd')->missing('sides'));
+    $this->actingAs($admin)->get(route('settlements.index'))->assertNotFound();
     $this->actingAs($admin)->post(route('settlements.store'), ['from_side_id' => 1, 'to_side_id' => 2, 'amount_paise' => 100, 'date' => '2026-11-15'])
         ->assertSessionHasErrors(['from_side_id', 'to_side_id']);
 });
@@ -187,4 +186,22 @@ test('another company’s transfers are not found', function () {
     $this->actingAs($admin)->delete(route('settlements.destroy', $theirs))->assertNotFound();
     $this->actingAs($admin)->get(route('settlements.index'))->assertInertia(fn (Assert $page) => $page->has('transfers', 0));
     expect(Side::query()->withoutGlobalScopes()->count())->toBe(4);
+});
+
+test('a transfer above what is owed needs confirm_over (F7)', function () {
+    $books = settlementBooks();
+    $admin = userWithRole(CompanyRole::Admin, $books->company);
+    app(Postings::class)->expense($books->company, fyDay(20), category($books->company, 'expense', 'Software'), [PayerLine::partner(50_000_00, $books->meera)]);
+
+    // Vertex Labs owes Bluefin ₹4,25,000.
+    $this->actingAs($admin)->post(route('settlements.store'), transferPayload($books, ['amount_paise' => 5_00_000_00]))
+        ->assertSessionHasErrors(['confirm_over' => 'That is more than is owed (₹4,25,000). Tick “Record anyway” to record it as it is.']);
+    expect(transfersOf($books->company))->toHaveCount(0);
+
+    $this->actingAs($admin)->post(route('settlements.store'), transferPayload($books, ['amount_paise' => 5_00_000_00, 'confirm_over' => true]))
+        ->assertSessionHasNoErrors();
+
+    // Editing counts the transfer being edited as owed again.
+    $transfer = transfersOf($books->company)->sole();
+    $this->actingAs($admin)->put(route('settlements.update', $transfer), transferPayload($books, ['amount_paise' => 4_00_000_00]))->assertSessionHasNoErrors();
 });

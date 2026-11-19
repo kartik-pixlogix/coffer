@@ -255,3 +255,17 @@ test('monthly hours by hand spread each row over the month', function () {
         'rows' => [['member_id' => $t->rohan->id, 'hours' => '999', 'project_id' => $internal->id]],
     ])->assertSessionHasErrors(['rows.0.hours' => 'That’s more than 24 h a day over 21 working days.']);
 });
+
+test('imported rows can’t take a member past 24 h on a day (G4)', function () {
+    $t = importCompany();
+    $project = Project::query()->withoutGlobalScope('company')->where('company_id', $t->company->id)->where('name', 'Saarthi portal')->firstOrFail();
+    TimeEntry::query()->create(['company_id' => $t->company->id, 'member_id' => $t->rohan->id, 'partner_id' => $t->rohan->partner_id, 'project_id' => $project->id, 'date' => '2026-10-01', 'hours_centi' => 1600, 'billable' => true]);
+
+    $import = uploadCsv($t, "developer,date,hours,project\nRohan Desai,1-Oct-26,6,Saarthi portal\nRohan Desai,1-Oct-26,3,Internal\n");
+    $this->actingAs($t->admin)->put(route('timesheets.import.mapping', $import), ['mapping' => $import->mapping]);
+
+    $this->actingAs($t->admin)->get(route('timesheets.import', ['import' => $import->id, 'step' => 'preview']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('import.preview.rows.0.error', null)
+            ->where('import.preview.rows.1.error', 'That puts Rohan Desai at 25.0 h on 1 Oct 2026. A day holds at most 24 h across all entries.'));
+});

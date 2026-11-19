@@ -213,7 +213,16 @@ final class VaultItemController extends Controller
             return back();
         }
 
+        // V7 (D116): a version carries its secrets, so restoring one needs a fresh step-up,
+        // like a reveal.
+        if (! $this->session->isVerified()) {
+            Inertia::flash('toast', ['type' => 'warning', 'message' => 'Restoring brings back old passwords. Enter a fresh 2FA code (reveal any password to be asked), then restore again.']);
+
+            return back();
+        }
+
         $restore->handle($user, $item, $old);
+        $this->session->spendStepUp();
         Inertia::flash('toast', ['type' => 'success', 'message' => "Version {$version} restored as version {$item->version}"]);
 
         return redirect()->route('vault.index', ['item' => $item->id]);

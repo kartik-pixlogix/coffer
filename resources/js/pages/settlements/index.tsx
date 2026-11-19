@@ -374,8 +374,10 @@ function JointVenture(props: JvProps) {
                     </div>
                     <p className="t-body t-muted m-0">
                         A side that holds more cash than it’s entitled to owes
-                        the difference to the other side. Record the bank
-                        transfer here once it’s made.
+                        the difference to the other side.{' '}
+                        {abilities.record
+                            ? 'Record the bank transfer here once it’s made.'
+                            : 'An Admin records the bank transfer here once it’s made.'}
                     </p>
                 </article>
             </section>

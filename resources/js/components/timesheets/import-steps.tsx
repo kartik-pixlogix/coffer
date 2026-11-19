@@ -20,7 +20,7 @@ import { KpiTile } from '@/components/ui/kpi-tile';
 import { Pager } from '@/components/ui/pagination';
 import { StatusPill } from '@/components/ui/status-pill';
 import { useToast } from '@/components/ui/toast';
-import { formatIndianNumber } from '@/lib/format';
+import { countOf, formatIndianNumber } from '@/lib/format';
 import { formatCenti } from '@/lib/hours';
 import {
     commit as commitImport,
@@ -442,7 +442,7 @@ export function PreviewStep({ data }: { data: ImportData }) {
             data.result
         ) {
             toast.success(
-                `${formatIndianNumber(data.result.imported)} entries imported · ${formatCenti(data.result.centi)} h added`,
+                `${countOf(data.result.imported, 'entry', 'entries')} imported · ${formatCenti(data.result.centi)} h added`,
             );
         }
 
@@ -729,7 +729,7 @@ function ImportResult({ data }: { data: ImportData }) {
                             Imported
                         </StatusPill>
                         <h2 className="t-heading m-0">
-                            {formatIndianNumber(result.imported)} entries
+                            {countOf(result.imported, 'entry', 'entries')}{' '}
                             imported · {formatCenti(result.centi)} h added
                         </h2>
                         {result.skipped > 0 && (

@@ -206,3 +206,38 @@ test('old notifications are pruned after 30 days', function () {
     $this->artisan('coffer:notifications-prune')->expectsOutput('Deleted 1 old notifications.')->assertSuccessful();
     expect(DatabaseNotification::query()->count())->toBe(1);
 });
+
+test('several approvals load without lazy loads; counts are what still needs a decision; deleted expenses say so (P5, F8, X9, N1)', function () {
+    $books = jvBooks();
+    $kabir = userWithRole(CompanyRole::Partner, $books->company, ['name' => 'Kabir Shah']);
+    $rohanUser = userWithRole(CompanyRole::Member, $books->company, ['name' => 'Rohan Desai']);
+    $rohan = Member::factory()->create(['partner_id' => $books->aarav->id, 'user_id' => $rohanUser->id, 'rate_paise' => 500_00]);
+
+    foreach (['Uber to Asha Retail', 'Lunch with Kiran Exports', 'Printer ink'] as $description) {
+        $this->actingAs($rohanUser)->post(route('expenses.store'), [
+            'description' => $description, 'amount_paise' => 640_00, 'spent_on' => '2026-10-12',
+            'category_id' => category($books->company, 'expense', 'Travel')->id, 'payer_mode' => 'full',
+            'payers' => [['type' => 'member', 'member_id' => $rohan->id, 'account_id' => null, 'amount_paise' => 640_00]],
+        ])->assertSessionHasNoErrors();
+    }
+    [$first, $second, $third] = Expense::query()->withoutGlobalScopes()->orderBy('id')->get()->all();
+
+    $this->actingAs($kabir)->get(route('notifications.index'))->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->where('counts.actionable', 3)->where('counts.approvals', 3));
+
+    $this->actingAs($kabir)->post(route('expenses.approve', $first))->assertRedirect();
+    $this->actingAs($kabir)->post(route('expenses.reject', $second), ['reason' => 'Not a JV cost'])->assertRedirect();
+    DatabaseNotification::query()->where('notifiable_id', $kabir->id)->update(['read_at' => now()]);
+
+    // Read but still waiting: not "all caught up".
+    $this->actingAs($kabir)->get(route('notifications.index'))
+        ->assertInertia(fn (Assert $page) => $page->where('counts.unread', 0)->where('counts.actionable', 1)->where('counts.approvals', 1));
+
+    $this->actingAs($rohanUser)->delete(route('expenses.destroy', $third))->assertRedirect();
+
+    $rows = $this->actingAs($kabir)->getJson(route('notifications.panel'))->assertOk()->json('items');
+    $gone = collect($rows)->first(fn (array $r) => str_contains($r['body'], 'This expense was deleted.'));
+    expect($gone)->not->toBeNull()
+        ->and($gone['url'])->toBe('')
+        ->and($gone['canDecide'])->toBeFalse();
+});
