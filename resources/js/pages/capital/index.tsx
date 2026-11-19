@@ -96,7 +96,7 @@ export default function CapitalAccounts(props: Props) {
         {
             key: 'partner',
             header: 'Partner',
-            width: 'minmax(180px,1.4fr)',
+            width: 'minmax(230px,1.6fr)',
             className: 'cf-row t-label-strong',
             cell: (r) => (
                 <>

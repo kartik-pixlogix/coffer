@@ -567,7 +567,8 @@ export function measurePage(options) {
             // Popovers and fixed/sticky bars float over content by design.
             if (
                 floating(a.el) !== floating(b.el) ||
-                pinned(a.el) !== pinned(b.el)
+                pinned(a.el) !== pinned(b.el) ||
+                stickyOf(a.el) !== stickyOf(b.el)
             ) {
                 continue;
             }
@@ -759,8 +760,12 @@ export function measureDialogs() {
             },
         );
         const room = vh - 48;
+        // Only modal dialogs and drawers should grow; popovers keep their own height.
+        const modal =
+            dialog.getAttribute('aria-modal') === 'true' ||
+            dialog.matches('.cf-modal, .cf-drawer, [role="alertdialog"]');
 
-        if (scrollers.length && rect.height < room - 24 && vw > 640) {
+        if (modal && scrollers.length && rect.height < room - 24 && vw > 640) {
             findings.push({
                 kind: 'dialog-capped',
                 selector: dialog.className.toString().slice(0, 60),
@@ -776,7 +781,8 @@ export function measureDialogs() {
             if (
                 (style.overflowX === 'auto' || style.overflowX === 'scroll') &&
                 el.scrollWidth > el.clientWidth + 1 &&
-                !el.closest('[data-qa-hscroll-ok]')
+                // One-row strips that scroll sideways by design (D127).
+                !el.closest('[data-qa-hscroll-ok], .cf-tabs, .cf-scroll-row')
             ) {
                 findings.push({
                     kind: 'dialog-hscroll',

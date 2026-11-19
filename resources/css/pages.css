@@ -5774,7 +5774,8 @@ a.lp-pillar:not(#\#):hover {
 
 /* Feature, security, contact and legal pages: Landing sections (DESIGN_MAP). */
 .lp-page-hero:not(#\#) {
-    padding: 48px 0 56px;
+    padding-top: 48px;
+    padding-bottom: 56px;
 }
 
 .lp-page-hero--center:not(#\#) {
@@ -6899,6 +6900,11 @@ a.lp-pillar:not(#\#):hover {
     .app-page:not(#\#) .cf-topbar-l .cf-search > :not(svg) {
         display: none;
     }
+
+    /* The account pill keeps its avatar; the name is in its menu. */
+    .app-page:not(#\#) .cf-account > .cf-stack {
+        display: none;
+    }
 }
 
 /*
@@ -7053,7 +7059,7 @@ a.lp-pillar:not(#\#):hover {
         gap: 8px;
     }
 
-    .cf-table--stack:not(#\#) > .cf-thead {
+    .cf-table--stack:not(#\#) > .cf-tr.cf-thead {
         display: none;
     }
 
@@ -7250,9 +7256,9 @@ a.lp-pillar:not(#\#):hover {
     }
 }
 
-/* The dashboard preview's KPI tiles: one column on small phones so figures never clip. */
+/* "See each part": the preview's KPI tiles take one column on small phones so the
+   figures never clip; the hero window keeps two columns (its height is fixed). */
 @media (max-width: 420px) {
-    .lp-kpis:not(#\#),
     .lp-kpis--2:not(#\#) {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -7375,4 +7381,117 @@ a.lp-pillar:not(#\#):hover {
 /* A payer row holding only the account select gives it the row (Direct company). */
 .ex-payer:not(#\#) > .ex-from:only-child {
     flex: 1 1 auto;
+}
+
+/* Capital: the two ledgers sit side by side only when each has room for its
+   descriptions (X7: three or four lines each at 1150 px); otherwise one a row. */
+.ca-ledger:not(#\#) {
+    flex-basis: 560px;
+}
+
+/* Feature previews on small phones: the value and its pill wrap under the label
+   instead of running past the card (D6). */
+.lp-prev-row:not(#\#) {
+    flex-wrap: wrap;
+}
+
+.lp-prev-row:not(#\#) > .cf-stack {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.lp-prev-val:not(#\#) {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+/* Team cards fit a 320 px phone (the 280 px minimum ran past their panel). */
+.team-grid:not(#\#) {
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+}
+
+/* Sign-in panel on small phones: the sample balance shrinks to its card. */
+@media (max-width: 400px) {
+    .auth-preview:not(#\#) .t-figure-hero {
+        font-size: 34px;
+        line-height: 40px;
+    }
+}
+
+/* The drifting lights are decoration: never in the way of a pointer. */
+.auth-blob:not(#\#) {
+    pointer-events: none;
+}
+
+/* Drawers sit over the scrim at full height (D122): the share drawer no longer
+   starts under the page header, and a content-height drawer never runs off screen. */
+.vs-drawer:not(#\#) {
+    top: 20px;
+}
+
+.cf-drawer--float:not(#\#) {
+    max-height: calc(100dvh - 40px);
+}
+
+/* Reports' lime Net profit figure shrinks to its card like the KPI tiles (R6). */
+.rp-kpis:not(#\#) > article {
+    container-type: inline-size;
+    min-width: 0;
+}
+
+.rp-kpis:not(#\#) > article .t-money-lg {
+    font-size: clamp(
+        20px,
+        calc((100cqi - 60px) / (var(--cf-money-len, 8) * 0.62)),
+        36px
+    );
+    line-height: 1.12;
+}
+
+/* Phones: the Log hours card sits under the preview window, not over its figures (D7). */
+@media (max-width: 640px) {
+    .lp-stage:not(#\#) {
+        height: 450px;
+    }
+
+    .lp-float--hours:not(#\#) {
+        top: auto;
+        bottom: 0;
+    }
+}
+
+/* Access requests: the inline level pill doesn't ride over the wrapped line above. */
+.vq-rq-text:not(#\#) > .t-body {
+    line-height: 28px;
+}
+
+.vq-rq-text:not(#\#) > .t-body .cf-pill {
+    vertical-align: middle;
+}
+
+/* Page heroes keep the section's side padding (W6: no left margin at ~1150 px) and
+   their space below on phones, where `.lp-in`'s shorthand reset it (R5: the contact
+   intro ran into "We reply by email"). */
+@media (max-width: 640px) {
+    .lp-page-hero:not(#\#) {
+        padding-top: 32px;
+        padding-bottom: 40px;
+    }
+}
+
+/*
+ * Sign in / sign up (W5): the form and the lime panel stay side by side down to about
+ * 940 px, so at ~1150 px (with a scrollbar) the footer no longer lands mid-page above
+ * the panel. Stacked, the panel only takes the height its content needs.
+ */
+.auth-main:not(#\#),
+.auth-aside:not(#\#) {
+    flex-basis: 440px;
+}
+
+@media (max-width: 940px) {
+    .auth-aside:not(#\#) {
+        min-height: 0;
+    }
 }

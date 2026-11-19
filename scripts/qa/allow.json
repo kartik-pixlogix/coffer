@@ -1,4 +1,21 @@
 {
     "about": "Sweep findings that are intended, each with the reason (docs/QA.md). Match on kind plus any of page, selector, text, detail (substrings), minWidth, maxWidth.",
-    "allow": []
+    "allow": [
+        {
+            "kind": "overlap",
+            "page": "/",
+            "selector": "lp-kpi",
+            "detail": "lp-float",
+            "minWidth": 641,
+            "reason": "Landing hero (Landing.dc.html): the floating GitHub code card overlaps the preview window's corner by design; the stage is one role=img with a full description."
+        },
+        {
+            "kind": "occluded",
+            "page": "/",
+            "selector": "lp-kpi",
+            "detail": "lp-float",
+            "minWidth": 641,
+            "reason": "Landing hero (Landing.dc.html): the floating GitHub code card sits over the preview window's corner by design."
+        }
+    ]
 }

@@ -42,7 +42,7 @@ function Preview({ preview }: { preview: FeatureSection['preview'] }) {
             {preview.rows.map((row) => (
                 <div
                     key={row.label}
-                    className="cf-card cf-kv"
+                    className="cf-card cf-kv lp-prev-row"
                     style={{ alignItems: 'center', gap: 12 }}
                 >
                     <span className="cf-stack">
@@ -51,7 +51,7 @@ function Preview({ preview }: { preview: FeatureSection['preview'] }) {
                             <span className="t-caption t-muted">{row.sub}</span>
                         )}
                     </span>
-                    <span className="cf-row" style={{ gap: 8 }}>
+                    <span className="cf-row lp-prev-val" style={{ gap: 8 }}>
                         <span className="t-money-sm">{row.value}</span>
                         {row.pill && (
                             <span

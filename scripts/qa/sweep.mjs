@@ -113,19 +113,28 @@ function record(context, items) {
     }
 }
 
+let lastCode = null;
+
+/**
+ * The demo accounts' current 2FA code. A code is accepted once (D108), so when the
+ * last one we typed is still current, wait for the next 30-second window.
+ */
 function demoCode() {
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 6; attempt++) {
         const output = execFileSync(php, ['artisan', 'coffer:demo-2fa'], {
             cwd: root,
             encoding: 'utf8',
         });
         const match = output.match(/(\d{6})\s+\(valid for (\d+)/);
 
-        if (match && Number(match[2]) >= 4) {
+        if (match && Number(match[2]) >= 4 && match[1] !== lastCode) {
+            lastCode = match[1];
+
             return match[1];
         }
 
-        execFileSync(process.execPath, ['-e', 'setTimeout(()=>{},5000)']);
+        const wait = match ? (Number(match[2]) + 1) * 1000 : 5000;
+        execFileSync(process.execPath, ['-e', `setTimeout(()=>{},${wait})`]);
     }
 
     throw new Error('Could not read the demo 2FA code.');
@@ -225,8 +234,11 @@ async function unlockVault(page) {
         )
     ) {
         await typeCode(page);
-        await sleep(1500);
-        console.log('  vault unlocked');
+        await sleep(2000);
+        const locked = await page.evaluate(
+            "!!document.querySelector('.vh-lock-card')",
+        );
+        console.log(locked ? '  vault still locked' : '  vault unlocked');
     }
 }
 
