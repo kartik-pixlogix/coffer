@@ -19,6 +19,7 @@ use App\Services\Timesheets\Hours;
 use App\Support\CurrentCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -173,7 +174,11 @@ final class TimesheetsController extends Controller
             ->withProperties(['entries' => $entries->count(), 'hours_centi' => $centi])
             ->log('logged hours');
 
-        $this->flashLogged($member, $entries->pluck('date')->all(), Hours::format($centi).' h logged for '.$member->name);
+        $fullMonth = $request->input('mode') === 'month'
+            ? LogTime::fullMonthWarning($company, $member, $request->monthStart(), $request->boolean('saturdays'))
+            : null;
+
+        $this->flashLogged($member, $entries->pluck('date')->all(), Hours::format($centi).' h logged for '.$member->name, $fullMonth);
 
         return back();
     }
@@ -206,6 +211,37 @@ final class TimesheetsController extends Controller
         return back();
     }
 
+    /**
+     * A4 (D137): the hours a member already has in a month, per day, so Log hours' month
+     * preview can show them, warn past a full month and mirror the 24 h day cap. JSON.
+     */
+    public function monthHours(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'member' => ['required', 'integer'],
+            'month' => ['required', 'date_format:Y-m'],
+        ]);
+
+        $member = Member::query()->findOrFail((int) $data['member']);
+        Gate::authorize('create', [TimeEntry::class, $member]);
+        $month = $this->monthFrom($data['month']) ?? abort(422);
+
+        $days = TimeEntry::query()
+            ->where('member_id', $member->id)
+            ->whereBetween('date', [$month->toDateString(), $month->endOfMonth()->toDateString()])
+            ->groupBy('date')
+            ->selectRaw('date, SUM(hours_centi) as centi, COUNT(*) as n')
+            ->toBase()->get();
+
+        return response()->json([
+            'memberId' => $member->id,
+            'month' => $month->format('Y-m'),
+            'totalCenti' => (int) $days->sum('centi'),
+            'entries' => (int) $days->sum('n'),
+            'days' => (object) $days->mapWithKeys(fn (object $r) => [CarbonImmutable::parse((string) $r->date)->toDateString() => (int) $r->centi])->all(),
+        ]);
+    }
+
     /** Delete one entry, or with `?batch=1` every entry logged with it (spec §8.1). */
     public function destroy(Request $request, TimeEntry $entry, CurrentCompany $current, LogTime $log): RedirectResponse
     {
@@ -231,9 +267,9 @@ final class TimesheetsController extends Controller
     }
 
     /** @param iterable<CarbonImmutable> $dates */
-    private function flashLogged(Member $member, iterable $dates, string $message): void
+    private function flashLogged(Member $member, iterable $dates, string $message, ?string $warning = null): void
     {
-        $warning = LogTime::longDayWarning($member, $dates);
+        $warning = $warning ?? LogTime::longDayWarning($member, $dates);
 
         // M2 (D116): hours in a month whose salary is posted re-run it (queued); say so.
         $months = app(SalaryRecalc::class)->months();

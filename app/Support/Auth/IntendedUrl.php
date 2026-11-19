@@ -19,7 +19,7 @@ final class IntendedUrl
     /** Route names that are files, exports or JSON, never a page to land on. */
     private const array NOT_PAGES = [
         '*.export', '*.export.*', '*.exports.*', '*export*', '*download*', '*.template', '*.errors',
-        'vault.attachments.*', '*.receipt', '*.receipts.*', 'two-factor.*', 'notifications.panel',
+        'vault.attachments.*', '*.receipt', '*.receipts.*', 'two-factor.*', 'notifications.panel', 'timesheets.month-hours',
         'search', 'search.*', 'logout', 'password.confirmation', 'vault.items.share', 'vault.vaults.share',
     ];
 

@@ -140,6 +140,7 @@ export default function Timesheets(props: Props) {
                         today={props.today}
                         day={props.week.day}
                         workingDays={props.company.workingDays}
+                        hoursPerDayCenti={props.company.hoursPerDayCenti}
                     />
                 ) : (
                     <LogHoursModal

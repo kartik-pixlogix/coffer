@@ -10,6 +10,8 @@ Route::middleware(['auth', 'verified', 'company', 'page:timesheets'])->prefix('t
     Route::post('/', [TimesheetsController::class, 'store'])->middleware('throttle:120,1')->name('timesheets.store');
     Route::put('entries/{entry}', [TimesheetsController::class, 'update'])->name('timesheets.update');
     Route::delete('entries/{entry}', [TimesheetsController::class, 'destroy'])->name('timesheets.destroy');
+    // A4 (D137): a member's hours already in a month, for Log hours' month preview (JSON).
+    Route::get('month-hours', [TimesheetsController::class, 'monthHours'])->middleware('throttle:120,1')->name('timesheets.month-hours');
 
     // Bulk import (spec §8.2).
     Route::get('import', [TimesheetImportController::class, 'index'])->name('timesheets.import');

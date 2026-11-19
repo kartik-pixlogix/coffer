@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
+import { MonthSoFar } from '@/components/timesheets/log-hours-modal';
 import { useLogDraft } from '@/components/timesheets/use-log-draft';
 import type { LogMode } from '@/components/timesheets/use-log-draft';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ type Props = {
     /** The day picked in the week strip. */
     day: string;
     workingDays: number;
+    /** The company's standard day, for the full-month warning (A4). */
+    hoursPerDayCenti?: number;
 };
 
 const STEP = 50;
@@ -54,6 +57,7 @@ export function LogHoursSheet({
     today,
     day,
     workingDays,
+    hoursPerDayCenti,
 }: Props) {
     const form = useLogDraft(
         {
@@ -63,6 +67,7 @@ export function LogHoursSheet({
                 options.projects.find((p) => p.active)?.id ?? null,
             today: day,
             workingDays,
+            hoursPerDayCenti,
             defaultHours: '7.5',
         },
         open,
@@ -232,6 +237,13 @@ export function LogHoursSheet({
                             ? `${days} working days → ${((centi ?? 0) / 100 / days).toFixed(2)} hrs/day`
                             : `Enter the month’s total to spread it over ${days} working days.`}
                     </div>
+                    <MonthSoFar
+                        month={draft.month}
+                        existing={form.existing}
+                        totalCenti={form.monthTotalCenti}
+                        fullCenti={form.fullMonthCenti}
+                        over={form.overMonth}
+                    />
                 </>
             )}
 

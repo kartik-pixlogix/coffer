@@ -301,3 +301,46 @@ test('editing hours in a month whose salary is posted says it will be recalculat
     $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['date' => '2026-10-15']))
         ->assertInertiaFlash('toast.message', '7.5 h logged for Rohan Desai. October 2026 salary will be recalculated');
 });
+
+test('month mode shows the member’s hours already in the month and warns past a full month (A4)', function () {
+    $t = timesheetCompany();
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['hours' => '20']))->assertSessionHasNoErrors();
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['date' => '2026-11-13', 'hours' => '4']))->assertSessionHasNoErrors();
+    // October and another member don't count.
+    $this->actingAs($t->admin)->post(route('timesheets.store'), dayPayload($t, ['date' => '2026-10-30', 'hours' => '8']))->assertSessionHasNoErrors();
+
+    $this->actingAs($t->admin)->getJson(route('timesheets.month-hours', ['member' => $t->rohan->id, 'month' => '2026-11']))
+        ->assertOk()
+        ->assertExactJson([
+            'memberId' => $t->rohan->id,
+            'month' => '2026-11',
+            'totalCenti' => 2400,
+            'entries' => 2,
+            'days' => ['2026-11-13' => 400, '2026-11-14' => 2000],
+        ]);
+
+    // 21 weekdays × 8 h = 168 h is a full month; 24 h already there plus 150 h passes it.
+    $this->actingAs($t->admin)->post(route('timesheets.store'), [
+        'member_id' => $t->rohan->id, 'mode' => 'month', 'month' => '2026-11', 'hours' => '150',
+        'project_id' => $t->project->id, 'billable' => true,
+    ])->assertSessionHasNoErrors()
+        ->assertInertiaFlash('toast.type', 'warning')
+        ->assertInertiaFlash('toast.message', '150.0 h logged for Rohan Desai. Rohan Desai now has 174.0 h in November 2026, more than a full month (168.0 h).');
+});
+
+test('the month’s hours follow the timesheet rules: Members only their own, no Viewers, no other company (A4)', function () {
+    $t = timesheetCompany();
+    $user = userWithRole(CompanyRole::Member, $t->company);
+    $t->rohan->update(['user_id' => $user->id]);
+    $neha = Member::factory()->create(['partner_id' => $t->ishita->id, 'name' => 'Neha Joshi']);
+    $other = timesheetCompany();
+    $url = fn (Member $m, string $month = '2026-11') => route('timesheets.month-hours', ['member' => $m->id, 'month' => $month]);
+
+    $this->actingAs($user)->getJson($url($t->rohan))->assertOk()->assertJsonPath('totalCenti', 0)->assertJsonPath('days', []);
+    $this->actingAs($user)->getJson($url($neha))->assertForbidden();
+    $this->actingAs(userWithRole(CompanyRole::Partner, $t->company))->getJson($url($neha))->assertOk();
+    $this->actingAs(userWithRole(CompanyRole::Viewer, $t->company))->getJson($url($t->rohan))->assertForbidden();
+    $this->actingAs($t->admin)->getJson($url($other->rohan))->assertNotFound();
+    $this->actingAs($t->admin)->getJson($url($t->rohan, 'November'))->assertUnprocessable()->assertJsonValidationErrors('month');
+    $this->actingAs($t->admin)->getJson(route('timesheets.month-hours', ['month' => '2026-11']))->assertJsonValidationErrors('member');
+});

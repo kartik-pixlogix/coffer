@@ -1,7 +1,10 @@
 import { ArrowRight, Clock, TriangleAlert } from 'lucide-react';
 import { useId } from 'react';
 import { useLogDraft } from '@/components/timesheets/use-log-draft';
-import type { LogMode } from '@/components/timesheets/use-log-draft';
+import type {
+    LogMode,
+    MonthHours,
+} from '@/components/timesheets/use-log-draft';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Field, FieldError, useFieldIds } from '@/components/ui/field';
@@ -12,6 +15,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Toggle } from '@/components/ui/toggle';
+import { countOf, formatMonth } from '@/lib/format';
 import { formatCenti, perDayLabel } from '@/lib/hours';
 import { cn } from '@/lib/utils';
 import type { TimeEntry, TimesheetOptions } from '@/types/timesheets';
@@ -57,6 +61,7 @@ export function LogHoursModal({
                 null,
             today,
             workingDays,
+            hoursPerDayCenti,
         },
         open,
         () => onOpenChange(false),
@@ -227,6 +232,16 @@ export function LogHoursModal({
                 </div>
             )}
 
+            {draft.mode === 'month' && (
+                <MonthSoFar
+                    month={draft.month}
+                    existing={form.existing}
+                    totalCenti={form.monthTotalCenti}
+                    fullCenti={form.fullMonthCenti}
+                    over={form.overMonth}
+                />
+            )}
+
             {form.longDay && (
                 <p className="cf-help lh-warn" role="status">
                     <Icon icon={TriangleAlert} size={14} />
@@ -280,5 +295,54 @@ export function LogHoursModal({
                 error={errors.notes}
             />
         </Modal>
+    );
+}
+
+type MonthSoFarProps = {
+    /** "YYYY-MM" */
+    month: string;
+    existing: MonthHours | null;
+    /** Existing hours plus what is being logged. */
+    totalCenti: number | null;
+    /** Working days × the standard day, when the company has one. */
+    fullCenti: number | null;
+    over: boolean;
+};
+
+/**
+ * A4 (D137): month mode adds on top of what the member already has in the month:
+ * "Already in Nov 2026: 40.0 h over 5 entries · 97.33 h with this, of 168.0 h", and a
+ * warning when the month would pass a full month. Nothing while it loads.
+ */
+export function MonthSoFar({
+    month,
+    existing,
+    totalCenti,
+    fullCenti,
+    over,
+}: MonthSoFarProps) {
+    if (existing === null || totalCenti === null) {
+        return null;
+    }
+
+    const label = formatMonth(`${month}-01`);
+    const full = fullCenti === null ? null : formatCenti(fullCenti);
+
+    return (
+        <>
+            <p className="cf-help" role="status" style={{ margin: 0 }}>
+                {existing.entries === 0
+                    ? `Nothing logged in ${label} yet${full === null ? '' : ` · a full month is ${full} h`}.`
+                    : `Already in ${label}: ${formatCenti(existing.totalCenti)} h over ${countOf(existing.entries, 'entry', 'entries')} · ${formatCenti(totalCenti)} h with this${full === null ? '' : `, of ${full} h`}.`}
+            </p>
+            {over && full !== null && (
+                <p className="cf-help lh-warn" role="status">
+                    <Icon icon={TriangleAlert} size={14} />
+                    That makes {formatCenti(totalCenti)} h for {label}, more
+                    than a full month ({full} h). Check it’s right before
+                    logging.
+                </p>
+            )}
+        </>
     );
 }

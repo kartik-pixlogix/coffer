@@ -118,6 +118,27 @@ final class LogTime
     }
 
     /**
+     * A4 (D137): "Rohan Desai now has 190.0 h in November 2026, more than a full month
+     * (168.0 h)." when the member's hours in the month pass its working days × the
+     * company's standard day; null otherwise. Month mode adds on top of day entries.
+     */
+    public static function fullMonthWarning(Company $company, Member $member, CarbonImmutable $month, bool $saturdays): ?string
+    {
+        $full = count(Hours::workingDays($month, Hours::mask($company->working_days, $saturdays))) * $company->hours_per_day_centi;
+
+        $total = (int) TimeEntry::query()->withoutGlobalScope('company')
+            ->where('member_id', $member->id)
+            ->whereBetween('date', [$month->startOfMonth()->toDateString(), $month->endOfMonth()->toDateString()])
+            ->sum('hours_centi');
+
+        if ($full <= 0 || $total <= $full) {
+            return null;
+        }
+
+        return "{$member->name} now has ".Hours::format($total).' h in '.$month->format('F Y').', more than a full month ('.Hours::format($full).' h).';
+    }
+
+    /**
      * One imported day row (spec §8.2): already checked, so no further rules here.
      *
      * @param  array{project_id: int, partner_id: int|null, billable: bool, notes: string|null}  $details
