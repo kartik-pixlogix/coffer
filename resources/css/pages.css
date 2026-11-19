@@ -7622,3 +7622,31 @@ fieldset.cf-field:not(#\#) {
         display: none;
     }
 }
+
+/* A sheet body scrolls; its children keep their height instead of shrinking (a
+   segmented control with overflow collapsed to a thin bar). */
+.cf-sheet-body:not(#\#) > * {
+    flex-shrink: 0;
+}
+
+/* Settings sections: a column of links on wide screens; below 900 px one row that
+   scrolls sideways without a scrollbar track (the edge fades, D127). The row sits
+   inside the card so the fade never eats the card's own edge. */
+.snav-list:not(#\#) {
+    display: contents;
+}
+
+@media (max-width: 900px) {
+    .snav:not(#\#) {
+        display: block;
+        overflow: visible;
+    }
+
+    .snav-list:not(#\#) {
+        display: flex;
+        gap: 2px;
+    }
+}
+
+/*
+ *

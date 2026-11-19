@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useShell } from '@/components/shell/shell-context';
 import { PageHeader } from '@/components/shell/page-header';
@@ -85,6 +86,24 @@ type Props = {
  */
 export function SettingsShell({ tab, title, crumb, actions, children }: Props) {
     const { currentCompany, can } = useShell();
+    const listRef = useRef<HTMLDivElement>(null);
+
+    // Below 900 px the sections are one scrolling row: bring the current one into view.
+    useEffect(() => {
+        const list = listRef.current;
+        const current = list?.querySelector<HTMLElement>(
+            '[aria-current="page"]',
+        );
+
+        if (!list || !current || list.scrollWidth <= list.clientWidth) {
+            return;
+        }
+
+        list.scrollLeft =
+            current.offsetLeft -
+            list.offsetLeft -
+            (list.clientWidth - current.offsetWidth) / 2;
+    }, [tab]);
     const items = ITEMS.filter(
         (item) =>
             (!item.jvOnly || currentCompany.type === 'jv') &&
@@ -102,29 +121,31 @@ export function SettingsShell({ tab, title, crumb, actions, children }: Props) {
             />
             <div className="settings-body">
                 <nav className="cf-card snav" aria-label="Settings sections">
-                    {items.map((item) =>
-                        item.href === null ? (
-                            <button
-                                key={item.tab}
-                                type="button"
-                                disabled
-                                title="Coming soon"
-                                aria-label={`${item.label} (coming soon)`}
-                            >
-                                {item.label}
-                            </button>
-                        ) : (
-                            <Link
-                                key={item.tab}
-                                href={item.href}
-                                aria-current={
-                                    item.tab === tab ? 'page' : undefined
-                                }
-                            >
-                                {item.label}
-                            </Link>
-                        ),
-                    )}
+                    <div ref={listRef} className="snav-list cf-scroll-row">
+                        {items.map((item) =>
+                            item.href === null ? (
+                                <button
+                                    key={item.tab}
+                                    type="button"
+                                    disabled
+                                    title="Coming soon"
+                                    aria-label={`${item.label} (coming soon)`}
+                                >
+                                    {item.label}
+                                </button>
+                            ) : (
+                                <Link
+                                    key={item.tab}
+                                    href={item.href}
+                                    aria-current={
+                                        item.tab === tab ? 'page' : undefined
+                                    }
+                                >
+                                    {item.label}
+                                </Link>
+                            ),
+                        )}
+                    </div>
                 </nav>
                 <div className="settings-content">{children}</div>
             </div>
