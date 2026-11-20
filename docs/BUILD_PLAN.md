@@ -234,3 +234,196 @@ Tick boxes here as you go (`- [x]`).
 - [x] Deployment runbook for a VPS (Forge/Ploi or Docker). `.env.example` complete. Data export and delete for DPDPA. (D98, D99)
 
 **Accept:** a production checklist in `docs/DEPLOY.md`, all green. (The checklist is written; its boxes are ticked on the production server at launch, D99.)
+
+---
+
+# v2: sellable to Indian agencies and their CAs
+
+Approved scope (owner, 20 Nov 2026): the "v2 core" list, items 1, 2, 3, 4, 5, 6, 7, 11 and 17.
+v2.1 and later items are listed at the end and are not started without a new go-ahead.
+
+**Ground rules for v2**
+- Build and test locally; release to the Laravel Cloud staging environment only. Production on
+  Hostinger stays on v1 until v2 is signed off (it already has the brand-colours picker, D147).
+- These modules have **no `.dc.html` screens**. Each page is built from the design system's
+  components and patterns (as earlier derived pages were), recorded as a decision, and shown to
+  the owner as screenshots (light and dark, desktop and phone) before the phase closes. If the
+  owner wants designed screens first, the phase pauses for them.
+- Money stays integer paise through `LedgerPoster`; every new money event posts a balanced entry,
+  and the ledger invariants (TB, BS, P&L shares, settlements) keep passing.
+- Every new route gets authorisation per role, validation and happy-path tests; the route sweep
+  (`RouteAuthorizationSweepTest`) stays green.
+- Each phase starts in plan mode with its "Owner inputs" answered.
+
+## Phase 10: Security hardening
+
+**Read first:** spec §14, §17, §23; `docs/DEPLOY.md` §6–§8 and §12; D66, D93–D97, D146.
+
+**Owner inputs:** key service for Laravel Cloud (AWS KMS or Google Cloud KMS); where off-site
+backups go (S3-compatible bucket and region, India preferred); budget for an external pentest.
+
+- [ ] Master-key driver: `env` (today) or a KMS (`aws-kms` / `gcp-kms`). Company data keys stay
+      wrapped; unwrapping calls the KMS and caches the data key for the request only. Rotation
+      (`coffer:vault-rotate`) works with either driver.
+- [ ] Field-level encryption with the same envelope scheme for sensitive business data: GSTIN, PAN,
+      bank details, addresses, partner and member contact details, free-text notes. Fields that
+      must be searched or deduplicated get an HMAC blind index.
+- [ ] Receipts and attachments encrypted at rest with the company's data key, streamed through the app.
+- [ ] Posted ledger rows can't be changed in the database: triggers (MySQL and PostgreSQL variants)
+      refuse `UPDATE`/`DELETE` on `journal_entries` and `journal_lines` except the reversal links,
+      and the runtime DB user has no `DELETE` on them.
+- [ ] 2FA or a passkey required for every user with vault access, not only Admins; passkeys turned
+      on (`laravel/passkeys` is installed).
+- [ ] Encrypted off-site backups on a schedule, plus a restore-drill command.
+- [ ] Public security page (encryption, hosting region, access controls, disclosure contact) and
+      `/.well-known/security.txt`.
+
+**Accept:**
+- With the KMS driver, no plaintext master key is in `.env` or the database.
+- A test proves an `UPDATE` on a posted journal line fails at the database.
+- Database dumps show no plaintext GSTIN, PAN, bank details or notes.
+- Off-site encrypted backups restore successfully.
+- Pentest findings are triaged; every high and critical one is fixed.
+
+## Phase 11: Audit trail and accountant-grade books
+
+**Read first:** spec §4–§6 and §15; the owner's "Accounting Architecture & Audit Checklist" PDF
+(Companies (Accounts) Rules 3(1) edit log; Schedule III); D30–D41.
+
+**Owner inputs:** voucher number format (e.g. `INC/2026-27/0001`); whether users see a numeric
+chart of accounts (Schedule III codes) or it stays internal.
+
+- [ ] Audit trail (edit log) that can't be switched off:
+      - every create, edit, reversal, approval and settings change on money records is logged;
+      - each entry records who, when, IP and before/after, with secrets redacted;
+      - an append-only table with a hash chain (`prev_hash`, `hash`), checked by `coffer:audit-verify`;
+      - an Audit trail page with filters and CSV/PDF export.
+- [ ] Voucher numbers, gapless per company, financial year and type. They are assigned inside the
+      posting transaction under a row lock, and shown on every entry, statement and export.
+- [ ] Trial balance in four columns (opening, debit, credit, closing) for any period, with an FY selector.
+- [ ] Balance sheet and P&L in Schedule III format (Division I), with grouped notes.
+- [ ] Cash flow statement (indirect method).
+- [ ] Chart of accounts page: groups and codes aligned to Schedule III; existing account roles kept.
+
+**Accept:**
+- Changing one audit row makes the verify command fail.
+- Voucher numbers stay gapless under a concurrent-posting test.
+- In the trial balance, opening plus movement equals closing for every account.
+- Schedule III statements tie to the existing reports.
+- The cash flow statement reconciles to the movement in cash and bank.
+
+## Phase 12: GST and TDS
+
+**Read first:** CGST/IGST Acts (rates, place of supply, input tax credit, reverse charge); Income
+Tax Act §192, §194C, §194J, §194Q; spec §10–§11.
+
+**Owner inputs:** each company's GST registration (GSTIN, state, regular or composition); whether
+returns are filed in-house or by a CA; the TDS sections deducted; a CA to review the rules.
+
+- [ ] Company tax profile: GSTIN (encrypted), state, registration type, TAN.
+- [ ] Tax rates and HSN/SAC codes; place-of-supply rules (CGST+SGST in-state, IGST inter-state).
+- [ ] Expenses with a GST split and input tax credit. Reverse charge on foreign services (AWS,
+      Google and similar) posts RCM payable plus the matching credit.
+- [ ] TDS on expenses and salaries by section, TDS payable and challan entry; TDS receivable on income.
+- [ ] New ledger accounts (GST input/output by type, RCM payable, TDS payable/receivable) posted by
+      `LedgerPoster`; reversals unwind them.
+- [ ] GSTR-1, GSTR-3B and TDS summaries with Excel/JSON export for the CA.
+
+**Accept:**
+- Unit tests cover every rate, place-of-supply case, reverse-charge entry and TDS section.
+- Tax accounts balance to the summaries.
+- A CA signs off a sample month.
+
+## Phase 13: Invoicing and quotes
+
+**Read first:** spec §9 (income); Phase 12 output; Rule 46 CGST (tax invoice contents).
+
+**Owner inputs:** invoice layout and logo per company; numbering format; payment gateway (Razorpay
+test and live keys); default payment terms; reminder schedule.
+
+- [ ] Clients (customers) with GSTIN, billing address, place of supply and contacts.
+- [ ] Quotes that convert to invoices; GST tax invoices with HSN/SAC lines and a compliant PDF.
+- [ ] Recurring invoices for retainers (monthly or quarterly), generated by the scheduler.
+- [ ] Payment links (Razorpay/UPI), with webhooks that record the receipt and post the income.
+- [ ] Credit notes, part payments and write-offs.
+- [ ] Receivables (who owes you) with aging (0–30, 31–60, 61–90, 90+) and automatic email reminders.
+- [ ] Accrual posting (invoice → receivable, payment → bank); today's cash-based income keeps working.
+
+**Accept:**
+- An invoice, a payment and a credit note each post the right lines.
+- The receivables aging ties to the receivable account.
+- A Razorpay test-mode payment marks the invoice paid end to end.
+- The PDF carries every Rule 46 field.
+
+## Phase 14: Multi-currency and export invoicing
+
+**Owner inputs:** currencies used (USD, EUR, GBP…); exchange-rate source; whether companies have a
+GST export bond (LUT).
+
+- [ ] Invoices and receipts in foreign currency at the rate on the date; the books stay in INR.
+- [ ] Export of services under LUT (zero-rated) or with IGST; LUT details per company and year.
+- [ ] Realised exchange gain or loss on receipt; optional revaluation at year end.
+- [ ] Foreign-currency bank accounts.
+
+**Accept:**
+- A USD invoice paid at a different rate posts the exchange gain or loss.
+- Export invoices carry the LUT wording.
+- Reports stay in INR and balance.
+
+## Phase 15: Bank import and reconciliation
+
+**Owner inputs:** sample statements (CSV/XLSX/PDF) from each bank used (e.g. HDFC, ICICI, Axis, Kotak).
+
+- [ ] Statement import per money account: parsers for the common Indian bank formats, column mapping
+      for the rest, and duplicate detection.
+- [ ] Matching that suggests income, expense, transfer or invoice by amount, date and narration.
+      Rules such as "narration contains AWS → Software". Each line can be accepted or turned into
+      a new entry.
+- [ ] Reconciliation view: statement balance against book balance, unreconciled items, and a period lock.
+- [ ] Later (v2.1): automatic bank feeds through an Account Aggregator partner.
+
+**Accept:**
+- Each sample statement imports without errors.
+- Reconciled balances equal the statement balances.
+- Rules apply to new lines.
+
+## Phase 16: CA / accountant portal and exports
+
+**Owner inputs:** the Tally version the CA uses; a pilot CA.
+
+- [ ] New "Accountant" role:
+      - read-only access to books, reports, the audit trail and exports, and no vault;
+      - can be invited to several companies and workspaces, with one switcher across clients.
+- [ ] Tally export (XML vouchers and masters) and Zoho Books/Excel export.
+- [ ] Year-end pack as one ZIP: trial balance, Schedule III statements, ledgers, GST/TDS summaries
+      and the audit trail.
+- [ ] CA referral: a referral link and a discount for the CA's clients (in billing).
+
+**Accept:**
+- The pilot CA imports a month into Tally without errors.
+- The Accountant role can't change anything or open the vault (tests per route).
+
+## Phase 17: Compliance calendar and partner statements
+
+- [ ] Due dates per company for GST (GSTR-1, 3B), TDS (payments and returns), advance tax and ROC
+      filings. Reminders go by email and in notifications, and each can be marked as done.
+- [ ] Monthly partner statement PDF (capital, drawings, loans, share of profit, settlement position),
+      emailed to each partner on the 1st.
+
+**Accept:**
+- Reminders arrive on schedule in tests.
+- Statements match the capital and settlement pages.
+
+---
+
+## v2.1 (not started without approval)
+- Client profitability and budgets (profit per client and project from hours and costs, budget vs
+  actual, 90-day cash forecast).
+- Client portal (clients see and pay invoices, download statements, receive shared credentials).
+- Smart expenses (receipt photo read by AI for amount, vendor and category; WhatsApp submit and approve).
+- Installable mobile app (PWA) with offline capture.
+
+## Later
+Vendor bills and payables; India payroll (PF, ESI, PT, TDS on salary, payslips); vault browser
+extension and client share links; "Ask Coffer" AI assistant; integrations (Slack/Teams, Google
+Sheets, webhooks); fixed assets and depreciation; Account Aggregator bank feeds.
