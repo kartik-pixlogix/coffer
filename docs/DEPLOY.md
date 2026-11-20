@@ -328,6 +328,7 @@ The plan allows **two** cron jobs and both are taken, so a deploy deletes the qu
 uses its slot for the run-once deploy job, then puts the worker back.
 
 **Gotchas met on the first deploy:**
+- Cron ignores output redirection (`>> file`) and only returns output for `bash script.sh` jobs, so read logs with a small script.
 - The account's CLI `php` is 8.3; use the 8.4 path above. The scheduler starts each command as a
   child `php` without the `-d` override, so a command that shells out (`coffer:backup` runs
   `mysqldump`) fails there; run it from its own cron job if backups are needed on this host.
