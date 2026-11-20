@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { AccentPicker } from '@/components/shell/accent-picker';
 import { AccountMenu } from '@/components/shell/account-menu';
 import { CommandMenu } from '@/components/shell/command-menu';
 import { NotificationsButton } from '@/components/shell/notifications-button';
@@ -80,6 +81,7 @@ export function TopBar() {
             </div>
             <div className="cf-topbar-r">
                 <Today />
+                <AccentPicker />
                 <ThemeToggle />
                 <NotificationsButton />
                 <AccountMenu />

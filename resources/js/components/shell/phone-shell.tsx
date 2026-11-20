@@ -12,6 +12,7 @@ import {
     X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { PhoneAccentRow } from '@/components/shell/accent-picker';
 import { useShell } from '@/components/shell/shell-context';
 import { signOut } from '@/components/shell/sign-out';
 import { Icon } from '@/components/ui/icon';
@@ -479,6 +480,7 @@ export function PhoneMenu({
                                 />
                                 <span className="cf-switch-track" />
                             </label>
+                            <PhoneAccentRow />
                             <button
                                 type="button"
                                 className="app-menu-item app-menu-out"

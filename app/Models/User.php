@@ -34,6 +34,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property CarbonImmutable|null $two_factor_confirmed_at
  * @property string|null $remember_token
  * @property Theme|null $theme
+ * @property array<string, mixed>|null $accent the brand gradient (D147); null is Coffer lime
  * @property string $timezone
  * @property NumberFormat $number_format
  * @property string|null $avatar_path
@@ -76,6 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password_changed_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
             'theme' => Theme::class,
+            'accent' => 'array',
             'number_format' => NumberFormat::class,
             'notification_preferences' => 'array',
             'deletion_requested_at' => 'datetime',

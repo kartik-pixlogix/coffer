@@ -35,6 +35,14 @@
             html[data-theme="dark"] { background-color: #0c0d0f; }
         </style>
 
+        {{--
+            The signed-in user's brand gradient (D147). Built only from validated #rrggbb
+            values, so it is safe unescaped; the picker rewrites this element to preview.
+        --}}
+        @auth('web')
+            <style id="cf-accent" nonce="{{ Vite::cspNonce() }}">{!! $accentCss ?? '' !!}</style>
+        @endauth
+
         {{-- Without JavaScript, marketing scroll reveals (data-reveal, D103) stay in place. --}}
         <noscript>
             <style>

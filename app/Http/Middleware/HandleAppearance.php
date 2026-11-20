@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\Theme;
 use App\Models\User;
+use App\Support\Accent;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -30,6 +31,8 @@ final class HandleAppearance
             : (is_string($cookie) ? Theme::tryFrom($cookie) : null);
 
         View::share('theme', $theme?->value);
+        // The brand gradient (D147): its token overrides go in the head, so the first paint has them.
+        View::share('accentCss', $user instanceof User ? Accent::fromStored($user->accent)->css() : null);
 
         return $next($request);
     }

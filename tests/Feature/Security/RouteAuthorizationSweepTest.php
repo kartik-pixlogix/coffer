@@ -56,6 +56,7 @@ const OWN_ACCOUNT_ROUTES = [
     'companies.*' => 'create a company / switch to one the user belongs to (membership checked in the action)',
     'profile.*' => 'the user’s own profile, password, sessions, 2FA (spec §17)',
     'theme.update' => 'the user’s own theme',
+    'accent.update' => 'the user’s own brand colours (D147)',
     'notifications.*' => 'the user’s own notifications (D78)',
     'search' => 'the ⌘K record search: each group checks its own page permission (F5, D116)',
     'settings.notifications' => 'the user’s own notification settings (D78)',

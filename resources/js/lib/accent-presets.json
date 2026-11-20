@@ -1,0 +1,19 @@
+{
+    "lime": {
+        "name": "Coffer lime",
+        "stops": ["#d6fe68", "#e2ff8f", "#f0ffc4"]
+    },
+    "sky": { "name": "Sky", "stops": ["#8ccbff", "#b3dcff", "#ddefff"] },
+    "mint": { "name": "Mint", "stops": ["#6cebc4", "#9ff3d9", "#cff9ec"] },
+    "aurora": { "name": "Aurora", "stops": ["#9ef0c9", "#a9d1ff", "#dcc4ff"] },
+    "lavender": {
+        "name": "Lavender",
+        "stops": ["#c0aaff", "#d4c6ff", "#eae3ff"]
+    },
+    "rose": { "name": "Rose", "stops": ["#ff9cc0", "#ffbed6", "#ffdeea"] },
+    "peach": { "name": "Peach", "stops": ["#ffb27a", "#ffcba3", "#ffe4cf"] },
+    "sunshine": {
+        "name": "Sunshine",
+        "stops": ["#ffd94f", "#ffe684", "#fff2bf"]
+    }
+}

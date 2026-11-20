@@ -12,7 +12,12 @@ type SheetProps = {
     /** Full-width actions at the bottom (`cf-sheet-foot`). */
     footer?: ReactNode;
     closeLabel?: string;
+    /** Opened from the phone menu (`app-menu`, z-index 50): sits above it instead of behind. */
+    raised?: boolean;
 };
+
+/** One step above the phone menu. */
+const RAISED_Z = 60;
 
 /**
  * Phone bottom sheet (`cf-sheet`, MobileLogHours.dc.html): grab handle, title with
@@ -26,17 +31,22 @@ export function Sheet({
     children,
     footer,
     closeLabel = 'Close',
+    raised = false,
 }: SheetProps) {
     return (
         <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
             <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className={SCRIM_CLASS} />
+                <DialogPrimitive.Overlay
+                    className={SCRIM_CLASS}
+                    style={raised ? { zIndex: RAISED_Z } : undefined}
+                />
                 <DialogPrimitive.Content
                     className="cf-sheet"
                     // The bundle positions the sheet inside a phone frame; on a real phone it sits on the viewport.
                     style={{
                         position: 'fixed',
                         maxHeight: 'calc(100dvh - 44px)',
+                        ...(raised ? { zIndex: RAISED_Z + 1 } : {}),
                     }}
                     aria-describedby={undefined}
                 >

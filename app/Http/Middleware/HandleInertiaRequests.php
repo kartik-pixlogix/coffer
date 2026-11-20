@@ -11,6 +11,7 @@ use App\Services\Billing\PlanUsage;
 use App\Services\Billing\WorkspaceBilling;
 use App\Services\Notifications\Inbox;
 use App\Services\Platform\Impersonator;
+use App\Support\Accent;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Access;
 use App\Support\Permissions\Catalog;
@@ -99,6 +100,7 @@ class HandleInertiaRequests extends Middleware
             'email_verified_at' => $user->email_verified_at?->toIso8601String(),
             'avatar_url' => $user->avatar_url,
             'theme' => $user->theme?->value,
+            'accent' => Accent::fromStored($user->accent)->toArray(),
             'timezone' => $user->timezone,
             'number_format' => $user->number_format->value,
             'two_factor_enabled' => $user->hasTwoFactorEnabled(),

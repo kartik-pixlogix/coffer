@@ -7847,3 +7847,143 @@ fieldset.cf-field:not(#\#) {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+/* ── Brand colours picker (D147) ─────────────────────────────── */
+.accent-pop:not(#\#) {
+    width: 380px;
+}
+
+.accent-editor:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.accent-group:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.accent-group:not(#\#) legend {
+    margin-bottom: var(--space-2);
+    padding: 0;
+}
+
+/* Room for the selected ring (4px outside the disc). */
+.accent-grid:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: var(--space-3) var(--space-2);
+    padding-top: 4px;
+}
+
+.accent-swatch:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.accent-disc:not(#\#) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--line);
+    color: var(--on-lime);
+    flex: none;
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.accent-disc--sm:not(#\#) {
+    width: 24px;
+    height: 24px;
+}
+
+.accent-swatch:not(#\#):hover .accent-disc {
+    transform: translateY(-1px);
+}
+
+.accent-swatch:not(#\#) input:checked + .accent-disc {
+    box-shadow:
+        0 0 0 2px var(--surface),
+        0 0 0 4px var(--ink);
+}
+
+.accent-swatch:not(#\#) input:focus-visible + .accent-disc {
+    box-shadow: var(--focus-ring);
+}
+
+.accent-name:not(#\#) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ink-secondary);
+}
+
+.accent-custom:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+}
+
+.accent-stops:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+}
+
+.accent-color:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.accent-color:not(#\#) input[type='color'] {
+    width: 100%;
+    height: var(--control-md);
+    padding: 2px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+}
+
+.accent-angle:not(#\#) {
+    width: 100%;
+    accent-color: var(--ink);
+}
+
+.accent-preview:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+}
+
+.accent-actions:not(#\#) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .accent-disc:not(#\#) {
+        transition: none;
+    }
+}

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\AccentController;
 use App\Http\Controllers\Settings\CategoriesController;
 use App\Http\Controllers\Settings\CompanyController;
 use App\Http\Controllers\Settings\CompanyLifecycleController;
@@ -16,6 +17,9 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('settings/theme', [ThemeController::class, 'update'])
         ->middleware('throttle:30,1')
         ->name('theme.update');
+    Route::patch('settings/accent', [AccentController::class, 'update'])
+        ->middleware('throttle:30,1')
+        ->name('accent.update');
 });
 
 // Archived and deleted companies (V4, D139–D141): restored or kept by their Admin or the
