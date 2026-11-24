@@ -3,6 +3,7 @@
 use App\Enums\MarketingPage;
 use App\Http\Controllers\Marketing\ContactController;
 use App\Http\Controllers\Marketing\MarketingController;
+use App\Http\Controllers\Marketing\SecurityTxtController;
 use App\Http\Controllers\Marketing\SitemapController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,3 +35,4 @@ Route::name('marketing.')->group(function () {
 
 Route::get('sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('.well-known/security.txt', SecurityTxtController::class)->name('security-txt');

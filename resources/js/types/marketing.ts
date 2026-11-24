@@ -13,4 +13,9 @@ export type MarketingFeature = 'finance' | 'timesheets' | 'vault' | 'reports';
 
 export type LegalPageKey = 'terms' | 'privacy' | 'cookies' | 'dpa';
 
-export type ContactTopicKey = 'demo' | 'sales' | 'support' | 'other';
+export type ContactTopicKey =
+    | 'demo'
+    | 'sales'
+    | 'support'
+    | 'security'
+    | 'other';

@@ -90,8 +90,15 @@ const PLATFORM = [
     'CSRF protection on every form',
     'Rate limits on sign-in, reveals, exports and invites',
     'Self-hosted fonts and assets: no third-party trackers on the app',
+    'Posted books can’t be edited or deleted, even directly in the database',
     'A nightly check that every company’s books still balance',
-    'Nightly encrypted backups',
+    'Nightly encrypted backups, with a monthly test restore',
+];
+
+const BUSINESS_DATA = [
+    'GSTIN, addresses, bank details, emails and every note are encrypted with your company’s own key',
+    'Receipts and invoices are encrypted on disk and only served to people allowed to see them',
+    'A copy of the database shows only ciphertext for those fields',
 ];
 
 const PRIVACY = [
@@ -180,7 +187,11 @@ export default function Security({ seo }: Props) {
                 </div>
             </section>
 
-            <section className="lp-in lp-pb" aria-labelledby="privacy-h">
+            <section
+                className="lp-in lp-pb lp-stack"
+                style={{ gap: 24 }}
+                aria-labelledby="privacy-h"
+            >
                 <Reveal className="lp-detail" distance={40}>
                     <div className="lp-panel-copy">
                         <h2 id="privacy-h" className="lp-h3 lp-panel-title">
@@ -201,12 +212,28 @@ export default function Security({ seo }: Props) {
                     </div>
                     <CheckList items={PRIVACY} />
                 </Reveal>
-                <p className="t-caption t-muted" style={{ marginTop: 20 }}>
+                <Reveal className="lp-detail lp-detail--flip" distance={40}>
+                    <div className="lp-panel-copy">
+                        <h2 id="business-h" className="lp-h3 lp-panel-title">
+                            Your books, encrypted too
+                        </h2>
+                        <p className="t-body t-muted lp-body-lg">
+                            The same per-company keys that protect the vault
+                            protect the sensitive parts of your books and files.
+                        </p>
+                    </div>
+                    <CheckList items={BUSINESS_DATA} />
+                </Reveal>
+                <p className="t-caption t-muted">
                     Found a vulnerability?{' '}
-                    <a href="/contact?topic=support" className="cf-link">
-                        Tell us
+                    <a href="/contact?topic=security" className="cf-link">
+                        Report it
                     </a>{' '}
-                    and we’ll get back to you quickly.
+                    and we’ll get back to you quickly. Our{' '}
+                    <a href="/.well-known/security.txt" className="cf-link">
+                        security.txt
+                    </a>{' '}
+                    has the details.
                 </p>
             </section>
 

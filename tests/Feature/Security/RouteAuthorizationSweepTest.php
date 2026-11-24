@@ -22,6 +22,7 @@ const PUBLIC_ROUTES = [
     'marketing.*' => 'marketing and legal pages, contact form (throttled)',
     'robots' => 'robots.txt',
     'sitemap' => 'sitemap.xml',
+    'security-txt' => 'security.txt, RFC 9116 (D151)',
     'login' => 'guest sign-in form', 'login.store' => 'sign-in (LoginLockout: 5 tries, then 15 minutes)',
     'register' => 'guest sign-up form', 'register.store' => 'sign-up (throttle:auth-forms)',
     'password.request' => 'forgot-password form', 'password.email' => 'reset link (throttle:auth-forms)',

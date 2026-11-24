@@ -10,6 +10,7 @@ enum ContactTopic: string
     case Demo = 'demo';
     case Sales = 'sales';
     case Support = 'support';
+    case Security = 'security';
     case Other = 'other';
 
     public function label(): string
@@ -18,6 +19,7 @@ enum ContactTopic: string
             self::Demo => 'Book a demo',
             self::Sales => 'Pricing or Enterprise',
             self::Support => 'Help with my account',
+            self::Security => 'Report a security issue',
             self::Other => 'Something else',
         };
     }

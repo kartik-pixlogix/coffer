@@ -89,7 +89,7 @@ it('shows Pricing from the plans table and lists offers in JSON-LD', function ()
 it('preselects the contact topic from the query string', function () {
     $this->get('/contact?topic=sales')->assertInertia(fn (Assert $page) => $page
         ->where('topic', 'sales')
-        ->has('topics', 4)
+        ->has('topics', 5)
         ->where('sent', null));
 
     $this->get('/contact?topic=nonsense')->assertInertia(fn (Assert $page) => $page->where('topic', 'demo'));

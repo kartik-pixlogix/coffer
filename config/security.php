@@ -22,4 +22,8 @@ return [
     'hsts_max_age' => (int) env('SECURITY_HSTS_MAX_AGE', 31536000),
     'hsts_preload' => (bool) env('SECURITY_HSTS_PRELOAD', false),
 
+    // Where vulnerability reports go, in /.well-known/security.txt (D151): an email or an https
+    // URL. Empty: the contact form's "Report a security issue" topic.
+    'contact' => env('SECURITY_CONTACT'),
+
 ];
