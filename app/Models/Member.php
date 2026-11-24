@@ -8,6 +8,7 @@ use App\Enums\CostType;
 use App\Enums\MemberStatus;
 use App\Ledger\Period;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
 use Database\Factories\MemberFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Member extends Model
 {
     use BelongsToCompany;
+    use EncryptsFields;
 
     /** @use HasFactory<MemberFactory> */
     use HasFactory, SoftDeletes;

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\AttributionMode;
 use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
+use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
 use Database\Factories\CompanyFactory;
@@ -59,6 +60,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Company extends Model
 {
+    use EncryptsFields;
+
     /** @use HasFactory<CompanyFactory> */
     use FlushesReportCache, HasFactory, SoftDeletes;
 

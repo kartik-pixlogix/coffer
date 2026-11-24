@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CapitalMovementKind;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CapitalMovement extends Model
 {
     use BelongsToCompany, SoftDeletes;
+    use EncryptsFields;
 
     protected function casts(): array
     {

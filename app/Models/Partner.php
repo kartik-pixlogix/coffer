@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CompanyRole;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
 use Database\Factories\PartnerFactory;
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Partner extends Model
 {
     use BelongsToCompany;
+    use EncryptsFields;
     use FlushesReportCache;
 
     /** @use HasFactory<PartnerFactory> */

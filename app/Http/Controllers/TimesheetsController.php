@@ -74,9 +74,14 @@ final class TimesheetsController extends Controller
             ->when($filters['project'] ?? null, fn (Builder $q, string $id) => $q->where('project_id', (int) $id))
             ->when(($filters['billable'] ?? null) === 'billable', fn (Builder $q) => $q->where('billable', true))
             ->when(($filters['billable'] ?? null) === 'non', fn (Builder $q) => $q->where('billable', false))
-            ->when($filters['q'] ?? null, function (Builder $q, string $search): void {
+            ->when($filters['q'] ?? null, function (Builder $q, string $search) use ($inMonth): void {
                 $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $search).'%';
-                $q->where(fn (Builder $w) => $w->where('notes', 'like', $like)
+                // Notes are sealed (D149), so the database can't match them: the month's notes are
+                // opened here and matched in PHP (a month is a few hundred entries at most).
+                $noteHits = $inMonth()->whereNotNull('notes')->get(['id', 'company_id', 'notes'])
+                    ->filter(fn (TimeEntry $e): bool => mb_stripos((string) $e->notes, $search) !== false)
+                    ->modelKeys();
+                $q->where(fn (Builder $w) => $w->whereIn('id', $noteHits)
                     ->orWhereHas('member', fn (Builder $m) => $m->where('name', 'like', $like))
                     ->orWhereHas('project', fn (Builder $p) => $p->where('name', 'like', $like)));
             })

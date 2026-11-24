@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\VaultAttachment;
 use App\Models\VaultItemVersion;
 use App\Models\VaultSecret;
+use App\Services\Security\FieldRotation;
 use App\Services\Vault\ItemAttachments;
 use App\Services\Vault\ItemSecrets;
 use App\Services\Vault\ItemVersions;
@@ -20,8 +21,8 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Data-key rotation (D66): re-seals one chunk of a company's vault data (secrets, then
- * attachments, then version snapshots) still under a key older than `$toVersion`, then
- * queues itself for the next chunk. When nothing old is left the older keys are retired.
+ * attachments, then version snapshots, then sealed business fields, D149) still under a key
+ * older than `$toVersion`, then queues itself for the next chunk. When nothing old is left the older keys are retired.
  * Resumable: a failed or interrupted run just picks up the rows still on old versions.
  * The payload holds ids only.
  */
@@ -33,12 +34,12 @@ final class ReencryptVaultData implements ShouldQueue
 
     public function __construct(public readonly int $companyId, public readonly int $toVersion, public readonly bool $chain = true) {}
 
-    public function handle(CurrentCompany $current, VaultKeys $keys, ItemSecrets $secrets, ItemAttachments $attachments, ItemVersions $versions): void
+    public function handle(CurrentCompany $current, VaultKeys $keys, ItemSecrets $secrets, ItemAttachments $attachments, ItemVersions $versions, FieldRotation $fields): void
     {
         $company = Company::query()->findOrFail($this->companyId);
         $chunk = (int) config('vault.rotation_chunk');
 
-        $done = $current->run($company, function () use ($chunk, $secrets, $attachments, $versions): int {
+        $done = $current->run($company, function () use ($chunk, $secrets, $attachments, $versions, $fields): int {
             $count = 0;
 
             foreach (VaultSecret::query()->where('key_version', '<', $this->toVersion)->orderBy('id')->limit($chunk)->get() as $row) {
@@ -58,6 +59,10 @@ final class ReencryptVaultData implements ShouldQueue
                     DB::transaction(fn () => $versions->reseal($row));
                     $count++;
                 }
+            }
+
+            if ($count < $chunk) {
+                $count += $fields->reseal($this->companyId, $this->toVersion, $chunk - $count);
             }
 
             return $count;
@@ -80,6 +85,7 @@ final class ReencryptVaultData implements ShouldQueue
     {
         return VaultSecret::query()->withoutGlobalScope('company')->where('company_id', $companyId)->where('key_version', '<', $version)->count()
             + VaultAttachment::query()->withoutGlobalScope('company')->where('company_id', $companyId)->where('key_version', '<', $version)->count()
-            + VaultItemVersion::query()->withoutGlobalScope('company')->where('company_id', $companyId)->where('key_version', '<', $version)->count();
+            + VaultItemVersion::query()->withoutGlobalScope('company')->where('company_id', $companyId)->where('key_version', '<', $version)->count()
+            + app(FieldRotation::class)->remaining($companyId, $version);
     }
 }

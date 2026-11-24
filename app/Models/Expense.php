@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\ExpenseStatus;
 use App\Enums\PayerMode;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Expense extends Model
 {
     use BelongsToCompany, SoftDeletes;
+    use EncryptsFields;
 
     protected function casts(): array
     {

@@ -30,6 +30,7 @@ use App\Models\Partner;
 use App\Models\Project;
 use App\Models\TimeEntry;
 use App\Models\User;
+use App\Services\Security\SealedFields;
 use App\Services\Team\SalaryGenerator;
 use App\Services\Timesheets\Hours;
 use Carbon\CarbonImmutable;
@@ -249,7 +250,7 @@ final class UnboundSampleBooks
         }
 
         foreach (array_chunk($rows, 500) as $chunk) {
-            TimeEntry::query()->insert($chunk);
+            TimeEntry::query()->insert(SealedFields::sealRows(TimeEntry::class, $chunk));
         }
     }
 

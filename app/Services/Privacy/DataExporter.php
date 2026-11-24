@@ -6,6 +6,7 @@ namespace App\Services\Privacy;
 
 use App\Models\User;
 use App\Models\Workspace;
+use App\Services\Security\SealedFields;
 use App\Support\Csv;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -77,11 +78,11 @@ final class DataExporter
             $memberIds = DB::table('members')->where('company_id', $company->id)->where('user_id', $id)->pluck('id');
 
             $this->json($zip, "{$folder}/expenses_submitted.json", DB::table('expenses')->where('company_id', $company->id)->where('submitted_by', $id)
-                ->orderBy('spent_on')->get(['id', 'description', 'amount_paise', 'spent_on', 'status', 'notes', 'reject_reason', 'created_at'])->all());
+                ->orderBy('spent_on')->get(['id', 'company_id', 'description', 'amount_paise', 'spent_on', 'status', 'notes', 'reject_reason', 'created_at'])->map(fn (object $r): array => SealedFields::openRow('expenses', $r))->all());
             $this->json($zip, "{$folder}/income_recorded.json", DB::table('incomes')->where('company_id', $company->id)->where('created_by', $id)
-                ->orderBy('received_on')->get(['id', 'source', 'amount_paise', 'received_on', 'notes', 'created_at'])->all());
+                ->orderBy('received_on')->get(['id', 'company_id', 'source', 'amount_paise', 'received_on', 'notes', 'created_at'])->map(fn (object $r): array => SealedFields::openRow('incomes', $r))->all());
             $this->json($zip, "{$folder}/time_entries.json", DB::table('time_entries')->where('company_id', $company->id)->whereIn('member_id', $memberIds)
-                ->orderBy('date')->get(['id', 'date', 'hours_centi', 'project_id', 'notes', 'created_at'])->all());
+                ->orderBy('date')->get(['id', 'company_id', 'date', 'hours_centi', 'project_id', 'notes', 'created_at'])->map(fn (object $r): array => SealedFields::openRow('time_entries', $r))->all());
             $this->json($zip, "{$folder}/vault_items_added.json", DB::table('vault_items')->where('company_id', $company->id)->where('created_by', $id)
                 ->orderBy('id')->get(['id', 'name', 'type', 'url', 'created_at'])->all());
             $this->json($zip, "{$folder}/vault_activity.json", DB::table('vault_audit_events')->where('company_id', $company->id)->where('user_id', $id)
@@ -107,7 +108,7 @@ final class DataExporter
             'name' => $workspace->name,
             'owner' => $workspace->owner->email,
             'created_at' => $workspace->created_at?->toIso8601String(),
-            'companies' => $companies->map(fn (object $c): array => $this->visible((array) $c))->all(),
+            'companies' => $companies->map(fn (object $c): array => $this->visible(SealedFields::openRow('companies', $c)))->all(),
         ]);
 
         foreach ($companies as $company) {
@@ -120,7 +121,7 @@ final class DataExporter
             foreach ($scoped as $table) {
                 $query = DB::table($table)->where('company_id', $company->id);
                 $rows = (Schema::hasColumn($table, 'id') ? $query->orderBy('id') : $query)->get()
-                    ->map(fn (object $r): array => $this->visible((array) $r))->all();
+                    ->map(fn (object $r): array => $this->visible(SealedFields::openRow($table, $r)))->all();
 
                 if ($rows !== []) {
                     $this->csv($zip, "{$folder}/{$table}.csv", $rows);

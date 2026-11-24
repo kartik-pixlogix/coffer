@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Income extends Model
 {
     use BelongsToCompany, SoftDeletes;
+    use EncryptsFields;
 
     protected function casts(): array
     {

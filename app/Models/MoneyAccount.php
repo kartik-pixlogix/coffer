@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\MoneyAccountKind;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class MoneyAccount extends Model
 {
     use BelongsToCompany;
+    use EncryptsFields;
     use FlushesReportCache;
 
     protected function casts(): array
