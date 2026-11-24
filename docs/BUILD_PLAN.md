@@ -262,21 +262,27 @@ v2.1 and later items are listed at the end and are not started without a new go-
 **Owner inputs:** key service for Laravel Cloud (AWS KMS or Google Cloud KMS); where off-site
 backups go (S3-compatible bucket and region, India preferred); budget for an external pentest.
 
-- [ ] Master-key driver: `env` (today) or a KMS (`aws-kms` / `gcp-kms`). Company data keys stay
+- [~] Master-key driver: `env` (today) or a KMS (`aws-kms` / `gcp-kms`). Company data keys stay
       wrapped; unwrapping calls the KMS and caches the data key for the request only. Rotation
-      (`coffer:vault-rotate`) works with either driver.
-- [ ] Field-level encryption with the same envelope scheme for sensitive business data: GSTIN, PAN,
+      (`coffer:vault-rotate`) works with either driver. **Done:** the `MasterKey` driver seam and the
+      `env` driver (D152). **Waiting on the owner:** which KMS (AWS or Google), then its SDK and keys.
+- [x] Field-level encryption with the same envelope scheme for sensitive business data: GSTIN, PAN,
       bank details, addresses, partner and member contact details, free-text notes. Fields that
-      must be searched or deduplicated get an HMAC blind index.
-- [ ] Receipts and attachments encrypted at rest with the company's data key, streamed through the app.
-- [ ] Posted ledger rows can't be changed in the database: triggers (MySQL and PostgreSQL variants)
+      must be searched or deduplicated get an HMAC blind index. (D149)
+- [x] Receipts and attachments encrypted at rest with the company's data key, streamed through the app. (D150)
+- [x] Posted ledger rows can't be changed in the database: triggers (MySQL and PostgreSQL variants)
       refuse `UPDATE`/`DELETE` on `journal_entries` and `journal_lines` except the reversal links,
-      and the runtime DB user has no `DELETE` on them.
-- [ ] 2FA or a passkey required for every user with vault access, not only Admins; passkeys turned
-      on (`laravel/passkeys` is installed).
-- [ ] Encrypted off-site backups on a schedule, plus a restore-drill command.
-- [ ] Public security page (encryption, hosting region, access controls, disclosure contact) and
-      `/.well-known/security.txt`.
+      and the runtime DB user has no `DELETE` on them. (D148: triggers done; the `DELETE` revoke is
+      not done, since erasure needs it and the trigger already refuses deletes.)
+- [~] 2FA or a passkey required for every user with vault access, not only Admins; passkeys turned
+      on (`laravel/passkeys` is installed). **Done already:** the vault refuses anyone without 2FA,
+      whatever their role (EnsureVaultUnlocked). **Waiting on the owner:** passkeys need a browser
+      package (`@simplewebauthn/browser` or `@laravel/passkeys`), so they wait for approval.
+- [~] Encrypted off-site backups on a schedule, plus a restore-drill command. **Done:** PHP dumper
+      (works on Hostinger), row counts in the manifest, `coffer:backup-drill` monthly (D150).
+      **Waiting on the owner:** the off-site bucket (S3-compatible, India region).
+- [x] Public security page (encryption, hosting region, access controls, disclosure contact) and
+      `/.well-known/security.txt`. (D151; hosting region is left off until production's region is final.)
 
 **Accept:**
 - With the KMS driver, no plaintext master key is in `.env` or the database.

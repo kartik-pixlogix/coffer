@@ -216,7 +216,9 @@ vault secret is gone; leak it and anyone with a database copy can read them.
 
 ## 7. Backups and the restore drill
 
-`php artisan coffer:backup` runs nightly at 01:30 (D96): a `mysqldump --single-transaction` plus
+`php artisan coffer:backup` runs nightly at 01:30 (D96, D150): a database dump (on MySQL/MariaDB
+the PHP dumper by default, `BACKUP_DUMPER=php`: one consistent snapshot, no binary needed, exact
+row counts in the manifest; `BACKUP_DUMPER=mysqldump` uses the binary instead) plus
 `storage/app/private` and `storage/app/public`, in one ZIP with every entry AES-256 encrypted by
 `BACKUP_PASSWORD`, written to `BACKUP_DISK`; backups older than `BACKUP_KEEP_DAYS` (14) are deleted
 (never the newest). Use an **off-site** disk: add an `s3` disk for a bucket in another region with
@@ -225,7 +227,15 @@ vault master key. Managed MySQL snapshots are a good second layer, not a replace
 
 Manual run: `php artisan coffer:backup` (or `--no-files` for the database only).
 
-**Restore drill** (do it before launch, then quarterly, on a scratch server, never production):
+**Automatic restore drill** (D150): `php artisan coffer:backup-drill` runs monthly (the 3rd, 02:30).
+It opens the newest backup with `BACKUP_PASSWORD` and checks the manifest and dump. With
+`BACKUP_DRILL_DATABASE` set to an empty scratch database on the same server (create it once; the
+app's database user needs all privileges on it), it also loads the dump there and checks that every
+table has the row count recorded at backup time, that the books balance and that the ledger guard
+triggers came back, then empties the scratch database. It refuses to run against the live database.
+A failure is logged at `critical`. Run it by hand after any change to backups.
+
+**Full restore drill** (before launch, then quarterly, on a scratch server, never production):
 1. Download the newest `coffer-YYYY-MM-DD-HHMMSS.zip` from the backup disk.
 2. `7z x coffer-….zip -orestore` and enter `BACKUP_PASSWORD` (AES-256 ZIP; `unzip` can't).
 3. `mysql -u root -p -e "CREATE DATABASE coffer_restore CHARACTER SET utf8mb4"`;
@@ -234,8 +244,10 @@ Manual run: `php artisan coffer:backup` (or `--no-files` for the database only).
    `storage/app/public` of a checkout of the same release.
 5. Point that checkout's `.env` at `coffer_restore`, with the **same** `APP_KEY`,
    `VAULT_MASTER_KEY` (and any previous master keys of that date) and `VAULT_FINGERPRINT_KEY`.
-6. `php artisan coffer:ledger-integrity` must report every company balanced; sign in, open a
-   company's dashboard, a receipt, and reveal one vault item.
+6. `php artisan coffer:ledger-integrity` must report every company balanced and
+   `php artisan coffer:ledger-guard` the guard installed; sign in, open a company's dashboard, a
+   receipt, and reveal one vault item. Without the same `VAULT_MASTER_KEY` the encrypted business
+   fields (GSTIN, addresses, emails, notes) and receipts can't be read either (D149).
 7. Write down the date, the backup used and how long it took (the recovery time).
 
 ## 8. Health, monitoring and errors
@@ -278,6 +290,16 @@ Manual run: `php artisan coffer:backup` (or `--no-files` for the database only).
 - `composer audit` and `npm audit --omit=dev` before each release (clean at launch, D93).
 - Database user `coffer` gets privileges on the `coffer` database only. Redis has a password and
   listens on localhost.
+- **Ledger guard** (D148): migrations create triggers that refuse edits and deletes of posted
+  journal rows, so the database user needs the `TRIGGER` privilege (on MySQL with binary logging,
+  also `log_bin_trust_function_creators = 1`, or a user with `SUPER`). If the host refuses, the
+  migration warns instead of failing; `/health` shows `ledger_guard: warn` and
+  `php artisan coffer:ledger-guard --install` adds them once the privilege is there.
+- **Encrypted business data** (D149): GSTIN, addresses, bank labels, partner/member emails, notes
+  and the receipt/invoice files are sealed with each company's data key, so `VAULT_MASTER_KEY`
+  now protects the books as well as the vault. Losing it loses those fields.
+- `/.well-known/security.txt` (D151) points reporters at `SECURITY_CONTACT` (an email or URL) or,
+  unset, the contact form's "Report a security issue" topic.
 
 ## 11. Optional: Docker outline
 
@@ -330,8 +352,9 @@ uses its slot for the run-once deploy job, then puts the worker back.
 **Gotchas met on the first deploy:**
 - Cron ignores output redirection (`>> file`) and only returns output for `bash script.sh` jobs, so read logs with a small script.
 - The account's CLI `php` is 8.3; use the 8.4 path above. The scheduler starts each command as a
-  child `php` without the `-d` override, so a command that shells out (`coffer:backup` runs
-  `mysqldump`) fails there; run it from its own cron job if backups are needed on this host.
+  child `php` without the `-d` override, so a command that shells out fails there. Since v2's PHP
+  dumper (D150) `coffer:backup` no longer shells out, so the scheduled backup works on this host;
+  `BACKUP_DISK` should still point off this server (v1 here still has the mysqldump backup).
 - `storage:link` fails (no `exec`/`symlink` in PHP): the link is made with `ln -s` in a shell script.
 - LiteSpeed answers 500 when a response header passes ~8 KB, before Laravel can log anything. The
   preload `Link` header had reached 11 KB, so it is capped at 20 assets (`bootstrap/app.php`).
