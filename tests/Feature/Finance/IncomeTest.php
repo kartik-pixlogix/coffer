@@ -268,6 +268,17 @@ test('the invoice is stored privately and served only to people with the page', 
         ->assertOk()->assertDownload('invoice-118.pdf');
     $this->actingAs($member)->get(route('income.attachment', $income))->assertForbidden();
 
+    // Encrypted at rest (D149): ciphertext on disk, the original bytes when served.
+    $original = '%PDF-1.7 invoice 118 body';
+    $this->actingAs($admin)->put(route('income.update', $income), incomePayload($books, [
+        'attachment' => UploadedFile::fake()->createWithContent('invoice-118.pdf', $original),
+    ]))->assertSessionHasNoErrors();
+    $income->refresh();
+
+    expect($income->attachment_path)->toEndWith('.v1.cfe')
+        ->and(Storage::disk('local')->get($income->attachment_path))->toStartWith('cfe1:')->not->toContain('invoice 118');
+    expect($this->actingAs($admin)->get(route('income.attachment', $income))->streamedContent())->toBe($original);
+
     // Replacing it removes the old file.
     $old = $income->attachment_path;
     $this->actingAs($admin)->put(route('income.update', $income), incomePayload($books, [

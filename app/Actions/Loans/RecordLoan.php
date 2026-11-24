@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Services\Finance\EntryReverser;
 use App\Services\Finance\PeriodGuard;
 use App\Services\Finance\PersonalCardBalances;
+use App\Services\Security\SealedFields;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -83,9 +84,10 @@ final class RecordLoan
     }
 
     /**
-     * Edit loan (A6, D138). Returns what changed as field => [old, new] for the activity log.
+     * Edit loan (A6, D138). Returns what changed as field => [old, new] for the activity log,
+     * or field => 'changed' for sealed text (D149), so the log never holds it in plaintext.
      *
-     * @return array<string, array{0: mixed, 1: mixed}>
+     * @return array<string, array{0: mixed, 1: mixed}|'changed'>
      */
     public function edit(Company $company, Loan $loan, LoanEdit $data, User $by): array
     {
@@ -106,7 +108,10 @@ final class RecordLoan
             $changes = [];
 
             foreach (array_keys($locked->getDirty()) as $field) {
-                $changes[$field] = [$this->plain($locked->getOriginal($field)), $this->plain($locked->getAttribute($field))];
+                // Sealed text (the purpose, D149) is logged as changed, never as old → new plaintext.
+                $changes[$field] = in_array($field, SealedFields::of($locked), true)
+                    ? 'changed'
+                    : [$this->plain($locked->getOriginal($field)), $this->plain($locked->getAttribute($field))];
             }
 
             $repost = $locked->isDirty(['amount_paise', 'lent_on']);

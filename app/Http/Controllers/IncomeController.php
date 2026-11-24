@@ -170,7 +170,7 @@ final class IncomeController extends Controller
         Gate::authorize('view', $income);
         abort_if($income->attachment_path === null, 404);
 
-        return $attachments->response($income->attachment_path, (string) $income->attachment_name, $income->attachment_mime, $request->boolean('download'));
+        return $attachments->response($income->company_id, $income->attachment_path, (string) $income->attachment_name, $income->attachment_mime, $request->boolean('download'));
     }
 
     /** CSV of the fiscal year's entries (with the category filter). */

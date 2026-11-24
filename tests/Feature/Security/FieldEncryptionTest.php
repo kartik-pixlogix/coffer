@@ -9,12 +9,15 @@ use App\Models\Member;
 use App\Models\Partner;
 use App\Models\Project;
 use App\Models\TimeEntry;
+use App\Services\Finance\Attachments;
 use App\Services\Security\FieldCrypto;
 use App\Services\Security\FieldRotation;
 use App\Services\Security\SealedFields;
 use App\Services\Vault\VaultKeys;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /*
 | Field-level encryption of sensitive business data (Phase 10, D149): the database holds
@@ -141,4 +144,39 @@ test('partners keep their email sealed too', function () {
 
     expect(DB::table('partners')->where('id', $partner->id)->value('email'))->toStartWith('cf1:')
         ->and($partner->fresh()?->email)->toBe('kabir@bluefin.in');
+});
+
+test('receipts and invoices are sealed on disk and re-sealed by a key rotation', function () {
+    $books = singleBooks();
+    $files = app(Attachments::class);
+    Storage::fake('local');
+
+    $stored = $files->store($books->company, 'expenses', UploadedFile::fake()->createWithContent('IMG_2041.jpg', 'JPEG-BYTES-2041'));
+
+    expect($stored['path'])->toMatch('#^companies/'.$books->company->id.'/expenses/[A-Za-z0-9]{40}\.v1\.cfe$#')
+        ->and(Storage::disk('local')->get($stored['path']))->not->toContain('JPEG-BYTES')
+        ->and($files->read($books->company->id, $stored['path']))->toBe('JPEG-BYTES-2041');
+
+    // Another company's key (or a renamed file) can't open it.
+    $other = Company::factory()->create();
+    app(FieldCrypto::class)->seal($other->id, 'x', 'companies.gstin');
+    expect(fn () => $files->read($other->id, $stored['path']))->toThrow(VaultDecryptionFailed::class);
+
+    // A file stored before D149 is still served, and the rotation seals it.
+    Storage::disk('local')->put("companies/{$books->company->id}/income/legacy.pdf", 'LEGACY-PDF');
+    DB::table('incomes')->insert([
+        'company_id' => $books->company->id, 'source' => 'Asha Retail', 'amount_paise' => 100, 'received_on' => fyDay(5)->toDateString(),
+        'category_id' => category($books->company, 'income', 'Consulting')->id, 'attachment_path' => "companies/{$books->company->id}/income/legacy.pdf", 'created_at' => now(), 'updated_at' => now(),
+    ]);
+    expect($files->read($books->company->id, "companies/{$books->company->id}/income/legacy.pdf"))->toBe('LEGACY-PDF');
+
+    $version = app(VaultKeys::class)->addVersion($books->company->id);
+    expect(app(FieldRotation::class)->remaining($books->company->id, $version))->toBe(1);
+    app(FieldRotation::class)->reseal($books->company->id, $version, 50);
+
+    $path = (string) DB::table('incomes')->where('company_id', $books->company->id)->value('attachment_path');
+    expect($path)->toEndWith(".v{$version}.cfe")
+        ->and($files->read($books->company->id, $path))->toBe('LEGACY-PDF')
+        ->and(Storage::disk('local')->exists("companies/{$books->company->id}/income/legacy.pdf"))->toBeFalse()
+        ->and(app(FieldRotation::class)->remaining($books->company->id, $version))->toBe(0);
 });

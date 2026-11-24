@@ -17,6 +17,7 @@ return new class extends Migration
         'members' => ['email'],
         'time_entries' => ['notes'],
         'capital_movements' => ['note'],
+        'loans' => ['purpose'],
         'loan_repayments' => ['note'],
         'reimbursements' => ['note'],
     ];

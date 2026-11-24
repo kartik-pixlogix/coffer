@@ -284,7 +284,7 @@ final class ExpensesController extends Controller
         Gate::authorize('view', $expense);
         abort_if($expense->receipt_path === null, 404);
 
-        return $attachments->response($expense->receipt_path, (string) $expense->receipt_name, $expense->receipt_mime, $request->boolean('download'));
+        return $attachments->response($expense->company_id, $expense->receipt_path, (string) $expense->receipt_name, $expense->receipt_mime, $request->boolean('download'));
     }
 
     /** CSV of the filtered list, or of the selected rows (`ids[]`). */

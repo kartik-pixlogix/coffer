@@ -8,6 +8,7 @@ use App\Models\CapitalMovement;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\Loan;
 use App\Models\LoanRepayment;
 use App\Models\Member;
 use App\Models\MoneyAccount;
@@ -33,6 +34,7 @@ final class SealedFields
         Expense::class => ['notes'],
         TimeEntry::class => ['notes'],
         CapitalMovement::class => ['note'],
+        Loan::class => ['purpose'],
         LoanRepayment::class => ['note'],
         Reimbursement::class => ['note'],
     ];
