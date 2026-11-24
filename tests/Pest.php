@@ -7,6 +7,7 @@ use App\Actions\Vault\SaveVaultItem;
 use App\Enums\CompanyRole;
 use App\Enums\VaultAccessLevel;
 use App\Ledger\ChartOfAccounts;
+use App\Ledger\LedgerGuard;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\JournalEntry;
@@ -139,6 +140,15 @@ function journalLines(int|JournalEntry|null $entry): array
 
             return $l->account->name.': '.($l->debit_paise > 0 ? 'Dr '.$l->debit_paise : 'Cr '.$l->credit_paise).$dimText;
         })->values()->all();
+}
+
+/**
+ * Changes posted journal rows behind LedgerPoster's back, as a bug or a bad manual fix would.
+ * The database guard (D148) refuses that, so tests that simulate it lift the guard.
+ */
+function tamperWithLedger(callable $change): mixed
+{
+    return LedgerGuard::unlocked($change);
 }
 
 /** The 2FA setup key every vault test user gets (base32), so tests can compute real codes. */

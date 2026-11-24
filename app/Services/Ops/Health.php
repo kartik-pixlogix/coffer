@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Ops;
 
+use App\Ledger\LedgerGuard;
 use App\Models\VaultKey;
 use App\Services\Vault\VaultKeys;
 use Carbon\CarbonImmutable;
@@ -17,7 +18,7 @@ use Throwable;
  * check answers ok / warn / fail with a short detail, never a secret, a path or an exception
  * message: database, cache, queue heartbeat (a job the scheduler queues every five minutes),
  * scheduler heartbeat (written every minute), the vault master key (loaded, and it opens
- * every stored data key) and the last backup.
+ * every stored data key), the ledger guard triggers (D148) and the last backup.
  */
 class Health
 {
@@ -52,6 +53,11 @@ class Health
                 $missing = array_diff($used, $known);
 
                 return $missing === [] ? ['ok', 'master key loaded'] : ['fail', count($missing).' data key(s) wrapped by a master key that is not configured'];
+            }),
+            'ledger_guard' => $this->guard(fn (): array => match (true) {
+                ! LedgerGuard::supported() => ['warn', 'not available on this database'],
+                LedgerGuard::installed() => ['ok', 'posted rows locked'],
+                default => ['warn', 'triggers missing: run coffer:ledger-guard --install'],
             }),
             'backup' => $this->guard(fn (): array => $this->heartbeat(Backup::HEARTBEAT, warnAfter: 26 * 60, failAfter: 72 * 60, what: 'backup')),
         ];

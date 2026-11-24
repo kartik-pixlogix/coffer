@@ -26,7 +26,7 @@ test('a broken line fails the check and emails the company’s Admins', function
     $entry = app(OpeningBalance::class)->post($books->company, fyDay());
 
     // Simulate a bug that slipped past the poster.
-    JournalLine::query()->withoutGlobalScopes()->where('journal_entry_id', $entry->id)->where('debit_paise', '>', 0)->update(['debit_paise' => 99_999_00]);
+    tamperWithLedger(fn () => JournalLine::query()->withoutGlobalScopes()->where('journal_entry_id', $entry->id)->where('debit_paise', '>', 0)->update(['debit_paise' => 99_999_00]));
 
     $this->artisan('coffer:ledger-integrity')->assertFailed();
 

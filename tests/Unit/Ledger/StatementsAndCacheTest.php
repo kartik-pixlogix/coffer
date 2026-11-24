@@ -92,7 +92,7 @@ test('find the drift lists the entry a corrupted line unbalances, and the trial 
     $entry = JournalEntry::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->where('type', 'expense')->orderBy('id')->firstOrFail();
 
     // Simulate a bad manual fix: one line's debit changes behind LedgerPoster's back.
-    DB::table('journal_lines')->where('journal_entry_id', $entry->id)->where('debit_paise', '>', 0)->limit(1)->update(['debit_paise' => 42_500_00]);
+    tamperWithLedger(fn () => DB::table('journal_lines')->where('journal_entry_id', $entry->id)->where('debit_paise', '>', 0)->limit(1)->update(['debit_paise' => 42_500_00]));
     app(ReportCache::class)->flush($books->company);
 
     $tb = app(Reports::class)->trialBalanceAsOf($books->company, fyDay(), fyDay(200));
@@ -109,7 +109,7 @@ test('find the drift lists the entry a corrupted line unbalances, and the trial 
 test('find the drift also catches lines dated apart from their entry and accounts of the wrong type', function () {
     $books = statementBooks();
     $entry = JournalEntry::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->where('type', 'income')->orderBy('id')->firstOrFail();
-    DB::table('journal_lines')->where('journal_entry_id', $entry->id)->limit(1)->update(['date' => fyDay(300)->toDateString()]);
+    tamperWithLedger(fn () => DB::table('journal_lines')->where('journal_entry_id', $entry->id)->limit(1)->update(['date' => fyDay(300)->toDateString()]));
     DB::table('accounts')->where('company_id', $books->company->id)->where('role', 'money')->update(['type' => 'income']);
 
     $kinds = collect(app(DriftFinder::class)->find($books->company, fyDay(400)))->pluck('kind');

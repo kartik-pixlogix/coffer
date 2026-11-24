@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Privacy;
 
+use App\Ledger\LedgerGuard;
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
@@ -33,6 +34,16 @@ final readonly class CompanyEraser
             return [];
         }
 
+        // Erasure is the one time posted journal rows may go (D148).
+        return LedgerGuard::unlocked(fn (): array => $this->eraseRows($companyIds));
+    }
+
+    /**
+     * @param  list<int>  $companyIds
+     * @return list<string>
+     */
+    private function eraseRows(array $companyIds): array
+    {
         $scoped = $this->tables->scoped();
         $files = $this->filePaths($scoped, $companyIds);
         $this->forgetActivity($scoped, $companyIds);

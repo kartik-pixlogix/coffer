@@ -91,7 +91,7 @@ test('an out-of-balance ledger shows the drift, and Find the drift lists the cul
     $books = sheetBooks();
     $admin = userWithRole(CompanyRole::Admin, $books->company);
     $entry = JournalEntry::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->where('type', 'income')->sole();
-    DB::table('journal_lines')->where('journal_entry_id', $entry->id)->where('credit_paise', '>', 0)->update(['credit_paise' => 2_87_500_00]);
+    tamperWithLedger(fn () => DB::table('journal_lines')->where('journal_entry_id', $entry->id)->where('credit_paise', '>', 0)->update(['credit_paise' => 2_87_500_00]));
     app(ReportCache::class)->flush($books->company);
 
     $this->actingAs($admin)->get(route('reports.trial-balance'))
@@ -116,7 +116,7 @@ test('recheck recomputes past the cache', function () {
 
     // A change that bypasses the ledger (and so the cache bump) shows after Recheck.
     $entry = JournalEntry::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->where('type', 'loan')->sole();
-    DB::table('journal_lines')->where('journal_entry_id', $entry->id)->where('debit_paise', '>', 0)->update(['debit_paise' => 40_000_01]);
+    tamperWithLedger(fn () => DB::table('journal_lines')->where('journal_entry_id', $entry->id)->where('debit_paise', '>', 0)->update(['debit_paise' => 40_000_01]));
 
     $this->actingAs($admin)->get(route('reports.trial-balance', ['recheck' => 1]))
         ->assertInertia(fn (Assert $page) => $page->where('trial.driftPaise', 1));
