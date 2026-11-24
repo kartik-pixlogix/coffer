@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 /*
 | Backups (spec §23 "daily encrypted DB backups", D96). `php artisan coffer:backup` dumps the
-| database (mysqldump, or pg_dump on PostgreSQL) and the private and public storage into one
+| database (PHP dumper or mysqldump, pg_dump on PostgreSQL) and the private and public storage into one
 | AES-256 encrypted ZIP, writes it to `disk`, then deletes backups older than `keep_days`.
-| Restore drill: docs/DEPLOY.md.
+| Restore drill: `php artisan coffer:backup-drill` (monthly from the scheduler), docs/DEPLOY.md.
 */
 
 return [
@@ -30,6 +30,15 @@ return [
 
     // Backups older than this are deleted after each successful run.
     'keep_days' => (int) env('BACKUP_KEEP_DAYS', 14),
+
+    // MySQL / MariaDB dumper (D150): `php` needs no binary (shared hosting) and records exact row
+    // counts for the restore drill; `mysqldump` uses the binary below.
+    'dumper' => env('BACKUP_DUMPER', 'php'),
+
+    // The restore drill (`coffer:backup-drill`) loads the newest backup into this scratch
+    // database on the same server and checks it. Never the live database; empty = only check
+    // that the backup decrypts and reads.
+    'drill_database' => env('BACKUP_DRILL_DATABASE'),
 
     // Dump binaries (full paths if they're not on PATH, e.g. C:/xampp/mysql/bin/mysqldump.exe).
     'mysqldump' => env('BACKUP_MYSQLDUMP_PATH', 'mysqldump'),

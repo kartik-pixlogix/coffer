@@ -9,27 +9,52 @@ use Illuminate\Support\Facades\Process;
 use RuntimeException;
 
 /**
- * Writes a plain SQL dump of the default connection (D96): mysqldump for MySQL / MariaDB,
- * pg_dump for PostgreSQL. The password never goes on the command line: mysqldump reads it
- * from a temporary option file, pg_dump from PGPASSWORD.
+ * Writes a plain SQL dump of the default connection (D96, D150). MySQL / MariaDB: the PHP
+ * dumper by default (`BACKUP_DUMPER=php`; it needs no binary, so it works where `proc_open`
+ * is disabled, and it reports exact row counts for the restore drill), or mysqldump
+ * (`BACKUP_DUMPER=mysqldump`). PostgreSQL: pg_dump. The password never goes on a command
+ * line: mysqldump reads it from a temporary option file, pg_dump from PGPASSWORD.
  */
 class DatabaseDumper
 {
-    public function dump(string $toFile): void
+    public function __construct(private readonly PhpMysqlDumper $php) {}
+
+    /** @return array<string, int>|null rows per table when the dumper knows them exactly */
+    public function dump(string $toFile): ?array
     {
         $connection = DB::connection();
         $driver = $connection->getDriverName();
         /** @var array{host?: string, port?: int|string, database?: string, username?: string, password?: string} $config */
         $config = $connection->getConfig();
+        $counts = null;
 
-        match ($driver) {
-            'mysql', 'mariadb' => $this->mysql($config, $toFile),
-            'pgsql' => $this->postgres($config, $toFile),
+        match (true) {
+            in_array($driver, ['mysql', 'mariadb'], true) && config('backup.dumper') !== 'mysqldump' => $counts = $this->phpDump($toFile),
+            in_array($driver, ['mysql', 'mariadb'], true) => $this->mysql($config, $toFile),
+            $driver === 'pgsql' => $this->postgres($config, $toFile),
             default => throw new RuntimeException("Backups support MySQL, MariaDB and PostgreSQL, not {$driver}."),
         };
 
         if (! is_file($toFile) || filesize($toFile) === 0) {
             throw new RuntimeException('The database dump came out empty.');
+        }
+
+        return $counts;
+    }
+
+    /**
+     * On a connection of its own, so its snapshot transaction never mixes with the caller's.
+     *
+     * @return array<string, int>
+     */
+    private function phpDump(string $toFile): array
+    {
+        config(['database.connections.backup_dump' => DB::connection()->getConfig()]);
+
+        try {
+            return $this->php->dump(DB::connection('backup_dump'), $toFile);
+        } finally {
+            DB::purge('backup_dump');
         }
     }
 

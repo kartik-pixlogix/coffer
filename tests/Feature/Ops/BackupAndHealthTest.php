@@ -27,9 +27,13 @@ beforeEach(function () {
     // The real dumper shells out to mysqldump; the test writes a known dump instead.
     app()->instance(DatabaseDumper::class, new class extends DatabaseDumper
     {
-        public function dump(string $toFile): void
+        public function __construct() {}
+
+        public function dump(string $toFile): ?array
         {
             file_put_contents($toFile, "-- Coffer test dump\nCREATE TABLE t (id int);\n");
+
+            return null;
         }
     });
 });

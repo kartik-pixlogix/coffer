@@ -48,7 +48,7 @@ class Health
             'queue' => $this->guard(fn (): array => $this->heartbeat(self::QUEUE_HEARTBEAT, warnAfter: 15, failAfter: 60, what: 'job')),
             'scheduler' => $this->guard(fn (): array => $this->heartbeat(self::SCHEDULER_HEARTBEAT, warnAfter: 5, failAfter: 30, what: 'tick')),
             'vault' => $this->guard(function (): array {
-                $known = array_keys($this->keys->masters());
+                $known = $this->keys->masterIds();
                 $used = VaultKey::query()->withoutGlobalScopes()->distinct()->pluck('master_key_id')->all();
                 $missing = array_diff($used, $known);
 

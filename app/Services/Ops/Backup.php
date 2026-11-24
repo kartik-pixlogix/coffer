@@ -45,7 +45,7 @@ class Backup
         $now = CarbonImmutable::now();
 
         try {
-            $this->dumper->dump($sql);
+            $tables = $this->dumper->dump($sql);
 
             $zip = new ZipArchive;
 
@@ -74,6 +74,8 @@ class Backup
                 'created_at' => $now->toIso8601String(),
                 'database' => config('database.default'),
                 'files' => $files,
+                // Rows per table, for the restore drill (D150); null when the dumper can't say exactly.
+                'tables' => $tables,
             ], JSON_PRETTY_PRINT));
             $zip->setEncryptionName('manifest.json', ZipArchive::EM_AES_256);
 

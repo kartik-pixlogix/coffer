@@ -33,6 +33,8 @@ Schedule::command('coffer:privacy-purge')->dailyAt('04:30')->withoutOverlapping(
 
 // D96: the nightly encrypted backup (database + private and public storage), then retention.
 Schedule::command('coffer:backup')->dailyAt('01:30')->withoutOverlapping(120)->onOneServer();
+// D150: prove the newest backup restores, monthly.
+Schedule::command('coffer:backup-drill')->monthlyOn(3, '02:30')->withoutOverlapping(120)->onOneServer();
 
 // D97: heartbeats for /health. The scheduler writes its own every minute; a queued job proves a
 // worker is running. Horizon's metrics need a snapshot every five minutes.
