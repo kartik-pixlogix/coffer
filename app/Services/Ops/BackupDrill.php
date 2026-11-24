@@ -9,11 +9,9 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use RuntimeException;
-use SplFileInfo;
 use ZipArchive;
 
 /**
@@ -178,22 +176,47 @@ class BackupDrill
         return is_string($newest) ? $newest : throw new RuntimeException('There is no backup to drill yet. Run coffer:backup first.');
     }
 
-    /** The work folder holds the decrypted dump: it always goes, files first. */
+    /**
+     * The work folder holds the decrypted dump: it always goes, files first. On Windows a file
+     * that was just written can stay locked for a moment (a virus scanner), so it tries again.
+     */
     private function removeTree(string $dir): void
     {
-        if (! is_dir($dir)) {
-            return;
+        for ($attempt = 0; $attempt < 20 && is_dir($dir); $attempt++) {
+            if ($attempt > 0) {
+                usleep(100_000);
+            }
+
+            foreach (array_reverse($this->tree($dir)) as $path) {
+                is_dir($path) ? @rmdir($path) : @unlink($path);
+            }
+
+            @rmdir($dir);
         }
 
-        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+        if (is_dir($dir)) {
+            Log::warning('The restore drill could not remove its work folder', ['folder' => $dir]);
+        }
+    }
 
-        foreach ($files as $file) {
-            if ($file instanceof SplFileInfo) {
-                $file->isDir() ? @rmdir($file->getPathname()) : @unlink($file->getPathname());
+    /** @return list<string> every path under `$dir`, parents before children */
+    private function tree(string $dir): array
+    {
+        $paths = [];
+
+        foreach (scandir($dir) ?: [] as $name) {
+            if ($name === '.' || $name === '..') {
+                continue;
+            }
+
+            $path = $dir.DIRECTORY_SEPARATOR.$name;
+            $paths[] = $path;
+
+            if (is_dir($path)) {
+                $paths = [...$paths, ...$this->tree($path)];
             }
         }
 
-        unset($files); // the iterator holds the folder open on Windows
-        @rmdir($dir);
+        return $paths;
     }
 }
