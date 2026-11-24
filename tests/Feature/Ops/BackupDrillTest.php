@@ -113,3 +113,14 @@ test('the drill fails on a wrong password, and never restores into the live data
 test('the drill fails when there is no backup yet', function () {
     $this->artisan('coffer:backup-drill')->expectsOutputToContain('no backup to drill')->assertFailed();
 });
+
+test('the drill leaves no work folder behind, even when it fails', function () {
+    $this->artisan('coffer:backup --no-files')->assertSuccessful();
+    config(['backup.password' => 'the-wrong-password-entirely']);
+
+    $this->artisan('coffer:backup-drill')->assertFailed();
+    config(['backup.password' => DRILL_PASSWORD]);
+    $this->artisan('coffer:backup-drill')->assertSuccessful();
+
+    expect(glob(storage_path('framework/drill-*')) ?: [])->toBe([]);
+});

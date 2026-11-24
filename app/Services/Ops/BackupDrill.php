@@ -10,7 +10,10 @@ use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RuntimeException;
+use SplFileInfo;
 use ZipArchive;
 
 /**
@@ -49,19 +52,23 @@ class BackupDrill
                 throw new RuntimeException('The backup is not a readable ZIP.');
             }
 
-            $zip->setPassword((string) config('backup.password'));
-            $manifestJson = $zip->getFromName('manifest.json');
-            $manifest = is_string($manifestJson) ? json_decode($manifestJson, true) : null;
+            // Closed on every path: Windows won't delete an open file, and the folder must go.
+            try {
+                $zip->setPassword((string) config('backup.password'));
+                $manifestJson = $zip->getFromName('manifest.json');
+                $manifest = is_string($manifestJson) ? json_decode($manifestJson, true) : null;
 
-            if (! is_array($manifest) || ! isset($manifest['created_at'])) {
-                throw new RuntimeException('The manifest could not be read: wrong BACKUP_PASSWORD, or a damaged backup.');
+                if (! is_array($manifest) || ! isset($manifest['created_at'])) {
+                    throw new RuntimeException('The manifest could not be read: wrong BACKUP_PASSWORD, or a damaged backup.');
+                }
+
+                if (! $zip->extractTo($work, 'database.sql')) {
+                    throw new RuntimeException('The database dump could not be extracted.');
+                }
+            } finally {
+                $zip->close();
             }
 
-            if (! $zip->extractTo($work, 'database.sql')) {
-                throw new RuntimeException('The database dump could not be extracted.');
-            }
-
-            $zip->close();
             $sql = $work.'/database.sql';
             $head = (string) file_get_contents($sql, false, null, 0, 4096);
 
@@ -171,14 +178,22 @@ class BackupDrill
         return is_string($newest) ? $newest : throw new RuntimeException('There is no backup to drill yet. Run coffer:backup first.');
     }
 
+    /** The work folder holds the decrypted dump: it always goes, files first. */
     private function removeTree(string $dir): void
     {
-        foreach (glob($dir.'/{,.}*', GLOB_BRACE) ?: [] as $file) {
-            if (is_file($file)) {
-                @unlink($file);
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+
+        foreach ($files as $file) {
+            if ($file instanceof SplFileInfo) {
+                $file->isDir() ? @rmdir($file->getPathname()) : @unlink($file->getPathname());
             }
         }
 
+        unset($files); // the iterator holds the folder open on Windows
         @rmdir($dir);
     }
 }

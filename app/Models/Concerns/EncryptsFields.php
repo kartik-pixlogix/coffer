@@ -29,10 +29,10 @@ trait EncryptsFields
 
     public static function bootEncryptsFields(): void
     {
-        static::retrieved(fn (Model $model) => $model->openSealedFields());
-        static::creating(fn (Model $model) => $model->sealDirtyFields());
-        static::updating(fn (Model $model) => $model->sealDirtyFields());
-        static::saved(fn (Model $model) => $model->restoreSealedFields());
+        static::retrieved(fn (self $model) => $model->openSealedFields());
+        static::creating(fn (self $model) => $model->sealDirtyFields());
+        static::updating(fn (self $model) => $model->sealDirtyFields());
+        static::saved(fn (self $model) => $model->restoreSealedFields());
     }
 
     public function openSealedFields(): void
