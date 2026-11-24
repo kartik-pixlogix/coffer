@@ -232,7 +232,7 @@ It opens the newest backup with `BACKUP_PASSWORD` and checks the manifest and du
 `BACKUP_DRILL_DATABASE` set to an empty scratch database on the same server (create it once; the
 app's database user needs all privileges on it), it also loads the dump there and checks that every
 table has the row count recorded at backup time, that the books balance and that the ledger guard
-triggers came back, then empties the scratch database. It refuses to run against the live database.
+triggers came back, then empties the scratch database. It refuses the live database, and any database holding tables it didn't create (it marks its own with a `coffer_backup_drill` table).
 A failure is logged at `critical`. Run it by hand after any change to backups.
 
 **Full restore drill** (before launch, then quarterly, on a scratch server, never production):

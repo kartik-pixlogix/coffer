@@ -124,3 +124,23 @@ test('the drill leaves no work folder behind, even when it fails', function () {
 
     expect(glob(storage_path('framework/drill-*')) ?: [])->toBe([]);
 });
+
+test('the drill refuses a database that holds tables it didn’t create', function () {
+    config(['backup.drill_database' => drillDatabase()]);
+    config(['database.connections.drill_target' => ['database' => drillDatabase()] + DB::connection()->getConfig()]);
+    DB::connection('drill_target')->getSchemaBuilder()->create('someone_elses_table', fn ($t) => $t->id());
+
+    $this->artisan('coffer:backup --no-files')->assertSuccessful();
+    $this->artisan('coffer:backup-drill')->expectsOutputToContain('already holds tables')->assertFailed();
+
+    expect(DB::connection('drill_target')->getSchemaBuilder()->hasTable('someone_elses_table'))->toBeTrue();
+    DB::purge('drill_target');
+});
+
+test('the drill runs again on the database it marked as its own', function () {
+    config(['backup.drill_database' => drillDatabase()]);
+
+    $this->artisan('coffer:backup --no-files')->assertSuccessful();
+    $this->artisan('coffer:backup-drill')->assertSuccessful();
+    $this->artisan('coffer:backup-drill')->assertSuccessful();
+});

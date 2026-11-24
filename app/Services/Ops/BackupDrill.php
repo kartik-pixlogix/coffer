@@ -25,6 +25,9 @@ class BackupDrill
 {
     public const string HEARTBEAT = 'ops:backup:drill';
 
+    /** The table that marks a database as the drill's scratch database. */
+    private const string MARKER = 'coffer_backup_drill';
+
     public function __construct(private readonly SqlImporter $importer) {}
 
     /** @return array{path: string, taken: string, restored: bool, checks: list<string>} */
@@ -97,6 +100,7 @@ class BackupDrill
     private function restore(string $sql, array $manifest): array
     {
         $db = $this->drillConnection();
+        $this->assertScratch($db);
 
         try {
             // Start empty, so tables the dump no longer has can't make a count pass.
@@ -148,7 +152,23 @@ class BackupDrill
             return $checks;
         } finally {
             $db->getSchemaBuilder()->dropAllTables();
+            // Marks the database as the drill's own, so the next run may empty it again.
+            $db->getSchemaBuilder()->create(self::MARKER, fn ($table) => $table->timestamp('drilled_at')->nullable());
             DB::purge('backup_drill');
+        }
+    }
+
+    /**
+     * The drill empties its database, so it only touches one that is empty or that it marked
+     * itself: a BACKUP_DRILL_DATABASE pointing at some other real database is refused.
+     */
+    private function assertScratch(Connection $db): void
+    {
+        // This database only: without a schema, getTables() lists every database on the server.
+        $tables = $db->getSchemaBuilder()->getTableListing($db->getDatabaseName(), schemaQualified: false);
+
+        if ($tables !== [] && ! in_array(self::MARKER, $tables, true)) {
+            throw new RuntimeException('BACKUP_DRILL_DATABASE already holds tables the drill didn’t create. Point it at an empty scratch database.');
         }
     }
 
