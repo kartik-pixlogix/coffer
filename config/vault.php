@@ -11,6 +11,10 @@ return [
     | To rotate the master key, move the current value into VAULT_PREVIOUS_MASTER_KEYS
     | (comma-separated), set a new VAULT_MASTER_KEY and run `coffer:vault-rotate --master`.
     */
+    // D152: where the master key lives. `env` is VAULT_MASTER_KEY; KMS drivers plug in behind
+    // App\Services\Vault\MasterKeys\MasterKey.
+    'master_key_driver' => env('VAULT_MASTER_KEY_DRIVER', 'env'),
+
     'master_key' => env('VAULT_MASTER_KEY'),
     'previous_master_keys' => env('VAULT_PREVIOUS_MASTER_KEYS', ''),
 

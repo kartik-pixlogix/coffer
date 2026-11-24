@@ -28,6 +28,8 @@ use App\Services\Dashboard\DashboardVaultPanel;
 use App\Services\Dashboard\VaultExpiringPanel;
 use App\Services\Platform\Impersonator;
 use App\Services\Team\SalaryRecalc;
+use App\Services\Vault\MasterKeys\EnvMasterKey;
+use App\Services\Vault\MasterKeys\MasterKey;
 use App\Services\Vault\VaultAccess;
 use App\Services\Vault\VaultKeys;
 use App\Services\Vault\VaultSharing;
@@ -55,6 +57,7 @@ use Inertia\Inertia;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -69,6 +72,12 @@ class AppServiceProvider extends ServiceProvider
         // One per request (and per queued job), reset between them.
         $this->app->scoped(CurrentCompany::class);
         $this->app->scoped(SalaryRecalc::class);
+
+        // Where the master key lives (D152). KMS drivers (aws-kms, gcp-kms) go here once chosen.
+        $this->app->bind(MasterKey::class, fn (): MasterKey => match (config('vault.master_key_driver')) {
+            'env', null, '' => new EnvMasterKey,
+            default => throw new RuntimeException('VAULT_MASTER_KEY_DRIVER '.config('vault.master_key_driver').' is not available. Use env (KMS drivers need their SDK, D152).'),
+        });
 
         // Unwrapped vault keys and access caches live for one request or job.
         $this->app->scoped(VaultKeys::class);

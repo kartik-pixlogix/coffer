@@ -6,50 +6,38 @@ namespace App\Services\Vault;
 
 use App\Exceptions\Vault\VaultKeyMissing;
 use App\Models\VaultKey;
+use App\Services\Vault\MasterKeys\EnvMasterKey;
+use App\Services\Vault\MasterKeys\MasterKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use SensitiveParameter;
 
 /**
- * The key hierarchy (spec §14.3, D66): VAULT_MASTER_KEY (env) wraps one random 256-bit
- * data key per company and version; VAULT_FINGERPRINT_KEY keys the reuse fingerprints.
- * Unwrapped keys live only in this object's memory for the request or job.
+ * The key hierarchy (spec §14.3, D66): the master key (a MasterKey driver, D152: `env` is
+ * VAULT_MASTER_KEY) wraps one random 256-bit data key per company and version;
+ * VAULT_FINGERPRINT_KEY keys the reuse fingerprints. Unwrapped keys live only in this
+ * object's memory for the request or job.
  */
 final class VaultKeys
 {
+    public function __construct(private readonly MasterKey $masterKey) {}
+
     /** @var array<string, string> "company:version" → raw data key */
     private array $dataKeys = [];
 
     /** @var array<int, int> company → active version */
     private array $active = [];
 
-    /** The raw current master key. */
-    public function master(): string
-    {
-        return self::decode(config('vault.master_key'), 'VAULT_MASTER_KEY') ?? throw VaultKeyMissing::master();
-    }
-
-    /** "a1b2…": names a master key without revealing it (first 16 hex of its SHA-256). */
+    /** "a1b2…": names an `env` master key without revealing it (first 16 hex of its SHA-256). */
     public static function idOf(#[SensitiveParameter] string $rawKey): string
     {
-        return substr(hash('sha256', $rawKey), 0, 16);
+        return EnvMasterKey::idOf($rawKey);
     }
 
-    /** @return array<string, string> id → raw key, current first, then VAULT_PREVIOUS_MASTER_KEYS */
-    public function masters(): array
+    /** @return list<string> the master key ids the driver can unwrap with, current first */
+    public function masterIds(): array
     {
-        $current = $this->master();
-        $keys = [self::idOf($current) => $current];
-
-        foreach (array_filter(array_map('trim', explode(',', (string) config('vault.previous_master_keys')))) as $value) {
-            $raw = self::decode($value, 'VAULT_PREVIOUS_MASTER_KEYS');
-
-            if ($raw !== null) {
-                $keys[self::idOf($raw)] ??= $raw;
-            }
-        }
-
-        return $keys;
+        return $this->masterKey->knownIds();
     }
 
     /** Raw per-company key for HMAC fingerprints, derived from VAULT_FINGERPRINT_KEY. */
@@ -82,9 +70,12 @@ final class VaultKeys
         }
 
         $row = $this->query($companyId)->where('version', $version)->first() ?? throw VaultKeyMissing::dataKey($companyId, $version);
-        $master = $this->masters()[$row->master_key_id] ?? throw VaultKeyMissing::unknownMaster($companyId, $version);
 
-        return $this->dataKeys[$cacheKey] = Aead::open($master, $row->wrapped_key, self::wrapAad($companyId, $version), 'data key');
+        if (! in_array($row->master_key_id, $this->masterKey->knownIds(), true)) {
+            throw VaultKeyMissing::unknownMaster($companyId, $version);
+        }
+
+        return $this->dataKeys[$cacheKey] = $this->masterKey->unwrap($row->master_key_id, $row->wrapped_key, self::wrapAad($companyId, $version));
     }
 
     /** Start a data-key rotation: a new version becomes active for new data. */
@@ -108,17 +99,16 @@ final class VaultKeys
      */
     public function rewrapAll(?callable $progress = null): int
     {
-        $current = $this->master();
-        $currentId = self::idOf($current);
+        $currentId = $this->masterKey->currentId();
         $count = 0;
 
         VaultKey::query()->where('master_key_id', '!=', $currentId)->orderBy('id')
-            ->chunkById(100, function ($rows) use ($current, $currentId, &$count, $progress): void {
+            ->chunkById(100, function ($rows) use ($currentId, &$count, $progress): void {
                 foreach ($rows as $row) {
                     /** @var VaultKey $row */
                     $raw = $this->dataKey($row->company_id, $row->version);
                     $row->forceFill([
-                        'wrapped_key' => Aead::seal($current, $raw, self::wrapAad($row->company_id, $row->version)),
+                        'wrapped_key' => $this->masterKey->wrap($raw, self::wrapAad($row->company_id, $row->version)),
                         'master_key_id' => $currentId,
                     ])->save();
                     $count++;
@@ -141,15 +131,14 @@ final class VaultKeys
 
     private function create(int $companyId, int $version): int
     {
-        $master = $this->master();
         $raw = random_bytes(32);
 
         try {
             VaultKey::query()->create([
                 'company_id' => $companyId,
                 'version' => $version,
-                'wrapped_key' => Aead::seal($master, $raw, self::wrapAad($companyId, $version)),
-                'master_key_id' => self::idOf($master),
+                'wrapped_key' => $this->masterKey->wrap($raw, self::wrapAad($companyId, $version)),
+                'master_key_id' => $this->masterKey->currentId(),
             ]);
             $this->dataKeys["{$companyId}:{$version}"] = $raw;
         } catch (UniqueConstraintViolationException) {
