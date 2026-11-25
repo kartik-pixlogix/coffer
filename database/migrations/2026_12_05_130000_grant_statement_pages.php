@@ -26,7 +26,7 @@ return new class extends Migration
 
         $registrar->forgetCachedPermissions();
 
-        foreach (Role::query()->whereIn('name', array_map(fn (CompanyRole $r) => $r->value, Catalog::EDITABLE_ROLES))->get() as $role) {
+        foreach (Role::query()->with('permissions')->whereIn('name', array_map(fn (CompanyRole $r) => $r->value, Catalog::EDITABLE_ROLES))->get() as $role) {
             $grant = array_values(array_filter(self::PAGES, fn (string $page) => Catalog::PAGES[$page]['defaults'][$role->name] ?? false));
 
             if ($grant !== []) {
