@@ -26,6 +26,7 @@ final class PageRoutes
         'reports' => 'reports.index',
         'trial_balance' => 'reports.trial-balance',
         'balance_sheet' => 'reports.balance-sheet',
+        'journal' => 'reports.journal',
         'audit_trail' => 'audit.index',
         'vault' => 'vault.index',
         'settings' => 'settings.company',

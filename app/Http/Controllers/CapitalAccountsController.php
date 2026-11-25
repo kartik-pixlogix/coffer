@@ -48,13 +48,14 @@ final class CapitalAccountsController extends Controller
         $statement = $this->statement($company, $reports, $fy, $partners->all());
 
         $movements = CapitalMovement::query()
-            ->with('moneyAccount:id,name')
+            ->with(['moneyAccount:id,name', 'voucherEntry:id,voucher_no'])
             ->whereBetween('moved_on', [$fy->period->from?->toDateString(), $fy->period->to->toDateString()])
             ->orderByDesc('moved_on')->orderByDesc('id')
             ->get();
         $row = fn (CapitalMovement $m) => [
             'id' => $m->id,
             'date' => $m->moved_on->toDateString(),
+            'voucher' => $m->voucher(),
             'partnerId' => $m->partner_id,
             'amountPaise' => $m->amount_paise,
             'note' => $m->note,

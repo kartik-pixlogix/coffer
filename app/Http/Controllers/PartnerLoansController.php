@@ -48,14 +48,14 @@ final class PartnerLoansController extends Controller
         $to = $fy->period->to->toDateString();
 
         $loans = Loan::query()
-            ->with(['partner', 'moneyAccount:id,name', 'repayments' => fn ($q) => $q->where('paid_on', '<=', $to)->orderBy('paid_on')->orderBy('id')])
+            ->with(['partner', 'moneyAccount:id,name', 'voucherEntry:id,voucher_no', 'repayments' => fn ($q) => $q->where('paid_on', '<=', $to)->orderBy('paid_on')->orderBy('id')])
             ->where('lent_on', '<=', $to)
             ->where(fn (Builder $q) => $q->whereNull('closed_on')->orWhere('closed_on', '>=', $from))
             ->orderBy('number')
             ->get();
 
         $history = LoanRepayment::query()
-            ->with(['loan.partner', 'moneyAccount:id,name'])
+            ->with(['loan.partner', 'moneyAccount:id,name', 'voucherEntry:id,voucher_no'])
             ->whereBetween('paid_on', [$from, $to])
             ->orderByDesc('paid_on')->orderByDesc('id')
             ->get();
@@ -86,6 +86,7 @@ final class PartnerLoansController extends Controller
                 'loanId' => $r->loan_id,
                 'code' => $r->loan->code(),
                 'date' => $r->paid_on->toDateString(),
+                'voucher' => $r->voucher(),
                 'partnerId' => $r->loan->partner_id,
                 'name' => $r->loan->partner->name,
                 'colour' => $r->loan->partner->colour,
@@ -208,6 +209,7 @@ final class PartnerLoansController extends Controller
             'name' => $loan->partner->name,
             'colour' => $loan->partner->colour,
             'date' => $loan->lent_on->toDateString(),
+            'voucher' => $loan->voucher(),
             'purpose' => $loan->purpose,
             'converted' => $loan->converted,
             'intoName' => $loan->moneyAccount?->name,

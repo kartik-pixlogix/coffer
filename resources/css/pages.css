@@ -8090,3 +8090,168 @@ fieldset.cf-field:not(#\#) {
     }
 }
 /* audit-trail: end */
+
+/* journal: the Journal / day book (D154, no board: the Statements look) */
+.jn-card:not(#\#) {
+    gap: 14px;
+    min-width: 0;
+}
+
+.jn-head:not(#\#),
+.jn-filters:not(#\#) {
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.jn-search:not(#\#) {
+    width: 240px;
+    max-width: 100%;
+}
+
+.jn-table:not(#\#) {
+    min-width: 860px;
+}
+
+.jn-cols:not(#\#) {
+    grid-template-columns: 170px 120px minmax(280px, 1fr) 150px 150px;
+}
+
+.jn-entry:not(#\#) {
+    display: contents;
+}
+
+.jn-entry-head:not(#\#) {
+    border-top: 1px solid var(--line);
+}
+
+.jn-line:not(#\#) {
+    border-bottom: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    min-height: 0;
+}
+
+.jn-line.is-mine:not(#\#) {
+    background: var(--surface-muted);
+}
+
+.jn-acct.is-credit:not(#\#) {
+    padding-left: 24px;
+}
+
+.sm-period:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 280px;
+}
+/* journal: end */
+
+/* statements-v2: four-column trial balance, Schedule III, cash flow, chart of accounts (D155–D158) */
+.sm-tabs:not(#\#) {
+    flex-wrap: wrap;
+}
+
+.sm-layout:not(#\#) {
+    justify-content: flex-end;
+}
+
+.sm-total:not(#\#) {
+    align-items: flex-end;
+    gap: 0;
+}
+
+.sm-ledger-link:not(#\#) {
+    color: inherit;
+    text-decoration: none;
+}
+
+.sm-ledger-link:not(#\#):hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.s3-table:not(#\#) {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.s3-table:not(#\#) th,
+.s3-table:not(#\#) td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    font-weight: 400;
+}
+
+.s3-table:not(#\#) thead th {
+    font-size: 12px;
+    color: var(--ink-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.s3-statement:not(#\#) {
+    min-width: 640px;
+}
+
+.s3-num:not(#\#) {
+    text-align: right !important;
+    white-space: nowrap;
+    width: 180px;
+}
+
+.s3-note-col:not(#\#) {
+    width: 64px;
+    text-align: center !important;
+}
+
+.s3-head:not(#\#) th {
+    font-weight: 600;
+    background: var(--surface-muted);
+}
+
+.s3-sub:not(#\#) {
+    font-weight: 500 !important;
+    padding-left: 20px !important;
+}
+
+.s3-indent:not(#\#) {
+    padding-left: 36px !important;
+}
+
+.s3-strong:not(#\#) th,
+.s3-strong:not(#\#) td {
+    font-weight: 600 !important;
+    border-top: 1px solid var(--line-strong);
+}
+
+.s3-table:not(#\#) tfoot th,
+.s3-table:not(#\#) tfoot td {
+    font-weight: 600;
+    border-bottom: 0;
+}
+
+.s3-notes:not(#\#) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+    gap: 20px;
+}
+
+.s3-note:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.coa-table:not(#\#) {
+    min-width: 640px;
+}
+
+.coa-table:not(#\#) td:first-child {
+    width: 96px;
+}
+/* statements-v2: end */

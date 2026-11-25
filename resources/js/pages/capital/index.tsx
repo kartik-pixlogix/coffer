@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { DateWithVoucher } from '@/components/finance/voucher-no';
 import {
     ArrowDownRight,
     ArrowUpRight,
@@ -179,9 +180,10 @@ export default function CapitalAccounts(props: Props) {
                             key={c.id}
                             className={`cf-inset ca-entry${abilities.manage ? ' ca-entry--acts' : ''}`}
                         >
-                            <span className="t-body t-muted">
-                                {formatDate(c.date)}
-                            </span>
+                            <DateWithVoucher
+                                date={c.date}
+                                voucher={c.voucher}
+                            />
                             <span className="cf-row t-body min-w-0">
                                 <span
                                     className="cf-swatch"

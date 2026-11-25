@@ -22,4 +22,41 @@ enum JournalType: string
     case LoanConversion = 'loan_conversion';
     case Settlement = 'settlement';
     case FyClose = 'fy_close';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Opening => 'Opening balance',
+            self::Income => 'Income',
+            self::Expense => 'Expense',
+            self::Reimbursement => 'Reimbursement',
+            self::Salary => 'Salary',
+            self::Contribution => 'Capital contribution',
+            self::Drawing => 'Drawing',
+            self::Loan => 'Loan',
+            self::Repayment => 'Loan repayment',
+            self::LoanConversion => 'Loan conversion',
+            self::Settlement => 'Settlement transfer',
+            self::FyClose => 'Year-end close',
+        };
+    }
+
+    /** The voucher series code (D154): INC/2026-27/0001. */
+    public function voucherCode(): string
+    {
+        return match ($this) {
+            self::Opening => 'OPN',
+            self::Income => 'INC',
+            self::Expense => 'EXP',
+            self::Reimbursement => 'RMB',
+            self::Salary => 'SAL',
+            self::Contribution => 'CAP',
+            self::Drawing => 'DRW',
+            self::Loan => 'LON',
+            self::Repayment => 'RPY',
+            self::LoanConversion => 'LCV',
+            self::Settlement => 'STL',
+            self::FyClose => 'FYC',
+        };
+    }
 }

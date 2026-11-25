@@ -47,7 +47,7 @@ final class SettlementsController extends Controller
         $sides = Side::query()->orderBy('position')->orderBy('id')->get();
 
         $transfers = SettlementTransfer::query()
-            ->with(['fromSide:id,name', 'toSide:id,name', 'creator:id,name'])
+            ->with(['fromSide:id,name', 'toSide:id,name', 'creator:id,name', 'voucherEntry:id,voucher_no'])
             ->whereBetween('transferred_on', [$fy->period->from?->toDateString(), $fy->period->to->toDateString()])
             ->orderByDesc('transferred_on')->orderByDesc('id')
             ->get();
@@ -91,6 +91,7 @@ final class SettlementsController extends Controller
             'transfers' => $transfers->map(fn (SettlementTransfer $t) => [
                 'id' => $t->id,
                 'date' => $t->transferred_on->toDateString(),
+                'voucher' => $t->voucher(),
                 'fromId' => $t->from_side_id,
                 'fromName' => $t->fromSide->name,
                 'toId' => $t->to_side_id,

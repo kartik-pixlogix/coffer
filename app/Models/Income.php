@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
+use App\Models\Concerns\HasVoucher;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +52,7 @@ class Income extends Model
     use Audited;
     use BelongsToCompany, SoftDeletes;
     use EncryptsFields;
+    use HasVoucher;
 
     protected function casts(): array
     {

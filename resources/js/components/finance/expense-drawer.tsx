@@ -17,6 +17,8 @@ import type { ExpenseRow } from '@/types/finance';
 export type ExpenseDetail = {
     id: number;
     journalEntryId: number | null;
+    /** The posted entry's voucher (D154). */
+    voucher: string | null;
     salaryMonth: string | null;
     history: {
         id: number;
@@ -143,9 +145,10 @@ export function ExpenseDrawer({
                         )}
                         {detail?.journalEntryId && (
                             <div className="cf-kv t-body">
-                                <dt className="t-muted">Journal entry</dt>
+                                <dt className="t-muted">Voucher</dt>
                                 <dd className="t-money-sm">
-                                    #{detail.journalEntryId}
+                                    {detail.voucher ??
+                                        `#${detail.journalEntryId}`}
                                 </dd>
                             </div>
                         )}

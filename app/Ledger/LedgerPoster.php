@@ -26,6 +26,7 @@ final class LedgerPoster
         private readonly FiscalYears $fiscalYears,
         private readonly ReportCache $reportCache,
         private readonly AuditTrail $audit,
+        private readonly Vouchers $vouchers,
     ) {}
 
     public function post(Company $company, EntryData $entry): JournalEntry
@@ -35,13 +36,20 @@ final class LedgerPoster
 
         $this->check($company, $entry->date, $lines);
 
+        // Retried on a deadlock when this is the outermost transaction.
         return DB::transaction(function () use ($company, $entry, $lines): JournalEntry {
-            $this->fiscalYears->forDate($company, $entry->date);
+            $year = $this->fiscalYears->forDate($company, $entry->date);
+            // The audit chain first, then the voucher series: the same lock order as every other change.
+            $this->audit->lock($company->id);
+            // Taken inside this transaction, so a posting that fails gives its number back (D154).
+            $voucher = $this->vouchers->next($company, $year->label, $entry->type);
 
             $journal = new JournalEntry([
                 'company_id' => $company->id,
                 'date' => $entry->date->toDateString(),
                 'type' => $entry->type,
+                'voucher_no' => $voucher['no'],
+                'voucher_seq' => $voucher['seq'],
                 'memo' => $entry->memo,
                 'posted_by' => $entry->postedBy?->id,
             ]);
@@ -75,7 +83,7 @@ final class LedgerPoster
                     'debit' => $line->debit,
                     'credit' => $line->credit,
                 ], $lines)],
-            ], 'Journal entry #'.$journal->id);
+            ], 'Voucher '.$voucher['no'], $voucher['no']);
 
             // Cached report aggregates are stale now (D62). Bump again once the transaction commits,
             // so a request that read the old books meanwhile can't keep its result.
@@ -83,7 +91,7 @@ final class LedgerPoster
             DB::afterCommit(fn () => $this->reportCache->flush($company));
 
             return $journal;
-        });
+        }, 3);
     }
 
     /**
@@ -134,14 +142,14 @@ final class LedgerPoster
                 // A reversal keeps the original's type, so it nets out of the same figures.
                 type: $locked->type,
                 lines: $lines,
-                memo: $memo ?? 'Reversal of entry #'.$locked->id.($locked->memo ? ': '.$locked->memo : ''),
+                memo: $memo ?? 'Reversal of '.($locked->voucher_no ?? 'entry #'.$locked->id).($locked->memo ? ': '.$locked->memo : ''),
                 source: $locked->source_type !== null ? $locked->source : null,
                 postedBy: $by,
             ));
 
             $reversal->forceFill(['reverses_id' => $locked->id])->save();
             $locked->forceFill(['reversed_by_id' => $reversal->id])->save();
-            $this->audit->record($company->id, 'reversed', $locked, ['reversed_by_id' => ['from' => null, 'to' => $reversal->id]], 'Journal entry #'.$locked->id);
+            $this->audit->record($company->id, 'reversed', $locked, ['reversed_by' => ['from' => null, 'to' => $reversal->voucher_no]], 'Voucher '.$locked->voucher_no, $locked->voucher_no);
 
             return $reversal;
         });

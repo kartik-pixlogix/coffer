@@ -83,7 +83,7 @@ final class ExpensesController extends Controller
         $statusCounts = $filtered()->groupBy('status')->selectRaw('status, COUNT(*) as n')->pluck('n', 'status');
 
         $expenses = $this->apply($scoped(), $filters, $fy->period, $user, withStatus: true)
-            ->with(['category:id,name', 'project:id,name', 'submitter:id,name', 'decider:id,name', 'payers.partner:id,name,colour', 'payers.member:id,name,partner_id', 'payers.moneyAccount:id,name'])
+            ->with(['category:id,name', 'project:id,name', 'submitter:id,name', 'decider:id,name', 'payers.partner:id,name,colour', 'payers.member:id,name,partner_id', 'payers.moneyAccount:id,name', 'voucherEntry:id,voucher_no'])
             ->orderBy($filters['sort'] === 'amount' ? 'amount_paise' : 'spent_on', $filters['dir'])
             ->orderBy('id', $filters['dir'])
             ->paginate(self::PER_PAGE)
@@ -299,7 +299,7 @@ final class ExpensesController extends Controller
         $query = Expense::query()->when($policy->ownOnly(), fn (Builder $q) => $q->where('submitted_by', $user->id));
         $query = $ids !== [] ? $query->whereIn('id', $ids) : $this->apply($query, $this->filters($request), $fy->period, $user, withStatus: true);
 
-        $rows = $query->with(['category:id,name', 'project:id,name,client', 'submitter:id,name', 'payers.partner:id,name', 'payers.member:id,name', 'payers.moneyAccount:id,name'])
+        $rows = $query->with(['category:id,name', 'project:id,name,client', 'submitter:id,name', 'payers.partner:id,name', 'payers.member:id,name', 'payers.moneyAccount:id,name', 'voucherEntry:id,voucher_no'])
             ->orderBy('spent_on')->orderBy('id')->get();
 
         activity('expenses')->causedBy($user)->withProperties(['rows' => $rows->count()])->log('exported expenses');
@@ -311,10 +311,11 @@ final class ExpensesController extends Controller
                 return;
             }
 
-            Csv::put($out, ['Date', 'Description', 'Category', 'Amount (INR)', 'Status', 'Paid by', 'Submitted by', 'Project', 'Bill to client', 'Reject reason', 'Notes']);
+            Csv::put($out, ['Voucher', 'Date', 'Description', 'Category', 'Amount (INR)', 'Status', 'Paid by', 'Submitted by', 'Project', 'Bill to client', 'Reject reason', 'Notes']);
 
             foreach ($rows as $e) {
                 Csv::put($out, [
+                    $e->voucher(),
                     $e->spent_on->toDateString(),
                     $e->description,
                     $e->category->name,
@@ -403,6 +404,7 @@ final class ExpensesController extends Controller
             'description' => $e->description,
             'amountPaise' => $e->amount_paise,
             'date' => $e->spent_on->toDateString(),
+            'voucher' => $e->voucher(),
             'categoryId' => $e->category_id,
             'categoryName' => $e->category->name,
             'projectId' => $e->project_id,
@@ -451,7 +453,7 @@ final class ExpensesController extends Controller
     private function detail(Request $request, User $user): ?array
     {
         $id = $request->integer('expense');
-        $expense = $id > 0 ? Expense::query()->with('salaryRun')->find($id) : null;
+        $expense = $id > 0 ? Expense::query()->with(['salaryRun', 'voucherEntry:id,voucher_no'])->find($id) : null;
 
         if ($expense === null || ! $user->can('view', $expense)) {
             return null;
@@ -474,6 +476,7 @@ final class ExpensesController extends Controller
         return [
             'id' => $expense->id,
             'journalEntryId' => $expense->journal_entry_id,
+            'voucher' => $expense->voucher(),
             'salaryMonth' => $expense->salaryRun?->month->format('Y-m'),
             'history' => $history,
         ];

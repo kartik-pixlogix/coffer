@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { DateWithVoucher } from '@/components/finance/voucher-no';
 import {
     Check,
     Clock,
@@ -511,11 +512,10 @@ function DesktopExpenses({
         {
             key: 'date',
             header: 'Date',
-            width: '104px',
+            width: '144px',
             sortable: true,
             firstSort: 'descending',
-            className: 't-body t-muted',
-            cell: (e) => formatDate(e.date),
+            cell: (e) => <DateWithVoucher date={e.date} voucher={e.voucher} />,
         },
         {
             key: 'submitted',

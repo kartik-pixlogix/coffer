@@ -1,4 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
+import { DateWithVoucher } from '@/components/finance/voucher-no';
 import {
     Download,
     Ellipsis,
@@ -147,11 +148,10 @@ export default function Income(props: Props) {
         {
             key: 'date',
             header: 'Date',
-            width: '120px',
+            width: '144px',
             sortable: true,
             firstSort: 'descending',
-            className: 't-body t-muted',
-            cell: (r) => formatDate(r.date),
+            cell: (r) => <DateWithVoucher date={r.date} voucher={r.voucher} />,
         },
         {
             key: 'partner',

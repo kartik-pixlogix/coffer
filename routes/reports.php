@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuditTrailController;
+use App\Http\Controllers\JournalController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StatementsController;
 use Illuminate\Support\Facades\Route;
@@ -28,4 +29,10 @@ Route::middleware(['auth', 'verified', 'company', 'page:audit_trail'])->prefix('
     Route::get('/', [AuditTrailController::class, 'index'])->name('audit.index');
     Route::post('verify', [AuditTrailController::class, 'verify'])->middleware('throttle:6,1')->name('audit.verify');
     Route::get('export', [AuditTrailController::class, 'export'])->middleware('throttle:20,1')->name('audit.export');
+});
+
+// The Journal / day book (D154): every voucher with its lines.
+Route::middleware(['auth', 'verified', 'company', 'page:journal'])->prefix('journal')->group(function () {
+    Route::get('/', [JournalController::class, 'index'])->name('reports.journal');
+    Route::get('export', [JournalController::class, 'export'])->middleware('throttle:20,1')->name('reports.journal.export');
 });

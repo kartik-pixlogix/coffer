@@ -53,6 +53,8 @@ export type IncomeRow = {
     source: string;
     amountPaise: number;
     date: string;
+    /** The posted entry's voucher, "INC/2026-27/0001" (D154); null until it posts. */
+    voucher: string | null;
     categoryId: number;
     broughtInBy: number | null;
     /** `account:{id}` or `partner:{id}`. */
@@ -98,6 +100,8 @@ export type ExpenseRow = {
     date: string;
     categoryId: number;
     categoryName: string;
+    /** The posted entry's voucher, "INC/2026-27/0001" (D154); null until it posts. */
+    voucher: string | null;
     projectId: number | null;
     projectName: string | null;
     billable: boolean;
@@ -153,6 +157,8 @@ export type CapitalStatementRow = {
 export type CapitalMovementRow = {
     id: number;
     date: string;
+    /** The posted entry's voucher, "INC/2026-27/0001" (D154); null until it posts. */
+    voucher: string | null;
     partnerId: number;
     amountPaise: number;
     note: string | null;
@@ -167,6 +173,8 @@ export type LoanRow = {
     name: string;
     colour: number;
     date: string;
+    /** The posted entry's voucher, "INC/2026-27/0001" (D154); null until it posts. */
+    voucher: string | null;
     purpose: string | null;
     converted: boolean;
     intoName: string | null;
@@ -189,6 +197,8 @@ export type RepaymentRow = {
     loanId: number;
     code: string;
     date: string;
+    /** The posted entry's voucher, "INC/2026-27/0001" (D154); null until it posts. */
+    voucher: string | null;
     partnerId: number;
     name: string;
     colour: number;
@@ -224,6 +234,8 @@ export type SuggestedTransfer = {
 export type SettlementTransferRow = {
     id: number;
     date: string;
+    /** The posted entry's voucher, "INC/2026-27/0001" (D154); null until it posts. */
+    voucher: string | null;
     fromId: number;
     fromName: string;
     toId: number;

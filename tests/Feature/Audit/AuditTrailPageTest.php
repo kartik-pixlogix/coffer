@@ -65,7 +65,7 @@ test('filters narrow the list by action, person and search', function () {
     $this->actingAs($books->admin)->get(route('audit.index', ['action' => 'posted']))
         ->assertInertia(fn (Assert $page) => $page->where('total', 1)->where('rows.0.action', 'posted'));
 
-    $this->actingAs($books->admin)->get(route('audit.index', ['q' => 'Journal entry']))
+    $this->actingAs($books->admin)->get(route('audit.index', ['q' => 'OPN/2026-27']))
         ->assertInertia(fn (Assert $page) => $page->where('total', 1));
 
     $this->actingAs($books->admin)->get(route('audit.index', ['user' => $books->admin->id]))
@@ -104,7 +104,7 @@ test('the CSV export lists the events and is itself audited', function () {
     $csv = $response->streamedContent();
 
     $response->assertOk();
-    expect($csv)->toContain('Posted')->toContain('Journal entry #');
+    expect($csv)->toContain('Posted')->toContain('Voucher OPN/2026-27/0001');
 
     $exported = AuditEvent::query()->withoutGlobalScopes()->where('company_id', $books->company->id)->where('action', 'exported')->first();
     expect($exported)->not->toBeNull()

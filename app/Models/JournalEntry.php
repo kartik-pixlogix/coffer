@@ -21,6 +21,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $id
  * @property CarbonImmutable $date
  * @property JournalType $type
+ * @property string|null $voucher_no "INC/2026-27/0001" (D154); set when posted, never changed
+ * @property int|null $voucher_seq
  * @property string|null $source_type
  * @property int|null $source_id
  * @property string|null $memo
@@ -31,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read JournalEntry|null $reverses
  * @property-read JournalEntry|null $reversedBy
  */
-#[Fillable(['company_id', 'date', 'type', 'source_type', 'source_id', 'memo', 'posted_by', 'reverses_id'])]
+#[Fillable(['company_id', 'date', 'type', 'voucher_no', 'voucher_seq', 'source_type', 'source_id', 'memo', 'posted_by', 'reverses_id'])]
 class JournalEntry extends Model
 {
     use BelongsToCompany;

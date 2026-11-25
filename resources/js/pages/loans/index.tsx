@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { DateWithVoucher } from '@/components/finance/voucher-no';
 import {
     ArrowRight,
     Check,
@@ -144,6 +145,7 @@ export default function PartnerLoans(props: Props) {
                         </span>
                         <span className="t-caption t-muted">
                             Lent {formatDate(l.date)}
+                            {l.voucher ? ` · ${l.voucher}` : ''}
                             {l.purpose
                                 ? ` · ${l.purpose}`
                                 : l.converted
@@ -482,9 +484,10 @@ export default function PartnerLoans(props: Props) {
                                 key={h.id}
                                 className={`cf-inset ln-hrow${abilities.manage ? ' ln-hrow--acts' : ''}`}
                             >
-                                <span className="t-body t-muted">
-                                    {formatDate(h.date)}
-                                </span>
+                                <DateWithVoucher
+                                    date={h.date}
+                                    voucher={h.voucher}
+                                />
                                 <span className="cf-row min-w-0 gap-2">
                                     <Avatar
                                         name={h.name}

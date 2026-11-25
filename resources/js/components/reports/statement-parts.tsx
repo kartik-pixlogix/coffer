@@ -14,7 +14,7 @@ import { cleanQuery, FyMenu } from '@/components/finance/fy-menu';
 import { AlertBanner } from '@/components/ui/alert-banner';
 import { Avatar } from '@/components/ui/avatar';
 import { Button, buttonClass } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/date-picker';
+import { Calendar, DateRangePicker } from '@/components/ui/date-picker';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import { Icon } from '@/components/ui/icon';
 import { Popover } from '@/components/ui/popover';
@@ -103,6 +103,125 @@ export function StatementControls({
                 ]}
             />
         </>
+    );
+}
+
+/**
+ * Controls for a statement over a period (D155): From–To inside the year, the year, and
+ * Export in the formats given.
+ */
+export function PeriodControls({
+    date,
+    url,
+    exportUrl,
+    formats = ['pdf', 'xlsx'],
+}: {
+    date: StatementDateProps;
+    url: string;
+    exportUrl: (format: ExportFormat) => string;
+    formats?: ExportFormat[];
+}) {
+    const [open, setOpen] = useState(false);
+    const go = (query: Record<string, string | number>) =>
+        router.get(url, cleanQuery(query), {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        });
+    const range = `${formatDate(date.from)} – ${formatDate(date.asOf)}`;
+
+    return (
+        <>
+            <Popover
+                title="Period"
+                open={open}
+                onOpenChange={setOpen}
+                align="end"
+                trigger={
+                    <button
+                        type="button"
+                        className="cf-btn cf-btn--muted cf-btn--lg"
+                        aria-label={`Period ${range}, change the dates`}
+                    >
+                        <Icon icon={CalendarDays} size={18} />
+                        {range}
+                        <Icon icon={ChevronDown} size={16} />
+                    </button>
+                }
+            >
+                <div className="sm-period">
+                    <DateRangePicker
+                        label="From – to"
+                        min={date.min}
+                        max={date.max}
+                        value={{ start: date.from, end: date.asOf }}
+                        onValueChange={(r) => {
+                            if (r.start && r.end) {
+                                setOpen(false);
+                                go({
+                                    fy: date.fy.start,
+                                    from: r.start,
+                                    asof: r.end,
+                                });
+                            }
+                        }}
+                    />
+                    <button
+                        type="button"
+                        className="cf-btn cf-btn--ghost cf-btn--sm"
+                        onClick={() => {
+                            setOpen(false);
+                            go({ fy: date.fy.start });
+                        }}
+                    >
+                        Whole year to date
+                    </button>
+                </div>
+            </Popover>
+            <FyMenu fy={date.fy} onPick={(start) => go({ fy: start })} />
+            <ExportMenu formats={formats} exportUrl={exportUrl} />
+        </>
+    );
+}
+
+export type ExportFormat = 'pdf' | 'xlsx' | 'csv';
+
+const EXPORT_LABEL: Record<ExportFormat, string> = {
+    pdf: 'PDF',
+    xlsx: 'Excel workbook (.xlsx)',
+    csv: 'CSV',
+};
+
+/** The statement Export menu. */
+export function ExportMenu({
+    formats,
+    exportUrl,
+}: {
+    formats: ExportFormat[];
+    exportUrl: (format: ExportFormat) => string;
+}) {
+    return (
+        <DropdownMenu
+            aria-label="Export"
+            align="end"
+            trigger={
+                <button
+                    type="button"
+                    className={buttonClass({
+                        variant: 'secondary',
+                        size: 'lg',
+                    })}
+                >
+                    <Icon icon={Download} size={18} strokeWidth={1.75} />
+                    Export
+                </button>
+            }
+            entries={formats.map((format) => ({
+                label: EXPORT_LABEL[format],
+                icon: format === 'pdf' ? FileText : Grid3x3,
+                onSelect: () => window.location.assign(exportUrl(format)),
+            }))}
+        />
     );
 }
 

@@ -77,7 +77,7 @@ final class IncomeController extends Controller
             ->select('incomes.*')
             ->leftJoin('partners as bp', 'bp.id', '=', 'incomes.brought_in_by')
             ->join('categories as c', 'c.id', '=', 'incomes.category_id')
-            ->with(['moneyAccount:id,name', 'receivedBy:id,name', 'project:id,name'])
+            ->with(['moneyAccount:id,name', 'receivedBy:id,name', 'project:id,name', 'voucherEntry:id,voucher_no'])
             ->when($category !== null, fn (Builder $q) => $q->where('incomes.category_id', $category))
             ->orderBy(self::SORTS[$sort], $dir)
             ->orderBy('incomes.id', $dir)
@@ -181,7 +181,7 @@ final class IncomeController extends Controller
         $category = $request->integer('category') ?: null;
 
         $rows = Income::query()
-            ->with(['category:id,name', 'broughtInBy:id,name', 'receivedBy:id,name', 'moneyAccount:id,name', 'project:id,name'])
+            ->with(['category:id,name', 'broughtInBy:id,name', 'receivedBy:id,name', 'moneyAccount:id,name', 'project:id,name', 'voucherEntry:id,voucher_no'])
             ->whereBetween('received_on', [$fy->period->from?->toDateString(), $fy->period->to->toDateString()])
             ->when($category !== null, fn (Builder $q) => $q->where('category_id', $category))
             ->orderBy('received_on')->orderBy('id')
@@ -196,10 +196,11 @@ final class IncomeController extends Controller
                 return;
             }
 
-            Csv::put($out, ['Date', 'Source', 'Amount (INR)', 'Category', 'Brought in by', 'Received into', 'Project', 'Notes']);
+            Csv::put($out, ['Voucher', 'Date', 'Source', 'Amount (INR)', 'Category', 'Brought in by', 'Received into', 'Project', 'Notes']);
 
             foreach ($rows as $i) {
                 Csv::put($out, [
+                    $i->voucher(),
                     $i->received_on->toDateString(),
                     $i->source,
                     Money::plain($i->amount_paise),
@@ -223,6 +224,7 @@ final class IncomeController extends Controller
             'source' => $i->source,
             'amountPaise' => $i->amount_paise,
             'date' => $i->received_on->toDateString(),
+            'voucher' => $i->voucher(),
             'categoryId' => $i->category_id,
             'broughtInBy' => $i->brought_in_by,
             'receivedInto' => $i->money_account_id !== null ? 'account:'.$i->money_account_id : 'partner:'.$i->received_by,

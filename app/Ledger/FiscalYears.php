@@ -8,6 +8,8 @@ use App\Models\Company;
 use App\Models\FiscalYear;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Fiscal years (spec §1, §4.6): April–March by default, the start month set per company.
@@ -37,11 +39,26 @@ final class FiscalYears
     {
         $start = self::startOf($company, $date);
 
-        /** @var FiscalYear */
-        return FiscalYear::query()->withoutGlobalScope('company')->firstOrCreate(
-            ['company_id' => $company->id, 'starts_on' => $start->toDateString()],
-            ['ends_on' => $start->addYear()->subDay()->toDateString(), 'label' => self::label($company, $start)],
-        );
+        $key = ['company_id' => $company->id, 'starts_on' => $start->toDateString()];
+        $query = fn () => FiscalYear::query()->withoutGlobalScope('company')->where($key);
+
+        if (($year = $query()->first()) !== null) {
+            return $year;
+        }
+
+        // Two postings can open the same year at once: the loser reads the winner's row. The
+        // insert runs in a savepoint (PostgreSQL), and the re-read locks so it sees the commit.
+        try {
+            /** @var FiscalYear */
+            return DB::transaction(fn () => FiscalYear::query()->withoutGlobalScope('company')->create([
+                ...$key,
+                'ends_on' => $start->addYear()->subDay()->toDateString(),
+                'label' => self::label($company, $start),
+            ]));
+        } catch (UniqueConstraintViolationException) {
+            /** @var FiscalYear */
+            return $query()->lockForUpdate()->firstOrFail();
+        }
     }
 
     /** The closed fiscal year containing `$date`, if any (never creates a row). */

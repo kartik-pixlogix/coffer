@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
+use App\Models\Concerns\HasVoucher;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,7 @@ class SalaryRun extends Model
 {
     use Audited;
     use BelongsToCompany;
+    use HasVoucher;
 
     protected function casts(): array
     {

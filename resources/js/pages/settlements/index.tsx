@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { DateWithVoucher } from '@/components/finance/voucher-no';
 import {
     ArrowLeftRight,
     ArrowRight,
@@ -506,9 +507,10 @@ function JointVenture(props: JvProps) {
                             key={t.id}
                             className={`cf-inset st-trow${abilities.record ? ' st-trow--acts' : ''}`}
                         >
-                            <span className="t-body t-muted">
-                                {formatDate(t.date)}
-                            </span>
+                            <DateWithVoucher
+                                date={t.date}
+                                voucher={t.voucher}
+                            />
                             <span className="cf-row t-label-strong flex-wrap">
                                 {t.fromName}
                                 <Icon icon={ArrowRight} size={16} />

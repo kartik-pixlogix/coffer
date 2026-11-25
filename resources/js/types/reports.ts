@@ -96,8 +96,13 @@ export type ReportExportRow = {
 };
 
 /** "As of" and fiscal year on the statements (App\Services\Reports\StatementDate). */
+/** A statement's period in the query string (StatementDate::query). */
+export type StatementQuery = { fy: number; asof: string; from?: string };
+
 export type StatementDateProps = {
     asOf: string;
+    /** The period's first day (D155); the year's first day unless chosen. */
+    from: string;
     fy: FiscalYearProps;
     min: string;
     max: string;
@@ -108,8 +113,12 @@ export type TrialBalanceAccount = {
     code: string;
     name: string;
     type: 'asset' | 'liability' | 'equity' | 'income' | 'expense';
+    /** Signed, debit positive (D155). */
+    openingPaise: number;
     debitPaise: number;
     creditPaise: number;
+    /** Signed, debit positive: opening + debit − credit. */
+    closingPaise: number;
 };
 
 export type BalanceSheetLine = { name: string; amountPaise: number };
@@ -187,3 +196,103 @@ export type DashboardVaultPanel = {
     healthScore: number | null;
     href: string;
 } | null;
+
+/** One voucher on the Journal (D154). */
+export type JournalEntryRow = {
+    id: number;
+    voucher: string | null;
+    date: string;
+    type: string;
+    typeLabel: string;
+    memo: string | null;
+    reverses: string | null;
+    reversedBy: string | null;
+    totalPaise: number;
+    lines: {
+        id: number;
+        accountId: number;
+        code: string;
+        name: string;
+        debitPaise: number;
+        creditPaise: number;
+    }[];
+};
+
+/** A numbered note of a Schedule III statement (D156). */
+export type ScheduleNote = {
+    number: number;
+    title: string;
+    subtitle: string | null;
+    rows: {
+        code: string;
+        name: string;
+        amount: number;
+        previous: number | null;
+    }[];
+    total: number;
+    previousTotal: number | null;
+};
+
+/** One line of the Schedule III statement of profit and loss. */
+export type ScheduleProfitLine = {
+    key: string;
+    label: string;
+    note: number | null;
+    amount: number | null;
+    previous: number | null;
+    strong: boolean;
+};
+
+export type ScheduleProfitAndLoss = {
+    lines: ScheduleProfitLine[];
+    notes: ScheduleNote[];
+    from: string;
+    to: string;
+    previousFrom: string | null;
+    previousTo: string | null;
+    totalIncome: number;
+    totalExpenses: number;
+    profit: number;
+};
+
+export type ScheduleBalanceSheet = {
+    sections: {
+        title: string;
+        groups: {
+            title: string | null;
+            lines: {
+                label: string;
+                note: number | null;
+                amount: number;
+                previous: number | null;
+            }[];
+            total: number | null;
+            previousTotal: number | null;
+        }[];
+        total: number;
+        previousTotal: number | null;
+    }[];
+    notes: ScheduleNote[];
+    asOf: string;
+    previousAsOf: string | null;
+    totalAssets: number;
+    totalEquityAndLiabilities: number;
+};
+
+/** The cash flow statement (D157). */
+export type CashFlowLine = { key: string; label: string; amount: number };
+
+export type CashFlowStatement = {
+    operating: CashFlowLine[];
+    operatingTotal: number;
+    investing: CashFlowLine[];
+    investingTotal: number;
+    financing: CashFlowLine[];
+    financingTotal: number;
+    netChange: number;
+    openingCash: number;
+    closingCash: number;
+    reconciled: boolean;
+    drift: number;
+    cash: { code: string; name: string; opening: number; closing: number }[];
+};

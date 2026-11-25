@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns;
 
+use App\Models\JournalEntry;
 use App\Services\Audit\AuditTrail;
 use App\Services\Security\SealedFields;
 use BackedEnum;
@@ -72,7 +73,15 @@ trait Audited
     /** The voucher of the record's journal entry, when it has one (D154). */
     protected function auditVoucher(): ?string
     {
-        return null;
+        $entryId = $this->getAttribute('journal_entry_id');
+
+        if (! is_numeric($entryId)) {
+            return null;
+        }
+
+        $voucher = JournalEntry::query()->withoutGlobalScopes()->whereKey((int) $entryId)->value('voucher_no');
+
+        return is_string($voucher) ? $voucher : null;
     }
 
     /** @return array<string, array{from?: mixed, to?: mixed, changed?: bool}> */

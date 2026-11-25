@@ -10,6 +10,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 /**
  * Writes the audit trail (D153, Companies (Accounts) Rules 3(1) "edit log"): every create,
@@ -33,8 +34,7 @@ final class AuditTrail
         $context = $this->context();
 
         DB::transaction(function () use ($companyId, $action, $subject, $changes, $label, $voucher, $context): void {
-            DB::table('audit_heads')->insertOrIgnore(['company_id' => $companyId, 'seq' => 0, 'hash' => AuditChain::GENESIS]);
-            $head = DB::table('audit_heads')->where('company_id', $companyId)->lockForUpdate()->first();
+            $head = $this->lock($companyId);
 
             $row = [
                 'company_id' => $companyId,
@@ -54,6 +54,30 @@ final class AuditTrail
             DB::table('audit_events')->insert($row);
             DB::table('audit_heads')->where('company_id', $companyId)->update(['seq' => $row['seq'], 'hash' => $row['hash']]);
         });
+    }
+
+    /**
+     * Locks the company's chain head until the transaction ends, creating it if needed. Postings
+     * take it before their voucher series (LedgerPoster), so every money change locks in the same
+     * order and two of them can't deadlock each other.
+     */
+    public function lock(int $companyId): object
+    {
+        // Lock first and insert only when missing: an INSERT IGNORE on an existing row takes a
+        // shared lock, and two of those upgrading to the update lock deadlock on MySQL.
+        $locked = $this->lockedHead($companyId);
+
+        if ($locked === null) {
+            DB::table('audit_heads')->insertOrIgnore(['company_id' => $companyId, 'seq' => 0, 'hash' => AuditChain::GENESIS]);
+            $locked = $this->lockedHead($companyId);
+        }
+
+        return $locked ?? throw new RuntimeException('The audit trail head could not be locked.');
+    }
+
+    private function lockedHead(int $companyId): ?object
+    {
+        return DB::table('audit_heads')->where('company_id', $companyId)->lockForUpdate()->first();
     }
 
     /** @return array{user_id: int|null, actor: string, impersonator: string|null, ip: string|null, user_agent: string|null} */
