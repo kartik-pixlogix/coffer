@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuditTrailController;
+use App\Http\Controllers\CashFlowController;
+use App\Http\Controllers\ChartOfAccountsController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\ProfitAndLossController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StatementsController;
 use Illuminate\Support\Facades\Route;
@@ -35,4 +38,22 @@ Route::middleware(['auth', 'verified', 'company', 'page:audit_trail'])->prefix('
 Route::middleware(['auth', 'verified', 'company', 'page:journal'])->prefix('journal')->group(function () {
     Route::get('/', [JournalController::class, 'index'])->name('reports.journal');
     Route::get('export', [JournalController::class, 'export'])->middleware('throttle:20,1')->name('reports.journal.export');
+});
+
+// Statement of profit and loss, Schedule III (D156): the Reports permission.
+Route::middleware(['auth', 'verified', 'company', 'page:reports'])->prefix('profit-and-loss')->group(function () {
+    Route::get('/', [ProfitAndLossController::class, 'index'])->name('reports.profit-and-loss');
+    Route::get('export', [ProfitAndLossController::class, 'export'])->middleware('throttle:20,1')->name('reports.profit-and-loss.export');
+});
+
+// Cash flow statement (D157).
+Route::middleware(['auth', 'verified', 'company', 'page:cash_flow'])->prefix('cash-flow')->group(function () {
+    Route::get('/', [CashFlowController::class, 'index'])->name('reports.cash-flow');
+    Route::get('export', [CashFlowController::class, 'export'])->middleware('throttle:20,1')->name('reports.cash-flow.export');
+});
+
+// Chart of accounts (D158); changing a category's Schedule III line also needs Settings.
+Route::middleware(['auth', 'verified', 'company', 'page:chart_of_accounts'])->prefix('chart-of-accounts')->group(function () {
+    Route::get('/', [ChartOfAccountsController::class, 'index'])->name('reports.chart-of-accounts');
+    Route::patch('categories/{category}/schedule-line', [ChartOfAccountsController::class, 'updateLine'])->name('reports.chart-of-accounts.schedule-line');
 });

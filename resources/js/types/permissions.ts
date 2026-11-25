@@ -12,6 +12,8 @@ export type PageKey =
     | 'reports'
     | 'trial_balance'
     | 'balance_sheet'
+    | 'cash_flow'
+    | 'chart_of_accounts'
     | 'journal'
     | 'audit_trail'
     | 'vault'

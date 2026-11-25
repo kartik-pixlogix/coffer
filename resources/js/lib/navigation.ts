@@ -33,7 +33,10 @@ import { index as partnersIndex } from '@/routes/partners';
 import { edit as editProfile } from '@/routes/profile';
 import {
     balanceSheet as balanceSheetRoute,
+    cashFlow as cashFlowRoute,
+    chartOfAccounts as chartOfAccountsRoute,
     index as reportsIndex,
+    journal as journalRoute,
     trialBalance as trialBalanceRoute,
 } from '@/routes/reports';
 import { company as settingsCompany } from '@/routes/settings';
@@ -131,12 +134,15 @@ const RAIL: RailItem[][] = [
             label: 'Trial Balance',
             icon: Scale,
             href: trialBalanceRoute().url,
+            // The statements' own tabs (D155–D158) keep these sections lit.
+            match: ['/journal', '/chart-of-accounts'],
         },
         {
             page: 'balance_sheet',
             label: 'Balance Sheet',
             icon: FileText,
             href: balanceSheetRoute().url,
+            match: ['/profit-and-loss', '/cash-flow'],
         },
         {
             page: 'audit_trail',
@@ -267,6 +273,13 @@ export function phoneMenuGroups(
                   },
               ];
     };
+    // Statement pages reached from the statements' tabs, not the rail (D155–D158).
+    const statement = (
+        key: PageKey,
+        label: string,
+        href: string,
+    ): PhoneMenuItem[] =>
+        pages[key] === true ? [{ key, label, icon: FileText, href }] : [];
     const unread = options.unread ?? 0;
     const vault = allowed.has('vault');
 
@@ -314,6 +327,13 @@ export function phoneMenuGroups(
                 ...page('reports'),
                 ...page('trial_balance'),
                 ...page('balance_sheet'),
+                ...statement('cash_flow', 'Cash flow', cashFlowRoute().url),
+                ...statement('journal', 'Journal', journalRoute().url),
+                ...statement(
+                    'chart_of_accounts',
+                    'Chart of accounts',
+                    chartOfAccountsRoute().url,
+                ),
                 ...page('audit_trail'),
             ],
         },

@@ -32,6 +32,8 @@ final class Catalog
         'reports' => ['label' => 'Reports', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => true]],
         'trial_balance' => ['label' => 'Trial balance', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => false]],
         'balance_sheet' => ['label' => 'Balance sheet', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => true]],
+        'cash_flow' => ['label' => 'Cash flow', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => true]],
+        'chart_of_accounts' => ['label' => 'Chart of accounts', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => false]],
         'journal' => ['label' => 'Journal', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => false]],
         'audit_trail' => ['label' => 'Audit trail', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => false]],
         'vault' => ['label' => 'Credentials vault', 'defaults' => ['partner' => true, 'member' => true, 'viewer' => false], 'note' => 'Members see items shared with them'],
