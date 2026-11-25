@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Membership;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Notifications\AuditTrailBroken;
 use App\Notifications\CofferNotification;
 use App\Notifications\CompanyDatabaseChannel;
 use App\Notifications\CompanyInvitation;
@@ -154,6 +155,7 @@ class AppServiceProvider extends ServiceProvider
             CompanyInvitation::class => 'mail',
             InviteRenewalRequested::class => 'mail',
             LedgerIntegrityFailed::class => 'mail',
+            AuditTrailBroken::class => 'mail',
             ContactRequestReceived::class => 'mail',
         ]);
 

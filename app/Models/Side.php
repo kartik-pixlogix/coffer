@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\FlushesReportCache;
 use Database\Factories\SideFactory;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['company_id', 'name', 'equity_bps', 'position'])]
 class Side extends Model
 {
+    use Audited;
     use BelongsToCompany;
     use FlushesReportCache;
 

@@ -206,7 +206,7 @@ final class RecordExpense
 
     private function savePayers(Company $company, Expense $expense, ExpenseData $data): void
     {
-        ExpensePayer::query()->where('expense_id', $expense->id)->delete();
+        ExpensePayer::query()->where('expense_id', $expense->id)->get()->each->delete();
 
         foreach ($data->payers as $i => $payer) {
             ExpensePayer::query()->create([

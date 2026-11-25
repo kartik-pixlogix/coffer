@@ -87,7 +87,8 @@ final class UpdateCompanySettings
     /** No year is closed, so the rows only label periods: rebuild them for the new start month. */
     private function rebuildYears(Company $company): void
     {
-        FiscalYear::query()->withoutGlobalScope('company')->where('company_id', $company->id)->delete();
+        // One by one, so each removal is in the audit trail (D153).
+        FiscalYear::query()->withoutGlobalScope('company')->where('company_id', $company->id)->get()->each->delete();
 
         $dates = JournalEntry::query()->withoutGlobalScope('company')->where('company_id', $company->id)
             ->selectRaw('MIN(date) as first, MAX(date) as last')->toBase()->first();

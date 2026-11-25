@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Actions\Companies\SeedCompanyPermissions;
 use App\Http\Controllers\Controller;
+use App\Services\Audit\AuditTrail;
 use App\Support\CurrentCompany;
 use App\Support\Permissions\Catalog;
 use Illuminate\Http\RedirectResponse;
@@ -49,7 +50,7 @@ final class RolesController extends Controller
         ]);
     }
 
-    public function update(Request $request, CurrentCompany $current, SeedCompanyPermissions $seed, PermissionRegistrar $registrar): RedirectResponse
+    public function update(Request $request, CurrentCompany $current, SeedCompanyPermissions $seed, PermissionRegistrar $registrar, AuditTrail $audit): RedirectResponse
     {
         abort_unless($current->isAdmin(), 403);
 
@@ -63,6 +64,7 @@ final class RolesController extends Controller
         ]);
 
         $before = [];
+        $changes = [];
 
         foreach (Catalog::EDITABLE_ROLES as $role) {
             $granted = array_values(array_filter(
@@ -73,6 +75,18 @@ final class RolesController extends Controller
             $spatieRole = $seed->roleFor($company, $role);
             $before[$role->value] = $spatieRole->permissions()->pluck('name')->all();
             $spatieRole->syncPermissions($granted);
+
+            $from = $before[$role->value];
+            sort($from);
+            sort($granted);
+
+            if ($from !== $granted) {
+                $changes[$role->value] = ['from' => $from, 'to' => $granted];
+            }
+        }
+
+        if ($changes !== []) {
+            $audit->record($company->id, 'permissions changed', $company, $changes, 'Roles & permissions');
         }
 
         $registrar->forgetCachedPermissions();
@@ -87,12 +101,13 @@ final class RolesController extends Controller
     }
 
     /** "Reset to defaults" (spec §16): the spec §2.1 / §2.2 matrix again. */
-    public function reset(Request $request, CurrentCompany $current, SeedCompanyPermissions $seed): RedirectResponse
+    public function reset(Request $request, CurrentCompany $current, SeedCompanyPermissions $seed, AuditTrail $audit): RedirectResponse
     {
         abort_unless($current->isAdmin(), 403);
 
         $company = $current->require();
         $seed->handle($company);
+        $audit->record($company->id, 'permissions reset', $company, label: 'Roles & permissions');
 
         activity('permissions')->performedOn($company)->causedBy($request->user())->log('reset the permission matrix');
 

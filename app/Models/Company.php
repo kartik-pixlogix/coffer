@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\AttributionMode;
 use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
@@ -60,6 +61,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Company extends Model
 {
+    use Audited;
     use EncryptsFields;
 
     /** @use HasFactory<CompanyFactory> */
@@ -161,5 +163,15 @@ class Company extends Model
     public function admins(): Collection
     {
         return $this->users()->wherePivot('role', CompanyRole::Admin->value)->get();
+    }
+
+    public function auditCompanyId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Company settings: '.$this->name;
     }
 }

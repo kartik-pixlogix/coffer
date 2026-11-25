@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Console\Commands\AuditVerify;
 use App\Jobs\QueueHeartbeat;
 use App\Models\PlatformAdmin;
 use App\Services\Ops\Backup;
@@ -106,6 +107,7 @@ test('/health answers 404 without the token, the report with it', function () {
     Cache::forever(Health::SCHEDULER_HEARTBEAT, now()->toIso8601String());
     (new QueueHeartbeat)->handle();
     Cache::forever(Backup::HEARTBEAT, now()->toIso8601String());
+    Cache::forever(AuditVerify::RESULT, ['at' => now()->toIso8601String(), 'broken' => 0]);
 
     $this->getJson('/health')->assertNotFound();
     $this->getJson('/health', ['Authorization' => 'Bearer wrong'])->assertNotFound();
@@ -118,6 +120,7 @@ test('/health answers 404 without the token, the report with it', function () {
         ->assertJsonPath('checks.queue.status', 'ok')
         ->assertJsonPath('checks.scheduler.status', 'ok')
         ->assertJsonPath('checks.vault.status', 'ok')
+        ->assertJsonPath('checks.audit_trail.status', 'ok')
         ->assertJsonPath('checks.backup.status', 'ok');
 });
 

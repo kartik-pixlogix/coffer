@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CompanyRole;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['company_id', 'side_id', 'user_id', 'name', 'email', 'role', 'colour', 'equity_bps', 'position', 'archived_at'])]
 class Partner extends Model
 {
+    use Audited;
     use BelongsToCompany;
     use EncryptsFields;
     use FlushesReportCache;

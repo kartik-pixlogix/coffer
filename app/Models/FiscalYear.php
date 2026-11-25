@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['company_id', 'starts_on', 'ends_on', 'label', 'closed_at', 'closed_by', 'closing_entry_id'])]
 class FiscalYear extends Model
 {
+    use Audited;
     use BelongsToCompany;
 
     protected function casts(): array
@@ -38,5 +40,20 @@ class FiscalYear extends Model
     public function isClosed(): bool
     {
         return $this->closed_at !== null;
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Fiscal year '.$this->label;
+    }
+
+    /** @param array<string, mixed> $changes */
+    public function auditAction(string $event, array $changes): ?string
+    {
+        if ($event !== 'updated' || ! isset($changes['closed_at'])) {
+            return null;
+        }
+
+        return $this->closed_at === null ? 'reopened' : 'closed';
     }
 }

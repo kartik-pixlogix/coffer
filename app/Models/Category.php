@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CategoryKind;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\FlushesReportCache;
 use Carbon\CarbonImmutable;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['company_id', 'kind', 'name', 'system', 'position', 'archived_at'])]
 class Category extends Model
 {
+    use Audited;
     use BelongsToCompany;
     use FlushesReportCache;
 

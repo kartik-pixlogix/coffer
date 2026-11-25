@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\MoneyAccountKind;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['company_id', 'side_id', 'name', 'kind', 'bank_label', 'position', 'archived_at'])]
 class MoneyAccount extends Model
 {
+    use Audited;
     use BelongsToCompany;
     use EncryptsFields;
     use FlushesReportCache;

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CostType;
 use App\Enums\MemberStatus;
 use App\Ledger\Period;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['company_id', 'partner_id', 'user_id', 'name', 'designation', 'email', 'cost_type', 'rate_paise', 'status', 'deactivated_on'])]
 class Member extends Model
 {
+    use Audited;
     use BelongsToCompany;
     use EncryptsFields;
 

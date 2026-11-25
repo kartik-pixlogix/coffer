@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CapitalMovementKind;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['company_id', 'partner_id', 'kind', 'amount_paise', 'moved_on', 'money_account_id', 'note', 'journal_entry_id', 'created_by'])]
 class CapitalMovement extends Model
 {
+    use Audited;
     use BelongsToCompany, SoftDeletes;
     use EncryptsFields;
 
@@ -55,5 +57,10 @@ class CapitalMovement extends Model
     public function moneyAccount(): BelongsTo
     {
         return $this->belongsTo(MoneyAccount::class);
+    }
+
+    public function auditLabel(): string
+    {
+        return ucfirst($this->kind->value).' #'.$this->id;
     }
 }

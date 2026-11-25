@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['company_id', 'member_id', 'month', 'billable_centi', 'amount_paise', 'journal_entry_id', 'run_by', 'posted_at'])]
 class SalaryRun extends Model
 {
+    use Audited;
     use BelongsToCompany;
 
     protected function casts(): array
@@ -51,5 +53,10 @@ class SalaryRun extends Model
     public function entry(): BelongsTo
     {
         return $this->belongsTo(JournalEntry::class, 'journal_entry_id');
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Salary run '.$this->month->format('M Y').' (member #'.$this->member_id.')';
     }
 }

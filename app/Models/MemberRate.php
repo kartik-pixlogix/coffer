@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CostType;
+use App\Models\Concerns\Audited;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['member_id', 'cost_type', 'rate_paise', 'effective_from', 'created_by'])]
 class MemberRate extends Model
 {
+    use Audited;
+
     protected function casts(): array
     {
         return [
@@ -45,5 +48,17 @@ class MemberRate extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function auditCompanyId(): ?int
+    {
+        $id = Member::query()->withoutGlobalScopes()->whereKey($this->member_id)->value('company_id');
+
+        return is_numeric($id) ? (int) $id : null;
+    }
+
+    public function auditLabel(): string
+    {
+        return "Rate of member #{$this->member_id} from ".$this->effective_from->toDateString();
     }
 }

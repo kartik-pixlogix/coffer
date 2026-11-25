@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Ops;
 
+use App\Console\Commands\AuditVerify;
 use App\Ledger\LedgerGuard;
 use App\Models\VaultKey;
 use App\Services\Vault\VaultKeys;
@@ -18,7 +19,8 @@ use Throwable;
  * check answers ok / warn / fail with a short detail, never a secret, a path or an exception
  * message: database, cache, queue heartbeat (a job the scheduler queues every five minutes),
  * scheduler heartbeat (written every minute), the vault master key (loaded, and it opens
- * every stored data key), the ledger guard triggers (D148) and the last backup.
+ * every stored data key), the ledger guard triggers (D148), the nightly audit trail check
+ * (D153) and the last backup.
  */
 class Health
 {
@@ -58,6 +60,15 @@ class Health
                 ! LedgerGuard::supported() => ['warn', 'not available on this database'],
                 LedgerGuard::installed() => ['ok', 'posted rows locked'],
                 default => ['warn', 'triggers missing: run coffer:ledger-guard --install'],
+            }),
+            'audit_trail' => $this->guard(function (): array {
+                $result = Cache::get(AuditVerify::RESULT);
+
+                return match (true) {
+                    ! is_array($result) => ['warn', 'not checked yet'],
+                    ($result['broken'] ?? 0) > 0 => ['fail', $result['broken'].' company audit trail(s) broken'],
+                    default => ['ok', 'chains intact'],
+                };
             }),
             'backup' => $this->guard(fn (): array => $this->heartbeat(Backup::HEARTBEAT, warnAfter: 26 * 60, failAfter: 72 * 60, what: 'backup')),
         ];

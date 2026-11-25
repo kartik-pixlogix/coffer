@@ -54,7 +54,7 @@ final class SalaryExpense
         $expense->deleted_at = null;
         $expense->save();
 
-        ExpensePayer::query()->withoutGlobalScope('company')->where('expense_id', $expense->id)->delete();
+        ExpensePayer::query()->withoutGlobalScope('company')->where('expense_id', $expense->id)->get()->each->delete();
         ExpensePayer::query()->withoutGlobalScope('company')->create([
             'company_id' => $company->id,
             'expense_id' => $expense->id,

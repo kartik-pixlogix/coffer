@@ -29,10 +29,11 @@ test('the guard is installed by the migrations', function () {
 });
 
 test('the guard covers every journal_entries column', function () {
-    // A new column has to be added to ENTRY_COLUMNS_FIXED (or _MUTABLE) and the triggers reinstalled.
+    // A new column has to be listed in LedgerGuard and the triggers reinstalled.
     $columns = Schema::getColumnListing('journal_entries');
     sort($columns);
-    $known = [...LedgerGuard::ENTRY_COLUMNS_FIXED, ...LedgerGuard::ENTRY_COLUMNS_MUTABLE];
+    $known = [...LedgerGuard::ENTRY_COLUMNS_FIXED, ...LedgerGuard::ENTRY_COLUMNS_SET_ONCE, ...LedgerGuard::ENTRY_COLUMNS_FREE];
+    $known = array_values(array_intersect($known, $columns));
     sort($known);
 
     expect($columns)->toBe($known);

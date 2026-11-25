@@ -11,6 +11,7 @@ use App\Models\Company;
 use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use App\Models\User;
+use App\Services\Audit\AuditTrail;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -24,6 +25,7 @@ final class LedgerPoster
     public function __construct(
         private readonly FiscalYears $fiscalYears,
         private readonly ReportCache $reportCache,
+        private readonly AuditTrail $audit,
     ) {}
 
     public function post(Company $company, EntryData $entry): JournalEntry
@@ -62,6 +64,18 @@ final class LedgerPoster
                 'member_id' => $line->memberId,
                 'project_id' => $line->projectId,
             ], $lines));
+
+            // Every posting is in the audit trail with its lines (D153).
+            $this->audit->record($company->id, 'posted', $journal, [
+                'date' => ['to' => $entry->date->toDateString()],
+                'type' => ['to' => $entry->type->value],
+                'memo' => ['to' => $entry->memo],
+                'lines' => ['to' => array_map(fn (LineData $line): array => [
+                    'account' => $line->account->code.' '.$line->account->name,
+                    'debit' => $line->debit,
+                    'credit' => $line->credit,
+                ], $lines)],
+            ], 'Journal entry #'.$journal->id);
 
             // Cached report aggregates are stale now (D62). Bump again once the transaction commits,
             // so a request that read the old books meanwhile can't keep its result.
@@ -127,6 +141,7 @@ final class LedgerPoster
 
             $reversal->forceFill(['reverses_id' => $locked->id])->save();
             $locked->forceFill(['reversed_by_id' => $reversal->id])->save();
+            $this->audit->record($company->id, 'reversed', $locked, ['reversed_by_id' => ['from' => null, 'to' => $reversal->id]], 'Journal entry #'.$locked->id);
 
             return $reversal;
         });

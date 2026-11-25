@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['company_id', 'from_side_id', 'to_side_id', 'amount_paise', 'transferred_on', 'reference', 'journal_entry_id', 'created_by'])]
 class SettlementTransfer extends Model
 {
+    use Audited;
     use BelongsToCompany, SoftDeletes;
 
     protected function casts(): array
@@ -57,5 +59,10 @@ class SettlementTransfer extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Settlement transfer #'.$this->id;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
@@ -47,6 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Income extends Model
 {
+    use Audited;
     use BelongsToCompany, SoftDeletes;
     use EncryptsFields;
 
@@ -93,5 +95,10 @@ class Income extends Model
     public function entry(): BelongsTo
     {
         return $this->belongsTo(JournalEntry::class, 'journal_entry_id');
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Income: '.$this->source;
     }
 }

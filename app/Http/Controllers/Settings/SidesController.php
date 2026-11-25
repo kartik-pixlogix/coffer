@@ -129,6 +129,6 @@ final class SidesController extends Controller
         }
 
         Account::query()->whereIn('id', $chartIds)->delete();
-        MoneyAccount::query()->whereIn('id', $accounts->pluck('id'))->delete();
+        MoneyAccount::query()->whereIn('id', $accounts->pluck('id'))->get()->each->delete();
     }
 }

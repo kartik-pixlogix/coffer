@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\ExpenseStatus;
 use App\Enums\PayerMode;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
@@ -57,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Expense extends Model
 {
+    use Audited;
     use BelongsToCompany, SoftDeletes;
     use EncryptsFields;
 
@@ -118,5 +120,28 @@ class Expense extends Model
     public function isApproved(): bool
     {
         return $this->status === ExpenseStatus::Approved;
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Expense: '.$this->description;
+    }
+
+    /**
+     * Approving or rejecting is an edit of the status; the trail names it.
+     *
+     * @param  array<string, mixed>  $changes
+     */
+    public function auditAction(string $event, array $changes): ?string
+    {
+        if ($event !== 'updated' || ! isset($changes['status'])) {
+            return null;
+        }
+
+        return match ($this->status) {
+            ExpenseStatus::Approved => 'approved',
+            ExpenseStatus::Rejected => 'rejected',
+            ExpenseStatus::Pending => 'reopened',
+        };
     }
 }

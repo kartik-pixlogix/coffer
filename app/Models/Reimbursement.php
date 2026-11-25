@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['company_id', 'partner_id', 'member_id', 'amount_paise', 'paid_on', 'money_account_id', 'note', 'journal_entry_id', 'created_by'])]
 class Reimbursement extends Model
 {
+    use Audited;
     use BelongsToCompany, SoftDeletes;
     use EncryptsFields;
 
@@ -64,5 +66,10 @@ class Reimbursement extends Model
     public function moneyAccount(): BelongsTo
     {
         return $this->belongsTo(MoneyAccount::class);
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Reimbursement #'.$this->id;
     }
 }

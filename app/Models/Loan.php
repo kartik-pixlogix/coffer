@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
 use Carbon\CarbonImmutable;
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Loan extends Model
 {
+    use Audited;
     use BelongsToCompany, SoftDeletes;
     use EncryptsFields;
 
@@ -81,5 +83,10 @@ class Loan extends Model
     public function repayments(): HasMany
     {
         return $this->hasMany(LoanRepayment::class);
+    }
+
+    public function auditLabel(): string
+    {
+        return 'Loan '.$this->code();
     }
 }

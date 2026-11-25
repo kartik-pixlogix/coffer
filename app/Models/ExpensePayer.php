@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\PayerType;
 use App\Ledger\PayerLine;
+use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,7 @@ use LogicException;
 #[Fillable(['company_id', 'expense_id', 'position', 'payer_type', 'partner_id', 'member_id', 'money_account_id', 'amount_paise'])]
 class ExpensePayer extends Model
 {
+    use Audited;
     use BelongsToCompany;
 
     public $timestamps = false;
@@ -78,5 +80,10 @@ class ExpensePayer extends Model
             PayerType::Member => PayerLine::member($this->amount_paise, Member::query()->withoutGlobalScope('company')->withTrashed()->findOrFail($this->member_id), $from),
             PayerType::Company => PayerLine::company($this->amount_paise, $from ?? throw new LogicException('The company pays from an account.')),
         };
+    }
+
+    public function auditLabel(): string
+    {
+        return "Expense #{$this->expense_id} payer line";
     }
 }
