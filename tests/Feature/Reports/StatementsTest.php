@@ -137,8 +137,9 @@ test('statements export as PDF and Excel', function () {
     copy($file, $copy);
     $rows = SimpleExcelReader::create($copy)->noHeaderRow()->getRows()->all();
 
-    expect($rows[0])->toBe(['Code', 'Account', 'Type', 'Debit', 'Credit'])
-        ->and(end($rows))->toBe(['', 'Total', '', 490000, 490000]);
+    expect($rows[0])->toBe(['Code', 'Account', 'Type', 'Opening', 'Debit', 'Credit', 'Closing'])
+        ->and($rows[count($rows) - 2])->toBe(['', 'Total debits', '', 0, 490000, '', 490000])
+        ->and(end($rows))->toBe(['', 'Total credits', '', 0, '', 490000, 490000]);
     @unlink($copy);
 
     $this->actingAs($admin)->get(route('reports.balance-sheet.export', ['format' => 'csv']))->assertSessionHasErrors('format');

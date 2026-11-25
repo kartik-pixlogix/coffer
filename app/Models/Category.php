@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CategoryKind;
+use App\Enums\ScheduleLine;
 use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\FlushesReportCache;
@@ -20,10 +21,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property CategoryKind $kind
  * @property string $name
  * @property bool $system
+ * @property string|null $schedule_line the Schedule III line (D156); null means the default for its kind
  * @property int $position
  * @property CarbonImmutable|null $archived_at
  */
-#[Fillable(['company_id', 'kind', 'name', 'system', 'position', 'archived_at'])]
+#[Fillable(['company_id', 'kind', 'name', 'system', 'schedule_line', 'position', 'archived_at'])]
 class Category extends Model
 {
     use Audited;
@@ -45,6 +47,13 @@ class Category extends Model
             'system' => 'boolean',
             'archived_at' => 'datetime',
         ];
+    }
+
+    /** Where it reports in the Schedule III statement of profit and loss (D156). */
+    public function scheduleLine(): ScheduleLine
+    {
+        return ($this->schedule_line !== null ? ScheduleLine::tryFrom($this->schedule_line) : null)
+            ?? ScheduleLine::defaultFor($this->kind, $this->name, $this->system);
     }
 
     public function isSalary(): bool

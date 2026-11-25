@@ -105,4 +105,26 @@ final class Xlsx
     {
         return $paise % 100 === 0 ? intdiv($paise, 100) : round($paise / 100, 2);
     }
+
+    /**
+     * Rows for a "Notes" sheet of a Schedule III statement (D156): each note's accounts, then its total.
+     *
+     * @param  list<array{number: int, title: string, subtitle: string|null, rows: list<array{code: string, name: string, amount: int, previous: int|null}>, total: int, previousTotal: int|null}>  $notes
+     * @return list<list<int|string|null|array{paise: int}>>
+     */
+    public static function noteRows(array $notes, bool $withPrevious): array
+    {
+        $m = self::money(...);
+        $rows = [];
+
+        foreach ($notes as $note) {
+            foreach ($note['rows'] as $row) {
+                $rows[] = [$note['number'].'. '.$note['title'], $row['code'], $row['name'], $m($row['amount']), ...($withPrevious ? [$row['previous'] === null ? null : $m($row['previous'])] : [])];
+            }
+
+            $rows[] = [$note['number'].'. '.$note['title'], null, 'Total', $m($note['total']), ...($withPrevious ? [$note['previousTotal'] === null ? null : $m($note['previousTotal'])] : [])];
+        }
+
+        return $rows;
+    }
 }

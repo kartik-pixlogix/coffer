@@ -19,6 +19,7 @@ final class CachedReports
         private readonly Reports $reports,
         private readonly PartnerMetrics $metrics,
         private readonly ProfitAllocator $allocator,
+        private readonly FourColumnTrialBalance $columns,
     ) {}
 
     /** @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int, capital: int, personal: int} */
@@ -49,6 +50,12 @@ final class CachedReports
     public function balanceSheet(Company $company, CarbonImmutable $asOf): array
     {
         return $this->cache->remember($company, 'balance-sheet', [$asOf->toDateString()], fn () => $this->reports->balanceSheet($company, $asOf));
+    }
+
+    /** @return array{accounts: list<array{id: int|null, code: string, name: string, type: string, role: string|null, opening: int, debit: int, credit: int, closing: int}>, openingDebit: int, openingCredit: int, debit: int, credit: int, closingDebit: int, closingCredit: int, openingDrift: int, movementDrift: int, closingDrift: int} */
+    public function trialBalanceColumns(Company $company, CarbonImmutable $fyStart, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        return $this->cache->remember($company, 'trial-balance-4', [$fyStart->toDateString(), $from->toDateString(), $to->toDateString()], fn () => $this->columns->compute($company, $fyStart, $from, $to));
     }
 
     /** @return array{accounts: list<array{id: int|null, code: string, name: string, type: string, role: string|null, debit: int, credit: int}>, debit: int, credit: int, drift: int} */

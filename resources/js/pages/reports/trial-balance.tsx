@@ -1,29 +1,38 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { cleanQuery } from '@/components/finance/fy-menu';
 import {
     BalanceBanner,
-    StatementControls,
+    PeriodControls,
 } from '@/components/reports/statement-parts';
+import { StatementTabs } from '@/components/reports/statement-tabs';
 import { PageHeader } from '@/components/shell/page-header';
 import { DataTable } from '@/components/ui/data-table';
 import type { DataTableColumn } from '@/components/ui/data-table';
 import { formatDate, formatInr } from '@/lib/format';
-import { trialBalance as trialBalanceRoute } from '@/routes/reports';
+import {
+    journal as journalRoute,
+    trialBalance as trialBalanceRoute,
+} from '@/routes/reports';
 import { exportMethod as exportTrialBalance } from '@/routes/reports/trial-balance';
 import type {
     DriftIssue,
     StatementDateProps,
+    StatementQuery,
     TrialBalanceAccount,
 } from '@/types/reports';
 
 type Props = {
     company: { name: string };
     date: StatementDateProps;
-    query: { fy: number; asof: string };
+    query: StatementQuery;
     trial: {
         accounts: TrialBalanceAccount[];
+        openingDebitPaise: number;
+        openingCreditPaise: number;
         debitPaise: number;
         creditPaise: number;
+        closingDebitPaise: number;
+        closingCreditPaise: number;
         driftPaise: number;
     };
     checkedAt: string;
@@ -41,9 +50,17 @@ const TYPE_LABEL: Record<TrialBalanceAccount['type'], string> = {
 
 const amount = (paise: number) => (paise === 0 ? '—' : formatInr(paise));
 
+/** A signed balance as "₹12,000 Dr" / "₹4,500 Cr". */
+const balance = (paise: number) =>
+    paise === 0
+        ? '—'
+        : `${formatInr(Math.abs(paise))} ${paise > 0 ? 'Dr' : 'Cr'}`;
+
 /**
- * Trial balance (Statements.dc.html, spec §15): every account's balance as of a date in
- * the debit or credit column, the totals, and the status banner with "Find the drift".
+ * Trial balance (Statements.dc.html, spec §15, D155): every account's opening balance,
+ * the period's debits and credits, and its closing balance, so opening + movement =
+ * closing on each line. The banner checks that all three column pairs agree; each
+ * account opens its ledger in the Journal.
  */
 export default function TrialBalance({
     date,
@@ -56,17 +73,33 @@ export default function TrialBalance({
     const flagged = new Set(
         (drift ?? []).map((d) => d.accountId).filter((id) => id !== null),
     );
-    const detail = `as of ${formatDate(date.asOf)} · ${date.fy.label}`;
+    const detail = `${formatDate(date.from)} – ${formatDate(date.asOf)} · ${date.fy.label}`;
 
     const columns: DataTableColumn<TrialBalanceAccount>[] = [
         {
             key: 'account',
             header: 'Account',
-            width: 'minmax(260px,2fr)',
+            width: 'minmax(240px,2fr)',
             className: 'cf-stack',
             cell: (a) => (
                 <>
-                    <span className="t-label-strong">{a.name}</span>
+                    {a.id === null ? (
+                        <span className="t-label-strong">{a.name}</span>
+                    ) : (
+                        <Link
+                            className="t-label-strong sm-ledger-link"
+                            href={
+                                journalRoute({
+                                    query: cleanQuery({
+                                        ...query,
+                                        account: a.id,
+                                    }),
+                                }).url
+                            }
+                        >
+                            {a.name}
+                        </Link>
+                    )}
                     <span className="t-caption sm-code">{a.code}</span>
                 </>
             ),
@@ -74,7 +107,7 @@ export default function TrialBalance({
         {
             key: 'type',
             header: 'Type',
-            width: '130px',
+            width: '110px',
             skeleton: 'pill',
             cell: (a) => (
                 <span className="cf-pill cf-pill--outline cf-pill--sm">
@@ -83,20 +116,41 @@ export default function TrialBalance({
             ),
         },
         {
+            key: 'opening',
+            header: 'Opening',
+            width: '150px',
+            numeric: true,
+            cell: (a) => balance(a.openingPaise),
+        },
+        {
             key: 'debit',
             header: 'Debit',
-            width: '160px',
+            width: '140px',
             numeric: true,
             cell: (a) => amount(a.debitPaise),
         },
         {
             key: 'credit',
             header: 'Credit',
-            width: '160px',
+            width: '140px',
             numeric: true,
             cell: (a) => amount(a.creditPaise),
         },
+        {
+            key: 'closing',
+            header: 'Closing',
+            width: '150px',
+            numeric: true,
+            cell: (a) => balance(a.closingPaise),
+        },
     ];
+
+    const pair = (dr: number, cr: number) => (
+        <span className="cf-stack sm-total">
+            <span>{formatInr(dr)} Dr</span>
+            <span>{formatInr(cr)} Cr</span>
+        </span>
+    );
 
     return (
         <>
@@ -106,7 +160,7 @@ export default function TrialBalance({
                 title="Trial balance"
                 crumbs={[{ title: 'Statements' }, { title: 'Trial balance' }]}
                 actions={
-                    <StatementControls
+                    <PeriodControls
                         date={date}
                         url={trialBalanceRoute().url}
                         exportUrl={(format) =>
@@ -117,15 +171,16 @@ export default function TrialBalance({
                     />
                 }
             />
+            <StatementTabs current="trial_balance" query={query} />
 
             <BalanceBanner
                 balanced={balanced}
                 driftPaise={trial.driftPaise}
                 totalText={
                     <>
-                        Debits and credits both total{' '}
+                        Closing debits and credits both total{' '}
                         <span className="t-money">
-                            {formatInr(trial.debitPaise)}
+                            {formatInr(trial.closingDebitPaise)}
                         </span>
                     </>
                 }
@@ -150,13 +205,21 @@ export default function TrialBalance({
                     columns={columns}
                     getRowId={(a) => `${a.code}-${a.id ?? 'x'}`}
                     rowError={(a) => a.id !== null && flagged.has(a.id)}
-                    minWidth={760}
+                    minWidth={940}
                     totals={{
                         account: 'Total',
+                        opening: pair(
+                            trial.openingDebitPaise,
+                            trial.openingCreditPaise,
+                        ),
                         debit: formatInr(trial.debitPaise),
                         credit: formatInr(trial.creditPaise),
+                        closing: pair(
+                            trial.closingDebitPaise,
+                            trial.closingCreditPaise,
+                        ),
                     }}
-                    empty={{ title: 'No entries up to this date' }}
+                    empty={{ title: 'No entries in this period' }}
                 />
                 {!balanced && (
                     <div className="cf-tr is-error sm-diff" role="row">
@@ -172,8 +235,10 @@ export default function TrialBalance({
                     </div>
                 )}
                 <p className="t-caption t-muted m-0">
+                    Opening + debits − credits = closing on every line.
                     Balance-sheet accounts run from the beginning; income and
                     expenses from the start of {date.fy.label}, before closing.
+                    Open an account to see its ledger.
                 </p>
             </section>
         </>

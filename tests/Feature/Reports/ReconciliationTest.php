@@ -87,9 +87,43 @@ function assertReconciles($test, ?int $expectIncome = null, ?int $expectExpenses
         ->and($sheet['capitalClosingPaise'])->toBe($capital['kpis']['closingPaise']);
 
     // Money accounts on the balance sheet sum to the dashboard's balance (partner current debits aside).
-    $money = $accounts->filter(fn ($a) => str_starts_with($a['code'], '1000-'))->sum(fn ($a) => $a['debitPaise'] - $a['creditPaise']);
+    $money = $accounts->filter(fn ($a) => str_starts_with($a['code'], '1000-'))->sum(fn ($a) => $a['closingPaise']);
     expect($money)->toBe($balance['currentPaise'])
         ->and($assets->sum('amountPaise'))->toBeGreaterThanOrEqual($money);
+
+    // Phase 11 (D155): opening + debits − credits = closing on every trial balance line.
+    foreach ($accounts as $a) {
+        expect($a['openingPaise'] + $a['debitPaise'] - $a['creditPaise'])->toBe($a['closingPaise'], $a['name']);
+    }
+
+    // D156: the Schedule III statements tie to the existing reports.
+    $pnl = pageProps($test, 'reports.profit-and-loss');
+    $schedule = pageProps($test, 'reports.balance-sheet', ['layout' => 'schedule3']);
+
+    expect($pnl['ties'])->toBeTrue()
+        ->and($pnl['pnl']['totalIncome'])->toBe($income)
+        ->and($pnl['pnl']['totalExpenses'])->toBe($expenses)
+        ->and($pnl['pnl']['profit'])->toBe($net)
+        ->and(collect($pnl['pnl']['notes'])->sum('total'))->toBe($income + $expenses)
+        ->and($schedule['schedule']['totalAssets'])->toBe($sheet['sheet']['totalAssetsPaise'])
+        ->and($schedule['schedule']['totalEquityAndLiabilities'])->toBe($sheet['sheet']['totalLiabilitiesPaise'] + $sheet['sheet']['totalEquityPaise']);
+
+    foreach ($schedule['schedule']['sections'] as $section) {
+        foreach ($section['groups'] as $group) {
+            foreach ($group['lines'] as $line) {
+                $note = collect($schedule['schedule']['notes'])->firstWhere('number', $line['note']);
+                expect($note['total'])->toBe($line['amount'], $line['label']);
+            }
+        }
+    }
+
+    // D157: the cash flow statement reconciles to the movement in cash and bank.
+    $flow = pageProps($test, 'reports.cash-flow')['flow'];
+
+    expect($flow['reconciled'])->toBeTrue()
+        ->and($flow['closingCash'])->toBe($balance['currentPaise'])
+        ->and($flow['openingCash'] + $flow['operatingTotal'] + $flow['investingTotal'] + $flow['financingTotal'])->toBe($flow['closingCash'])
+        ->and($flow['operating'][0]['amount'])->toBe($net);
 }
 
 test('the seeded demo books reconcile across every page', function () {

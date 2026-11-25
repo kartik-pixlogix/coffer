@@ -8,6 +8,7 @@ use App\Ledger\CachedReports;
 use App\Ledger\DriftFinder;
 use App\Ledger\Period;
 use App\Ledger\ReportCache;
+use App\Ledger\ScheduleThree;
 use App\Models\User;
 use App\Services\Reports\Exports\StatementExport;
 use App\Services\Reports\StatementDate;
@@ -19,8 +20,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Trial balance and Balance sheet (Statements.dc.html, spec §15): as of a date inside a
- * fiscal year, with the status banner, "Find the drift" diagnostics (loaded on demand,
+ * Trial balance and Balance sheet (Statements.dc.html, spec §15): the trial balance over a
+ * period in four columns (D155), the balance sheet as of a date, standard or in the Schedule
+ * III layout (D156); with the status banner, "Find the drift" diagnostics (loaded on demand,
  * D60), Recheck (recomputes past the cache) and PDF / Excel export.
  */
 final class StatementsController extends Controller
@@ -34,7 +36,7 @@ final class StatementsController extends Controller
             $cache->flush($company);
         }
 
-        $trial = $reports->trialBalance($company, $date->fyStart(), $date->asOf);
+        $trial = $reports->trialBalanceColumns($company, $date->fyStart(), $date->from, $date->asOf);
 
         return Inertia::render('reports/trial-balance', [
             'company' => ['name' => $company->name],
@@ -46,22 +48,30 @@ final class StatementsController extends Controller
                     'code' => $a['code'],
                     'name' => $a['name'],
                     'type' => $a['type'],
+                    'openingPaise' => $a['opening'],
                     'debitPaise' => $a['debit'],
                     'creditPaise' => $a['credit'],
+                    'closingPaise' => $a['closing'],
                 ], $trial['accounts']),
+                'openingDebitPaise' => $trial['openingDebit'],
+                'openingCreditPaise' => $trial['openingCredit'],
                 'debitPaise' => $trial['debit'],
                 'creditPaise' => $trial['credit'],
-                'driftPaise' => $trial['drift'],
+                'closingDebitPaise' => $trial['closingDebit'],
+                'closingCreditPaise' => $trial['closingCredit'],
+                // The first pair that disagrees: closing, then the period, then opening.
+                'driftPaise' => $trial['closingDrift'] ?: ($trial['movementDrift'] ?: $trial['openingDrift']),
             ],
             'checkedAt' => now()->toIso8601String(),
             'drift' => Inertia::optional(fn () => $drift->find($company, $date->asOf)),
         ]);
     }
 
-    public function balanceSheet(Request $request, CurrentCompany $current, CachedReports $reports, DriftFinder $drift, ReportCache $cache): Response
+    public function balanceSheet(Request $request, CurrentCompany $current, CachedReports $reports, DriftFinder $drift, ReportCache $cache, ScheduleThree $schedule): Response
     {
         $company = $current->require();
         $date = StatementDate::fromQuery($company, $request->query());
+        $layout = $request->query('layout') === 'schedule3' ? 'schedule3' : 'standard';
 
         if ($request->boolean('recheck')) {
             $cache->flush($company);
@@ -86,6 +96,10 @@ final class StatementsController extends Controller
                 'driftPaise' => $sheet['drift'],
             ],
             'capitalClosingPaise' => $capitalClosing,
+            'layout' => $layout,
+            'schedule' => $layout === 'schedule3'
+                ? $cache->remember($company, 'schedule3-bs', [$date->asOf->toDateString()], fn () => $schedule->balanceSheet($company, $date->asOf, $date->fyStart()))
+                : null,
             'checkedAt' => now()->toIso8601String(),
             'drift' => Inertia::optional(fn () => $drift->find($company, $date->asOf)),
         ]);
@@ -108,20 +122,21 @@ final class StatementsController extends Controller
         $date = StatementDate::fromQuery($company, $request->query());
         /** @var User $user */
         $user = $request->user();
-        $filename = str($company->name)->slug().'-'.$statement.'-'.$date->asOf->toDateString().'.'.$format;
+        $scheduleThree = $statement === 'balance-sheet' && $request->query('layout') === 'schedule3';
+        $filename = str($company->name)->slug().'-'.$statement.($scheduleThree ? '-schedule-iii' : '').'-'.$date->asOf->toDateString().'.'.$format;
         $headers = ['X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'no-store, private'];
 
         activity('reports')->causedBy($user)->withProperties(['format' => $format, 'statement' => $statement, 'as_of' => $date->asOf->toDateString()])->log('exported the '.str_replace('-', ' ', $statement));
 
         if ($format === 'pdf') {
-            $bytes = $exporter->pdf($company, $date, $statement);
+            $bytes = $exporter->pdf($company, $date, $statement, $scheduleThree);
 
             return response()->streamDownload(function () use ($bytes): void {
                 echo $bytes;
             }, $filename, ['Content-Type' => 'application/pdf', ...$headers]);
         }
 
-        return response()->download($exporter->xlsx($company, $date, $statement), $filename, [
+        return response()->download($exporter->xlsx($company, $date, $statement, $scheduleThree), $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ...$headers,
         ])->deleteFileAfterSend();
