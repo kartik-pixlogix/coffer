@@ -12,6 +12,7 @@ export type PageKey =
     | 'reports'
     | 'trial_balance'
     | 'balance_sheet'
+    | 'audit_trail'
     | 'vault'
     | 'settings'
     | 'billing';

@@ -7,6 +7,7 @@ import {
     Coins,
     CreditCard,
     FileText,
+    History,
     Landmark,
     LayoutGrid,
     List,
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { index as auditIndex } from '@/routes/audit';
 import { index as billingIndex } from '@/routes/billing';
 import { index as capitalIndex } from '@/routes/capital-accounts';
 import { index as expensesIndex } from '@/routes/expenses';
@@ -136,6 +138,12 @@ const RAIL: RailItem[][] = [
             icon: FileText,
             href: balanceSheetRoute().url,
         },
+        {
+            page: 'audit_trail',
+            label: 'Audit Trail',
+            icon: History,
+            href: auditIndex().url,
+        },
     ],
     [
         {
@@ -226,6 +234,7 @@ const PHONE_LABELS: Partial<Record<PageKey, string>> = {
     reports: 'Profit and loss',
     trial_balance: 'Trial balance',
     balance_sheet: 'Balance sheet',
+    audit_trail: 'Audit trail',
     vault: 'Vault items',
 };
 
@@ -305,6 +314,7 @@ export function phoneMenuGroups(
                 ...page('reports'),
                 ...page('trial_balance'),
                 ...page('balance_sheet'),
+                ...page('audit_trail'),
             ],
         },
         {

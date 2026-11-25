@@ -32,6 +32,7 @@ final class Catalog
         'reports' => ['label' => 'Reports', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => true]],
         'trial_balance' => ['label' => 'Trial balance', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => false]],
         'balance_sheet' => ['label' => 'Balance sheet', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => true]],
+        'audit_trail' => ['label' => 'Audit trail', 'defaults' => ['partner' => true, 'member' => false, 'viewer' => false]],
         'vault' => ['label' => 'Credentials vault', 'defaults' => ['partner' => true, 'member' => true, 'viewer' => false], 'note' => 'Members see items shared with them'],
         'settings' => ['label' => 'Settings', 'defaults' => ['partner' => false, 'member' => false, 'viewer' => false]],
         // Billing belongs to the workspace owner and Admins; it can't be granted (D29).

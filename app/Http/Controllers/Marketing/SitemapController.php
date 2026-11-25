@@ -23,7 +23,8 @@ final class SitemapController extends Controller
         '/billing', '/notifications', '/search', '/invites', '/access-requests', '/login', '/logout',
         '/forgot-password', '/reset-password', '/two-factor-challenge',
         '/email', '/user', '/auth', '/session', '/stripe', '/storage', '/balance-sheet',
-        '/trial-balance', '/_inertia', '/dev', '/up',
+        '/trial-balance', '/profit-and-loss', '/cash-flow', '/journal', '/chart-of-accounts', '/audit-trail',
+        '/_inertia', '/dev', '/up',
     ];
 
     public function sitemap(): Response

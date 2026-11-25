@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditTrailController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StatementsController;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,11 @@ Route::middleware(['auth', 'verified', 'company', 'page:trial_balance'])->prefix
 Route::middleware(['auth', 'verified', 'company', 'page:balance_sheet'])->prefix('balance-sheet')->group(function () {
     Route::get('/', [StatementsController::class, 'balanceSheet'])->name('reports.balance-sheet');
     Route::get('export', [StatementsController::class, 'exportBalanceSheet'])->middleware('throttle:20,1')->name('reports.balance-sheet.export');
+});
+
+// The audit trail (D153): its own permission; "Verify now" and exports are rate-limited.
+Route::middleware(['auth', 'verified', 'company', 'page:audit_trail'])->prefix('audit-trail')->group(function () {
+    Route::get('/', [AuditTrailController::class, 'index'])->name('audit.index');
+    Route::post('verify', [AuditTrailController::class, 'verify'])->middleware('throttle:6,1')->name('audit.verify');
+    Route::get('export', [AuditTrailController::class, 'export'])->middleware('throttle:20,1')->name('audit.export');
 });

@@ -7987,3 +7987,106 @@ fieldset.cf-field:not(#\#) {
         transition: none;
     }
 }
+
+/* audit-trail: the Audit trail page (D153, no board: the vault audit log's layout) */
+.au-card:not(#\#) {
+    gap: 14px;
+    min-width: 0;
+}
+
+.au-head:not(#\#) {
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.au-filters:not(#\#) {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.au-search:not(#\#) {
+    width: 260px;
+    max-width: 100%;
+}
+
+.au-chips:not(#\#) {
+    flex-wrap: wrap;
+}
+
+.au-dates:not(#\#) {
+    max-width: 360px;
+}
+
+.au-table:not(#\#) {
+    min-width: 1080px;
+}
+
+.au-cols:not(#\#) {
+    grid-template-columns: 56px 150px minmax(150px, 1fr) 120px minmax(
+            220px,
+            1.6fr
+        ) 170px minmax(150px, 1fr) 48px;
+}
+
+.au-record:not(#\#) {
+    min-width: 0;
+}
+
+.au-chev:not(#\#) svg {
+    transition: transform var(--duration-fast) ease;
+}
+
+.au-chev.is-open:not(#\#) svg {
+    transform: rotate(180deg);
+}
+
+.au-detail:not(#\#) {
+    display: block;
+    background: var(--surface-muted);
+}
+
+.au-detail-cell:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0 8px 56px;
+}
+
+.au-diff:not(#\#) {
+    width: 100%;
+    max-width: 920px;
+    border-collapse: collapse;
+}
+
+.au-diff:not(#\#) th,
+.au-diff:not(#\#) td {
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+.au-diff:not(#\#) thead th {
+    font-size: 12px;
+    color: var(--ink-secondary);
+    font-weight: 500;
+}
+
+.au-diff:not(#\#) tbody th {
+    font-weight: 500;
+    width: 200px;
+}
+
+.au-val:not(#\#) {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    word-break: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .au-chev:not(#\#) svg {
+        transition: none;
+    }
+}
+/* audit-trail: end */
