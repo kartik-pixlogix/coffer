@@ -91,6 +91,7 @@ const PLATFORM = [
     'Rate limits on sign-in, reveals, exports and invites',
     'Self-hosted fonts and assets: no third-party trackers on the app',
     'Posted books can’t be edited or deleted, even directly in the database',
+    'A tamper-evident audit trail of every change to the books, kept for good',
     'A nightly check that every company’s books still balance',
     'Nightly encrypted backups, with a monthly test restore',
 ];

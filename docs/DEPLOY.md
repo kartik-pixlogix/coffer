@@ -255,7 +255,8 @@ A failure is logged at `critical`. Run it by hand after any change to backups.
 - `GET /up`: liveness for the load balancer (framework, no data).
 - `GET /health` with `Authorization: Bearer $HEALTH_CHECK_TOKEN` (or as a signed-in platform
   admin; anyone else gets 404): JSON `ok` / `warn` / `fail` for database, cache, queue heartbeat,
-  scheduler heartbeat, vault master key and the last backup; HTTP 503 when anything fails (D97).
+  scheduler heartbeat, vault master key, the ledger guard, the nightly audit trail check and the
+  last backup; HTTP 503 when anything fails (D97).
   Point an uptime monitor (Better Stack, UptimeRobot, Oh Dear…) at it every minute and alert on
   non-200. The queue check needs Horizon running and the scheduler queuing its heartbeat.
 - **Errors** go to the log stack (`LOG_STACK=daily`, `storage/logs`); failed jobs and failed
@@ -298,6 +299,10 @@ A failure is logged at `critical`. Run it by hand after any change to backups.
 - **Encrypted business data** (D149): GSTIN, addresses, bank labels, partner/member emails, notes
   and the receipt/invoice files are sealed with each company's data key, so `VAULT_MASTER_KEY`
   now protects the books as well as the vault. Losing it loses those fields.
+- **Audit trail** (D153): append-only like the ledger (same triggers, same `TRIGGER` privilege) and
+  hash-chained with a key derived from `APP_KEY`. Rotating `APP_KEY`? Keep the old one in
+  `APP_PREVIOUS_KEYS`, or older audit rows stop verifying. `coffer:audit-verify` runs nightly at
+  02:45; a broken chain emails the company's Admins and shows on `/health`.
 - `/.well-known/security.txt` (D151) points reporters at `SECURITY_CONTACT` (an email or URL) or,
   unset, the contact form's "Report a security issue" topic.
 

@@ -297,19 +297,22 @@ backups go (S3-compatible bucket and region, India preferred); budget for an ext
 (Companies (Accounts) Rules 3(1) edit log; Schedule III); D30–D41.
 
 **Owner inputs:** voucher number format (e.g. `INC/2026-27/0001`); whether users see a numeric
-chart of accounts (Schedule III codes) or it stays internal.
+chart of accounts (Schedule III codes) or it stays internal. **Given 25 Nov 2026:** `INC/2026-27/0001`,
+and a visible chart of accounts for Admins and Partners. The checklist PDF isn't in the repo; the
+rules were followed from Rule 3(1) and Schedule III directly.
 
-- [ ] Audit trail (edit log) that can't be switched off:
+- [x] Audit trail (edit log) that can't be switched off (D153):
       - every create, edit, reversal, approval and settings change on money records is logged;
       - each entry records who, when, IP and before/after, with secrets redacted;
       - an append-only table with a hash chain (`prev_hash`, `hash`), checked by `coffer:audit-verify`;
       - an Audit trail page with filters and CSV/PDF export.
-- [ ] Voucher numbers, gapless per company, financial year and type. They are assigned inside the
-      posting transaction under a row lock, and shown on every entry, statement and export.
-- [ ] Trial balance in four columns (opening, debit, credit, closing) for any period, with an FY selector.
-- [ ] Balance sheet and P&L in Schedule III format (Division I), with grouped notes.
-- [ ] Cash flow statement (indirect method).
-- [ ] Chart of accounts page: groups and codes aligned to Schedule III; existing account roles kept.
+- [x] Voucher numbers, gapless per company, financial year and type. They are assigned inside the
+      posting transaction under a row lock, and shown on every entry, statement and export. (D154,
+      plus the Journal / day book.)
+- [x] Trial balance in four columns (opening, debit, credit, closing) for any period, with an FY selector. (D155)
+- [x] Balance sheet and P&L in Schedule III format (Division I), with grouped notes. (D156)
+- [x] Cash flow statement (indirect method). (D157)
+- [x] Chart of accounts page: groups and codes aligned to Schedule III; existing account roles kept. (D158)
 
 **Accept:**
 - Changing one audit row makes the verify command fail.
@@ -317,6 +320,12 @@ chart of accounts (Schedule III codes) or it stays internal.
 - In the trial balance, opening plus movement equals closing for every account.
 - Schedule III statements tie to the existing reports.
 - The cash flow statement reconciles to the movement in cash and bank.
+
+**Status (25 Nov 2026):** done. Each acceptance line has a test: a changed or removed audit row
+fails `coffer:audit-verify` (AuditTrailTest); four processes posting at once get vouchers 1–41
+with no gap (VoucherNumbersTest); opening + debits − credits = closing on every line, and the
+Schedule III statements and cash flow tie to the other pages, on the demo books, a random
+fixture and a closed year (ReconciliationTest, AccountantStatementsTest).
 
 ## Phase 12: GST and TDS
 
