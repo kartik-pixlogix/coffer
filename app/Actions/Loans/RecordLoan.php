@@ -179,7 +179,7 @@ final class RecordLoan
                 'created_by' => $by->id,
             ]);
 
-            $memo = 'Loan repayment — '.$locked->code().' — '.$locked->partner->name.($note !== null ? ' — '.$note : '');
+            $memo = 'Loan repayment — '.$locked->code().' — '.$locked->partner->name;
             $entry = $this->postings->repayment($company, $date, $locked->partner, $amount, $from, $memo, $repayment, $by);
             $repayment->update(['journal_entry_id' => $entry->id]);
 
@@ -229,7 +229,8 @@ final class RecordLoan
     /** The loan's entry: money received into an account, or a personal-card balance converted. */
     private function post(Company $company, Loan $loan, Partner $partner, ?MoneyAccount $into, User $by): JournalEntry
     {
-        $memo = $loan->code().' — '.$partner->name.($loan->purpose !== null ? ' — '.$loan->purpose : '');
+        // The purpose is sealed (D149); journal memos are not, so it stays on the loan.
+        $memo = $loan->code().' — '.$partner->name;
 
         return $into === null
             ? $this->postings->convertToLoan($company, $loan->lent_on, $partner, $loan->amount_paise, 'Personal-card balance converted to a loan — '.$memo, $loan, $by)

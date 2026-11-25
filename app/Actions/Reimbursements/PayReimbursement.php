@@ -63,7 +63,7 @@ final class PayReimbursement
                 'created_by' => $by->id,
             ]);
 
-            $memo = 'Reimbursement — '.$payee->name.($note !== null ? ' — '.$note : '');
+            $memo = 'Reimbursement — '.$payee->name;
             $entry = $this->postings->reimbursement($company, $date, $amount, $payee, $from, $memo, $payout, $by);
             $payout->update(['journal_entry_id' => $entry->id]);
 

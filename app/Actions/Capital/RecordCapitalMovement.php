@@ -47,7 +47,7 @@ final class RecordCapitalMovement
                 'created_by' => $by->id,
             ]);
 
-            $memo = ($kind === CapitalMovementKind::Contribution ? 'Capital contribution — ' : 'Drawing — ').$partner->name.($note !== null ? ' — '.$note : '');
+            $memo = ($kind === CapitalMovementKind::Contribution ? 'Capital contribution — ' : 'Drawing — ').$partner->name;
             $entry = $kind === CapitalMovementKind::Contribution
                 ? $this->postings->contribution($company, $date, $partner, $amount, $account, $memo, $movement, $by)
                 : $this->postings->drawing($company, $date, $partner, $amount, $account, $memo, $movement, $by);
