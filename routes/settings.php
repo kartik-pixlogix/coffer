@@ -10,6 +10,7 @@ use App\Http\Controllers\Settings\PartnersController;
 use App\Http\Controllers\Settings\ProjectsController;
 use App\Http\Controllers\Settings\RolesController;
 use App\Http\Controllers\Settings\SidesController;
+use App\Http\Controllers\Settings\TaxController;
 use App\Http\Controllers\Settings\ThemeController;
 use Illuminate\Support\Facades\Route;
 
@@ -77,4 +78,10 @@ Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('set
     Route::post('categories', [CategoriesController::class, 'store'])->name('settings.categories.store');
     Route::put('categories/{category}', [CategoriesController::class, 'update'])->name('settings.categories.update');
     Route::patch('categories/{category}/archive', [CategoriesController::class, 'archive'])->name('settings.categories.archive');
+});
+
+// Settings › Tax (D159): GST registration and TAN.
+Route::middleware(['auth', 'verified', 'company', 'page:settings'])->prefix('settings')->group(function () {
+    Route::get('tax', [TaxController::class, 'index'])->name('settings.tax');
+    Route::put('tax', [TaxController::class, 'update'])->name('settings.tax.update');
 });

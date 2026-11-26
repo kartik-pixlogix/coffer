@@ -9,6 +9,8 @@ use App\Actions\Companies\SetCompanyRole;
 use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
 use App\Enums\CostType;
+use App\Enums\GstFiledBy;
+use App\Enums\GstRegistration;
 use App\Enums\InviteKind;
 use App\Models\Company;
 use App\Models\Invite;
@@ -68,12 +70,16 @@ class DemoWorkspaceSeeder extends Seeder
         $this->single($workspace, 'Vertex Labs Pvt Ltd', 'VL', 2_50_000_00, [
             [$aarav, CompanyRole::Admin, 1, 6000],
             [$ishita, CompanyRole::Partner, 2, 4000],
+        ], [
+            // Dummy registration details (D159): the owner adds the real ones later.
+            'gst_registration' => GstRegistration::Regular, 'state_code' => '27', 'gstin' => '27AAJCV1234K1Z8',
+            'tan' => 'PNEV01234B', 'gst_filed_by' => GstFiledBy::Ca,
         ]);
 
         $this->single($workspace, 'Northstar Studio', 'NS', 0, [
             [$aarav, CompanyRole::Admin, 1, 7000],
             [$meera, CompanyRole::Partner, 4, 3000],
-        ]);
+        ], ['gst_registration' => GstRegistration::Composition, 'state_code' => '29', 'gstin' => '29AAKFN5678M1Z2']);
 
         $this->single($workspace, 'Kriya Commerce', 'KC', 0, [
             [$aarav, CompanyRole::Admin, 1, 5000],
@@ -98,6 +104,11 @@ class DemoWorkspaceSeeder extends Seeder
             'legal_name' => 'Saarthi Portal Joint Venture',
             'gstin' => '27ABCDE1234F1Z5',
             'address' => 'Office 402, Baner Road, Pune, Maharashtra 411045',
+            // Dummy registration details (D159).
+            'gst_registration' => GstRegistration::Regular,
+            'state_code' => '27',
+            'tan' => 'PNES05678C',
+            'gst_filed_by' => GstFiledBy::Ca,
         ]);
 
         $this->current->run($company, function () use ($company, $aarav, $ishita, $kabir, $meera, $rohan, $accounts): void {
@@ -182,10 +193,15 @@ class DemoWorkspaceSeeder extends Seeder
 
     /**
      * @param  list<array{0: User, 1: CompanyRole, 2: int, 3: int}>  $partners  user, role, colour, equity bps
+     * @param  array<string, mixed>  $tax  the company's tax profile (D159)
      */
-    private function single(Workspace $workspace, string $name, string $code, int $openingPaise, array $partners): void
+    private function single(Workspace $workspace, string $name, string $code, int $openingPaise, array $partners, array $tax = []): void
     {
         $company = $this->company($workspace, $name, $code, CompanyType::Single, $openingPaise);
+
+        if ($tax !== []) {
+            $company->update($tax);
+        }
 
         $this->current->run($company, function () use ($company, $partners): void {
             foreach ($partners as $position => [$user, $role, $colour, $bps]) {

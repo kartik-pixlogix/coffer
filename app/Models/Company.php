@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Enums\AttributionMode;
 use App\Enums\CompanyRole;
 use App\Enums\CompanyType;
+use App\Enums\GstFiledBy;
+use App\Enums\GstRegistration;
 use App\Models\Concerns\Audited;
 use App\Models\Concerns\EncryptsFields;
 use App\Models\Concerns\FlushesReportCache;
@@ -36,6 +38,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $opening_balance_paise
  * @property string|null $legal_name
  * @property string|null $gstin
+ * @property GstRegistration $gst_registration (D159)
+ * @property string|null $state_code the GST state code, "27"
+ * @property string|null $tan the TAN for TDS (sealed)
+ * @property GstFiledBy $gst_filed_by
  * @property string|null $address
  * @property int $hours_per_day_centi standard working day in hundredths of an hour (D63)
  * @property string|null $logo_path private-disk path of the logo
@@ -58,6 +64,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable([
     'workspace_id', 'name', 'short_code', 'type', 'currency', 'fy_start_month', 'working_days',
     'attribution_mode', 'opening_balance_paise', 'legal_name', 'gstin', 'address', 'hours_per_day_centi',
+    'gst_registration', 'state_code', 'tan', 'gst_filed_by',
 ])]
 class Company extends Model
 {
@@ -72,6 +79,8 @@ class Company extends Model
         return [
             'type' => CompanyType::class,
             'attribution_mode' => AttributionMode::class,
+            'gst_registration' => GstRegistration::class,
+            'gst_filed_by' => GstFiledBy::class,
             'opening_balance_paise' => 'integer',
             'fy_start_month' => 'integer',
             'working_days' => 'integer',

@@ -52,6 +52,12 @@ return new class extends Migration
 
         foreach (SealedFields::tables() as $table => $spec) {
             $companyColumn = $spec['company'];
+            // Only the columns that exist at this point: later migrations add sealed columns of their own (D159).
+            $spec['columns'] = array_values(array_filter($spec['columns'], fn (string $column): bool => Schema::hasColumn($table, $column)));
+
+            if ($spec['columns'] === []) {
+                continue;
+            }
 
             DB::table($table)->select(['id', ...($companyColumn === 'id' ? [] : [$companyColumn]), ...$spec['columns']])
                 ->orderBy('id')

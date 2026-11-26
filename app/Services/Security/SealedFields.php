@@ -26,7 +26,7 @@ final class SealedFields
 {
     /** @var array<class-string<Model>, list<string>> */
     public const array MODELS = [
-        Company::class => ['gstin', 'address'],
+        Company::class => ['gstin', 'address', 'tan'],
         MoneyAccount::class => ['bank_label'],
         Partner::class => ['email'],
         Member::class => ['email'],

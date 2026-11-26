@@ -13,6 +13,7 @@ import {
     projects as projectsRoute,
     roles as rolesRoute,
     sides as sidesRoute,
+    tax as taxRoute,
 } from '@/routes/settings';
 import type { PageKey } from '@/types/permissions';
 
@@ -24,6 +25,7 @@ export type SettingsTab =
     | 'sides'
     | 'categories'
     | 'projects'
+    | 'tax'
     | 'notifications'
     | 'billing';
 
@@ -56,6 +58,7 @@ const ITEMS: NavItem[] = [
         href: categoriesRoute().url,
     },
     { tab: 'projects', label: 'Projects', href: projectsRoute().url },
+    { tab: 'tax', label: 'Tax', href: taxRoute().url },
     {
         tab: 'notifications',
         label: 'Notifications',
