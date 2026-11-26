@@ -6,10 +6,12 @@ namespace App\Models;
 
 use App\Enums\CostType;
 use App\Enums\MemberStatus;
+use App\Enums\TdsSection;
 use App\Ledger\Period;
 use App\Models\Concerns\Audited;
 use App\Models\Concerns\BelongsToCompany;
 use App\Models\Concerns\EncryptsFields;
+use App\Services\Tax\TdsCalculator;
 use Carbon\CarbonImmutable;
 use Database\Factories\MemberFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -33,6 +35,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $email
  * @property CostType $cost_type
  * @property int $rate_paise per hour (Hourly) or per month (Fixed monthly)
+ * @property TdsSection|null $tds_section TDS on their pay (D161)
+ * @property int $tds_monthly_paise the monthly TDS for salary (192)
  * @property MemberStatus $status
  * @property CarbonImmutable|null $deactivated_on
  * @property CarbonImmutable|null $created_at
@@ -41,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Collection<int, MemberRate> $rates
  * @property-read Collection<int, TimeEntry> $timeEntries
  */
-#[Fillable(['company_id', 'partner_id', 'user_id', 'name', 'designation', 'email', 'cost_type', 'rate_paise', 'status', 'deactivated_on'])]
+#[Fillable(['company_id', 'partner_id', 'user_id', 'name', 'designation', 'email', 'cost_type', 'rate_paise', 'tds_section', 'tds_monthly_paise', 'status', 'deactivated_on'])]
 class Member extends Model
 {
     use Audited;
@@ -74,6 +78,8 @@ class Member extends Model
             'cost_type' => CostType::class,
             'status' => MemberStatus::class,
             'rate_paise' => 'integer',
+            'tds_section' => TdsSection::class,
+            'tds_monthly_paise' => 'integer',
             'deactivated_on' => 'immutable_date',
         ];
     }
@@ -100,6 +106,20 @@ class Member extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /**
+     * TDS to hold back from a month's pay (D161): the monthly amount set for salary (192, worked
+     * out on the person's regime and declarations, never more than the pay), or the section's
+     * rate for a contractor or professional; none when no section is set.
+     */
+    public function salaryTds(int $pay): int
+    {
+        if ($this->tds_section === null || $pay <= 0) {
+            return 0;
+        }
+
+        return min($pay, TdsCalculator::amount($pay, $this->tds_section) ?? $this->tds_monthly_paise);
     }
 
     public function isActive(): bool

@@ -137,6 +137,9 @@ final class Reports
                     ? $assets[] = ['name' => $row->name, 'amount' => $balance]
                     : $liabilities[] = ['name' => $row->name, 'amount' => -$balance],
                 AccountRole::LoansPayable, AccountRole::ReimbursementsPayable => $liabilities[] = ['name' => $row->name, 'amount' => -$balance],
+                // Tax (D161): credits to claim are assets, tax owed is a liability.
+                AccountRole::GstInput, AccountRole::TdsReceivable => $assets[] = ['name' => $row->name, 'amount' => $balance],
+                AccountRole::GstOutput, AccountRole::RcmPayable, AccountRole::TdsPayable => $liabilities[] = ['name' => $row->name, 'amount' => -$balance],
                 AccountRole::Capital => $equity[] = ['name' => $row->name, 'amount' => -$balance],
                 AccountRole::Income, AccountRole::Expense => $profit -= $balance,
             };
@@ -224,7 +227,10 @@ final class Reports
      * members are owed for personal cards, less what partners hold personally), so the
      * strip can name every term (D58).
      *
-     * @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int, capital: int, personal: int}
+     * `taxes` (D161) is GST and TDS: tax charged or held back that is still in the bank (owed to
+     * the government), less tax paid out that can be claimed back.
+     *
+     * @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int, capital: int, personal: int, taxes: int}
      */
     public function figures(Company $company, Period $period): array
     {
@@ -235,7 +241,7 @@ final class Reports
 
         $other = Lines::in($company, $period)
             ->whereNotIn('e.type', [JournalType::Opening->value, JournalType::FyClose->value])
-            ->whereIn('a.role', [AccountRole::Capital->value, AccountRole::LoansPayable->value, AccountRole::PartnerCurrent->value, AccountRole::ReimbursementsPayable->value])
+            ->whereIn('a.role', [AccountRole::Capital->value, AccountRole::LoansPayable->value, AccountRole::PartnerCurrent->value, AccountRole::ReimbursementsPayable->value, ...array_map(fn (AccountRole $r) => $r->value, AccountRole::TAX)])
             ->selectRaw('a.role, COALESCE(SUM(l.credit_paise - l.debit_paise), 0) as amount')
             ->groupBy('a.role')
             ->pluck('amount', 'role')
@@ -249,6 +255,7 @@ final class Reports
             'capitalAndLoans' => $currentBalance - $opening - $pnl['net'],
             'capital' => ($other[AccountRole::Capital->value] ?? 0) + ($other[AccountRole::LoansPayable->value] ?? 0),
             'personal' => ($other[AccountRole::PartnerCurrent->value] ?? 0) + ($other[AccountRole::ReimbursementsPayable->value] ?? 0),
+            'taxes' => array_sum(array_map(fn (AccountRole $r) => $other[$r->value] ?? 0, AccountRole::TAX)),
         ];
     }
 

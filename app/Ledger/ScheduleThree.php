@@ -46,9 +46,11 @@ final class ScheduleThree
         $reserves = $notes->addFigure('Reserves and surplus', 'Surplus in the statement of profit and loss (profit not yet closed into capital)', $this->profit($current), $previous === null ? null : $this->profit($previous));
         $borrowings = $notes->add('Short-term borrowings', fn (array $a) => $a['role'] === AccountRole::LoansPayable->value, credit: true, subtitle: 'Loans from partners, repayable on demand');
         $otherLiabilities = $notes->add('Other current liabilities', fn (array $a) => $a['role'] === AccountRole::ReimbursementsPayable->value
-            || ($a['role'] === AccountRole::PartnerCurrent->value && $a['balance'] < 0), credit: true);
+            || ($a['role'] === AccountRole::PartnerCurrent->value && $a['balance'] < 0)
+            || in_array($a['role'], [AccountRole::GstOutput->value, AccountRole::RcmPayable->value, AccountRole::TdsPayable->value], true), credit: true, subtitle: 'Reimbursements owed, amounts due to partners, and statutory dues (GST and TDS)');
         $cash = $notes->add('Cash and cash equivalents', fn (array $a) => $a['role'] === AccountRole::Money->value, credit: false);
-        $advances = $notes->add('Short-term loans and advances', fn (array $a) => $a['role'] === AccountRole::PartnerCurrent->value && $a['balance'] > 0, credit: false, subtitle: 'Amounts held by partners on behalf of the firm');
+        $advances = $notes->add('Short-term loans and advances', fn (array $a) => ($a['role'] === AccountRole::PartnerCurrent->value && $a['balance'] > 0)
+            || in_array($a['role'], [AccountRole::GstInput->value, AccountRole::TdsReceivable->value], true), credit: false, subtitle: 'Amounts held by partners on behalf of the firm, and balances with government authorities (GST input credit, TDS receivable)');
 
         $line = fn (array $note, string $label) => ['label' => $label, 'note' => $note['number'], 'amount' => $note['total'], 'previous' => $note['previousTotal']];
 

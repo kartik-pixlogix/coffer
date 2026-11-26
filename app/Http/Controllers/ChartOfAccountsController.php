@@ -37,6 +37,11 @@ final class ChartOfAccountsController extends Controller
         'capital' => 'Capital',
         'income' => 'Income',
         'expense' => 'Expense',
+        'gst_input' => 'GST input credit',
+        'tds_receivable' => 'TDS receivable',
+        'gst_output' => 'GST output',
+        'rcm_payable' => 'GST payable (reverse charge)',
+        'tds_payable' => 'TDS payable',
     ];
 
     public function index(Request $request, CurrentCompany $current): Response
@@ -81,6 +86,7 @@ final class ChartOfAccountsController extends Controller
             ['key' => 'other_liabilities', 'title' => 'Other current liabilities', 'heading' => 'Current liabilities', 'note' => 'Money owed to members who paid personally.', 'accounts' => $of(AccountRole::ReimbursementsPayable)],
             ['key' => 'partner_current', 'title' => 'Partner current accounts', 'heading' => 'Current assets or current liabilities, by balance', 'note' => 'A debit balance means the partner holds company money (an advance); a credit balance means the company owes the partner.', 'accounts' => $of(AccountRole::PartnerCurrent)],
             ['key' => 'cash', 'title' => 'Cash and cash equivalents', 'heading' => 'Current assets', 'note' => null, 'accounts' => $of(AccountRole::Money)],
+            ['key' => 'taxes', 'title' => 'Duties and taxes', 'heading' => 'Current assets (credits) and current liabilities (dues)', 'note' => 'GST input credit and TDS receivable are claimed back; GST output, reverse-charge GST and TDS payable are owed to the government.', 'accounts' => $of(...AccountRole::TAX)],
         ];
 
         foreach (ScheduleLine::cases() as $line) {

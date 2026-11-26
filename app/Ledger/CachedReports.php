@@ -22,7 +22,7 @@ final class CachedReports
         private readonly FourColumnTrialBalance $columns,
     ) {}
 
-    /** @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int, capital: int, personal: int} */
+    /** @return array{income: int, expenses: int, net: int, salary: int, other: int, currentBalance: int, opening: int, capitalAndLoans: int, capital: int, personal: int, taxes: int} */
     public function figures(Company $company, Period $period): array
     {
         return $this->cache->remember($company, 'figures', $this->key($period), fn () => $this->reports->figures($company, $period));

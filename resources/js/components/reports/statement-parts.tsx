@@ -368,6 +368,8 @@ const TYPE_LABELS: Record<string, string> = {
     loan_conversion: 'Loan conversion',
     settlement: 'Settlement transfer',
     fy_close: 'Year-end close',
+    gst_payment: 'GST payment',
+    tds_challan: 'TDS deposit',
 };
 
 /** What "Find the drift" found: each entry or account to look at. */

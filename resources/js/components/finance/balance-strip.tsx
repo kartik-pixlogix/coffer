@@ -9,6 +9,8 @@ export type BalanceTerms = {
     capitalPaise: number;
     /** Owed to partners and members for personal cards, less what partners hold. */
     personalPaise: number;
+    /** GST and TDS still held for the government, less tax credits paid out (D161). */
+    taxesPaise?: number;
     /** Anything else that moved cash (zero in sound books). */
     otherPaise?: number;
 };
@@ -34,6 +36,11 @@ export function BalanceStrip({
                 terms.personalPaise >= 0
                     ? 'owed for personal cards'
                     : 'held by partners',
+        },
+        {
+            key: 'taxes',
+            paise: terms.taxesPaise ?? 0,
+            label: 'GST & TDS held',
         },
         {
             key: 'other',

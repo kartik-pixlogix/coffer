@@ -126,7 +126,37 @@ final class ChartOfAccounts
         return $this->account($category->company_id, AccountRole::Expense, 'category_id', $category->id, "Expenses — {$category->name}");
     }
 
-    private function account(int $companyId, AccountRole $role, string $reference, int $id, string $name): Account
+    /** GST input tax credit for a head: cgst, sgst or igst (D161). */
+    public function gstInput(Company $company, string $head): Account
+    {
+        return $this->account($company->id, AccountRole::GstInput, 'tax_key', $head, 'GST input — '.strtoupper($head));
+    }
+
+    /** GST charged on sales, payable, for a head. */
+    public function gstOutput(Company $company, string $head): Account
+    {
+        return $this->account($company->id, AccountRole::GstOutput, 'tax_key', $head, 'GST output — '.strtoupper($head));
+    }
+
+    /** GST payable under reverse charge, for a head. */
+    public function rcmPayable(Company $company, string $head): Account
+    {
+        return $this->account($company->id, AccountRole::RcmPayable, 'tax_key', $head, 'GST payable, reverse charge — '.strtoupper($head));
+    }
+
+    /** TDS deducted and owed to the government, per section ("194J"). */
+    public function tdsPayable(Company $company, string $section): Account
+    {
+        return $this->account($company->id, AccountRole::TdsPayable, 'tax_key', $section, "TDS payable — {$section}");
+    }
+
+    /** TDS clients deducted from what they paid us, claimed against tax. */
+    public function tdsReceivable(Company $company): Account
+    {
+        return $this->account($company->id, AccountRole::TdsReceivable, 'tax_key', 'tds', 'TDS receivable');
+    }
+
+    private function account(int $companyId, AccountRole $role, string $reference, int|string $id, string $name): Account
     {
         $existing = Account::query()->withoutGlobalScope('company')
             ->where('company_id', $companyId)

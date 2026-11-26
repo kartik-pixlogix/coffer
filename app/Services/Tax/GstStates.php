@@ -11,7 +11,7 @@ namespace App\Services\Tax;
  */
 final class GstStates
 {
-    /** @var array<string, string> */
+    /** @var array<int|string, string> PHP keeps "01"–"09" as strings and the rest as integers */
     public const array ALL = [
         '01' => 'Jammu and Kashmir',
         '02' => 'Himachal Pradesh',

@@ -6,6 +6,7 @@ namespace App\Services\Security;
 
 use App\Models\CapitalMovement;
 use App\Models\Company;
+use App\Models\DocumentTax;
 use App\Models\Expense;
 use App\Models\Income;
 use App\Models\Loan;
@@ -37,6 +38,7 @@ final class SealedFields
         Loan::class => ['purpose'],
         LoanRepayment::class => ['note'],
         Reimbursement::class => ['note'],
+        DocumentTax::class => ['party_gstin', 'deductee_pan'],
     ];
 
     /** @return list<string> */

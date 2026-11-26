@@ -27,9 +27,13 @@ final class SettlementCalculator
     /** A side owes or is owed only beyond ₹1 (spec §13). */
     public const int TOLERANCE_PAISE = 100;
 
-    private const array HOLDINGS = [AccountRole::Money, AccountRole::PartnerCurrent, AccountRole::ReimbursementsPayable];
+    /** Tax accounts (D161) count too: their lines carry no side, so they pool by equity like the company account. */
+    private const array HOLDINGS = [
+        AccountRole::Money, AccountRole::PartnerCurrent, AccountRole::ReimbursementsPayable,
+        AccountRole::GstInput, AccountRole::TdsReceivable, AccountRole::GstOutput, AccountRole::RcmPayable, AccountRole::TdsPayable,
+    ];
 
-    private const array CASH_TYPES = [JournalType::Income, JournalType::Expense, JournalType::Salary, JournalType::Reimbursement];
+    private const array CASH_TYPES = [JournalType::Income, JournalType::Expense, JournalType::Salary, JournalType::Reimbursement, JournalType::GstPayment, JournalType::TdsChallan];
 
     public function calculate(Company $company, Period $period): SettlementResult
     {
@@ -67,7 +71,8 @@ final class SettlementCalculator
 
             match ($type) {
                 JournalType::Income => $flows[$id]['collected'] += $net,
-                JournalType::Expense, JournalType::Salary => $flows[$id]['paid'] -= $net,
+                // A side paying the firm's GST or TDS paid for the pool, like an expense (D161).
+                JournalType::Expense, JournalType::Salary, JournalType::GstPayment, JournalType::TdsChallan => $flows[$id]['paid'] -= $net,
                 JournalType::Reimbursement => $flows[$id]['reimbursed'] += $net,
                 JournalType::Settlement => $net >= 0 ? $flows[$id]['paidIn'] += $net : $flows[$id]['paidOut'] -= $net,
                 default => null,

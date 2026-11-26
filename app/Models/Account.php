@@ -25,12 +25,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $partner_id
  * @property int|null $member_id
  * @property int|null $category_id
+ * @property string|null $tax_key a tax account's head or section (D161): cgst, sgst, igst, 194J…
  * @property-read MoneyAccount|null $moneyAccount
  * @property-read Partner|null $partner
  * @property-read Member|null $member
  * @property-read Category|null $category
  */
-#[Fillable(['company_id', 'code', 'name', 'type', 'role', 'money_account_id', 'partner_id', 'member_id', 'category_id'])]
+#[Fillable(['company_id', 'code', 'name', 'type', 'role', 'money_account_id', 'partner_id', 'member_id', 'category_id', 'tax_key'])]
 class Account extends Model
 {
     use BelongsToCompany;

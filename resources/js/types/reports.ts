@@ -156,6 +156,7 @@ export type DashboardData = {
         expensesPaise: number;
         capitalPaise: number;
         personalPaise: number;
+        taxesPaise: number;
         otherPaise: number;
         asOf: string;
         latestMonth: { month: string; netPaise: number } | null;

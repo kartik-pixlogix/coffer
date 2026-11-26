@@ -60,12 +60,14 @@ final class CashFlow
         $netProfit = $role(AccountRole::Income) + $role(AccountRole::Expense);
         $partners = $role(AccountRole::PartnerCurrent);
         $reimbursements = $role(AccountRole::ReimbursementsPayable);
+        $taxes = array_sum(array_map($role, AccountRole::TAX));
 
         $operating = [
             ['key' => 'net_profit', 'label' => 'Net profit for the period', 'amount' => $netProfit],
             ['key' => 'non_cash', 'label' => 'Adjustments for depreciation and other non-cash items', 'amount' => 0],
             ['key' => 'partners', 'label' => 'Increase / (decrease) in amounts due to partners on current account', 'amount' => $partners],
             ['key' => 'reimbursements', 'label' => 'Increase / (decrease) in reimbursements owed to members', 'amount' => $reimbursements],
+            ['key' => 'taxes', 'label' => 'Increase / (decrease) in GST and TDS owed, net of tax credits', 'amount' => $taxes],
         ];
 
         $capital = $role(AccountRole::Capital);

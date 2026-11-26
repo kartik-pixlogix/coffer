@@ -22,6 +22,8 @@ enum JournalType: string
     case LoanConversion = 'loan_conversion';
     case Settlement = 'settlement';
     case FyClose = 'fy_close';
+    case GstPayment = 'gst_payment';
+    case TdsChallan = 'tds_challan';
 
     public function label(): string
     {
@@ -38,6 +40,8 @@ enum JournalType: string
             self::LoanConversion => 'Loan conversion',
             self::Settlement => 'Settlement transfer',
             self::FyClose => 'Year-end close',
+            self::GstPayment => 'GST payment',
+            self::TdsChallan => 'TDS deposit',
         };
     }
 
@@ -57,6 +61,8 @@ enum JournalType: string
             self::LoanConversion => 'LCV',
             self::Settlement => 'STL',
             self::FyClose => 'FYC',
+            self::GstPayment => 'GST',
+            self::TdsChallan => 'TDS',
         };
     }
 }

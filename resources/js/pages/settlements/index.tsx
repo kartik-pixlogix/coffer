@@ -55,6 +55,7 @@ type JvProps = {
         capitalAndLoansPaise: number;
         capitalPaise: number;
         personalPaise: number;
+        taxesPaise: number;
     };
     netProfitPaise: number;
     sides: SideSettlementRow[];
@@ -325,7 +326,8 @@ function JointVenture(props: JvProps) {
                             otherPaise:
                                 balance.capitalAndLoansPaise -
                                 balance.capitalPaise -
-                                balance.personalPaise,
+                                balance.personalPaise -
+                                balance.taxesPaise,
                         }}
                     />
                 </article>

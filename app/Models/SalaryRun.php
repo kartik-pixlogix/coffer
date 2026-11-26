@@ -22,13 +22,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $month first day of the month
  * @property int $billable_centi
  * @property int $amount_paise
+ * @property int $tds_paise TDS held back (D161)
  * @property int|null $journal_entry_id
  * @property int|null $run_by
  * @property CarbonImmutable|null $posted_at
  * @property-read Member $member
  * @property-read JournalEntry|null $entry
  */
-#[Fillable(['company_id', 'member_id', 'month', 'billable_centi', 'amount_paise', 'journal_entry_id', 'run_by', 'posted_at'])]
+#[Fillable(['company_id', 'member_id', 'month', 'billable_centi', 'amount_paise', 'tds_paise', 'journal_entry_id', 'run_by', 'posted_at'])]
 class SalaryRun extends Model
 {
     use Audited;

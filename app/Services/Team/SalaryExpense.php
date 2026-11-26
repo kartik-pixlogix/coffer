@@ -62,7 +62,8 @@ final class SalaryExpense
             'payer_type' => PayerType::Member,
             'member_id' => $member->id,
             'money_account_id' => $from->id,
-            'amount_paise' => $run->amount_paise,
+            // The member is paid the salary less TDS (D161).
+            'amount_paise' => $run->amount_paise - $run->tds_paise,
         ]);
     }
 }

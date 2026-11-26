@@ -67,8 +67,9 @@ final class SalaryGenerator
                 ['company_id' => $company->id],
             );
 
+            $tds = $member->salaryTds($figure->amountPaise);
             $posted = $run->journal_entry_id !== null;
-            $same = $posted && $run->amount_paise === $figure->amountPaise;
+            $same = $posted && $run->amount_paise === $figure->amountPaise && $run->tds_paise === $tds;
             $run->billable_centi = $figure->billableCenti;
 
             if ($same || (! $posted && $figure->amountPaise === 0)) {
@@ -86,10 +87,10 @@ final class SalaryGenerator
                 $this->poster->reverse($old, memo: 'Salary re-run — '.$member->name.' — '.$start->format('Y-m'), by: $by);
             }
 
-            $run->fill(['amount_paise' => $figure->amountPaise, 'run_by' => $by?->id, 'posted_at' => now(), 'journal_entry_id' => null])->save();
+            $run->fill(['amount_paise' => $figure->amountPaise, 'tds_paise' => $tds, 'run_by' => $by?->id, 'posted_at' => now(), 'journal_entry_id' => null])->save();
 
             if ($figure->amountPaise > 0) {
-                $entry = $this->postings->salary($company, $member, $figure->amountPaise, $end, $run, $by);
+                $entry = $this->postings->salary($company, $member, $figure->amountPaise, $end, $run, $by, $tds, $member->tds_section);
                 $run->update(['journal_entry_id' => $entry->id]);
             }
 

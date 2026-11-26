@@ -6,6 +6,7 @@ namespace App\Ledger;
 
 use App\Enums\CategoryKind;
 use App\Enums\JournalType;
+use App\Enums\TdsSection;
 use App\Ledger\Exceptions\LedgerException;
 use App\Models\Category;
 use App\Models\Company;
@@ -15,6 +16,7 @@ use App\Models\MoneyAccount;
 use App\Models\Partner;
 use App\Models\Side;
 use App\Models\User;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,26 +38,30 @@ final class Postings
         private readonly LedgerPoster $poster,
     ) {}
 
-    /** Income received into money account M: Dr M, Cr Income:category. */
-    public function incomeToAccount(Company $company, CarbonImmutable $date, int $amount, Category $category, MoneyAccount $into, ?Partner $broughtBy = null, ?int $projectId = null, ?string $memo = null, ?Model $source = null, ?User $by = null): JournalEntry
+    /**
+     * Income received into money account M: Dr M, Cr Income:category. With tax (D161), `$amount`
+     * is what was received; the income is the taxable value, GST charged is owed as output
+     * tax and TDS the client held back is claimed as TDS receivable.
+     */
+    public function incomeToAccount(Company $company, CarbonImmutable $date, int $amount, Category $category, MoneyAccount $into, ?Partner $broughtBy = null, ?int $projectId = null, ?string $memo = null, ?Model $source = null, ?User $by = null, ?IncomeTax $tax = null): JournalEntry
     {
         $this->assertKind($category, CategoryKind::Income);
 
         return $this->post($company, $date, JournalType::Income, [
             LineData::debit($this->chart->money($into), $amount, sideId: $into->side_id, projectId: $projectId),
-            LineData::credit($this->chart->income($category), $amount, partnerId: $broughtBy?->id, sideId: $broughtBy?->side_id, projectId: $projectId),
+            ...$this->incomeLines($company, $amount, $category, $broughtBy, $projectId, $tax),
         ], $memo, $source, $by);
     }
 
     /** Income received personally by partner P: Dr Partner current P, Cr Income:category. */
-    public function incomeToPartner(Company $company, CarbonImmutable $date, int $amount, Category $category, Partner $receivedBy, ?Partner $broughtBy = null, ?int $projectId = null, ?string $memo = null, ?Model $source = null, ?User $by = null): JournalEntry
+    public function incomeToPartner(Company $company, CarbonImmutable $date, int $amount, Category $category, Partner $receivedBy, ?Partner $broughtBy = null, ?int $projectId = null, ?string $memo = null, ?Model $source = null, ?User $by = null, ?IncomeTax $tax = null): JournalEntry
     {
         $this->assertKind($category, CategoryKind::Income);
         $broughtBy ??= $receivedBy;
 
         return $this->post($company, $date, JournalType::Income, [
             LineData::debit($this->chart->partnerCurrent($receivedBy), $amount, partnerId: $receivedBy->id, sideId: $receivedBy->side_id, projectId: $projectId),
-            LineData::credit($this->chart->income($category), $amount, partnerId: $broughtBy->id, sideId: $broughtBy->side_id, projectId: $projectId),
+            ...$this->incomeLines($company, $amount, $category, $broughtBy, $projectId, $tax),
         ], $memo, $source, $by);
     }
 
@@ -64,9 +70,15 @@ final class Postings
      * from money account M → Cr M; partner's personal card → Cr Partner current;
      * member's personal card → Cr Reimbursements payable.
      *
+     * With tax (D161) the payers pay the bill less TDS; the cost (taxable value, plus GST that
+     * can't be claimed) is shared over the payer lines by what each paid, so attribution keeps
+     * its dimensions, while input tax, reverse-charge GST and TDS payable go on company-level
+     * tax accounts with no side or partner: they belong to the whole firm (and pool across a
+     * JV's sides in settlements).
+     *
      * @param  list<PayerLine>  $payers
      */
-    public function expense(Company $company, CarbonImmutable $date, Category $category, array $payers, ?int $projectId = null, ?string $memo = null, ?Model $source = null, ?User $by = null, JournalType $type = JournalType::Expense): JournalEntry
+    public function expense(Company $company, CarbonImmutable $date, Category $category, array $payers, ?int $projectId = null, ?string $memo = null, ?Model $source = null, ?User $by = null, JournalType $type = JournalType::Expense, ?ExpenseTax $tax = null): JournalEntry
     {
         $this->assertKind($category, CategoryKind::Expense);
 
@@ -75,12 +87,37 @@ final class Postings
         }
 
         $expense = $this->chart->expense($category);
+        $paid = array_sum(array_map(fn (PayerLine $p) => $p->amount, $payers));
+
+        if ($tax !== null && $paid !== $tax->payable()) {
+            throw new LedgerException('The payers must add up to the bill less TDS ('.Money::format($tax->payable()).').');
+        }
+
+        $costs = $tax === null
+            ? array_map(fn (PayerLine $p) => $p->amount, $payers)
+            : Rounding::largestRemainder($tax->cost(), array_map(fn (PayerLine $p) => $p->amount, $payers));
         $lines = [];
 
-        foreach ($payers as $payer) {
+        foreach ($payers as $i => $payer) {
             [$partnerId, $sideId, $memberId] = $this->attribution($payer);
-            $lines[] = LineData::debit($expense, $payer->amount, $partnerId, $sideId, $memberId, $projectId);
+            $lines[] = LineData::debit($expense, $costs[$i], $partnerId, $sideId, $memberId, $projectId);
             $lines[] = $this->paymentLine($payer);
+        }
+
+        if ($tax !== null) {
+            foreach ($tax->heads() as $head => $amount) {
+                if ($tax->itc) {
+                    $lines[] = LineData::debit($this->chart->gstInput($company, $head), $amount);
+                }
+
+                if ($tax->reverseCharge) {
+                    $lines[] = LineData::credit($this->chart->rcmPayable($company, $head), $amount);
+                }
+            }
+
+            if ($tax->tds > 0) {
+                $lines[] = LineData::credit($this->chart->tdsPayable($company, ($tax->tdsSection ?? throw new LedgerException('TDS needs a section.'))->code()), $tax->tds);
+            }
         }
 
         return $this->post($company, $date, $type, $lines, $memo, $source, $by);
@@ -103,7 +140,7 @@ final class Postings
      * Salary for member m for a month (spec §8.3): Expense:Salary, paid from m's partner's
      * account (their side's account in a JV, the company account in a Single company).
      */
-    public function salary(Company $company, Member $member, int $amount, CarbonImmutable $monthEnd, ?Model $source = null, ?User $by = null): JournalEntry
+    public function salary(Company $company, Member $member, int $amount, CarbonImmutable $monthEnd, ?Model $source = null, ?User $by = null, int $tds = 0, ?TdsSection $section = null): JournalEntry
     {
         $partner = $member->partner()->withoutGlobalScopes()->firstOrFail();
         $from = $this->chart->payingAccountFor($partner);
@@ -112,11 +149,13 @@ final class Postings
             $company,
             $monthEnd,
             $this->chart->salaryCategory($company),
-            [PayerLine::member($amount, $member, $from)],
+            [PayerLine::member($amount - $tds, $member, $from)],
             memo: 'Salary — '.$member->name.' — '.$monthEnd->format('Y-m'),
             source: $source,
             by: $by,
             type: JournalType::Salary,
+            // TDS on salary (D161): the member is paid the net; the TDS is owed to the government.
+            tax: $tds > 0 ? new ExpenseTax($amount, tdsSection: $section ?? TdsSection::Salary, tds: $tds) : null,
         );
     }
 
@@ -176,6 +215,35 @@ final class Postings
             LineData::debit($this->chart->money($this->chart->sideAccount($to)), $amount, sideId: $to->id),
             LineData::credit($this->chart->money($this->chart->sideAccount($from)), $amount, sideId: $from->id),
         ], $reference ? "Settlement {$from->name} → {$to->name} ({$reference})" : "Settlement {$from->name} → {$to->name}", $source, $by);
+    }
+
+    /**
+     * The credit side of income: the income itself (with who brought it in), plus GST output
+     * and TDS receivable when taxed (D161). Tax lines carry no side or partner.
+     *
+     * @return list<LineData>
+     */
+    private function incomeLines(Company $company, int $received, Category $category, ?Partner $broughtBy, ?int $projectId, ?IncomeTax $tax): array
+    {
+        if ($tax === null) {
+            return [LineData::credit($this->chart->income($category), $received, partnerId: $broughtBy?->id, sideId: $broughtBy?->side_id, projectId: $projectId)];
+        }
+
+        if ($tax->received() !== $received) {
+            throw new LedgerException('The amount received must be the invoice less TDS ('.Money::format($tax->received()).').');
+        }
+
+        $lines = [LineData::credit($this->chart->income($category), $tax->taxable, partnerId: $broughtBy?->id, sideId: $broughtBy?->side_id, projectId: $projectId)];
+
+        foreach ($tax->heads() as $head => $amount) {
+            $lines[] = LineData::credit($this->chart->gstOutput($company, $head), $amount);
+        }
+
+        if ($tax->tds > 0) {
+            $lines[] = LineData::debit($this->chart->tdsReceivable($company), $tax->tds);
+        }
+
+        return $lines;
     }
 
     /** @return array{0: int|null, 1: int|null, 2: int|null} partner, side, member the cost is attributed to */
