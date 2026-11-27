@@ -184,12 +184,13 @@ export function PeriodControls({
     );
 }
 
-export type ExportFormat = 'pdf' | 'xlsx' | 'csv';
+export type ExportFormat = 'pdf' | 'xlsx' | 'csv' | 'json';
 
 const EXPORT_LABEL: Record<ExportFormat, string> = {
     pdf: 'PDF',
     xlsx: 'Excel workbook (.xlsx)',
     csv: 'CSV',
+    json: 'JSON (for your CA)',
 };
 
 /** The statement Export menu. */

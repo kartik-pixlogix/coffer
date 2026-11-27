@@ -7,6 +7,7 @@ use App\Http\Controllers\JournalController;
 use App\Http\Controllers\ProfitAndLossController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StatementsController;
+use App\Http\Controllers\TaxReturnsController;
 use Illuminate\Support\Facades\Route;
 
 // Reports (spec §15): the Reports page permission; exports are rate-limited (spec §23).
@@ -56,4 +57,14 @@ Route::middleware(['auth', 'verified', 'company', 'page:cash_flow'])->prefix('ca
 Route::middleware(['auth', 'verified', 'company', 'page:chart_of_accounts'])->prefix('chart-of-accounts')->group(function () {
     Route::get('/', [ChartOfAccountsController::class, 'index'])->name('reports.chart-of-accounts');
     Route::patch('categories/{category}/schedule-line', [ChartOfAccountsController::class, 'updateLine'])->name('reports.chart-of-accounts.schedule-line');
+});
+
+// GST and TDS (D163, D164): the Tax page; payments need "Manage tax".
+Route::middleware(['auth', 'verified', 'company', 'page:tax'])->prefix('tax')->group(function () {
+    Route::get('/', [TaxReturnsController::class, 'index'])->name('tax.index');
+    Route::get('export', [TaxReturnsController::class, 'export'])->middleware('throttle:20,1')->name('tax.export');
+    Route::post('gst-payments', [TaxReturnsController::class, 'storeGst'])->middleware('throttle:30,1')->name('tax.gst-payments.store');
+    Route::delete('gst-payments/{gstPayment}', [TaxReturnsController::class, 'destroyGst'])->name('tax.gst-payments.destroy');
+    Route::post('tds-challans', [TaxReturnsController::class, 'storeTds'])->middleware('throttle:30,1')->name('tax.tds-challans.store');
+    Route::delete('tds-challans/{tdsChallan}', [TaxReturnsController::class, 'destroyTds'])->name('tax.tds-challans.destroy');
 });

@@ -8255,3 +8255,34 @@ fieldset.cf-field:not(#\#) {
     width: 96px;
 }
 /* statements-v2: end */
+
+/* tax: GST and TDS (D162–D164, no board: the Statements look) */
+.tx-fields:not(#\#) {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin: 0;
+    min-width: 0;
+}
+
+.tx-fields:not(#\#) > legend {
+    padding: 0 6px;
+}
+
+.tx-panel:not(#\#) {
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.tx-table:not(#\#) {
+    min-width: 720px;
+}
+
+.tx-paid:not(#\#) {
+    justify-content: space-between;
+    gap: 12px;
+}
+/* tax: end */
