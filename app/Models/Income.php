@@ -12,6 +12,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -41,6 +42,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read MoneyAccount|null $moneyAccount
  * @property-read Project|null $project
  * @property-read JournalEntry|null $entry
+ * @property-read DocumentTax|null $tax
  */
 #[Fillable([
     'company_id', 'source', 'amount_paise', 'received_on', 'category_id', 'brought_in_by', 'money_account_id',
@@ -102,5 +104,11 @@ class Income extends Model
     public function auditLabel(): string
     {
         return 'Income: '.$this->source;
+    }
+
+    /** @return MorphOne<DocumentTax, $this> its GST and TDS (D162), if any */
+    public function tax(): MorphOne
+    {
+        return $this->morphOne(DocumentTax::class, 'taxable');
     }
 }

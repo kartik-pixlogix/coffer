@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -51,6 +52,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read User|null $decider
  * @property-read Collection<int, ExpensePayer> $payers
  * @property-read SalaryRun|null $salaryRun
+ * @property-read DocumentTax|null $tax
  */
 #[Fillable([
     'company_id', 'description', 'amount_paise', 'spent_on', 'category_id', 'project_id', 'billable', 'payer_mode', 'notes',
@@ -145,5 +147,11 @@ class Expense extends Model
             ExpenseStatus::Rejected => 'rejected',
             ExpenseStatus::Pending => 'reopened',
         };
+    }
+
+    /** @return MorphOne<DocumentTax, $this> its GST and TDS (D162), if any */
+    public function tax(): MorphOne
+    {
+        return $this->morphOne(DocumentTax::class, 'taxable');
     }
 }

@@ -10,6 +10,17 @@ import { Modal } from '@/components/ui/modal';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { TextInput } from '@/components/ui/text-input';
+import { Toggle } from '@/components/ui/toggle';
+import { TaxFields } from '@/components/finance/tax-fields';
+import {
+    blankTax,
+    receivedAfterTax,
+    syncIncomeTax,
+    taxFromRow,
+    taxPayload,
+} from '@/components/finance/tax-form';
+import type { FormDataConvertible } from '@inertiajs/core';
+import type { TaxDraft } from '@/types/tax';
 import { store as addIncome, update as updateIncome } from '@/routes/income';
 import type { IncomeOptions, IncomeRow } from '@/types/finance';
 
@@ -36,6 +47,8 @@ type Draft = {
     file: File | null;
     /** The saved invoice is kept unless removed. */
     keepFile: boolean;
+    /** GST charged and TDS the client held back (D162), or null. */
+    tax: TaxDraft | null;
 };
 
 export const MAX_ATTACHMENT = 10 * 1024 * 1024;
@@ -113,6 +126,7 @@ export function IncomeModal({
                           notes: income.notes ?? '',
                           file: null,
                           keepFile: income.attachment !== null,
+                          tax: income.tax ? taxFromRow(income.tax) : null,
                       }
                     : {
                           source: '',
@@ -128,6 +142,7 @@ export function IncomeModal({
                           notes: '',
                           file: null,
                           keepFile: false,
+                          tax: null,
                       },
             );
         }
@@ -137,8 +152,23 @@ export function IncomeModal({
         return null;
     }
 
+    // With tax on, the amount received is worked out: taxable + GST − TDS (D162).
     const set = (patch: Partial<Draft>) =>
-        setDraft((d) => (d ? { ...d, ...patch } : d));
+        setDraft((d) => {
+            if (!d) {
+                return d;
+            }
+
+            const next = { ...d, ...patch };
+
+            if (next.tax === null) {
+                return next;
+            }
+
+            const tax = syncIncomeTax(next.tax, options.tax);
+
+            return { ...next, tax, amount: receivedAfterTax(tax) };
+        });
 
     const accountOptions = options.accounts
         .filter((a) => a.active || `account:${a.id}` === income?.receivedInto)
@@ -156,24 +186,27 @@ export function IncomeModal({
         (company.pooled || draft.broughtInBy !== '');
 
     const save = () => {
-        const payload: Record<string, string | number | boolean | File | null> =
-            {
-                source: draft.source.trim(),
-                amount_paise: draft.amount ?? 0,
-                received_on: draft.date,
-                category_id: draft.categoryId,
-                brought_in_by: draft.broughtInBy || null,
-                received_into: draft.receivedInto,
-                project_id: draft.projectId || null,
-                notes: draft.notes.trim() || null,
-                remove_attachment:
-                    income !== null &&
-                    income.attachment !== null &&
-                    !draft.keepFile,
-            };
+        const payload: Record<string, FormDataConvertible> = {
+            source: draft.source.trim(),
+            amount_paise: draft.amount ?? 0,
+            received_on: draft.date,
+            category_id: draft.categoryId,
+            brought_in_by: draft.broughtInBy || null,
+            received_into: draft.receivedInto,
+            project_id: draft.projectId || null,
+            notes: draft.notes.trim() || null,
+            remove_attachment:
+                income !== null &&
+                income.attachment !== null &&
+                !draft.keepFile,
+        };
 
         if (draft.file) {
             payload.attachment = draft.file;
+        }
+
+        if (draft.tax) {
+            payload.tax = taxPayload(draft.tax);
         }
 
         const visitOptions = {
@@ -264,6 +297,12 @@ export function IncomeModal({
                     placeholder="1,20,000"
                     value={draft.amount}
                     onValueChange={(amount) => set({ amount })}
+                    readOnly={draft.tax !== null}
+                    help={
+                        draft.tax !== null
+                            ? 'Worked out from the tax below.'
+                            : undefined
+                    }
                     error={errors.amount_paise}
                 />
                 <DatePicker
@@ -274,6 +313,40 @@ export function IncomeModal({
                     error={errors.received_on}
                 />
             </div>
+
+            <Toggle
+                checked={draft.tax !== null}
+                onCheckedChange={(on) =>
+                    set({
+                        tax: on
+                            ? {
+                                  ...blankTax(options.tax, draft.date),
+                                  taxable: draft.amount,
+                              }
+                            : null,
+                    })
+                }
+            >
+                <span className="cf-stack">
+                    <span className="t-label-strong">
+                        GST or TDS on this invoice
+                    </span>
+                    <span className="t-caption t-muted">
+                        GST you charged, and TDS the client held back
+                    </span>
+                </span>
+            </Toggle>
+            {draft.tax !== null && (
+                <TaxFields
+                    kind="income"
+                    tax={draft.tax}
+                    options={options.tax}
+                    errors={errors}
+                    onChange={(patch) =>
+                        draft.tax && set({ tax: { ...draft.tax, ...patch } })
+                    }
+                />
+            )}
 
             {categories.length <= 5 ? (
                 <div className="cf-field">

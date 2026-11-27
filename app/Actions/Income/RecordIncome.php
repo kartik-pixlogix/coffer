@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Actions\Income;
 
+use App\Ledger\IncomeTax;
 use App\Ledger\LedgerPoster;
 use App\Ledger\Postings;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\DocumentTax;
 use App\Models\Income;
 use App\Models\JournalEntry;
 use App\Models\MoneyAccount;
@@ -15,6 +17,7 @@ use App\Models\Partner;
 use App\Models\User;
 use App\Services\Finance\Attachments;
 use App\Services\Finance\PeriodGuard;
+use App\Services\Tax\TaxDocuments;
 use Closure;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -34,6 +37,7 @@ final class RecordIncome
         private readonly LedgerPoster $poster,
         private readonly PeriodGuard $periods,
         private readonly Attachments $attachments,
+        private readonly TaxDocuments $taxes,
     ) {}
 
     public function create(Company $company, IncomeData $data, User $by): Income
@@ -49,6 +53,7 @@ final class RecordIncome
                 ...$this->fileAttributes($file),
             ]);
 
+            $this->taxes->save($income, $data->tax);
             $income->update(['journal_entry_id' => $this->post($company, $income, $by)->id]);
 
             return $income;
@@ -68,8 +73,9 @@ final class RecordIncome
                 $income->fill($this->fileAttributes($file));
             }
 
-            $repost = $income->isDirty(self::POSTED) || $income->journal_entry_id === null;
+            $repost = $income->isDirty(self::POSTED) || $income->journal_entry_id === null || $this->taxChanged($income, $data->tax);
             $income->save();
+            $this->taxes->save($income, $data->tax);
 
             if ($repost) {
                 $this->reverse($income, 'Income edited — '.$income->source, $by);
@@ -124,13 +130,40 @@ final class RecordIncome
             /** @var MoneyAccount $into */
             $into = MoneyAccount::query()->findOrFail($income->money_account_id);
 
-            return $this->postings->incomeToAccount($company, $income->received_on, $income->amount_paise, $category, $into, $broughtBy, $income->project_id, $income->source, $income, $by);
+            return $this->postings->incomeToAccount($company, $income->received_on, $income->amount_paise, $category, $into, $broughtBy, $income->project_id, $income->source, $income, $by, $this->taxOf($income));
         }
 
         /** @var Partner $receivedBy */
         $receivedBy = Partner::query()->findOrFail($income->received_by);
 
-        return $this->postings->incomeToPartner($company, $income->received_on, $income->amount_paise, $category, $receivedBy, $broughtBy, $income->project_id, $income->source, $income, $by);
+        return $this->postings->incomeToPartner($company, $income->received_on, $income->amount_paise, $category, $receivedBy, $broughtBy, $income->project_id, $income->source, $income, $by, $this->taxOf($income));
+    }
+
+    private function taxOf(Income $income): ?IncomeTax
+    {
+        return TaxDocuments::incomeTax(DocumentTax::query()->where('taxable_type', $income->getMorphClass())->where('taxable_id', $income->id)->first());
+    }
+
+    /**
+     * Whether the tax differs from what posted, so the entry must be reposted.
+     *
+     * @param  array<string, mixed>|null  $tax
+     */
+    private function taxChanged(Income $income, ?array $tax): bool
+    {
+        $old = DocumentTax::query()->where('taxable_type', $income->getMorphClass())->where('taxable_id', $income->id)->first();
+
+        if ($old === null || $tax === null) {
+            return ($old === null) !== ($tax === null);
+        }
+
+        foreach (['taxable_paise', 'cgst_paise', 'sgst_paise', 'igst_paise', 'tds_paise'] as $key) {
+            if ((int) $old->getAttribute($key) !== (int) ($tax[$key] ?? 0)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function reverse(Income $income, string $memo, User $by): void

@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Services\Finance\Attachments;
 use App\Services\Finance\FiscalYearFilter;
 use App\Services\Finance\LedgerCounts;
+use App\Services\Tax\TaxOptions;
 use App\Support\Csv;
 use App\Support\CurrentCompany;
 use App\Support\Money;
@@ -77,7 +78,7 @@ final class IncomeController extends Controller
             ->select('incomes.*')
             ->leftJoin('partners as bp', 'bp.id', '=', 'incomes.brought_in_by')
             ->join('categories as c', 'c.id', '=', 'incomes.category_id')
-            ->with(['moneyAccount:id,name', 'receivedBy:id,name', 'project:id,name', 'voucherEntry:id,voucher_no'])
+            ->with(['moneyAccount:id,name', 'receivedBy:id,name', 'project:id,name', 'voucherEntry:id,voucher_no', 'tax'])
             ->when($category !== null, fn (Builder $q) => $q->where('incomes.category_id', $category))
             ->orderBy(self::SORTS[$sort], $dir)
             ->orderBy('incomes.id', $dir)
@@ -118,6 +119,7 @@ final class IncomeController extends Controller
                 'sources' => Income::query()->select('source')->groupBy('source')->orderByRaw('MAX(received_on) DESC')->limit(50)->pluck('source'),
                 // P1 (D116): "Brought in by" starts on the signed-in person's own partner, if any.
                 'myPartnerId' => Partner::query()->active()->where('user_id', $user->id)->value('id'),
+                'tax' => TaxOptions::for($company),
             ],
             'abilities' => ['manage' => $user->can('action.income.manage')],
         ]);
@@ -181,7 +183,7 @@ final class IncomeController extends Controller
         $category = $request->integer('category') ?: null;
 
         $rows = Income::query()
-            ->with(['category:id,name', 'broughtInBy:id,name', 'receivedBy:id,name', 'moneyAccount:id,name', 'project:id,name', 'voucherEntry:id,voucher_no'])
+            ->with(['category:id,name', 'broughtInBy:id,name', 'receivedBy:id,name', 'moneyAccount:id,name', 'project:id,name', 'voucherEntry:id,voucher_no', 'tax'])
             ->whereBetween('received_on', [$fy->period->from?->toDateString(), $fy->period->to->toDateString()])
             ->when($category !== null, fn (Builder $q) => $q->where('category_id', $category))
             ->orderBy('received_on')->orderBy('id')
@@ -196,7 +198,7 @@ final class IncomeController extends Controller
                 return;
             }
 
-            Csv::put($out, ['Voucher', 'Date', 'Source', 'Amount (INR)', 'Category', 'Brought in by', 'Received into', 'Project', 'Notes']);
+            Csv::put($out, ['Voucher', 'Date', 'Source', 'Amount (INR)', 'Category', 'Brought in by', 'Received into', 'Project', 'Notes', 'Taxable value', 'GST charged', 'TDS deducted', 'Client GSTIN']);
 
             foreach ($rows as $i) {
                 Csv::put($out, [
@@ -209,6 +211,10 @@ final class IncomeController extends Controller
                     $i->moneyAccount->name ?? ($i->receivedBy !== null ? $i->receivedBy->name.' (personally)' : ''),
                     $i->project?->name,
                     $i->notes,
+                    $i->tax === null ? '' : Money::plain($i->tax->taxable_paise),
+                    $i->tax === null ? '' : Money::plain($i->tax->gstPaise()),
+                    $i->tax === null ? '' : Money::plain($i->tax->tds_paise),
+                    $i->tax->party_gstin ?? '',
                 ]);
             }
 
@@ -232,6 +238,7 @@ final class IncomeController extends Controller
             'projectId' => $i->project_id,
             'projectName' => $i->project?->name,
             'notes' => $i->notes,
+            'tax' => TaxOptions::row($i->tax),
             'attachment' => $i->attachment_path === null ? null : [
                 'name' => (string) $i->attachment_name,
                 'size' => (int) $i->attachment_size,

@@ -10,10 +10,12 @@ use App\Enums\CategoryKind;
 use App\Enums\PayerMode;
 use App\Enums\PayerType;
 use App\Enums\ProjectStatus;
+use App\Ledger\ExpenseTax;
 use App\Models\Expense;
 use App\Models\Member;
 use App\Policies\ExpensePolicy;
 use App\Services\Finance\Attachments;
+use App\Services\Tax\TaxDocuments;
 use App\Support\BooksWindow;
 use App\Support\CurrentCompany;
 use App\Support\Money;
@@ -22,6 +24,7 @@ use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 
 /**
@@ -36,6 +39,12 @@ use Illuminate\Validation\Validator;
  */
 final class ExpenseRequest extends FormRequest
 {
+    /** @var array{tax: ExpenseTax, attributes: array<string, mixed>}|false|null the tax, once worked out (false: not yet) */
+    private array|false|null $taxResult = false;
+
+    /** @var array<string, list<string>> */
+    private array $taxErrors = [];
+
     public function authorize(): bool
     {
         $expense = $this->expense();
@@ -79,6 +88,8 @@ final class ExpenseRequest extends FormRequest
             'payers.*.account_id' => ['nullable', 'required_if:payers.*.type,company', 'integer',
                 Rule::exists('money_accounts', 'id')->where('company_id', $company->id)->where($keep('archived_at', $payerAccounts))],
             'payers.*.amount_paise' => ['required', 'integer', 'min:0', 'max:'.Money::maxPaise()],
+            // GST and TDS on the bill (D162): checked by TaxDocuments in after().
+            'tax' => ['nullable', 'array'],
         ];
     }
 
@@ -137,7 +148,15 @@ final class ExpenseRequest extends FormRequest
             $mode = PayerMode::from($this->string('payer_mode')->toString());
             $payers = $this->payerInputs();
             $count = count($payers);
-            $amount = $this->integer('amount_paise');
+            $amount = $this->payable();
+
+            foreach ($this->taxErrors as $key => $messages) {
+                $validator->errors()->add($key, $messages[0]);
+            }
+
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
 
             $shapeError = match ($mode) {
                 PayerMode::Full => $count !== 1 || $payers[0]->type === PayerType::Company ? 'Full means one person paid it all.' : null,
@@ -165,9 +184,10 @@ final class ExpenseRequest extends FormRequest
 
             if ($mode === PayerMode::Custom && $sum !== $amount) {
                 $gap = Money::format(abs($sum - $amount));
+                $what = $amount === $this->integer('amount_paise') ? 'the amount' : 'the amount less TDS';
                 $validator->errors()->add('payers', $sum > $amount
-                    ? "Payers add up to {$gap} more than the amount."
-                    : "Payers add up to {$gap} less than the amount.");
+                    ? "Payers add up to {$gap} more than {$what}."
+                    : "Payers add up to {$gap} less than {$what}.");
 
                 return;
             }
@@ -209,7 +229,39 @@ final class ExpenseRequest extends FormRequest
             payers: $this->splitAmounts($this->payerInputs()),
             receipt: $file instanceof UploadedFile ? $file : null,
             removeReceipt: $this->boolean('remove_receipt'),
+            tax: $this->tax()['attributes'] ?? null,
         );
+    }
+
+    /**
+     * The bill's GST and TDS (D162), worked out once; null when the form sends none.
+     *
+     * @return array{tax: ExpenseTax, attributes: array<string, mixed>}|null
+     */
+    private function tax(): ?array
+    {
+        if ($this->taxResult === false) {
+            $input = $this->input('tax');
+            $this->taxResult = is_array($input) && $input !== []
+                ? app(TaxDocuments::class)->forExpense(app(CurrentCompany::class)->require(), $input, $this->integer('amount_paise'))
+                : null;
+        }
+
+        return $this->taxResult;
+    }
+
+    /** What the payers pay: the amount, less TDS held back (D162). Adds the tax errors to the form. */
+    private function payable(): int
+    {
+        try {
+            $tax = $this->tax();
+
+            return $tax === null ? $this->integer('amount_paise') : $tax['tax']->payable();
+        } catch (ValidationException $e) {
+            $this->taxErrors = $e->errors();
+
+            return $this->integer('amount_paise');
+        }
     }
 
     /** @return list<PayerInput> */
@@ -240,7 +292,7 @@ final class ExpenseRequest extends FormRequest
      */
     private function splitAmounts(array $payers): array
     {
-        $amount = $this->integer('amount_paise');
+        $amount = $this->payable();
         $mode = PayerMode::from($this->string('payer_mode')->toString());
         $with = fn (PayerInput $p, int $paise) => new PayerInput($p->type, $p->partnerId, $p->memberId, $p->accountId, $paise);
 

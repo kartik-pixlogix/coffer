@@ -10,7 +10,7 @@ use Illuminate\Http\UploadedFile;
 
 /**
  * A validated expense form (spec §10). Either an existing category or a new one typed
- * in "+ Add category"; payer lines already add up to the amount.
+ * in "+ Add category"; payer lines already add up to the amount (less any TDS held back).
  */
 final readonly class ExpenseData
 {
@@ -28,5 +28,7 @@ final readonly class ExpenseData
         public array $payers,
         public ?UploadedFile $receipt = null,
         public bool $removeReceipt = false,
+        /** @var array<string, mixed>|null the bill's GST and TDS for `document_taxes` (D162) */
+        public ?array $tax = null,
     ) {}
 }

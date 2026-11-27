@@ -15,6 +15,9 @@ export type TeamMember = {
     costType: CostType;
     /** Per hour (Hourly) or per month (Fixed monthly), in effect today. */
     ratePaise: number;
+    /** TDS on their pay (D161): '192' (a monthly amount) or a vendor section (its rate). */
+    tdsSection: string | null;
+    tdsMonthlyPaise: number;
     active: boolean;
     hasHistory: boolean;
 };

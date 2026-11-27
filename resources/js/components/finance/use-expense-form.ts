@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { draftFor, gap, payload } from '@/components/finance/expense-form';
+import { syncExpenseTax } from '@/components/finance/tax-form';
 import type { ExpenseDraft, MeProps } from '@/components/finance/expense-form';
 import {
     store as addExpense,
@@ -51,8 +52,22 @@ export function useExpenseForm({
         }
     }
 
+    // The bill's tax follows its amount (D162): the taxable value, GST and TDS are kept in step.
     const set = (patch: Partial<ExpenseDraft>) =>
-        setDraft((d) => ({ ...d, ...patch }));
+        setDraft((d) => {
+            const next = { ...d, ...patch };
+
+            return next.tax
+                ? {
+                      ...next,
+                      tax: syncExpenseTax(
+                          next.tax,
+                          next.amount ?? 0,
+                          options.tax,
+                      ),
+                  }
+                : next;
+        });
 
     const hasCategory =
         draft.newCategory.trim() !== '' || draft.categoryId !== '';
@@ -67,7 +82,9 @@ export function useExpenseForm({
     } else if (!hasCategory) {
         problem = 'Pick a category.';
     } else if (!balanced) {
-        problem = 'Payer amounts must add up to the amount.';
+        problem = draft.tax?.tdsSection
+            ? 'Payer amounts must add up to the amount less TDS.'
+            : 'Payer amounts must add up to the amount.';
     } else if (draft.billable && draft.projectId === '') {
         problem = 'Pick the client’s project to bill.';
     }

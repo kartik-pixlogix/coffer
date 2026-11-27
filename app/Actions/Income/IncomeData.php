@@ -22,6 +22,8 @@ final readonly class IncomeData
         public ?string $notes,
         public ?UploadedFile $attachment = null,
         public bool $removeAttachment = false,
+        /** @var array<string, mixed>|null the invoice's GST and TDS for `document_taxes` (D162) */
+        public ?array $tax = null,
     ) {}
 
     /** @return array<string, mixed> the posted fields, as stored */

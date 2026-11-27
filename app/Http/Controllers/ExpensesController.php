@@ -26,6 +26,7 @@ use App\Services\Finance\Attachments;
 use App\Services\Finance\FiscalYearFilter;
 use App\Services\Finance\LedgerCounts;
 use App\Services\Finance\PersonalCardBalances;
+use App\Services\Tax\TaxOptions;
 use App\Support\Csv;
 use App\Support\CurrentCompany;
 use App\Support\Money;
@@ -83,7 +84,7 @@ final class ExpensesController extends Controller
         $statusCounts = $filtered()->groupBy('status')->selectRaw('status, COUNT(*) as n')->pluck('n', 'status');
 
         $expenses = $this->apply($scoped(), $filters, $fy->period, $user, withStatus: true)
-            ->with(['category:id,name', 'project:id,name', 'submitter:id,name', 'decider:id,name', 'payers.partner:id,name,colour', 'payers.member:id,name,partner_id', 'payers.moneyAccount:id,name', 'voucherEntry:id,voucher_no'])
+            ->with(['category:id,name', 'project:id,name', 'submitter:id,name', 'decider:id,name', 'payers.partner:id,name,colour', 'payers.member:id,name,partner_id', 'payers.moneyAccount:id,name', 'voucherEntry:id,voucher_no', 'tax'])
             ->orderBy($filters['sort'] === 'amount' ? 'amount_paise' : 'spent_on', $filters['dir'])
             ->orderBy('id', $filters['dir'])
             ->paginate(self::PER_PAGE)
@@ -299,7 +300,7 @@ final class ExpensesController extends Controller
         $query = Expense::query()->when($policy->ownOnly(), fn (Builder $q) => $q->where('submitted_by', $user->id));
         $query = $ids !== [] ? $query->whereIn('id', $ids) : $this->apply($query, $this->filters($request), $fy->period, $user, withStatus: true);
 
-        $rows = $query->with(['category:id,name', 'project:id,name,client', 'submitter:id,name', 'payers.partner:id,name', 'payers.member:id,name', 'payers.moneyAccount:id,name', 'voucherEntry:id,voucher_no'])
+        $rows = $query->with(['category:id,name', 'project:id,name,client', 'submitter:id,name', 'payers.partner:id,name', 'payers.member:id,name', 'payers.moneyAccount:id,name', 'voucherEntry:id,voucher_no', 'tax'])
             ->orderBy('spent_on')->orderBy('id')->get();
 
         activity('expenses')->causedBy($user)->withProperties(['rows' => $rows->count()])->log('exported expenses');
@@ -311,7 +312,7 @@ final class ExpensesController extends Controller
                 return;
             }
 
-            Csv::put($out, ['Voucher', 'Date', 'Description', 'Category', 'Amount (INR)', 'Status', 'Paid by', 'Submitted by', 'Project', 'Bill to client', 'Reject reason', 'Notes']);
+            Csv::put($out, ['Voucher', 'Date', 'Description', 'Category', 'Amount (INR)', 'Status', 'Paid by', 'Submitted by', 'Project', 'Bill to client', 'Reject reason', 'Notes', 'Taxable value', 'GST', 'TDS held back', 'Supplier GSTIN']);
 
             foreach ($rows as $e) {
                 Csv::put($out, [
@@ -327,6 +328,10 @@ final class ExpensesController extends Controller
                     $e->billable ? ($e->project->client ?? $e->project?->name) : '',
                     $e->reject_reason,
                     $e->notes,
+                    $e->tax === null ? '' : Money::plain($e->tax->taxable_paise),
+                    $e->tax === null ? '' : Money::plain($e->tax->gstPaise()),
+                    $e->tax === null ? '' : Money::plain($e->tax->tds_paise),
+                    $e->tax->party_gstin ?? '',
                 ]);
             }
 
@@ -411,6 +416,7 @@ final class ExpensesController extends Controller
             'projectName' => $e->project?->name,
             'billable' => $e->billable,
             'notes' => $e->notes,
+            'tax' => TaxOptions::row($e->tax),
             'status' => $e->status->value,
             'rejectReason' => $e->reject_reason,
             'auto' => $e->auto,
@@ -498,6 +504,7 @@ final class ExpensesController extends Controller
                 ->map(fn (MoneyAccount $a) => ['id' => $a->id, 'name' => $a->name, 'sideId' => $a->side_id, 'active' => $a->archived_at === null])->values(),
             'projects' => Project::query()->orderBy('name')->get()
                 ->map(fn (Project $p) => ['id' => $p->id, 'name' => $p->name, 'client' => $p->client, 'active' => $p->status === ProjectStatus::Active])->values(),
+            'tax' => TaxOptions::for(app(CurrentCompany::class)->require()),
         ];
     }
 

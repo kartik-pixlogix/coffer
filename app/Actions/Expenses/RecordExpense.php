@@ -13,6 +13,7 @@ use App\Ledger\LedgerPoster;
 use App\Ledger\Postings;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\DocumentTax;
 use App\Models\Expense;
 use App\Models\ExpensePayer;
 use App\Models\JournalEntry;
@@ -22,6 +23,7 @@ use App\Notifications\Events\ExpenseSubmitted;
 use App\Services\Finance\Attachments;
 use App\Services\Finance\PeriodGuard;
 use App\Services\Notifications\Audience;
+use App\Services\Tax\TaxDocuments;
 use App\Support\Permissions\Catalog;
 use Closure;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +48,7 @@ final class RecordExpense
         private readonly Attachments $attachments,
         private readonly SaveCategory $categories,
         private readonly Audience $audience,
+        private readonly TaxDocuments $taxes,
     ) {}
 
     public function submit(Company $company, ExpenseData $data, User $by): Expense
@@ -64,6 +67,7 @@ final class RecordExpense
             ]);
 
             $this->savePayers($company, $expense, $data);
+            $this->taxes->save($expense, $data->tax);
 
             return $expense;
         }));
@@ -100,6 +104,7 @@ final class RecordExpense
 
             $expense->save();
             $this->savePayers($company, $expense, $data);
+            $this->taxes->save($expense, $data->tax);
         }), 'spent_on'));
 
         if (($file !== null || $data->removeReceipt) && $oldPath !== null) {
@@ -128,7 +133,8 @@ final class RecordExpense
             $lines = array_values($locked->payers()->get()->map(fn (ExpensePayer $p) => $p->toPayerLine())->all());
 
             try {
-                $entry = $this->postings->expense($company, $locked->spent_on, $category, $lines, $locked->project_id, $locked->description, $locked, $by);
+                $tax = TaxDocuments::expenseTax(DocumentTax::query()->where('taxable_type', $locked->getMorphClass())->where('taxable_id', $locked->id)->first());
+                $entry = $this->postings->expense($company, $locked->spent_on, $category, $lines, $locked->project_id, $locked->description, $locked, $by, tax: $tax);
             } catch (PeriodLockedException $e) {
                 throw $e;
             } catch (LedgerException $e) {

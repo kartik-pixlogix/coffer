@@ -8,8 +8,10 @@ use App\Actions\Income\IncomeData;
 use App\Enums\AttributionMode;
 use App\Enums\CategoryKind;
 use App\Enums\ProjectStatus;
+use App\Ledger\IncomeTax;
 use App\Models\Income;
 use App\Services\Finance\Attachments;
+use App\Services\Tax\TaxDocuments;
 use App\Support\BooksWindow;
 use App\Support\CurrentCompany;
 use App\Support\Money;
@@ -19,6 +21,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Validator;
 
 /**
  * Add or edit income (Income.dc.html modal, spec §9). "Received into" is one value:
@@ -29,6 +33,9 @@ use Illuminate\Validation\Rule;
  */
 final class IncomeRequest extends FormRequest
 {
+    /** @var array{tax: IncomeTax, attributes: array<string, mixed>, received: int}|false|null the tax, once worked out (false: not yet) */
+    private array|false|null $taxResult = false;
+
     public function authorize(): bool
     {
         return $this->user()?->can('action.income.manage') ?? false;
@@ -69,7 +76,23 @@ final class IncomeRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:1000'],
             'attachment' => Attachments::RULES,
             'remove_attachment' => ['boolean'],
+            // GST charged and TDS the client held back (D162): checked by TaxDocuments in after().
+            'tax' => ['nullable', 'array'],
         ];
+    }
+
+    /** @return list<Closure(Validator): void> */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            try {
+                $this->tax();
+            } catch (ValidationException $e) {
+                foreach ($e->errors() as $key => $messages) {
+                    $validator->errors()->add($key, $messages[0]);
+                }
+            }
+        }];
     }
 
     /** @return array<string, string> */
@@ -109,7 +132,8 @@ final class IncomeRequest extends FormRequest
 
         return new IncomeData(
             source: trim($this->string('source')->toString()),
-            amountPaise: $this->integer('amount_paise'),
+            // With tax, what was received is worked out: taxable + GST − TDS (D162).
+            amountPaise: $this->tax()['received'] ?? $this->integer('amount_paise'),
             receivedOn: CarbonImmutable::createFromFormat('!Y-m-d', $this->string('received_on')->toString()) ?: CarbonImmutable::today(),
             categoryId: $this->integer('category_id'),
             broughtInBy: $this->filled('brought_in_by') ? $this->integer('brought_in_by') : null,
@@ -119,7 +143,21 @@ final class IncomeRequest extends FormRequest
             notes: $this->filled('notes') ? trim($this->string('notes')->toString()) : null,
             attachment: $file instanceof UploadedFile ? $file : null,
             removeAttachment: $this->boolean('remove_attachment'),
+            tax: $this->tax()['attributes'] ?? null,
         );
+    }
+
+    /** @return array{tax: IncomeTax, attributes: array<string, mixed>, received: int}|null */
+    private function tax(): ?array
+    {
+        if ($this->taxResult === false) {
+            $input = $this->input('tax');
+            $this->taxResult = is_array($input) && $input !== []
+                ? app(TaxDocuments::class)->forIncome(app(CurrentCompany::class)->require(), $input)
+                : null;
+        }
+
+        return $this->taxResult;
     }
 
     private function income(): ?Income

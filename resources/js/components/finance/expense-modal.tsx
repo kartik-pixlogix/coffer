@@ -23,6 +23,8 @@ import {
     whoOptions,
 } from '@/components/finance/expense-form';
 import type { MeProps, PayerDraft } from '@/components/finance/expense-form';
+import { TaxFields } from '@/components/finance/tax-fields';
+import { blankTax, payableAfterTds } from '@/components/finance/tax-form';
 import { useExpenseForm } from '@/components/finance/use-expense-form';
 import { AmountInput } from '@/components/ui/amount-input';
 import { StatusPill } from '@/components/ui/status-pill';
@@ -108,7 +110,8 @@ export function ExpenseModal({
     const projects = options.projects.filter(
         (p) => p.active || p.id === expense?.projectId,
     );
-    const amount = draft.amount ?? 0;
+    // What the payers pay: the amount less any TDS held back (D162).
+    const amount = payableAfterTds(draft.amount ?? 0, draft.tax);
 
     const setPayer = (i: number, patch: Partial<PayerDraft>) =>
         set({
@@ -325,6 +328,34 @@ export function ExpenseModal({
                     </FieldError>
                 )}
             </div>
+
+            <Toggle
+                checked={draft.tax !== null}
+                onCheckedChange={(on) =>
+                    set({ tax: on ? blankTax(options.tax, draft.date) : null })
+                }
+            >
+                <span className="cf-stack">
+                    <span className="t-label-strong">
+                        GST or TDS on this bill
+                    </span>
+                    <span className="t-caption t-muted">
+                        Input credit, reverse charge on foreign services, TDS
+                        held back
+                    </span>
+                </span>
+            </Toggle>
+            {draft.tax !== null && (
+                <TaxFields
+                    kind="expense"
+                    tax={draft.tax}
+                    options={options.tax}
+                    errors={errors}
+                    onChange={(patch) =>
+                        draft.tax && set({ tax: { ...draft.tax, ...patch } })
+                    }
+                />
+            )}
 
             <div className="cf-field">
                 <span className="cf-label" id={paidLabel}>

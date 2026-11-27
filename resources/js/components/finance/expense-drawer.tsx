@@ -12,6 +12,7 @@ import { Drawer } from '@/components/ui/drawer';
 import { Icon } from '@/components/ui/icon';
 import { StatusPill } from '@/components/ui/status-pill';
 import { formatDate, formatInr } from '@/lib/format';
+import { TaxSummary } from '@/components/finance/tax-fields';
 import type { ExpenseRow } from '@/types/finance';
 
 export type ExpenseDetail = {
@@ -143,6 +144,7 @@ export function ExpenseDrawer({
                                 <dd>{e.notes}</dd>
                             </div>
                         )}
+                        {e.tax && <TaxSummary tax={e.tax} />}
                         {detail?.journalEntryId && (
                             <div className="cf-kv t-body">
                                 <dt className="t-muted">Voucher</dt>

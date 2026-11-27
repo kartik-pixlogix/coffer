@@ -1,3 +1,5 @@
+import type { TaxOptions, TaxRow } from '@/types/tax';
+
 /** Shared Inertia prop types for Income and Expenses (spec §9, §10). */
 
 export type FiscalYearProps = {
@@ -63,6 +65,8 @@ export type IncomeRow = {
     projectId: number | null;
     projectName: string | null;
     notes: string | null;
+    /** GST charged and TDS the client held back (D162). */
+    tax: TaxRow | null;
     attachment: AttachmentInfo | null;
 };
 
@@ -74,6 +78,7 @@ export type IncomeOptions = {
     sources: string[];
     /** The signed-in person's own partner, the default "Brought in by" (P1). */
     myPartnerId?: number | null;
+    tax: TaxOptions;
 };
 
 export type ExpenseStatus = 'pending' | 'approved' | 'rejected';
@@ -106,6 +111,8 @@ export type ExpenseRow = {
     projectName: string | null;
     billable: boolean;
     notes: string | null;
+    /** GST and TDS on the bill (D162). */
+    tax: TaxRow | null;
     status: ExpenseStatus;
     rejectReason: string | null;
     auto: boolean;
@@ -133,6 +140,7 @@ export type ExpenseOptions = {
     members: MemberOption[];
     accounts: MoneyAccountOption[];
     projects: ProjectOption[];
+    tax: TaxOptions;
 };
 
 /** A finance page's fiscal year, with whether it is closed (read-only, spec §4.6). */

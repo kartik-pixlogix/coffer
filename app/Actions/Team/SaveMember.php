@@ -6,6 +6,7 @@ namespace App\Actions\Team;
 
 use App\Enums\CostType;
 use App\Enums\MemberStatus;
+use App\Enums\TdsSection;
 use App\Models\Member;
 use App\Models\User;
 use App\Services\Team\MemberRates;
@@ -22,7 +23,7 @@ final class SaveMember
     public function __construct(private readonly MemberRates $rates) {}
 
     /**
-     * @param  array{name: string, designation: string|null, partner_id: int, user_id: int|null, cost_type: CostType, rate_paise: int, effective_from: CarbonImmutable|null}  $data
+     * @param  array{name: string, designation: string|null, partner_id: int, user_id: int|null, cost_type: CostType, rate_paise: int, effective_from: CarbonImmutable|null, tds_section?: TdsSection|null, tds_monthly_paise?: int}  $data
      */
     public function handle(User $actor, ?Member $member, array $data): Member
     {
@@ -32,6 +33,9 @@ final class SaveMember
                 'designation' => $data['designation'],
                 'partner_id' => $data['partner_id'],
                 'user_id' => $data['user_id'],
+                // TDS on their pay (D161); salary runs hold it back from then on.
+                'tds_section' => $data['tds_section'] ?? null,
+                'tds_monthly_paise' => $data['tds_section'] ?? null ? ($data['tds_monthly_paise'] ?? 0) : 0,
             ];
 
             if ($member === null) {

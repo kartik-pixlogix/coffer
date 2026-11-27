@@ -1,5 +1,11 @@
 import type { FormDataConvertible } from '@inertiajs/core';
+import {
+    payableAfterTds,
+    taxFromRow,
+    taxPayload,
+} from '@/components/finance/tax-form';
 import type { ExpenseOptions, ExpenseRow, PayerMode } from '@/types/finance';
+import type { TaxDraft } from '@/types/tax';
 
 /** `partner:{id}`, `member:{id}` or `company`. */
 export type Who = string;
@@ -22,6 +28,8 @@ export type ExpenseDraft = {
     payers: PayerDraft[];
     file: File | null;
     keepFile: boolean;
+    /** GST and TDS on the bill (D162), or null when there's none. */
+    tax: TaxDraft | null;
 };
 
 export type MeProps = {
@@ -136,6 +144,7 @@ export function draftFor(
             })),
             file: null,
             keepFile: expense.receipt !== null,
+            tax: expense.tax ? taxFromRow(expense.tax) : null,
         };
     }
 
@@ -173,6 +182,7 @@ export function draftFor(
         ],
         file: null,
         keepFile: false,
+        tax: null,
     };
 }
 
@@ -181,7 +191,8 @@ export function linesFor(
     draft: ExpenseDraft,
     options: ExpenseOptions,
 ): PayerDraft[] {
-    const amount = draft.amount ?? 0;
+    // With TDS the payers pay the bill less what is held back (D162).
+    const amount = payableAfterTds(draft.amount ?? 0, draft.tax);
 
     switch (draft.mode) {
         case 'full':
@@ -210,11 +221,11 @@ export function linesFor(
     }
 }
 
-/** Custom lines' sum against the amount: 0 when balanced, positive when short. */
+/** Custom lines' sum against what they must pay (the amount less TDS): 0 when balanced. */
 export function gap(draft: ExpenseDraft): number {
     const sum = draft.payers.reduce((s, p) => s + (p.amount ?? 0), 0);
 
-    return (draft.amount ?? 0) - sum;
+    return payableAfterTds(draft.amount ?? 0, draft.tax) - sum;
 }
 
 export function payload(
@@ -253,6 +264,10 @@ export function payload(
 
     if (draft.file) {
         data.receipt = draft.file;
+    }
+
+    if (draft.tax) {
+        data.tax = taxPayload(draft.tax);
     }
 
     return data;

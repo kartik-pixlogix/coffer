@@ -41,7 +41,18 @@ type Draft = {
     partnerId: string;
     userId: string | null;
     effectiveFrom: string | null;
+    tdsSection: string;
+    tdsMonthly: number | null;
 };
+
+/** TDS on a member's pay (D161), as in App\Enums\TdsSection. [VERIFY] with the CA. */
+const TDS_OPTIONS = [
+    { value: '', label: 'No TDS' },
+    { value: '192', label: '192 · Salary (a monthly amount)' },
+    { value: '194C_individual', label: '194C · Contractor (individual), 1%' },
+    { value: '194J_professional', label: '194J · Professional fees, 10%' },
+    { value: '194J_technical', label: '194J · Technical services, 2%' },
+];
 
 const COST = {
     hourly: {
@@ -68,6 +79,8 @@ const start = (
     userId: member?.userId ? String(member.userId) : null,
     // Today, so a rate change can be saved straight away (A2); only sent when it changes.
     effectiveFrom: member ? toIsoDate(new Date()) : null,
+    tdsSection: member?.tdsSection ?? '',
+    tdsMonthly: member?.tdsMonthlyPaise ?? null,
 });
 
 /**
@@ -129,6 +142,9 @@ export function MemberModal({
             partner_id: Number(draft.partnerId),
             user_id: draft.userId ? Number(draft.userId) : null,
             effective_from: rateChanged ? draft.effectiveFrom : null,
+            tds_section: draft.tdsSection || null,
+            tds_monthly_paise:
+                draft.tdsSection === '192' ? (draft.tdsMonthly ?? 0) : 0,
         };
         const options = {
             preserveScroll: true,
@@ -253,6 +269,27 @@ export function MemberModal({
                     }))}
                     error={errors.partner_id}
                 />
+            </div>
+            <div className="wiz-grid-2">
+                <Select
+                    id="am-tds"
+                    label="TDS on their pay"
+                    value={draft.tdsSection}
+                    onChange={(e) => set({ tdsSection: e.target.value })}
+                    options={TDS_OPTIONS}
+                    help="Held back from each salary run and owed to the government."
+                    error={errors.tds_section}
+                />
+                {draft.tdsSection === '192' && (
+                    <AmountInput
+                        id="am-tdsm"
+                        label="TDS each month"
+                        value={draft.tdsMonthly}
+                        onValueChange={(tdsMonthly) => set({ tdsMonthly })}
+                        help="From their tax regime and declarations, as worked out with your CA."
+                        error={errors.tds_monthly_paise}
+                    />
+                )}
             </div>
             {rateChanged && (
                 <DatePicker

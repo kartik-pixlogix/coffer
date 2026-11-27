@@ -9,6 +9,7 @@ use App\Actions\Vault\OffboardVaultUser;
 use App\Enums\CostType;
 use App\Enums\JournalType;
 use App\Enums\MemberStatus;
+use App\Enums\TdsSection;
 use App\Ledger\Period;
 use App\Models\Account;
 use App\Models\Company;
@@ -263,7 +264,7 @@ final class TeamController extends Controller
     {
         $company = app(CurrentCompany::class)->require();
 
-        /** @var array{name: string, designation?: string|null, partner_id: int|string, user_id?: int|string|null, cost_type: string, rate_paise: int|string, effective_from?: string|null} $data */
+        /** @var array{name: string, designation?: string|null, partner_id: int|string, user_id?: int|string|null, cost_type: string, rate_paise: int|string, effective_from?: string|null, tds_section?: string|null, tds_monthly_paise?: int|string|null} $data */
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'designation' => ['nullable', 'string', 'max:120'],
@@ -276,6 +277,9 @@ final class TeamController extends Controller
             'cost_type' => ['required', Rule::enum(CostType::class)],
             'rate_paise' => ['required', 'integer', 'min:1', 'max:100000000000'],
             'effective_from' => ['nullable', 'date'],
+            // TDS on their pay (D161): 192 needs the monthly amount; other sections use their rate.
+            'tds_section' => ['nullable', Rule::enum(TdsSection::class)],
+            'tds_monthly_paise' => ['nullable', 'integer', 'min:0', 'max:100000000000', 'required_if:tds_section,192'],
         ], [
             'name.required' => 'Add their name.',
             'partner_id.required' => 'Pick the partner they bill to.',
@@ -284,6 +288,7 @@ final class TeamController extends Controller
             'user_id.unique' => 'That account is already linked to another team member.',
             'rate_paise.required' => 'Add their rate.',
             'rate_paise.min' => 'Add their rate.',
+            'tds_monthly_paise.required_if' => 'Enter the TDS to hold back each month.',
         ]);
 
         return [
@@ -294,6 +299,8 @@ final class TeamController extends Controller
             'cost_type' => CostType::from($data['cost_type']),
             'rate_paise' => (int) $data['rate_paise'],
             'effective_from' => filled($data['effective_from'] ?? null) ? CarbonImmutable::parse((string) $data['effective_from'])->startOfDay() : null,
+            'tds_section' => filled($data['tds_section'] ?? null) ? TdsSection::from((string) $data['tds_section']) : null,
+            'tds_monthly_paise' => (int) ($data['tds_monthly_paise'] ?? 0),
         ];
     }
 
@@ -308,6 +315,8 @@ final class TeamController extends Controller
             'userId' => $m->user_id,
             'costType' => $m->cost_type->value,
             'ratePaise' => $m->rate_paise,
+            'tdsSection' => $m->tds_section?->value,
+            'tdsMonthlyPaise' => $m->tds_monthly_paise,
             'active' => $m->isActive(),
         ];
     }
