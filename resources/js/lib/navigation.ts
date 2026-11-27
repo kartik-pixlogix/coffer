@@ -8,6 +8,7 @@ import {
     CreditCard,
     FileText,
     History,
+    Percent,
     Landmark,
     LayoutGrid,
     List,
@@ -23,6 +24,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { dashboard } from '@/routes';
 import { index as auditIndex } from '@/routes/audit';
+import { index as taxIndex } from '@/routes/tax';
 import { index as billingIndex } from '@/routes/billing';
 import { index as capitalIndex } from '@/routes/capital-accounts';
 import { index as expensesIndex } from '@/routes/expenses';
@@ -143,6 +145,12 @@ const RAIL: RailItem[][] = [
             icon: FileText,
             href: balanceSheetRoute().url,
             match: ['/profit-and-loss', '/cash-flow'],
+        },
+        {
+            page: 'tax',
+            label: 'Tax',
+            icon: Percent,
+            href: taxIndex().url,
         },
         {
             page: 'audit_trail',
@@ -334,6 +342,7 @@ export function phoneMenuGroups(
                     'Chart of accounts',
                     chartOfAccountsRoute().url,
                 ),
+                ...page('tax'),
                 ...page('audit_trail'),
             ],
         },

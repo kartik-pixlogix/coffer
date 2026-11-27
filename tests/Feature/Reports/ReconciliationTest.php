@@ -71,7 +71,7 @@ function assertReconciles($test, ?int $expectIncome = null, ?int $expectExpenses
         ->and($reports['report']['partnerTotals']['profitDue'])->toBe($net)
         ->and($reports['report']['partnerTotals']['net'])->toBe($net)
         // The balance hero's strip adds up to the balance.
-        ->and($balance['openingPaise'] + $balance['incomePaise'] - $balance['expensesPaise'] + $balance['capitalPaise'] + $balance['personalPaise'] + $balance['otherPaise'])->toBe($balance['currentPaise'])
+        ->and($balance['openingPaise'] + $balance['incomePaise'] - $balance['expensesPaise'] + $balance['capitalPaise'] + $balance['personalPaise'] + $balance['taxesPaise'] + $balance['otherPaise'])->toBe($balance['currentPaise'])
         ->and($balance['otherPaise'])->toBe(0)
         // Trial balance: balanced, and its income, expenses and money match.
         ->and($trial['trial']['driftPaise'])->toBe(0)

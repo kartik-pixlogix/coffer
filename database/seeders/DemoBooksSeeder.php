@@ -32,6 +32,8 @@ use App\Models\Side;
 use App\Models\TimeEntry;
 use App\Models\User;
 use App\Services\Security\SealedFields;
+use App\Services\Tax\TaxDocuments;
+use App\Services\Tax\TaxPayments;
 use App\Services\Team\SalaryGenerator;
 use App\Services\Timesheets\Hours;
 use App\Support\CurrentCompany;
@@ -102,6 +104,8 @@ class DemoBooksSeeder extends Seeder
         private readonly RecordCapitalMovement $capital,
         private readonly RecordLoan $loans,
         private readonly RecordSettlementTransfer $transfers,
+        private readonly TaxDocuments $taxes,
+        private readonly TaxPayments $taxPayments,
     ) {}
 
     public function run(): void
@@ -263,9 +267,16 @@ class DemoBooksSeeder extends Seeder
 
         foreach (range(0, 6) as $month) {
             $day = $start->addMonths($month);
+            // Dummy GST and TDS (D159–D164): an in-state client billed with 18% GST, who holds
+            // back 10% TDS (194J); the income itself is the same taxable value as before.
+            $sale = $this->taxes->forIncome($company, [
+                'party' => 'registered', 'gstin' => '27AABCK4321M1Z6', 'invoice_no' => 'VL/26-27/'.str_pad((string) ($month + 1), 3, '0', STR_PAD_LEFT),
+                'invoice_date' => $day->addDays(1)->toDateString(), 'hsn_sac' => '998314', 'rate_bps' => 1800,
+                'taxable_paise' => 1_20_000_00 + $month * 5_000_00, 'tds_section' => '194J_professional',
+            ]);
             $this->income->create($company, new IncomeData(
                 source: 'Kiran Exports — '.$day->format('M Y').' invoice',
-                amountPaise: 1_20_000_00 + $month * 5_000_00,
+                amountPaise: $sale['received'],
                 receivedOn: $day->addDays(6),
                 categoryId: $this->category($company, 'income', 'Project')->id,
                 broughtInBy: $partners['Aarav Mehta']->id,
@@ -273,8 +284,25 @@ class DemoBooksSeeder extends Seeder
                 receivedBy: null,
                 projectId: is_numeric($project) ? (int) $project : null,
                 notes: null,
+                tax: $sale['attributes'],
             ), $by);
-            $this->approved($company, $by, 'Tools — '.$day->format('M Y'), 'Software', $day->addDays(10), [$this->fromAccount($account, 12_500_00)], PayerMode::Company);
+            // Cloud tools billed from abroad: reverse charge, with input credit.
+            $tools = $this->taxes->forExpense($company, ['party' => 'foreign', 'invoice_no' => 'AWS-'.$day->format('Ym'), 'hsn_sac' => '998315', 'rate_bps' => 1800, 'taxable_paise' => 12_500_00, 'itc' => true], 12_500_00);
+            $this->approved($company, $by, 'Tools — '.$day->format('M Y'), 'Software', $day->addDays(10), [$this->fromAccount($account, 12_500_00)], PayerMode::Company, tax: $tools['attributes']);
+        }
+
+        // A freelance designer's bill with 194J TDS held back.
+        $audit = $start->addMonths(6)->addDays(14);
+        $designer = $this->taxes->forExpense($company, [
+            'party' => 'unregistered', 'state' => '27', 'invoice_no' => 'FD-118', 'rate_bps' => 0, 'taxable_paise' => 40_000_00,
+            'tds_section' => '194J_professional', 'deductee_pan' => 'ABCPD1234E',
+        ], 40_000_00);
+        $this->approved($company, $by, 'UX audit — freelance designer', 'Office & misc', $audit, [$this->fromAccount($account, 36_000_00)], PayerMode::Company, amount: 40_000_00, tax: $designer['attributes']);
+
+        // GST for each closed month paid on the 20th of the next (set-off first, then cash).
+        foreach (range(0, 5) as $month) {
+            $period = $start->addMonths($month);
+            $this->taxPayments->payGst($company, $period, $period->addMonth()->setDay(20), $account, 'CPIN'.$period->format('Ym').'01', $by);
         }
     }
 
@@ -282,19 +310,23 @@ class DemoBooksSeeder extends Seeder
      * Submits an expense and approves it (posting it), as an Admin would.
      *
      * @param  list<PayerInput>  $payers
+     * @param  array<string, mixed>|null  $tax
      */
-    private function approved(Company $company, User $by, string $description, string $category, CarbonImmutable $date, array $payers, PayerMode $mode, ?int $projectId = null): void
+    private function approved(Company $company, User $by, string $description, string $category, CarbonImmutable $date, array $payers, PayerMode $mode, ?int $projectId = null, ?int $amount = null, ?array $tax = null): void
     {
-        $expense = $this->submitted($company, $by, $description, $category, $date, $payers, $mode, $projectId);
+        $expense = $this->submitted($company, $by, $description, $category, $date, $payers, $mode, $projectId, $amount, $tax);
         $this->expenses->approve($company, $expense, $by);
     }
 
-    /** @param list<PayerInput> $payers */
-    private function submitted(Company $company, User $by, string $description, string $category, CarbonImmutable $date, array $payers, PayerMode $mode = PayerMode::Full, ?int $projectId = null): Expense
+    /**
+     * @param  list<PayerInput>  $payers
+     * @param  array<string, mixed>|null  $tax  GST and TDS for document_taxes (D162); the amount is then the bill, not what the payers paid
+     */
+    private function submitted(Company $company, User $by, string $description, string $category, CarbonImmutable $date, array $payers, PayerMode $mode = PayerMode::Full, ?int $projectId = null, ?int $amount = null, ?array $tax = null): Expense
     {
         return $this->expenses->submit($company, new ExpenseData(
             description: $description,
-            amountPaise: array_sum(array_map(fn (PayerInput $p) => $p->amountPaise, $payers)),
+            amountPaise: $amount ?? array_sum(array_map(fn (PayerInput $p) => $p->amountPaise, $payers)),
             spentOn: $date,
             categoryId: $this->category($company, 'expense', $category)->id,
             newCategory: null,
@@ -303,6 +335,7 @@ class DemoBooksSeeder extends Seeder
             notes: null,
             mode: $mode,
             payers: $payers,
+            tax: $tax,
         ), $by);
     }
 

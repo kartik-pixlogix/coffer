@@ -28,6 +28,7 @@ final class PageRoutes
         'balance_sheet' => 'reports.balance-sheet',
         'cash_flow' => 'reports.cash-flow',
         'chart_of_accounts' => 'reports.chart-of-accounts',
+        'tax' => 'tax.index',
         'journal' => 'reports.journal',
         'audit_trail' => 'audit.index',
         'vault' => 'vault.index',
