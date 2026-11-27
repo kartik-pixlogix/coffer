@@ -303,6 +303,8 @@ A failure is logged at `critical`. Run it by hand after any change to backups.
   hash-chained with a key derived from `APP_KEY`. Rotating `APP_KEY`? Keep the old one in
   `APP_PREVIOUS_KEYS`, or older audit rows stop verifying. `coffer:audit-verify` runs nightly at
   02:45; a broken chain emails the company's Admins and shows on `/health`.
+- **GST and TDS** (D159–D164): after deploying, enter each company's real GST registration and TAN
+  in Settings › Tax (the demo seeder uses dummy ones). The TAN is sealed with the company's key.
 - `/.well-known/security.txt` (D151) points reporters at `SECURITY_CONTACT` (an email or URL) or,
   unset, the contact form's "Report a security issue" topic.
 

@@ -334,20 +334,27 @@ Tax Act §192, §194C, §194J, §194Q; spec §10–§11.
 
 **Owner inputs:** each company's GST registration (GSTIN, state, regular or composition); whether
 returns are filed in-house or by a CA; the TDS sections deducted; a CA to review the rules.
+**Given 26 Nov 2026:** use dummy registration details until the real ones arrive (Settings › Tax).
 
-- [ ] Company tax profile: GSTIN (encrypted), state, registration type, TAN.
-- [ ] Tax rates and HSN/SAC codes; place-of-supply rules (CGST+SGST in-state, IGST inter-state).
-- [ ] Expenses with a GST split and input tax credit. Reverse charge on foreign services (AWS,
-      Google and similar) posts RCM payable plus the matching credit.
-- [ ] TDS on expenses and salaries by section, TDS payable and challan entry; TDS receivable on income.
-- [ ] New ledger accounts (GST input/output by type, RCM payable, TDS payable/receivable) posted by
-      `LedgerPoster`; reversals unwind them.
-- [ ] GSTR-1, GSTR-3B and TDS summaries with Excel/JSON export for the CA.
+- [x] Company tax profile: GSTIN (encrypted), state, registration type, TAN. (D159)
+- [x] Tax rates and HSN/SAC codes; place-of-supply rules (CGST+SGST in-state, IGST inter-state). (D159)
+- [x] Expenses with a GST split and input tax credit. Reverse charge on foreign services (AWS,
+      Google and similar) posts RCM payable plus the matching credit. (D161, D162)
+- [x] TDS on expenses and salaries by section, TDS payable and challan entry; TDS receivable on income. (D160–D163)
+- [x] New ledger accounts (GST input/output by type, RCM payable, TDS payable/receivable) posted by
+      `LedgerPoster`; reversals unwind them. (D161)
+- [x] GSTR-1, GSTR-3B and TDS summaries with Excel/JSON export for the CA. (D164)
 
 **Accept:**
 - Unit tests cover every rate, place-of-supply case, reverse-charge entry and TDS section.
 - Tax accounts balance to the summaries.
 - A CA signs off a sample month.
+
+**Status (27 Nov 2026):** built, with dummy registration details. Tests cover every rate, place of
+supply, reverse charge, TDS section and set-off branch (tests/Unit/Tax, TaxPostingsTest), and tie
+GSTR-1, GSTR-3B and TDS to the tax accounts (TaxReturnsTest). **Waiting on the owner:** real
+registration details, and a CA to review the rates, the set-off and a sample month (every rule is
+marked [VERIFY] in D159–D164).
 
 ## Phase 13: Invoicing and quotes
 
