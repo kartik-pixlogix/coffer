@@ -218,6 +218,52 @@ final class Postings
     }
 
     /**
+     * GST paid for a period after set-off (D163): output and reverse-charge GST cleared, the
+     * input credit used taken off, the rest paid from M. Tax lines carry no side.
+     *
+     * @param  array<string, int>  $output  output GST cleared per head
+     * @param  array<string, int>  $rcm  reverse-charge GST cleared per head
+     * @param  array<string, int>  $creditUsed  input credit used per head
+     */
+    public function gstPayment(Company $company, CarbonImmutable $date, array $output, array $rcm, array $creditUsed, int $cash, MoneyAccount $from, ?string $memo = null, ?Model $source = null, ?User $by = null): JournalEntry
+    {
+        $lines = [];
+
+        foreach (['igst', 'cgst', 'sgst'] as $head) {
+            if (($output[$head] ?? 0) > 0) {
+                $lines[] = LineData::debit($this->chart->gstOutput($company, $head), $output[$head]);
+            }
+
+            if (($rcm[$head] ?? 0) > 0) {
+                $lines[] = LineData::debit($this->chart->rcmPayable($company, $head), $rcm[$head]);
+            }
+
+            if (($creditUsed[$head] ?? 0) > 0) {
+                $lines[] = LineData::credit($this->chart->gstInput($company, $head), $creditUsed[$head]);
+            }
+        }
+
+        if ($cash > 0) {
+            $lines[] = LineData::credit($this->chart->money($from), $cash, sideId: $from->side_id);
+        }
+
+        if ($lines === []) {
+            throw new LedgerException('There’s no GST to pay or set off for this period.');
+        }
+
+        return $this->post($company, $date, JournalType::GstPayment, $lines, $memo, $source, $by);
+    }
+
+    /** TDS deposited by challan (D163): Dr TDS payable (section), Cr M. */
+    public function tdsChallan(Company $company, CarbonImmutable $date, string $section, int $amount, MoneyAccount $from, ?string $memo = null, ?Model $source = null, ?User $by = null): JournalEntry
+    {
+        return $this->post($company, $date, JournalType::TdsChallan, [
+            LineData::debit($this->chart->tdsPayable($company, $section), $amount),
+            LineData::credit($this->chart->money($from), $amount, sideId: $from->side_id),
+        ], $memo ?? "TDS {$section} deposited", $source, $by);
+    }
+
+    /**
      * The credit side of income: the income itself (with who brought it in), plus GST output
      * and TDS receivable when taxed (D161). Tax lines carry no side or partner.
      *
